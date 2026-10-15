@@ -1,0 +1,8 @@
+// Explicit opt-in test bundle. Does not change the normal app entry or source files.
+gradle.projectsEvaluated {
+  def app = gradle.rootProject.findProject(':app')
+  if (app != null) {
+    def react = app.extensions.findByName('react')
+    react.entryFile.set(new File(gradle.rootProject.projectDir.parentFile, 'tools/native-audit-entry.tsx'))
+  }
+}

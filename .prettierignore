@@ -1,0 +1,9 @@
+node_modules
+android
+ios
+.expo
+dist
+exports
+pnpm-lock.yaml
+docs/data/creature-types.json
+assets

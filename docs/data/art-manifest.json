@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "date": "2026-10-15",
+  "notes": "最终位图由 image_gen 生成，项目直接引用 assets 中副本。tools/art-guides.ts 与 tools/map-guide.ts 仅生成构图和碰撞参考图，不替代最终美术。尚未完成全部 250 种独立形象与完整背面/攻击帧。",
+  "assets": [
+    {
+      "file": "assets/creatures-ch1.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-7b9228b6-17a3-42f6-92ac-255f4534d487.png",
+      "transparentBackgroundRequested": true,
+      "usage": "4×4 第一章精灵图集，16 个画面格；038 暂与 037 共用。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production sprite atlas for an original top-down creature-collecting RPG. Create ONE square transparent PNG sprite sheet with EXACTLY 4 rows and 4 columns of equally sized cells, no visible grid lines, no text, no numbers. Each creature fully contained inside its own cell with generous transparent margins (at least 12% cell margin), centered at the same scale. Fine, richly shaded crisp PIXEL ART, handcrafted 128-pixel creature sprites with visible clean square pixels enlarged uniformly, elegant emerald/teal/amber colors, three-quarter front view. Original designs, no existing game characters. Row 1 left to right: small green fawn with sprout antlers; slim warm charcoal and orange fire-tailed ferret; round blue otter with fin ears and bubble tail; soft leaf-eared pale green rabbit. Row 2: small beetle wearing a faceted stone shell; jade and mineral armored cocoon; sparkling crystalline blue-winged moth with stone thorax; round cream field mouse with tawny striped tail. Row 3: tiny sky blue sparrow with wind feather crest; floating white mist bell spirit with lavender eyes; moss green frog with a lotus leaf hood; delicate luminous moth with teal and golden wings. Row 4: elegant larger young deer with moss antlers and flower collar; athletic red ferret with winglike flame arms; strong blue river otter with rock shoulder armor; luminous evolved moth with four flowing electric wings. All 16 distinct and delightful, readable silhouettes, subtle pixel specular highlights. No floor, no shadow outside the cells, no backdrop, no UI, actual transparent alpha. Exact even 4x4 atlas alignment required, use a square canvas."
+    },
+    {
+      "file": "assets/icon.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-cd458f76-4c37-4fc3-b264-31d867486dc4.png",
+      "transparentBackgroundRequested": false,
+      "usage": "应用图标。",
+      "finalPrompt": "Use case: logo-brand. Asset type: square mobile app icon for an original fine pixel art creature RPG called Stargrove Expedition. A charming small green fawn with tiny sprout antlers and a luminous amber star between the antlers, portrait head and upper chest, bold readable silhouette at small icon sizes. Fine crisp pixel art, chunky intentional square pixels, rich emerald forest and jade foliage background, warm ivory face and amber highlights, gentle adventurous expression. Full bleed square icon with no rounded corners baked in. Centered composition, generous 15 percent safe area around the antlers. No text, no letters, no watermark. Original creature, not an existing game character."
+    },
+    {
+      "file": "assets/maps/dawn.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-6b260591-1a0f-4339-b205-d0ab98925c88.png",
+      "transparentBackgroundRequested": false,
+      "usage": "晨芽镇，按地图碰撞布局参考图生成。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production top-down RPG town map background, full canvas exactly 1536x1024, no UI. The attached image is ONLY a strict spatial collision/layout guide. Completely REPAINT its crude graphics into beautiful polished fine pixel art, dense handcrafted 16-bit/32-bit detail, layered foliage, warm sunbeams, subtle dappled shadows, weathered stone and wood, individually shaded grass tufts and flowers, charming rural architecture. Preserve EXACT footprint, positions, outlines and occupied regions of every building, boundary tree wall, internal tree column, pond and all paths from the guide: buildings top left and top right, red-roof healing house bottom left, long small pond bottom center, east exit at right y=66%. Keep open lawn fully walkable: decorative flowers/grass should be low and not block people. The camera is orthographic top-down with only small front faces on buildings, NOT isometric and NOT a perspective illustration. Houses with richly textured moss-edged terracotta and ochre tile roofs, cream plaster, dark wood, lit window panes, small front door details; visible path pebbles and edging. Trees should be deep, lush, varied emerald crowns with fine leaf clusters and natural canopy shadow, not repeated geometric stamps. Palette jade, sage, warm cream and ochre, morning light. Consistent visible tiny square pixels, no blurry painting, no large solid rectangles. This is one playable map, not a mockup or concept screen. NO people, NO creatures, no signs with text, no grid, no labels, no frame, no watermark. Critical: keep the layout anchored to the reference, do not add buildings or obstruct open paths."
+    },
+    {
+      "file": "assets/characters/traveler-walk.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-2a14dfe0-1e6c-431d-bb89-2921d9d5059c.png",
+      "transparentBackgroundRequested": true,
+      "usage": "4×4 角色图集；方向为下、左、右、上，每方向 4 帧。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production transparent sprite sheet of ONE original RPG traveler, EXACT 4 columns x 4 rows, square 1024x1024 image. Every cell is exactly 256x256, with at least 30 px transparent padding all around. Character is centered on the same anchor in EVERY cell: feet aligned to y=218 inside each cell, top of head around y=40. Same outfit, proportions, scale and character in all 16 frames. Detailed clean pixel art matching a polished modern 2D top-down countryside creature RPG, readable 48x64 pixel character design scaled uniformly, crisp visible square pixels, NO antialiasing/blur. Young adult traveler with chestnut short hair, ochre cap with teal band, teal jacket over ivory shirt, brown diagonal satchel strap and small leather satchel, navy trousers, tan hiking boots. Cute but anatomically coherent, large expressive head, distinct hands, separated legs. Camera fixed top down / slightly above, not isometric. Row 1 facing DOWN (towards viewer); row 2 facing LEFT; row 3 facing RIGHT; row 4 facing UP (back view). In each row columns: 1 standing neutral feet together, 2 walking left foot forward right hand forward, 3 standing neutral, 4 walking right foot forward left hand forward. Walking poses must visibly change feet and arms, head remains aligned. Each cell contains exactly ONE full body traveler, no extra poses, no cropping, no environment, no text, no numbers, no visible grid, no watermarks. Actual transparent alpha outside the character, no floor shadows. Strict 4x4 equally spaced grid."
+    },
+    {
+      "file": "assets/characters/npcs.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-80aba444-51ee-4b57-84c7-3e4d66ad86ca.png",
+      "transparentBackgroundRequested": true,
+      "usage": "4×2 NPC 图集。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production NPC pixel sprite atlas, ONE transparent landscape PNG, EXACT 4 columns and 2 rows of equally sized square cells, 1536x768 canvas. Every character fully inside own cell, centered and feet aligned at the same local y coordinate, at least 15 percent padding around each. Beautiful clean fine pixel art, modern top-down 2D countryside RPG. Same scale and pixel density throughout, detailed faces, coherent anatomy, hats, belts, leather shoes, separated legs, readable silhouettes. All characters stand facing down toward camera, seen slightly from above, fully clothed, arms relaxed. Row 1 left to right: silver-haired elderly female botanist with round spectacles, cream lab coat and sage scarf; youthful male rival with dark tousled hair, burgundy hiking jacket and navy trousers; gentle nurse with rose beret, ivory medical apron and muted red dress; stocky mustached supply merchant with ochre vest, brown apron and green cap. Row 2 left to right: young adult female researcher with dark braided hair, sage field jacket and rolled map at belt; young male woodland collector with straw hat and olive overalls; mysterious masked surveyor in slate purple field uniform with silver geometric brooch; elegant female forest gym leader with flowing dark green ponytail, cream and deep green ranger clothing, leaf clasp and tall brown boots. Original designs, no franchise characters. Sharp intentional square pixels, lovely 16-bit shading, warm earthy palette. No backdrops, no props outside bodies, no shadows, no grid, no labels, no text, no extra people. Genuine transparent alpha."
+    },
+    {
+      "file": "assets/maps/route.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-ba32711e-2ae8-491b-9500-28ce6918a1cb.png",
+      "transparentBackgroundRequested": false,
+      "usage": "晨光一号路，按碰撞参考图生成。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. A sunny countryside route with lush waist-high grass patches EXACTLY where the guide shows pointed tall-grass marks. Preserve the vertical pond at lower-left center, isolated two-tree divider at top near x=44%, small stone-free sandy pathways, west and east exits at y=66%. Rich grasses and spring wildflowers, peaceful shimmering teal pond with reeds inside the water region. Dense emerald tree border. Keep layout precise."
+    },
+    {
+      "file": "assets/maps/moss.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-a752be28-a1d9-4696-961c-a7adcd988729.png",
+      "transparentBackgroundRequested": false,
+      "usage": "苔丘镇，按碰撞参考图生成。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. A charming larger rural town. Healing centre with red tiled roof top left, beautiful long green-roof botanical gym top right, blue-roof supply shop middle left, ochre-roof cottage middle right, small pond bottom center. All building footprints and path geometry exactly match guide. Main avenue exits north at x=48-52%, west at y=66%. Rich wooden details, flower windowboxes, weathered roof tiles and gentle morning sun. No extra buildings or fences in walkable lawn."
+    },
+    {
+      "file": "assets/maps/forest.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-79cff209-0936-4c0c-b527-969b1a015557.png",
+      "transparentBackgroundRequested": false,
+      "usage": "微芒林，北侧关闭出口由运行时木门补足。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. An ancient magical woodland, soft dappled morning light and subtle teal mist. Dense varied trees along the border and a thin solid tree band across the map at y=39-44% with EXACTLY one narrow passage at x=46-50%. Preserve that gap clearly. Small vertical pond at upper-right center crossing this band, no additional water. Dense grassy encounter patches exactly where guide marks them. Twisting pale dirt paths, delicate ferns, low flowers and moss, forest depth and rich leaf clusters. South exits at x=46-54%. NO fallen log, NO people, NO large objects in the passage; the game adds interactive objects later."
+    },
+    {
+      "file": "assets/maps/gym.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-d6d05583-58d1-4e40-a2b0-19954ef8b847.png",
+      "transparentBackgroundRequested": false,
+      "usage": "枝叶道馆，北侧关闭出口由运行时木门补足。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. An elegant botanical gym garden enclosed by richly textured old mossy stone walls exactly where the guide dark wall bands are: outer border, horizontal wall at y=38-44%, horizontal wall at y=69-75%, each with EXACTLY one open doorway at x=46-50%. Keep those narrow openings clear, game places gates later. Spacious pale golden stone paths, green grassy training plots in exact marked regions, small low flowers, leaf carvings on wall faces, warm glasshouse sunlight with soft diagonal window shadows. Top clearing is a simple grassy arena. NO furniture, statues, people or creatures in any walkable area. South exit exactly as guide."
+    },
+    {
+      "file": "assets/characters/props.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-678546da-3d3c-4a9f-8207-a32d4b93a8be.png",
+      "transparentBackgroundRequested": true,
+      "usage": "4×2 场景道具图集。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production game prop sprite atlas, genuine transparent PNG, EXACT 4 columns by 2 rows, all eight cells equal square sizes on a 1536x768 canvas. Each object centered in its own cell with 18% clear padding, isolated, no shadows outside the object, no overlapping cells. Beautiful detailed crisp fine pixel art for a lush top-down countryside fantasy RPG, small square pixels, mossy weathered materials, same orthographic slightly overhead camera as a 2D top-down game. Row 1 left to right: a small weathered wooden direction sign on a single wooden post with tiny ivy (NO writing); a cluster of pale glowing gold crystals and small broken twig as a quest clue; a carved mossy pale jade stone stele with tiny leaf rune and weathered base; a compact brown wooden treasure chest with antique bronze bands. Row 2 left to right: a thick mossy fallen oak trunk lying HORIZONTALLY with visible circular cut end and bark; a low small rustic wooden gate with leafy vine arch; a dense square screen of tangled green vines and little pale flowers that blocks a garden doorway; a small intriguing dark blue ore rock with luminous turquoise veins. No labels, no text, no grid, no background, no people, no creatures, no watermark. Clean detailed pixel shading, distinct silhouettes, complete uncut objects inside each cell."
+    },
+    {
+      "file": "assets/maps/battle-meadow.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-c96e6536-6da5-4085-b880-30d4c0bba837.png",
+      "transparentBackgroundRequested": false,
+      "usage": "1536×1024 对战背景，按 cover 裁切反算双方脚底锚点。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production background for a 2D turn-based creature battle in a fine pixel art RPG, landscape 1536x1024. A sunlit forest meadow clearing, richly detailed crisp small square pixel art, handcrafted 32-bit aesthetic. Slightly elevated side-view camera into a woodland arena (NOT a top-down world map). Foreground in lower-left: a broad light grassy oval patch where the player's creature will stand, leaving that patch completely EMPTY. Midground upper-right: another lighter grassy oval patch where the opponent will stand, also completely EMPTY. Dense lush jade and emerald trees, layered leaves, warm morning sunlight, soft atmospheric distance, grasses and tiny spring flowers around the edges, a few low mossy stones and ferns, a shallow sparkling stream only behind the battle field near the far background. Warm green, cream and ochre palette, charming adventurous mood, dense polished foliage detail. Keep the centre visually quiet for clear character silhouettes and HUD overlays. NO creatures, NO people, NO text, NO user interface, NO borders, NO watermark. No blur or smooth painted gradients, use intentional pixel clusters."
+    }
+  ]
+}
