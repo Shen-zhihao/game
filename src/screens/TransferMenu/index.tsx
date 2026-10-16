@@ -138,7 +138,7 @@ export function TransferMenu({
   if (scan)
     return (
       <View style={{ flex: 1, gap: 10 }}>
-        <Label>扫描接收手机上显示的星苔配对码</Label>
+        <Label>扫描接收手机上显示的{APP_NAME}配对码</Label>
         <CameraView
           style={{ flex: 1, borderRadius: 12, overflow: 'hidden' }}
           facing="back"

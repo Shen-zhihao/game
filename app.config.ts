@@ -16,6 +16,8 @@ const config: ExpoConfig = {
     buildNumber: '1',
     supportsTablet: true,
     infoPlist: {
+      CFBundleDisplayName: APP_NAME,
+      CFBundleName: APP_NAME,
       NSLocalNetworkUsageDescription: '在同一个 Wi-Fi 下发现手机并直接传递游戏存档。',
       NSBonjourServices: ['_stargrovesave._tcp'],
     },
@@ -69,6 +71,12 @@ const config: ExpoConfig = {
       },
     ],
   ],
-  web: { bundler: 'metro', name: `${APP_NAME} · 捕捉与进化冒险`, favicon: './assets/icon.png' },
+  web: {
+    bundler: 'metro',
+    name: `${APP_NAME} · 捕捉与进化冒险`,
+    shortName: APP_NAME,
+    description: brand.description,
+    favicon: './assets/icon.png',
+  },
 };
 export default config;

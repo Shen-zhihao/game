@@ -38,7 +38,7 @@ export function CenterMenu({
       <Label muted style={{ fontSize: 12 }}>
         {available
           ? '免费恢复全队状态、遗忘与回忆技能。剧情通用技能解锁后，可教给任意伙伴。'
-          : '走到任意城市的治疗员身旁，再打开此页办理服务。每座已开放城市均有精灵中心。'}
+          : '走到任意城市精灵中心的治疗柜台前，再打开此页办理服务。每座已开放城市均有精灵中心。'}
       </Label>
       <View accessibilityLiveRegion="polite" testID="center-notice">
         <Label style={{ color: palette.gold }}>{game.notice}</Label>

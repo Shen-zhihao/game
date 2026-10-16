@@ -36,12 +36,12 @@ import {
 } from '../src/screens/GameMenus';
 import { SaveMenu, Slots, timeLabel } from '../src/screens/SaveMenu';
 import { TransferMenu } from '../src/screens/TransferMenu';
-import { useGameSession } from '../src/useGameSession';
+import { useGameSession } from '../src/hooks/useGameSession';
 import { CenterMenu } from '../src/screens/CenterMenu';
 import { APP_DESCRIPTION, APP_ENGLISH_NAME, APP_NAME, APP_TAGLINE } from '../src/content/brand';
 import { SettingsMenu } from '../src/screens/SettingsMenu';
 import { ControlLayoutEditor } from '../src/screens/ControlLayoutEditor';
-import { useGameMusic } from '../src/platform/music';
+import { useGameMusic } from '../src/hooks/useGameMusic';
 import { useJourneyPresentation } from '../src/hooks/useJourneyPresentation';
 import { JourneyEventIllustration } from '../src/components/JourneyEventIllustration';
 
@@ -167,7 +167,7 @@ function GameApp() {
       <View style={s.center}>
         <ActivityIndicator color={palette.gold} />
         <Label style={{ marginTop: 16 }}>
-          {bootError ? `本地存档未能打开：${bootError}` : '正在准备星苔地区…'}
+          {bootError ? `本地存档未能打开：${bootError}` : `正在准备${APP_NAME}…`}
         </Label>
         {!!bootError && <Button onPress={() => void boot()}>重试打开原存档</Button>}
       </View>

@@ -2,6 +2,7 @@ import { canLearnMove, learnset, MOVES } from '../../content/catalog';
 import { isTownLocation, MAPS } from '../../content/world';
 import { Creature, GameState } from '../model';
 import { hasFieldAccess } from '../../content/keyItems';
+import { npcInReach } from '../exploration';
 
 export const FIELD_SKILLS = [
   {
@@ -34,10 +35,7 @@ export const fieldSkillUnlocked = (game: GameState, moveId: string) => {
 export function atCenter(game: GameState): boolean {
   return (
     isTownLocation(game.player.map) &&
-    MAPS[game.player.map].npcs.some(
-      (n) =>
-        n.role === 'healer' && Math.abs(n.x - game.player.x) + Math.abs(n.y - game.player.y) === 1,
-    )
+    MAPS[game.player.map].npcs.some((n) => n.role === 'healer' && npcInReach(game, n))
   );
 }
 export function canSurf(game: GameState): boolean {

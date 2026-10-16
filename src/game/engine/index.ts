@@ -18,7 +18,7 @@ import {
   npcLocation,
   terrainPassable,
 } from '../../content/world';
-import { worldMapFor } from '../../content/buildings';
+import { servicePosition, worldMapFor } from '../../content/buildings';
 import { interactHighlands } from '../highlandStory';
 import { coastEncounter, interactCoast } from '../coastStory';
 import { adventureEncounter, PHOTO_TOWNS } from '../../content/adventure';
@@ -69,9 +69,11 @@ import {
   encountersAt,
   ensureExploration,
   faceTraveler,
+  facingNpc,
   worldNpcs,
 } from '../exploration';
-import { Command, GameState, MapId, StoryEvent } from '../model';
+import { Command, GameState, MapId, StoryEvent, WalkDirection } from '../model';
+import { resolveWalk } from '../movement';
 import {
   canEvolve,
   changeMaxHp,
@@ -279,7 +281,7 @@ function interact(state: GameState): void {
   const x = player.x + delta[0]!;
   const y = player.y + delta[1]!;
   ensureExploration(state);
-  const npc = worldNpcs(state).find((n) => n.x === x && n.y === y && npcVisible(state, n));
+  const npc = facingNpc(state);
   if (!npc) {
     if (MAPS[player.map].rows[y]?.[x] === '~') {
       const site = encountersAt(player.map, x, y, 'water');
@@ -490,7 +492,7 @@ function interact(state: GameState): void {
       if (townForMap(player.map)) player.healMap = townForMap(player.map)!;
       talk(state, npc.name, [
         '伙伴们的 HP、PP 和异常状态已全部恢复。旅途顺利！',
-        '在我身旁打开菜单「精灵中心」，可免费恢复、遗忘和重学技能。剧情通用技能要先完成对应故事，解锁后可教给任意伙伴。',
+        '在柜台前打开菜单「精灵中心」，可免费恢复、遗忘和重学技能。剧情通用技能要先完成对应故事，解锁后可教给任意伙伴。',
       ]);
       break;
     case 'shop':
@@ -706,12 +708,13 @@ function interact(state: GameState): void {
       break;
   }
 }
-function walk(state: GameState, direction: GameState['player']['facing']): void {
+function walk(state: GameState, direction: WalkDirection): void {
   const p = state.player;
-  p.facing = direction;
-  const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[direction]!;
-  const x = p.x + dx!;
-  const y = p.y + dy!;
+  const step = resolveWalk(state, direction);
+  p.facing = step.facing;
+  if (step.blocked) return;
+  const x = p.x + step.dx;
+  const y = p.y + step.dy;
   const tile = MAPS[p.map].rows[y]?.[x];
   if ((tile === 'W' || tile === '~') && !canSurf(state)) {
     state.notice =
@@ -851,8 +854,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       ) {
         const laboratory = npcLocation('professor')!;
         state.player.map = laboratory.map;
-        state.player.x = laboratory.npc.x;
-        state.player.y = laboratory.npc.y + 1;
+        Object.assign(state.player, servicePosition(MAPS[laboratory.map], laboratory.npc));
         state.player.facing = 'up';
         state.notice = '回到晨芽镇研究所室内。';
         talk(

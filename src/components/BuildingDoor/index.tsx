@@ -2,7 +2,7 @@ import { Animated, Image, View } from 'react-native';
 import { MAPS, mapSize } from '../../content/world';
 import type { MapId } from '../../game/model';
 import { MAP_IMAGES } from '../sceneAssets';
-import type { DoorPresentation } from '../../useBuildingPassage';
+import type { DoorPresentation } from '../../hooks/useBuildingPassage';
 
 /** Animate the original door pixels within their authored opening; idle painted doors need no overlay. */
 export function BuildingDoors({

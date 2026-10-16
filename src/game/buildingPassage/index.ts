@@ -20,7 +20,7 @@ export function buildingPassage(from: GameState, to: GameState): BuildingPassage
       p.map === destination.id &&
       p.toX === to.player.x &&
       p.toY === to.player.y &&
-      Math.abs(p.x - from.player.x) + Math.abs(p.y - from.player.y) === 1,
+      Math.max(Math.abs(p.x - from.player.x), Math.abs(p.y - from.player.y)) === 1,
   );
   if (!portal) return null;
   const entry = source.entrances?.find(

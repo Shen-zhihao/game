@@ -2,7 +2,13 @@ import { habitatZones, landEncounters } from '../habitats';
 import { Direction, MapId, StoryEvent, TownId, WorldMapId } from '../../game/model';
 import { HIGHLAND_MAPS } from '../highlands';
 import { COAST_MAPS } from '../coast';
-import { BuildingEntrance, installBuildingInteriors, RoomKind, worldMapFor } from '../buildings';
+import {
+  BuildingEntrance,
+  installBuildingInteriors,
+  InteriorCounter,
+  RoomKind,
+  worldMapFor,
+} from '../buildings';
 import {
   ADVENTURE_CHAPTERS,
   ADVENTURE_STORY_CONTENT,
@@ -66,6 +72,7 @@ export interface GameMap {
   npcs: Npc[];
   entrances?: BuildingEntrance[];
   interior?: { exterior: MapId; kind: RoomKind };
+  counters?: InteriorCounter[];
   portals: {
     x: number;
     y: number;
@@ -79,7 +86,7 @@ export interface GameMap {
   zones?: { name: string; bounds: [number, number, number, number]; encounters: Encounter[] }[];
 }
 // # trees/walls, . lawn, : path, g tall grass, ~ water, H home, C healing centre,
-// S shop, G gym, = bridge, ^ flowers. NPCs are stable interactive tiles.
+// S shop, G gym, = bridge, ^ flowers, K solid service counter (talk across one tile).
 const WORLD_MAPS: Record<WorldMapId, GameMap> = {
   dawn: {
     id: 'dawn',
@@ -429,8 +436,10 @@ export function npcVisible(
     return !!f.opening && (npc.role === 'home' || !f.professorRescued);
   if (npc.id === 'professor' && f.opening && !f.professorRescued) return false;
   if (npc.id === 'rival' && f.opening && f.neighborMet) return false;
-  if (npc.id === 'routeRival') return !!f.opening && !!f.partnerReceived;
-  if (npc.id === 'catchGuide' && f.opening && !f.fieldKitReceived) return false;
+  // 阿澈 moves from the first battle to the capture lesson after the field kit is issued.
+  if (npc.id === 'routeRival')
+    return !!f.opening && !!f.partnerReceived && !f.fieldKitReceived && !f.catchTutorial;
+  if (npc.id === 'catchGuide' && f.opening && !f.fieldKitReceived && !f.catchTutorial) return false;
   if (npc.id === 'routeChest' && f.opening && !f.catchTutorial) return false;
   if (npc.id === 'forestLog' && state.progress.flags.logMoved) return false;
   if (npc.id === 'lostCreature' && state.progress.flags.rescued) return false;
@@ -444,7 +453,7 @@ export function terrainPassable(
 ): boolean {
   const tile = MAPS[mapId]?.rows[y]?.[x];
   if (MAPS[mapId]?.entrances?.some((e) => e.x === x && e.y === y)) return true;
-  if (!tile || '#HCSGLF'.includes(tile)) return false;
+  if (!tile || '#HCSGLFK'.includes(tile)) return false;
   if ((tile === '~' || tile === 'W') && !flags.waterRig && !flags.lighthouseRepaired) return false;
   if (tile === 'R' && !flags[mapId === 'stoneRoute' ? 'foothillRock' : 'mineRock']) return false;
   if (GYM_BARRIERS[mapId]?.some(([xx, yy, flag]) => x === xx && y === yy && !flags[flag]))

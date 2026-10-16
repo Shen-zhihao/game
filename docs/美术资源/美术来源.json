@@ -1,5 +1,5 @@
 {
-  "version": 12,
+  "version": 15,
   "date": "2026-10-16",
   "notes": "位图由内置 image_gen 生成并保存到 assets。新增六种地区战斗场景，重绘神兽图集与萤羽蛾；所有250形态按透明轮廓取图区显示并留边。尚未制作全部独立背面与逐帧攻击动画，战斗动作／技能粒子由RN和SVG呈现。 2026-10-16 清理9张已被替代且无运行引用的旧地图；原始生成提示与替代关系保留在 retiredAssets，assets 仅列当前资源。 2026-10-16 名称更新为精灵训练家，替换应用主图标并新增透明自适应前景；旧主图标的生成来源与提示词保留在previousGenerations。",
   "assets": [
@@ -17,7 +17,7 @@
       "sourceGenerator": "built-in image_gen",
       "sourceFile": "exec-28621cfb-f9c9-4949-bbae-f7144839c1b7.png",
       "transparentBackgroundRequested": false,
-      "usage": "精灵训练家主图标及标题页标志：原创火系伙伴怀抱星纹捕捉球，蓝橙配色，突出捕捉和培养。",
+      "usage": "绮梦物语主图标及标题页标志：原创火系伙伴怀抱星纹捕捉球，蓝橙配色，突出捕捉和培养。",
       "finalPrompt": "Use case: logo-brand.\nAsset type: finished mobile app launcher icon, one opaque full-bleed square PNG.\nPrimary request: instantly communicate an original creature-catching, training and evolution adventure RPG called 精灵训练家. The icon itself has NO TEXT.\nInput image: the provided sprite atlas is a character reference only. Use the ORIGINAL charcoal-and-orange fire-tailed ferret in the FIRST ROW, SECOND COLUMN as the mascot. Keep its cream muzzle and chest, round dark ears, amber eyes, orange flame-shaped markings and flame tail. Do not copy other creatures in the sheet.\nSubject: one close-up, confident and adorable fire ferret facing the viewer in a three-quarter pose, large expressive amber eyes, two clearly drawn forepaws proudly holding one large polished capture capsule at bottom center. Capsule is an original spherical teal-blue and warm ivory device with an antique-gold rim and a glowing gold star-shaped clasp. Make the capture device readable at thumbnail size.\nStyle: premium Japanese handheld creature RPG key art, bold clean dark contours, polished vibrant 2D cel shading with restrained painted highlights. Strong simple silhouette and excellent legibility at 48 px. This is an illustrated game icon, not pixel art and not a toy or 3D render.\nBackdrop: simple vivid cobalt-to-cyan blue burst with a subtle warm golden halo; orange mascot clearly contrasts with blue. No forest scenery, no landscape, no tiny decorative clutter.\nComposition: square 1024x1024, face and capsule dominate; keep eyes, mouth and capsule clasp inside the central 66% safe area so circular launcher masks preserve recognition. Tail and ear tips may extend beyond. No baked-in rounded corners, no inset tile, no border, no badge, no words, no letters, no numbers, no watermark. Exactly one mascot and one capture capsule. Original design, no existing franchise characters or logos.",
       "dimensions": [1254, 1254],
       "previousGenerations": [
@@ -52,66 +52,128 @@
     },
     {
       "file": "assets/maps/gym.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-d6d05583-58d1-4e40-a2b0-19954ef8b847.png",
+      "mapIds": ["gym"],
+      "usage": "苔丘道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "枝叶道馆，北侧关闭出口由运行时木门补足。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. An elegant botanical gym garden enclosed by richly textured old mossy stone walls exactly where the guide dark wall bands are: outer border, horizontal wall at y=38-44%, horizontal wall at y=69-75%, each with EXACTLY one open doorway at x=46-50%. Keep those narrow openings clear, game places gates later. Spacious pale golden stone paths, green grassy training plots in exact marked regions, small low flowers, leaf carvings on wall faces, warm glasshouse sunlight with soft diagonal window shadows. Top clearing is a simple grassy arena. NO furniture, statues, people or creatures in any walkable area. South exit exactly as guide.",
-      "dimensions": [1536, 1024]
-    },
-    {
-      "file": "assets/characters/props.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-678546da-3d3c-4a9f-8207-a32d4b93a8be.png",
-      "transparentBackgroundRequested": true,
-      "usage": "4×2 场景道具图集。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: production game prop sprite atlas, genuine transparent PNG, EXACT 4 columns by 2 rows, all eight cells equal square sizes on a 1536x768 canvas. Each object centered in its own cell with 18% clear padding, isolated, no shadows outside the object, no overlapping cells. Beautiful detailed crisp fine pixel art for a lush top-down countryside fantasy RPG, small square pixels, mossy weathered materials, same orthographic slightly overhead camera as a 2D top-down game. Row 1 left to right: a small weathered wooden direction sign on a single wooden post with tiny ivy (NO writing); a cluster of pale glowing gold crystals and small broken twig as a quest clue; a carved mossy pale jade stone stele with tiny leaf rune and weathered base; a compact brown wooden treasure chest with antique bronze bands. Row 2 left to right: a thick mossy fallen oak trunk lying HORIZONTALLY with visible circular cut end and bark; a low small rustic wooden gate with leafy vine arch; a dense square screen of tangled green vines and little pale flowers that blocks a garden doorway; a small intriguing dark blue ore rock with luminous turquoise veins. No labels, no text, no grid, no background, no people, no creatures, no watermark. Clean detailed pixel shading, distinct silhouettes, complete uncut objects inside each cell.",
-      "dimensions": [1774, 887]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/gym.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-d6d05583-58d1-4e40-a2b0-19954ef8b847.png",
+          "transparentBackgroundRequested": false,
+          "usage": "枝叶道馆，北侧关闭出口由运行时木门补足。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: production playable top-down RPG map background, exact full canvas 1536x1024, no UI. Image 1 is a strict collision/layout guide. Image 2 is the established polished art style. Completely repaint Image 1 to match the lush, richly detailed fine pixel art in Image 2: crisp small square pixels, layered detailed foliage, textured grass and stone, warm natural lighting and delicate shadows. Preserve EXACT positions, proportions, footprints and regions of paths, tall grass, water, all solid tree/wall bands, buildings, and edge exits. Keep every open lawn/path walkable; only low flowers, grass and ground textures there. No new obstacles. Fixed orthographic top-down camera with tiny front faces, not isometric. Render only scenery, NO people, NO creatures, NO text, NO UI, no grid, no border, no watermark. An elegant botanical gym garden enclosed by richly textured old mossy stone walls exactly where the guide dark wall bands are: outer border, horizontal wall at y=38-44%, horizontal wall at y=69-75%, each with EXACTLY one open doorway at x=46-50%. Keep those narrow openings clear, game places gates later. Spacious pale golden stone paths, green grassy training plots in exact marked regions, small low flowers, leaf carvings on wall faces, warm glasshouse sunlight with soft diagonal window shadows. Top clearing is a simple grassy arena. NO furniture, statues, people or creatures in any walkable area. South exit exactly as guide.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-meadow.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-c96e6536-6da5-4085-b880-30d4c0bba837.png",
+      "usage": "晨芽林地插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "1536×1024 对战背景，按 cover 裁切反算双方脚底锚点。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: production background for a 2D turn-based creature battle in a fine pixel art RPG, landscape 1536x1024. A sunlit forest meadow clearing, richly detailed crisp small square pixel art, handcrafted 32-bit aesthetic. Slightly elevated side-view camera into a woodland arena (NOT a top-down world map). Foreground in lower-left: a broad light grassy oval patch where the player's creature will stand, leaving that patch completely EMPTY. Midground upper-right: another lighter grassy oval patch where the opponent will stand, also completely EMPTY. Dense lush jade and emerald trees, layered leaves, warm morning sunlight, soft atmospheric distance, grasses and tiny spring flowers around the edges, a few low mossy stones and ferns, a shallow sparkling stream only behind the battle field near the far background. Warm green, cream and ochre palette, charming adventurous mood, dense polished foliage detail. Keep the centre visually quiet for clear character silhouettes and HUD overlays. NO creatures, NO people, NO text, NO user interface, NO borders, NO watermark. No blur or smooth painted gradients, use intentional pixel clusters.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-meadow.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-c96e6536-6da5-4085-b880-30d4c0bba837.png",
+          "transparentBackgroundRequested": false,
+          "usage": "1536×1024 对战背景，按 cover 裁切反算双方脚底锚点。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: production background for a 2D turn-based creature battle in a fine pixel art RPG, landscape 1536x1024. A sunlit forest meadow clearing, richly detailed crisp small square pixel art, handcrafted 32-bit aesthetic. Slightly elevated side-view camera into a woodland arena (NOT a top-down world map). Foreground in lower-left: a broad light grassy oval patch where the player's creature will stand, leaving that patch completely EMPTY. Midground upper-right: another lighter grassy oval patch where the opponent will stand, also completely EMPTY. Dense lush jade and emerald trees, layered leaves, warm morning sunlight, soft atmospheric distance, grasses and tiny spring flowers around the edges, a few low mossy stones and ferns, a shallow sparkling stream only behind the battle field near the far background. Warm green, cream and ochre palette, charming adventurous mood, dense polished foliage detail. Keep the centre visually quiet for clear character silhouettes and HUD overlays. NO creatures, NO people, NO text, NO user interface, NO borders, NO watermark. No blur or smooth painted gradients, use intentional pixel clusters.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/dawn-expanded.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-9e6d4f1c-a1be-418b-bcbe-cf45472979f3.png",
+      "mapIds": ["dawn"],
+      "usage": "晨芽镇完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1280],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final playable top-down fine pixel-art RPG town background, 1536x1024 landscape. Image 1 is the OLD TOWN, a style/reference image only. Image 2 is the NEW exact spatial layout, a 30-column by 20-row collision guide. Paint image 2 fully into the refined pixel style and quality of image 1. The play area is larger; keep the EXACT normalized footprints in image 2, do NOT reuse image 1's smaller layout. Two warm ochre-roof cottages at top-left and top-middle, red-roof healing house at left-middle, internal north-south hedge at x40%, small pond x33-43% y60-75%, widened eastern garden and southern walking loop, long exit path right at y52%. All beige paths must remain clear and connected exactly like the guide, green lawns walkable, teal regions water, tree clusters remain barriers. Fine intentional square pixel clusters, lush varied emerald foliage with dappled morning sun, detailed flowers, pebbles, small roof tiles and timber facades, beautiful polished modern GBA-inspired pixel art, orthographic overhead with small building front faces. No perspective, no isometric tilt. No extra buildings, fences, boulders or trees in open walkable regions. Flowers and lawn decoration low enough to walk over. NO people, creatures, interface, text, letters, grids, frames or watermarks. Preserve guide geometry including the east gate and newly added walking paths. Final production background, not a mockup.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/dawn-expanded.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-9e6d4f1c-a1be-418b-bcbe-cf45472979f3.png",
+          "transparentBackgroundRequested": false,
+          "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final playable top-down fine pixel-art RPG town background, 1536x1024 landscape. Image 1 is the OLD TOWN, a style/reference image only. Image 2 is the NEW exact spatial layout, a 30-column by 20-row collision guide. Paint image 2 fully into the refined pixel style and quality of image 1. The play area is larger; keep the EXACT normalized footprints in image 2, do NOT reuse image 1's smaller layout. Two warm ochre-roof cottages at top-left and top-middle, red-roof healing house at left-middle, internal north-south hedge at x40%, small pond x33-43% y60-75%, widened eastern garden and southern walking loop, long exit path right at y52%. All beige paths must remain clear and connected exactly like the guide, green lawns walkable, teal regions water, tree clusters remain barriers. Fine intentional square pixel clusters, lush varied emerald foliage with dappled morning sun, detailed flowers, pebbles, small roof tiles and timber facades, beautiful polished modern GBA-inspired pixel art, orthographic overhead with small building front faces. No perspective, no isometric tilt. No extra buildings, fences, boulders or trees in open walkable regions. Flowers and lawn decoration low enough to walk over. NO people, creatures, interface, text, letters, grids, frames or watermarks. Preserve guide geometry including the east gate and newly added walking paths. Final production background, not a mockup.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/route-expanded.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-dc313af3-5284-4b0c-be9f-9a1b28076327.png",
+      "mapIds": ["route"],
+      "usage": "晨光一号路完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1280],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final playable top-down original RPG route background, 1536x1024. Image 1 is the old map STYLE ONLY, image 2 is the new exact 30x20 spatial collision guide. Fully paint the second image with the gorgeous crisp detailed pixel-art style of the first. Maintain every normalized footprint and connection in the second: broad linked beige footpaths, tall encounter-grass beds, a long pond left-middle x20-30% y35-70%, small southern pool x27-37% y80-90%, left and right entry gates at y52%, added eastern grassy ring path and connected southern meadow walking loop. Keep both areas of water and all grass beds precisely aligned to the guide. Low flowers and tufts on otherwise walkable lawn, subtle pebble path edges, luminous varied emerald tree crowns in boundary and the few internal columns. Refined pixel clusters and textured grass, gold morning light, jade, sage and warm cream colors, deep shadows beneath leaves. Top down orthographic, not isometric or perspective. Everything is scenery, no people or creatures, no UI, no signs with letters, no visible grid, no border or watermark. No unmarked obstacles in walkable lawn. Do not copy the old smaller layout: guide two is the expanded geometry and must be followed exactly.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/route-expanded.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-dc313af3-5284-4b0c-be9f-9a1b28076327.png",
+          "transparentBackgroundRequested": false,
+          "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final playable top-down original RPG route background, 1536x1024. Image 1 is the old map STYLE ONLY, image 2 is the new exact 30x20 spatial collision guide. Fully paint the second image with the gorgeous crisp detailed pixel-art style of the first. Maintain every normalized footprint and connection in the second: broad linked beige footpaths, tall encounter-grass beds, a long pond left-middle x20-30% y35-70%, small southern pool x27-37% y80-90%, left and right entry gates at y52%, added eastern grassy ring path and connected southern meadow walking loop. Keep both areas of water and all grass beds precisely aligned to the guide. Low flowers and tufts on otherwise walkable lawn, subtle pebble path edges, luminous varied emerald tree crowns in boundary and the few internal columns. Refined pixel clusters and textured grass, gold morning light, jade, sage and warm cream colors, deep shadows beneath leaves. Top down orthographic, not isometric or perspective. Everything is scenery, no people or creatures, no UI, no signs with letters, no visible grid, no border or watermark. No unmarked obstacles in walkable lawn. Do not copy the old smaller layout: guide two is the expanded geometry and must be followed exactly.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/moss-expanded.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-1cae5242-ceca-42ea-8d41-0543765b6fd1.png",
+      "mapIds": ["moss"],
+      "usage": "苔丘镇完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1280],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final playable original top-down pixel RPG town background, 1536x1024. First reference is ONLY the old map's refined pixel art style; second reference is the EXACT expanded 30-column 20-row playable layout. Completely repaint guide two in the same richly detailed pixel style as reference one. Preserve every footprint and path: healing house top left, wide green roof gym top centre-right, small blue roof shop left middle, ochre cottage centre, north and west entry roads, original lake lower-left-centre, new small blue reflecting pond lower right, new east garden path and long south walking loop. Buildings, water and tree barriers must occupy the exact guide regions; all pale paths and green lawns stay walkable and continuous. Lush varied forest boundary with warm morning sunlight, cream plaster and detailed stone/wood facades, mossy roof tiles, fine flower clusters and pebbles. No extra buildings or obstacles. Crisp intentional square pixels, polished pixel-art game environment, orthographic overhead camera, no isometric tilt, no perspective. No people, creatures, writing, UI, grid, frame, labels or watermark. Do not reuse the old map's smaller composition: the second guide controls geometry and now includes space to explore to the east and south.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/moss-expanded.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-1cae5242-ceca-42ea-8d41-0543765b6fd1.png",
+          "transparentBackgroundRequested": false,
+          "usage": "扩大为30×20格的室外地图，依据新碰撞布局重绘，保留原核心坐标并新增支路与回环。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final playable original top-down pixel RPG town background, 1536x1024. First reference is ONLY the old map's refined pixel art style; second reference is the EXACT expanded 30-column 20-row playable layout. Completely repaint guide two in the same richly detailed pixel style as reference one. Preserve every footprint and path: healing house top left, wide green roof gym top centre-right, small blue roof shop left middle, ochre cottage centre, north and west entry roads, original lake lower-left-centre, new small blue reflecting pond lower right, new east garden path and long south walking loop. Buildings, water and tree barriers must occupy the exact guide regions; all pale paths and green lawns stay walkable and continuous. Lush varied forest boundary with warm morning sunlight, cream plaster and detailed stone/wood facades, mossy roof tiles, fine flower clusters and pebbles. No extra buildings or obstacles. Crisp intentional square pixels, polished pixel-art game environment, orthographic overhead camera, no isometric tilt, no perspective. No people, creatures, writing, UI, grid, frame, labels or watermark. Do not reuse the old map's smaller composition: the second guide controls geometry and now includes space to explore to the east and south.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/forest-expanded.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-673a314e-6d3c-48ed-816c-6d1b25f21a53.png",
+      "mapIds": ["forest"],
+      "usage": "苔影森林完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1280],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "dimensions": [1536, 1024],
-      "usage": "保留森林调查，增加无需徽章的西侧山道入口。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Edit the forest background: the important functional change is a NEW horizontal forest path from left edge at logicalrow14 across to central vertical path at column11. EXACT30x20 logicaltiles, normalized row14 is72.5% imageheight. Remove boundary trees ONLY at that west opening and show clear dirt path to centre. Keep all other existing north barrier row6, single gap at column11, ponds, grass zones, southern exits and original composition aligned to image1. Maintain the polished emerald woodland finish of image2."
+      "previousGenerations": [
+        {
+          "file": "assets/maps/forest-expanded.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-673a314e-6d3c-48ed-816c-6d1b25f21a53.png",
+          "transparentBackgroundRequested": false,
+          "dimensions": [1536, 1024],
+          "usage": "保留森林调查，增加无需徽章的西侧山道入口。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Edit the forest background: the important functional change is a NEW horizontal forest path from left edge at logicalrow14 across to central vertical path at column11. EXACT30x20 logicaltiles, normalized row14 is72.5% imageheight. Remove boundary trees ONLY at that west opening and show clear dirt path to centre. Keep all other existing north barrier row6, single gap at column11, ponds, grass zones, southern exits and original composition aligned to image1. Maintain the polished emerald woodland finish of image2."
+        }
+      ]
     },
     {
       "file": "assets/characters/ranger-walk.png",
@@ -124,30 +186,66 @@
     },
     {
       "file": "assets/maps/stone-route.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-a17e9446-b3e9-4179-8bfc-7a9ce4e201a9.png",
+      "mapIds": ["stoneRoute"],
+      "usage": "二号碎石道完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2304, 1536],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "dimensions": [1536, 1024],
-      "usage": "36×24 碎石道，南北回环与中央碎岩捷径。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: ochre and sage-green mountain foothills with a central two-part layered stone ridge, dry grass, tiny wildflowers, warm sandstone and a cool turquoise pond in the west. EXACT 36 columns x24 rows logical tiles. Openings: top edge at column8, right edge at row18. Broad traversable dirt route loops around both sides of the central ridge. Central horizontal shortcut at row11 remains visibly OPEN; its removable boulder is rendered separately by the game. No extra impassable ridges or large scenic props in open lawn. Produce landscape1536x1024."
+      "previousGenerations": [
+        {
+          "file": "assets/maps/stone-route.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-a17e9446-b3e9-4179-8bfc-7a9ce4e201a9.png",
+          "transparentBackgroundRequested": false,
+          "dimensions": [1536, 1024],
+          "usage": "36×24 碎石道，南北回环与中央碎岩捷径。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: ochre and sage-green mountain foothills with a central two-part layered stone ridge, dry grass, tiny wildflowers, warm sandstone and a cool turquoise pond in the west. EXACT 36 columns x24 rows logical tiles. Openings: top edge at column8, right edge at row18. Broad traversable dirt route loops around both sides of the central ridge. Central horizontal shortcut at row11 remains visibly OPEN; its removable boulder is rendered separately by the game. No extra impassable ridges or large scenic props in open lawn. Produce landscape1536x1024."
+        }
+      ]
     },
     {
       "file": "assets/maps/old-mine.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-b7f702fa-f229-486a-9b36-658ef290c221.png",
+      "mapIds": ["mine"],
+      "usage": "石脊旧矿山完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2304, 1536],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "dimensions": [1536, 1024],
-      "usage": "36×24 旧矿山，共鸣调查、矿车工牌与鸣钟石剧情。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: underground abandoned mine, dark layered charcoal cliff walls at the boundary and the central TWO rectangular stone blocks; traversable warm slate stone floor everywhere else. A tiny turquoise underground pool at bottom centre crossed by a safe wooden bridge. The guide grass-looking speckled patches represent gravel encounter beds; draw ore gravel and small purple-blue crystal fragments, absolutely NO lawn or tall grass underground. Soft amber light from small inset wall lamps, high readability without black fog. EXACT36x24 logicaltiles, ONLY exit is right edge row19. Preserve the wide ring path and horizontal centre corridor, no mine carts, no tracks that obstruct walking, no freestanding props because interactive props render separately. Landscape1536x1024."
+      "previousGenerations": [
+        {
+          "file": "assets/maps/old-mine.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-b7f702fa-f229-486a-9b36-658ef290c221.png",
+          "transparentBackgroundRequested": false,
+          "dimensions": [1536, 1024],
+          "usage": "36×24 旧矿山，共鸣调查、矿车工牌与鸣钟石剧情。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: underground abandoned mine, dark layered charcoal cliff walls at the boundary and the central TWO rectangular stone blocks; traversable warm slate stone floor everywhere else. A tiny turquoise underground pool at bottom centre crossed by a safe wooden bridge. The guide grass-looking speckled patches represent gravel encounter beds; draw ore gravel and small purple-blue crystal fragments, absolutely NO lawn or tall grass underground. Soft amber light from small inset wall lamps, high readability without black fog. EXACT36x24 logicaltiles, ONLY exit is right edge row19. Preserve the wide ring path and horizontal centre corridor, no mine carts, no tracks that obstruct walking, no freestanding props because interactive props render separately. Landscape1536x1024."
+        }
+      ]
     },
     {
       "file": "assets/maps/rock-gym.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-04f55460-182b-438d-8795-63a497a05987.png",
+      "mapIds": ["rockGym"],
+      "usage": "砾岩道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1664, 1280],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "dimensions": [1430, 1100],
-      "usage": "26×20 砾岩道馆，两道配重门与独立练习。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: refined indoor rock arena with warm sandstone tiled floor, slate-and-brass architectural walls, quarry practice court. EXACT26x20 logicaltiles. Two horizontal wall bands at rows7 and13, each with ONE open centre doorway at column13. Opening at bottom column13. Three practice rooms, engraved small mineral patterns on floor; muted amber lamps inset in walls. The two doorways must show CLEAR EMPTY FLOOR because doors are separate movable game props. No arena trainers, no counters or added obstacles. Retain all walkable floor from guide. No grass, no trees, no existing game logos. Fine pixel shading matching reference, good contrast."
+      "previousGenerations": [
+        {
+          "file": "assets/maps/rock-gym.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-04f55460-182b-438d-8795-63a497a05987.png",
+          "transparentBackgroundRequested": false,
+          "dimensions": [1430, 1100],
+          "usage": "26×20 砾岩道馆，两道配重门与独立练习。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final production top-down pixel-art game map background. Image 1 is an EXACT collision/layout guide; preserve every path, boundary opening, building footprint and pond in the SAME normalized position and the SAME aspect ratio. Image 2 is ONLY the visual finish reference. Rich handcrafted fine square-pixel textures, polished 2D handheld creature-RPG art, soft shadows, crisp tiles, no blur, no isometric perspective. Redraw the guide as a finished raster background, do not paste the guide into a frame. No people, no creatures, no UI, no text, no arrows, no labels, no border or margin. Keep ALL open dirt paths free of rocks, props or obstacles. The whole image is the world map, edge to edge. Scene: refined indoor rock arena with warm sandstone tiled floor, slate-and-brass architectural walls, quarry practice court. EXACT26x20 logicaltiles. Two horizontal wall bands at rows7 and13, each with ONE open centre doorway at column13. Opening at bottom column13. Three practice rooms, engraved small mineral patterns on floor; muted amber lamps inset in walls. The two doorways must show CLEAR EMPTY FLOOR because doors are separate movable game props. No arena trainers, no counters or added obstacles. Retain all walkable floor from guide. No grass, no trees, no existing game logos. Fine pixel shading matching reference, good contrast."
+        }
+      ]
     },
     {
       "file": "assets/creatures-highlands.png",
@@ -160,21 +258,44 @@
     },
     {
       "file": "assets/maps/battle-highlands.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-5ce70bae-c184-48c8-b5d2-242f60f1c4d6.png",
-      "transparentBackgroundRequested": false,
+      "usage": "石脊高地插画战斗背景；沿用双方站位锚点。",
       "dimensions": [1536, 1024],
-      "usage": "山地战斗背景，当前用于石脊区域战斗。",
-      "finalPrompt": "Use case: stylized-concept. Final production battle background for an original creature-catching RPG, landscape1536x1024. Fine richly shaded crisp PIXEL ART, same polished handheld RPG finish as current project. Quiet ochre rocky foothills, terraced sandstone cliff in farbackground, sparse sage grass, tiny blue crystals, clear warm daylight. EMPTY smooth oval ground battle platforms: nearer platform in bottomleft and far platform in upperright. Centre lowerfield uncluttered, ample room for separately rendered creatures and status panels. Camera low side-on battle perspective, not map topdown. No people, no creatures, no text, no UI, no logos. Entire frame painted edge to edge."
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false,
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-highlands.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-5ce70bae-c184-48c8-b5d2-242f60f1c4d6.png",
+          "transparentBackgroundRequested": false,
+          "dimensions": [1536, 1024],
+          "usage": "山地战斗背景，当前用于石脊区域战斗。",
+          "finalPrompt": "Use case: stylized-concept. Final production battle background for an original creature-catching RPG, landscape1536x1024. Fine richly shaded crisp PIXEL ART, same polished handheld RPG finish as current project. Quiet ochre rocky foothills, terraced sandstone cliff in farbackground, sparse sage grass, tiny blue crystals, clear warm daylight. EMPTY smooth oval ground battle platforms: nearer platform in bottomleft and far platform in upperright. Centre lowerfield uncluttered, ample room for separately rendered creatures and status panels. Camera low side-on battle perspective, not map topdown. No people, no creatures, no text, no UI, no logos. Entire frame painted edge to edge."
+        }
+      ]
     },
     {
       "file": "assets/maps/coast-route.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-650fabd8-a585-4dbb-8a15-41f9efea05fa.png",
+      "mapIds": ["coastRoute"],
+      "usage": "三号矿港道完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 1664],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "潮汐篇地图、独立水系精灵形态或战斗背景。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: final production background for an original creature RPG. Image 1 is the EXACT collision guide; keep EVERY water rectangle, building footprint, boundary, path and opening at the SAME normalized position. Image 2 is ONLY a finish/style reference. Fine richly shaded square PIXEL ART, polished handheld 2D RPG, top-down orthographic, no perspective tilt. Redraw the guide as finished detailed art, edge to edge, NO frame, labels, letters, logos, people, creatures, UI, or arrows. ALL open floor, lawn and paths must stay visually WALKABLE, no freestanding rocks, trees, crates or shrubs on open tiles; decorations may be painted only inside blocked footprints or water. Clear path edges and tile alignment. Scene: coastal hill road, exact40x26 logical tiles, narrow river at columns14-16 with THREE wooden bridges at rows6,12,20, turquoise ocean band at columns30-38. Rocky central bluff rectangle columns21-25 rows7-13. Golden sandy paths between low sunlit meadow, reeds on the EXACT grass patches, gentle foam along right ocean edge. Boundary is coastal rock wall, exit west row6 and south column28 only. Paths connected in loops exactly as guide. Wide landscape 1600x1040.",
-      "dimensions": [1555, 1011]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/coast-route.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-650fabd8-a585-4dbb-8a15-41f9efea05fa.png",
+          "transparentBackgroundRequested": false,
+          "usage": "潮汐篇地图、独立水系精灵形态或战斗背景。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: final production background for an original creature RPG. Image 1 is the EXACT collision guide; keep EVERY water rectangle, building footprint, boundary, path and opening at the SAME normalized position. Image 2 is ONLY a finish/style reference. Fine richly shaded square PIXEL ART, polished handheld 2D RPG, top-down orthographic, no perspective tilt. Redraw the guide as finished detailed art, edge to edge, NO frame, labels, letters, logos, people, creatures, UI, or arrows. ALL open floor, lawn and paths must stay visually WALKABLE, no freestanding rocks, trees, crates or shrubs on open tiles; decorations may be painted only inside blocked footprints or water. Clear path edges and tile alignment. Scene: coastal hill road, exact40x26 logical tiles, narrow river at columns14-16 with THREE wooden bridges at rows6,12,20, turquoise ocean band at columns30-38. Rocky central bluff rectangle columns21-25 rows7-13. Golden sandy paths between low sunlit meadow, reeds on the EXACT grass patches, gentle foam along right ocean edge. Boundary is coastal rock wall, exit west row6 and south column28 only. Paths connected in loops exactly as guide. Wide landscape 1600x1040.",
+          "dimensions": [1555, 1011]
+        }
+      ]
     },
     {
       "file": "assets/creatures-coast.png",
@@ -196,57 +317,107 @@
     },
     {
       "file": "assets/maps/battle-coast.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-82c2b70e-c248-4c87-be4a-877ebe97fd49.png",
+      "usage": "潮汐海滨插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "潮汐篇地图、独立水系精灵形态或战斗背景。",
-      "finalPrompt": "Use case: stylized-concept. Final production battle background for an original creature-catching RPG. Fine richly shaded PIXEL ART, polished handheld finish, 1536x1024 landscape. Sunny turquoise coastal inlet, layered sandstone cliffs in far background, distant white lighthouse, tiny sea grasses. TWO completely empty smooth sandy oval battle platforms, near platform bottom-left, far platform upper-right. Low side-on battle perspective. Centre uncluttered, generous space for separately rendered creatures and status HUD. No people, creatures, text, UI, logos, borders or dramatic effects. Clear daylight and gentle surf.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-coast.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-82c2b70e-c248-4c87-be4a-877ebe97fd49.png",
+          "transparentBackgroundRequested": false,
+          "usage": "潮汐篇地图、独立水系精灵形态或战斗背景。",
+          "finalPrompt": "Use case: stylized-concept. Final production battle background for an original creature-catching RPG. Fine richly shaded PIXEL ART, polished handheld finish, 1536x1024 landscape. Sunny turquoise coastal inlet, layered sandstone cliffs in far background, distant white lighthouse, tiny sea grasses. TWO completely empty smooth sandy oval battle platforms, near platform bottom-left, far platform upper-right. Low side-on battle perspective. Centre uncluttered, generous space for separately rendered creatures and status HUD. No people, creatures, text, UI, logos, borders or dramatic effects. Clear daylight and gentle surf.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/harbor-city-v2.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-356bf083-388d-4278-b53c-e83fb7667bbd.png",
+      "mapIds": ["harbor"],
+      "usage": "潮汐港完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2304, 1664],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "潮汐篇布局校正后的实际地图。",
-      "finalPrompt": "Use case: precise-object-edit. Image1 is the harbor production map to fix. Image2 is the corrected exact layout guide. Keep pixel-art finish, water, buildings, paths, every other object unchanged. Repair ONLY the north entrance and clinic: clinic must be ONE intact rectangular red-roof building at columns2-7 rows2-5 (36x26 grid); remove the mistaken sandy road cutting the clinic in two. North entrance must be at column10, aligned with the EXISTING central-left vertical road, extending from top border down to main horizontal row6. Close previous column6 top opening with border rock and grass. No added text or characters. Same aspect ratio and style. Entire finished background.",
-      "dimensions": [1476, 1065]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/harbor-city-v2.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-356bf083-388d-4278-b53c-e83fb7667bbd.png",
+          "transparentBackgroundRequested": false,
+          "usage": "潮汐篇布局校正后的实际地图。",
+          "finalPrompt": "Use case: precise-object-edit. Image1 is the harbor production map to fix. Image2 is the corrected exact layout guide. Keep pixel-art finish, water, buildings, paths, every other object unchanged. Repair ONLY the north entrance and clinic: clinic must be ONE intact rectangular red-roof building at columns2-7 rows2-5 (36x26 grid); remove the mistaken sandy road cutting the clinic in two. North entrance must be at column10, aligned with the EXISTING central-left vertical road, extending from top border down to main horizontal row6. Close previous column6 top opening with border rock and grass. No added text or characters. Same aspect ratio and style. Entire finished background.",
+          "dimensions": [1476, 1065]
+        }
+      ]
     },
     {
       "file": "assets/maps/tideworks-v2.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-08e61f80-db51-4d34-9a07-3200de9e89b0.png",
+      "mapIds": ["tideworks"],
+      "usage": "潮间闸与旧灯塔完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "潮汐篇布局校正后的实际地图。",
-      "finalPrompt": "Use case: precise-object-edit. Image1 production lighthouse/sluice map needs ONE correction. Image2 exact collision guide is authoritative. Keep style, lighthouse, all other paths and water. Correct the bottom-right raised reef island: ALL rectangle x=29/40..38/40 of width, y=17/28..25/28 of height MUST be DRY WALKABLE pale sand with some low sparse grass, no boulders, coral or standing water inside this rectangle, only tiny decorative pebbles. The current picture incorrectly has flooded coral water covering most of this island. Put corals ONLY beyond its edge in surrounding sea. North path at column34 must directly reach the dry island. Short southwest crossing at columns26-28 row24 is water with buoys, not a stone bridge. There must NOT be a dead-end stone crossing over this optional water crossing. No text, people, creatures, UI. Preserve exact normalized layout.",
-      "dimensions": [1500, 1049]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/tideworks-v2.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-08e61f80-db51-4d34-9a07-3200de9e89b0.png",
+          "transparentBackgroundRequested": false,
+          "usage": "潮汐篇布局校正后的实际地图。",
+          "finalPrompt": "Use case: precise-object-edit. Image1 production lighthouse/sluice map needs ONE correction. Image2 exact collision guide is authoritative. Keep style, lighthouse, all other paths and water. Correct the bottom-right raised reef island: ALL rectangle x=29/40..38/40 of width, y=17/28..25/28 of height MUST be DRY WALKABLE pale sand with some low sparse grass, no boulders, coral or standing water inside this rectangle, only tiny decorative pebbles. The current picture incorrectly has flooded coral water covering most of this island. Put corals ONLY beyond its edge in surrounding sea. North path at column34 must directly reach the dry island. Short southwest crossing at columns26-28 row24 is water with buoys, not a stone bridge. There must NOT be a dead-end stone crossing over this optional water crossing. No text, people, creatures, UI. Preserve exact normalized layout.",
+          "dimensions": [1500, 1049]
+        }
+      ]
     },
     {
       "file": "assets/maps/stone-city-coast-v2.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-b6ea5f5f-887c-44c6-a615-5662d05cb324.png",
+      "mapIds": ["stone"],
+      "usage": "石脊城完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1408],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "潮汐篇布局校正后的实际地图。",
-      "finalPrompt": "Use case: precise-object-edit. Image1 existing production stone city map. Image2 is its exact collision guide with one new path. Make ONLY ONE change to image1: new EAST exit, at ROW18, COLUMN29 on exact30-column by22-row logicalgrid counting from zero. That is y=84.09 percent down from TOP, below the pond. Existing horizontal sandy path below the pond must extend RIGHT starting x=75 percent through right boundary at y=84.09 percent. Open only one tile tall gap in east wall at this height. Keep all other paths, buildings, pool, trees, flowers, grass and original north/west/south border EXACTLY unchanged from image1. Do not add a new exit beside the pond at y=70percent. No people, creatures, text, UI, frame. Same style, same dimensions/aspect ratio.",
-      "dimensions": [1465, 1073]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/stone-city-coast-v2.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-b6ea5f5f-887c-44c6-a615-5662d05cb324.png",
+          "transparentBackgroundRequested": false,
+          "usage": "潮汐篇布局校正后的实际地图。",
+          "finalPrompt": "Use case: precise-object-edit. Image1 existing production stone city map. Image2 is its exact collision guide with one new path. Make ONLY ONE change to image1: new EAST exit, at ROW18, COLUMN29 on exact30-column by22-row logicalgrid counting from zero. That is y=84.09 percent down from TOP, below the pond. Existing horizontal sandy path below the pond must extend RIGHT starting x=75 percent through right boundary at y=84.09 percent. Open only one tile tall gap in east wall at this height. Keep all other paths, buildings, pool, trees, flowers, grass and original north/west/south border EXACTLY unchanged from image1. Do not add a new exit beside the pond at y=70percent. No people, creatures, text, UI, frame. Same style, same dimensions/aspect ratio.",
+          "dimensions": [1465, 1073]
+        }
+      ]
     },
     {
       "file": "assets/maps/water-gym-v2.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-d7143a46-e92d-4cfd-98cc-ec2c48bd3ba6.png",
+      "mapIds": ["waterGym"],
+      "usage": "潮汐道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1664, 1408],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "水系道馆最终背景，水渠横跨室内并保留唯一中央浮桥。",
-      "finalPrompt": "Use case: precise-object-edit. Image1 production pixel-art water arena. Image2 exact revised collision guide. Change ONLY the two horizontal canals: extend BOTH water canals all the way across the inner floor from LEFT BOUNDARY WALL to RIGHT BOUNDARY WALL, leaving ONLY the existing ONE central bridge at column13 of a26-column grid. There must be no dry floor to walk around the left or right ends of either canal. Canal north row7, south row14, only1tile tall. Keep ALL central paths, floor tile patterns, border decoration, bottom exit and pixel style unchanged. No characters, no text, no UI.",
-      "dimensions": [1363, 1154]
-    },
-    {
-      "file": "assets/maps/expedition-tiles.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-abda073e-ba45-4fda-8c6a-5680b0afc7d6.png",
-      "transparentBackgroundRequested": false,
-      "usage": "4×4 无缝地块图集，后续章节按真实碰撞网格铺设；草地、高草、路面、金属、树墙、石墙、水、桥、四类屋顶、砾地、能源、沙地、花坛。",
-      "finalPrompt": "Use case: stylized-concept. Create a production-ready seamless terrain tile atlas for an original refined pixel-art top-down creature-collecting JRPG, visually compatible with lush detailed GBA-inspired countryside, hand-painted pixel clusters and jewel colours, no UI, no letters. EXACTLY a square 4 columns by 4 rows grid, equal size cells, no gaps, no margins, each cell fills its square edge-to-edge. These are repeatable ground/material textures, NOT a finished map. Row 1 left to right: lush emerald short grass; dense knee-high wild grass seen from above; warm ivory cobblestone path; blue-grey industrial metal floor with subtle copper inlay. Row 2: dense leafy forest canopy; carved brown stone wall top; deep turquoise water with fine ripples; golden timber bridge planks. Row 3: red terracotta roof shingles; deep blue healing-center roof shingles; warm green shop roof shingles; golden glass-and-copper gym roof shingles. Row 4: pale gravel and pebbles; glowing blue power-station crystal floor; pale beach sand; green grass with sparse tiny white flowers. Perfectly orthographic overhead view, no angled camera, no shadows crossing cell boundaries, all texture detail small, polished and crisp. The atlas must be fully opaque.",
-      "dimensions": [1254, 1254]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/water-gym-v2.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "/Users/shenzhihao/.codex/generated_images/01a13e14-6dcc-7003-a4b6-78e76fcb5ef1/exec-d7143a46-e92d-4cfd-98cc-ec2c48bd3ba6.png",
+          "transparentBackgroundRequested": false,
+          "usage": "水系道馆最终背景，水渠横跨室内并保留唯一中央浮桥。",
+          "finalPrompt": "Use case: precise-object-edit. Image1 production pixel-art water arena. Image2 exact revised collision guide. Change ONLY the two horizontal canals: extend BOTH water canals all the way across the inner floor from LEFT BOUNDARY WALL to RIGHT BOUNDARY WALL, leaving ONLY the existing ONE central bridge at column13 of a26-column grid. There must be no dry floor to walk around the left or right ends of either canal. Canal north row7, south row14, only1tile tall. Keep ALL central paths, floor tile patterns, border decoration, bottom exit and pixel style unchanged. No characters, no text, no UI.",
+          "dimensions": [1363, 1154]
+        }
+      ]
     },
     {
       "file": "assets/creatures-electric.png",
@@ -421,15 +592,6 @@
       "dimensions": [1254, 1254]
     },
     {
-      "file": "assets/maps/biome-tiles.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-a606e030-b1d0-4159-b8ec-595fedf3eed6.png",
-      "transparentBackgroundRequested": false,
-      "usage": "4×4 雪线、熔岩、温泉、遗迹与星核材质图集，按真实地图网格组合。",
-      "finalPrompt": "Production top-down 2D RPG environment material atlas, ONE opaque square image, exactly 4x4 equally sized square tiles covering every cell edge-to-edge. Pixel art fine richly detailed little square pixels, fixed orthographic overhead, no perspective, no text, no objects crossing cell boundaries. These are seamless repeating MATERIAL textures, not separate diorama illustrations. 16 distinct tiles read left-to-right. Row 1: pale blue-white powder snow with tiny crystals; snow-dusted alpine tussock grass; grey craggy layered limestone cliff material; warm dark ochre volcanic gravel floor. Row 2: dark obsidian rock wall material with amber mineral veins; bright glowing orange magma with black cooling cracks; translucent warm turquoise hot-spring water with steam ripples; worn pale jade ruin mosaic floor. Row 3: ancient grey-green carved stone wall material; luxurious dark navy and warm gold ceremonial floor; bright cyan crystalline energy floor; deep dark violet ghost chamber floor. Row 4: lush shallow reed marsh ground texture; pale weathered sandstone floor with tiny eroded markings; sage green alpine meadow with sparse wheatlike grass tufts; red-bronze copper roof shingle texture. Every tile fills its own square completely. Consistent lighting from top left. No gridlines, labels, frames, interface, characters, symbols that look like letters.",
-      "dimensions": [1254, 1254]
-    },
-    {
       "file": "assets/creatures-mirror_a.png",
       "sourceGenerator": "built-in image_gen",
       "sourceFile": "exec-898ec499-fbfc-49a3-8f57-31a7f51c43d1.png",
@@ -547,67 +709,124 @@
       "dimensions": [1254, 1254]
     },
     {
-      "file": "assets/maps/city-ground-tiles.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-ba2841bf-43b0-40ba-89a7-e36679c02d30.png",
-      "transparentBackgroundRequested": false,
-      "usage": "4×4 城市地面图集。前10格依次为晨芽、苔丘、石脊、潮汐、雷鸣、风栖、炉心、镜湖、星岚、联盟街道，后6格为特色地表。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: production seamless ground texture atlas for an original polished top-down 2D pixel RPG. ONE opaque square PNG, EXACT 4 columns by 4 rows, sixteen perfectly equal square cells, each cell fully filled edge-to-edge with one ground material, no gaps or grid borders. Fixed strictly orthographic overhead view, crisp detailed 16-bit square pixels, restrained readable low-contrast texture, consistent light from above, no perspective, no people, no creatures, no buildings, no props, no text, no numbers, no shadows or vignette. Every cell must tile seamlessly with itself and remain legible when downsampled to a 32x32 game tile. Materials in exact reading order: Row1: warm ivory-small-brick garden village path, irregular dark moss-jointed forest slate cobbles, cool gray basalt quarry paving with small embedded pebbles, sun-bleached honey-brown harbor wooden decking with dark fine grain. Row2: dark blue-gray industrial stone plates with restrained thin copper seams, pale cool gray mountain slate with traces of white frost in joints, burnt terracotta and dark volcanic-basalt herringbone brickwork, pale turquoise and silver-gray lakeside interlocking stone mosaic. Row3: midnight-indigo blue city paving with tiny understated brass star-shaped inlays, warm pale limestone ceremonial plaza with fine geometric gold-line inlays, bright clover-and-tiny-white-flower village lawn, deep emerald soft moss and small fallen forest leaves. Row4: pale sandy shoreline with tiny shell fragments, blue-gray fine industrial gravel with sparse copper flecks, cool alpine meadow with short sage grass and sparse lilac flowers, dry rust-brown volcanic fine gravel with tiny black cinders. Make all ten paved street tiles (cells 1-10) visually distinct in stone size, laying pattern and color, keep detail beautiful but calm for readable game characters. No UI, no labels, no watermark.",
-      "dimensions": [1254, 1254]
-    },
-    {
       "file": "assets/maps/battle-furnace.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-d7491a79-25e8-4020-9bf7-8ab38d431b88.png",
+      "usage": "炉心熔岩台地插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: production battle background for an existing original fine-pixel-art creature RPG. Supporting reference image is the existing meadow battle background: match the refined pixel detail and the exact camera composition, NOT its vegetation. Generate one wide 1536 by 1024 background for Furnace City and volcanic foundry routes: black basalt terraces, warm rust-red volcanic rock paving, distant lava channels behind brass forge conduits and a smoking caldera, glowing cinder crystals at margins, warm amber light and deep violet shadows. Keep the near left fighting pad centered at normalized (0.254, 0.732), and far right fighting pad centered at (0.729, 0.449), matching the reference perspective. Both pads broad, flat, empty, quiet midtone stone, clearly grounded; central diagonal corridor unobstructed. Horizon in upper third, city foundry silhouettes only in distant background. Detailed handcrafted pixel-art landscape with consistent small square pixel clusters, rich atmospheric depth. No creatures, no people, no lettering, no HUD, no icons, no circles printed on floor, no oversized foreground objects hiding either pad. Single complete landscape, not collage.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-furnace.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-d7491a79-25e8-4020-9bf7-8ab38d431b88.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: production battle background for an existing original fine-pixel-art creature RPG. Supporting reference image is the existing meadow battle background: match the refined pixel detail and the exact camera composition, NOT its vegetation. Generate one wide 1536 by 1024 background for Furnace City and volcanic foundry routes: black basalt terraces, warm rust-red volcanic rock paving, distant lava channels behind brass forge conduits and a smoking caldera, glowing cinder crystals at margins, warm amber light and deep violet shadows. Keep the near left fighting pad centered at normalized (0.254, 0.732), and far right fighting pad centered at (0.729, 0.449), matching the reference perspective. Both pads broad, flat, empty, quiet midtone stone, clearly grounded; central diagonal corridor unobstructed. Horizon in upper third, city foundry silhouettes only in distant background. Detailed handcrafted pixel-art landscape with consistent small square pixel clusters, rich atmospheric depth. No creatures, no people, no lettering, no HUD, no icons, no circles printed on floor, no oversized foreground objects hiding either pad. Single complete landscape, not collage.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-electric.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-362930f4-ec9a-4096-b939-e5bfc686d28d.png",
+      "usage": "雷鸣铜光广场插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Electric City and power-station district: refined blue slate courtyard inlaid with narrow copper seams, brass generator towers and cable bridges in distant background, cyan electrical lamps on side structures, canal and waterfalls cooling power machinery, late-afternoon teal and warm amber light. Industrial ecology, not sci-fi neon void.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-electric.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-362930f4-ec9a-4096-b939-e5bfc686d28d.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Electric City and power-station district: refined blue slate courtyard inlaid with narrow copper seams, brass generator towers and cable bridges in distant background, cyan electrical lamps on side structures, canal and waterfalls cooling power machinery, late-afternoon teal and warm amber light. Industrial ecology, not sci-fi neon void.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-wind.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-9851caac-db70-471a-9644-318b15007dda.png",
+      "usage": "风栖雪岭插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Wind City and snowy alpine observatory: pale frost-edged stone terraces with small snowdrifts only at margins, pine-lined mountain valley, distant windmills and an ivory stone observatory under glacial peaks and sweeping soft clouds. Clear cold daylight, powder blue shadows and muted warm sunlight, feeling of high altitude and wind.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-wind.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-9851caac-db70-471a-9644-318b15007dda.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Wind City and snowy alpine observatory: pale frost-edged stone terraces with small snowdrifts only at margins, pine-lined mountain valley, distant windmills and an ivory stone observatory under glacial peaks and sweeping soft clouds. Clear cold daylight, powder blue shadows and muted warm sunlight, feeling of high altitude and wind.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-lake.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-7075c598-d05a-4039-9cea-df09357c86cf.png",
+      "usage": "镜湖水庭插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Mirror Lake City: elegant blue-grey stone landing at a glassy lake, lily beds confined to borders, arching white-stone bridges and old archive pavilions across water, distant willows and soft mist. Two empty dry stone fighting terraces at the required anchors, gentle lavender sky reflected in still water. Refined tranquil jade, lavender and silver colors.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-lake.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-7075c598-d05a-4039-9cea-df09357c86cf.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Mirror Lake City: elegant blue-grey stone landing at a glassy lake, lily beds confined to borders, arching white-stone bridges and old archive pavilions across water, distant willows and soft mist. Two empty dry stone fighting terraces at the required anchors, gentle lavender sky reflected in still water. Refined tranquil jade, lavender and silver colors.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-star.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-3d3e2682-a990-4332-8557-18b3c5069414.png",
+      "usage": "星岚古迹插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Star City, ancient temple and star-core ruins: ancient indigo stone terraces inlaid with sparse faded gold star geometry, monumental broken arches and floating luminous mineral stones only in the distant upper background, night sky and distant high plateau. Soft purple and cyan ambient light, readable midtone floor, delicate golden highlights, mystical but natural physical location.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-star.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-3d3e2682-a990-4332-8557-18b3c5069414.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. Star City, ancient temple and star-core ruins: ancient indigo stone terraces inlaid with sparse faded gold star geometry, monumental broken arches and floating luminous mineral stones only in the distant upper background, night sky and distant high plateau. Soft purple and cyan ambient light, readable midtone floor, delicate golden highlights, mystical but natural physical location.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/maps/battle-league.png",
-      "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-b5b582da-1423-46b3-a6fc-01072d767fe9.png",
+      "usage": "联盟金辉竞技场插画战斗背景；沿用双方站位锚点。",
+      "dimensions": [1536, 1024],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
       "transparentBackgroundRequested": false,
-      "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
-      "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. League City and champion arena: spacious grand ivory-and-gold stone tournament courtyard, wide terraced pale ceremonial paving with fine gold borders, tall slender columns and cloth banners at outer margins, distant monumental league hall and high mountain horizon under warm dawn sky. Prestigious and serene, luxurious detailed pixel art, both combat positions empty with plenty of room.",
-      "dimensions": [1536, 1024]
+      "previousGenerations": [
+        {
+          "file": "assets/maps/battle-league.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-b5b582da-1423-46b3-a6fc-01072d767fe9.png",
+          "transparentBackgroundRequested": false,
+          "usage": "按所在城市／区域主题切换的战斗背景；统一对角站位。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: single production battle background for a refined pixel-art creature RPG. Use the attached meadow image only as supporting reference for pixel-art craft, perspective and composition. Wide landscape 1536 by 1024. Near-left empty fighting area centered at normalized (0.254,0.732), far-right empty fighting area centered at (0.729,0.449). These areas must be broad flat unobstructed midtone terrain at different depths, with quiet surfaces for sprites; no decorations there. Horizon upper third. Strongly themed environment with detailed small crisp pixel clusters, beautiful rich material detail and atmospheric depth. No people, creatures, text, labels, HUD, logos, icons, collage, or drawn circles on floor. League City and champion arena: spacious grand ivory-and-gold stone tournament courtyard, wide terraced pale ceremonial paving with fine gold borders, tall slender columns and cloth banners at outer margins, distant monumental league hall and high mountain horizon under warm dawn sky. Prestigious and serene, luxurious detailed pixel art, both combat positions empty with plenty of room.",
+          "dimensions": [1536, 1024]
+        }
+      ]
     },
     {
       "file": "assets/creatures-moth.png",
@@ -626,6 +845,420 @@
       "usage": "Android自适应图标透明前景；与蓝色背景层合成，面部和球扣保留在中央安全区域。",
       "finalPrompt": "Use case: background-extraction.\nAsset type: Android adaptive launcher icon FOREGROUND layer, square 1024x1024 PNG with genuine transparent alpha.\nInput image is the exact icon artwork to adapt. Preserve the same original charcoal-and-orange fire ferret identity, cream muzzle, amber eyes, two forepaws, turquoise-and-ivory capture capsule with gold star clasp, expressive face, bold contours and premium 2D shading.\nRemove ALL blue background, radial rays and detached sparkles. Isolate only the ferret, its attached flame tail, paws and capsule on real transparency. No shadow, no new backdrop, no frame.\nRecompose the group slightly smaller and entirely inside the central safe area: leave at least 18% truly transparent padding on every edge; the eyes, muzzle, capsule and clasp must be fully inside the centered circle of diameter 66% of canvas. Show a clean finished silhouette, close the cropped lower body naturally behind the capsule. Keep the face and capture sphere large enough to read at 48 px. Tail may curl behind shoulder within the safe boundary.\nNo text, no logos, no extra creatures, no white matte, no rounded tile. Match the supplied character and capture capsule precisely.",
       "dimensions": [1254, 1254]
+    },
+    {
+      "file": "assets/maps/illustrated/championRoad.png",
+      "mapIds": ["championRoad"],
+      "usage": "十一号冠军路完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [3072, 2560],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/league.png",
+      "mapIds": ["league"],
+      "usage": "星苔联盟完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 2048],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/leagueHall.png",
+      "mapIds": ["leagueHall"],
+      "usage": "联盟五重回廊完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2304, 4480],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/hallOfFame.png",
+      "mapIds": ["hallOfFame"],
+      "usage": "星苔冠军名录完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2304, 1536],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/powerRoute.png",
+      "mapIds": ["powerRoute"],
+      "usage": "四号滨海栈道完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/volt.png",
+      "mapIds": ["volt"],
+      "usage": "雷鸣市完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/powerStation.png",
+      "mapIds": ["powerStation"],
+      "usage": "E-04 能源站完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2432, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/electricGym.png",
+      "mapIds": ["electricGym"],
+      "usage": "霆光道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [1920, 1536],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/windRoute.png",
+      "mapIds": ["windRoute"],
+      "usage": "五号回风山道完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2944, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/wind.png",
+      "mapIds": ["wind"],
+      "usage": "风栖镇完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2432, 1920],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/windObservatory.png",
+      "mapIds": ["windObservatory"],
+      "usage": "山脊气象站完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2176, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/windSanctuary.png",
+      "mapIds": ["windSanctuary"],
+      "usage": "断风岭保护地完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/windGym.png",
+      "mapIds": ["windGym"],
+      "usage": "流羽道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2048, 1664],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/furnaceRoute.png",
+      "mapIds": ["furnaceRoute"],
+      "usage": "六号熔脊回廊完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/furnace.png",
+      "mapIds": ["furnace"],
+      "usage": "炉心城完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 2048],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/foundry.png",
+      "mapIds": ["foundry"],
+      "usage": "熔炉校准站完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2432, 1920],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/hotSprings.png",
+      "mapIds": ["hotSprings"],
+      "usage": "温泉冷石谷完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2688, 2048],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/fireGym.png",
+      "mapIds": ["fireGym"],
+      "usage": "炉心道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2048, 1664],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/lakeRoute.png",
+      "mapIds": ["lakeRoute"],
+      "usage": "九号镜河路完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2944, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/lake.png",
+      "mapIds": ["lake"],
+      "usage": "镜湖镇完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 2048],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/mirrorArchive.png",
+      "mapIds": ["mirrorArchive"],
+      "usage": "镜湖公开档案馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2176, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/mirrorRuins.png",
+      "mapIds": ["mirrorRuins"],
+      "usage": "回镜遗庭完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2944, 2304],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/psychicGym.png",
+      "mapIds": ["psychicGym"],
+      "usage": "镜心道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2048, 1664],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/starRoute.png",
+      "mapIds": ["starRoute"],
+      "usage": "十号星辉环道完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [3072, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/star.png",
+      "mapIds": ["star"],
+      "usage": "星岚城完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/starCore.png",
+      "mapIds": ["starCore"],
+      "usage": "星核调度庭完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/ancientTemple.png",
+      "mapIds": ["ancientTemple"],
+      "usage": "双衡古庙完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2688, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/nightHall.png",
+      "mapIds": ["nightHall"],
+      "usage": "终宵厅完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2432, 1920],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/starGym.png",
+      "mapIds": ["starGym"],
+      "usage": "星岚道馆完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2176, 1792],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/deepwood.png",
+      "mapIds": ["deepwood"],
+      "usage": "幽苔保育林完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2560, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/echoMeadow.png",
+      "mapIds": ["echoMeadow"],
+      "usage": "回声原野完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/mineDepths.png",
+      "mapIds": ["mineDepths"],
+      "usage": "回声深矿完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2816, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/kelpCove.png",
+      "mapIds": ["kelpCove"],
+      "usage": "回潮海藻湾完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [2944, 2176],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/interior-home.png",
+      "mapIds": [
+        "interior_dawn_3_2",
+        "interior_dawn_15_2",
+        "interior_moss_15_8",
+        "interior_stone_18_10",
+        "interior_harbor_28_7",
+        "interior_harbor_13_10",
+        "interior_harbor_2_18",
+        "interior_tideworks_2_2",
+        "interior_league_29_22",
+        "interior_volt_19_10",
+        "interior_volt_29_19",
+        "interior_wind_22_19",
+        "interior_wind_2_22",
+        "interior_furnace_24_21",
+        "interior_furnace_3_23",
+        "interior_lake_11_22",
+        "interior_lake_25_22",
+        "interior_star_26_22",
+        "interior_star_4_24"
+      ],
+      "usage": "19个相同室内共用的插画；各自NPC、入口和存档地图ID保持独立。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/interior-center.png",
+      "mapIds": [
+        "interior_dawn_3_9",
+        "interior_moss_3_2",
+        "interior_stone_3_2",
+        "interior_harbor_2_2",
+        "interior_league_2_2",
+        "interior_volt_2_2",
+        "interior_wind_3_2",
+        "interior_furnace_2_2",
+        "interior_lake_2_2",
+        "interior_star_3_2"
+      ],
+      "usage": "10个相同室内共用的插画；各自NPC、入口和存档地图ID保持独立。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/interior-shop.png",
+      "mapIds": [
+        "interior_moss_3_8",
+        "interior_stone_4_9",
+        "interior_harbor_4_10",
+        "interior_league_2_12",
+        "interior_volt_3_11",
+        "interior_wind_3_12",
+        "interior_wind_7_12",
+        "interior_furnace_2_12",
+        "interior_furnace_6_12",
+        "interior_lake_2_12",
+        "interior_lake_6_12",
+        "interior_star_3_12"
+      ],
+      "usage": "12个相同室内共用的插画；各自NPC、入口和存档地图ID保持独立。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "file": "assets/maps/illustrated/interior-lobby.png",
+      "mapIds": ["interior_league_13_2"],
+      "usage": "星苔联盟联盟接待大厅完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
     }
   ],
   "retiredAssets": [
@@ -736,6 +1369,594 @@
       "usage": "潮汐篇地图、独立水系精灵形态或战斗背景。",
       "finalPrompt": "Use case: stylized-concept. Asset type: final production background for an original creature RPG. Image 1 is the EXACT collision guide; keep EVERY water rectangle, building footprint, boundary, path and opening at the SAME normalized position. Image 2 is ONLY a finish/style reference. Fine richly shaded square PIXEL ART, polished handheld 2D RPG, top-down orthographic, no perspective tilt. Redraw the guide as finished detailed art, edge to edge, NO frame, labels, letters, logos, people, creatures, UI, or arrows. ALL open floor, lawn and paths must stay visually WALKABLE, no freestanding rocks, trees, crates or shrubs on open tiles; decorations may be painted only inside blocked footprints or water. Clear path edges and tile alignment. Scene: preserve style, exact buildings and ground composition of stone-city reference, but the authoritative new guide has an EAST EXIT at row18. Keep the OLD west exit row14, south exit column14, all paths/buildings/pool. East exit path begins existing column22,row18 and extends through boundary column29,row18; a clear opening in eastern boundary rocks. Original30x22 logicaltiles. No extra exits. Landscape1500x1100.",
       "dimensions": [1464, 1074]
+    },
+    {
+      "previousFile": "assets/maps/expedition-tiles.png",
+      "replacement": null,
+      "retiredAt": "2026-10-16",
+      "reason": "地图已使用完整插画，旧图块没有运行引用。",
+      "usage": "旧地图图块源文件的插画替换；运行时地图与回退均使用统一完整插画。",
+      "dimensions": [128, 128],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false,
+      "previousGenerations": [
+        {
+          "file": "assets/maps/expedition-tiles.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-abda073e-ba45-4fda-8c6a-5680b0afc7d6.png",
+          "transparentBackgroundRequested": false,
+          "usage": "4×4 无缝地块图集，后续章节按真实碰撞网格铺设；草地、高草、路面、金属、树墙、石墙、水、桥、四类屋顶、砾地、能源、沙地、花坛。",
+          "finalPrompt": "Use case: stylized-concept. Create a production-ready seamless terrain tile atlas for an original refined pixel-art top-down creature-collecting JRPG, visually compatible with lush detailed GBA-inspired countryside, hand-painted pixel clusters and jewel colours, no UI, no letters. EXACTLY a square 4 columns by 4 rows grid, equal size cells, no gaps, no margins, each cell fills its square edge-to-edge. These are repeatable ground/material textures, NOT a finished map. Row 1 left to right: lush emerald short grass; dense knee-high wild grass seen from above; warm ivory cobblestone path; blue-grey industrial metal floor with subtle copper inlay. Row 2: dense leafy forest canopy; carved brown stone wall top; deep turquoise water with fine ripples; golden timber bridge planks. Row 3: red terracotta roof shingles; deep blue healing-center roof shingles; warm green shop roof shingles; golden glass-and-copper gym roof shingles. Row 4: pale gravel and pebbles; glowing blue power-station crystal floor; pale beach sand; green grass with sparse tiny white flowers. Perfectly orthographic overhead view, no angled camera, no shadows crossing cell boundaries, all texture detail small, polished and crisp. The atlas must be fully opaque.",
+          "dimensions": [1254, 1254]
+        }
+      ]
+    },
+    {
+      "previousFile": "assets/maps/biome-tiles.png",
+      "replacement": null,
+      "retiredAt": "2026-10-16",
+      "reason": "地图已使用完整插画，旧图块没有运行引用。",
+      "usage": "旧地图图块源文件的插画替换；运行时地图与回退均使用统一完整插画。",
+      "dimensions": [128, 128],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false,
+      "previousGenerations": [
+        {
+          "file": "assets/maps/biome-tiles.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-a606e030-b1d0-4159-b8ec-595fedf3eed6.png",
+          "transparentBackgroundRequested": false,
+          "usage": "4×4 雪线、熔岩、温泉、遗迹与星核材质图集，按真实地图网格组合。",
+          "finalPrompt": "Production top-down 2D RPG environment material atlas, ONE opaque square image, exactly 4x4 equally sized square tiles covering every cell edge-to-edge. Pixel art fine richly detailed little square pixels, fixed orthographic overhead, no perspective, no text, no objects crossing cell boundaries. These are seamless repeating MATERIAL textures, not separate diorama illustrations. 16 distinct tiles read left-to-right. Row 1: pale blue-white powder snow with tiny crystals; snow-dusted alpine tussock grass; grey craggy layered limestone cliff material; warm dark ochre volcanic gravel floor. Row 2: dark obsidian rock wall material with amber mineral veins; bright glowing orange magma with black cooling cracks; translucent warm turquoise hot-spring water with steam ripples; worn pale jade ruin mosaic floor. Row 3: ancient grey-green carved stone wall material; luxurious dark navy and warm gold ceremonial floor; bright cyan crystalline energy floor; deep dark violet ghost chamber floor. Row 4: lush shallow reed marsh ground texture; pale weathered sandstone floor with tiny eroded markings; sage green alpine meadow with sparse wheatlike grass tufts; red-bronze copper roof shingle texture. Every tile fills its own square completely. Consistent lighting from top left. No gridlines, labels, frames, interface, characters, symbols that look like letters.",
+          "dimensions": [1254, 1254]
+        }
+      ]
+    },
+    {
+      "previousFile": "assets/maps/city-ground-tiles.png",
+      "replacement": null,
+      "retiredAt": "2026-10-16",
+      "reason": "地图已使用完整插画，旧图块没有运行引用。",
+      "usage": "旧地图图块源文件的插画替换；运行时地图与回退均使用统一完整插画。",
+      "dimensions": [128, 128],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false,
+      "previousGenerations": [
+        {
+          "file": "assets/maps/city-ground-tiles.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-ba2841bf-43b0-40ba-89a7-e36679c02d30.png",
+          "transparentBackgroundRequested": false,
+          "usage": "4×4 城市地面图集。前10格依次为晨芽、苔丘、石脊、潮汐、雷鸣、风栖、炉心、镜湖、星岚、联盟街道，后6格为特色地表。",
+          "finalPrompt": "Use case: stylized-concept. Asset type: production seamless ground texture atlas for an original polished top-down 2D pixel RPG. ONE opaque square PNG, EXACT 4 columns by 4 rows, sixteen perfectly equal square cells, each cell fully filled edge-to-edge with one ground material, no gaps or grid borders. Fixed strictly orthographic overhead view, crisp detailed 16-bit square pixels, restrained readable low-contrast texture, consistent light from above, no perspective, no people, no creatures, no buildings, no props, no text, no numbers, no shadows or vignette. Every cell must tile seamlessly with itself and remain legible when downsampled to a 32x32 game tile. Materials in exact reading order: Row1: warm ivory-small-brick garden village path, irregular dark moss-jointed forest slate cobbles, cool gray basalt quarry paving with small embedded pebbles, sun-bleached honey-brown harbor wooden decking with dark fine grain. Row2: dark blue-gray industrial stone plates with restrained thin copper seams, pale cool gray mountain slate with traces of white frost in joints, burnt terracotta and dark volcanic-basalt herringbone brickwork, pale turquoise and silver-gray lakeside interlocking stone mosaic. Row3: midnight-indigo blue city paving with tiny understated brass star-shaped inlays, warm pale limestone ceremonial plaza with fine geometric gold-line inlays, bright clover-and-tiny-white-flower village lawn, deep emerald soft moss and small fallen forest leaves. Row4: pale sandy shoreline with tiny shell fragments, blue-gray fine industrial gravel with sparse copper flecks, cool alpine meadow with short sage grass and sparse lilac flowers, dry rust-brown volcanic fine gravel with tiny black cinders. Make all ten paved street tiles (cells 1-10) visually distinct in stone size, laying pattern and color, keep detail beautiful but calm for readable game characters. No UI, no labels, no watermark.",
+          "dimensions": [1254, 1254]
+        }
+      ]
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_dawn_3_2.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "旅人的家完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_dawn_15_2.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "岚博士研究所完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_dawn_3_9.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "晨芽镇精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_moss_3_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "苔丘镇精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_moss_3_8.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "苔丘镇补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_moss_15_8.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "森林研究室完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_stone_3_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "石脊城精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_stone_4_9.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "石脊城补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_stone_18_10.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "矿工之家完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_harbor_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "潮汐港精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_harbor_28_7.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "港口仓库完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_harbor_4_10.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "潮汐港补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_harbor_13_10.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "港务所完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_harbor_2_18.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "青帆的家完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_tideworks_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "旧灯塔检修室完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_league_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星苔联盟精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_league_13_2.png",
+      "replacement": "assets/maps/illustrated/interior-lobby.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星苔联盟联盟接待大厅完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_league_2_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星苔联盟补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_league_29_22.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星苔联盟民居完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_volt_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "雷鸣市精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_volt_19_10.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "电桥事务所完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_volt_3_11.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "雷鸣市补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_volt_29_19.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "值班员休息室完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_wind_3_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "风栖镇精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_wind_3_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "风栖镇补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_wind_7_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "风栖镇补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_wind_22_19.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "气象员的家完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_wind_2_22.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "风筝工坊完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_furnace_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "炉心城精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_furnace_2_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "炉心城补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_furnace_6_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "炉心城补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_furnace_24_21.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "温泉休息所完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_furnace_3_23.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "工匠之家完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_lake_2_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "镜湖镇精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_lake_2_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "镜湖镇补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_lake_6_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "镜湖镇补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_lake_11_22.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "湖岸画室完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_lake_25_22.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "拓片研究室完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_star_3_2.png",
+      "replacement": "assets/maps/illustrated/interior-center.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星岚城精灵中心完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_star_3_12.png",
+      "replacement": "assets/maps/illustrated/interior-shop.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星岚城补给商店完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_star_26_22.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星岚城民居完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/maps/illustrated/interior_star_4_24.png",
+      "replacement": "assets/maps/illustrated/interior-home.png",
+      "retiredAt": "2026-10-16",
+      "reason": "内容逐字节相同，合并为共享室内图片。",
+      "usage": "星岚城民居完整插画地图；道路、建筑、门槛与最终可行走格一致。",
+      "dimensions": [896, 768],
+      "sourceGenerator": "code-native SVG + @resvg/resvg-js",
+      "sourceFile": "src/content/sceneIllustrations/index.ts",
+      "generationTool": "tools/generate-scene-art.ts",
+      "transparentBackgroundRequested": false
+    },
+    {
+      "previousFile": "assets/characters/props.png",
+      "replacement": "src/components/FieldPropIllustration/index.tsx",
+      "retiredAt": "2026-10-16",
+      "reason": "所有地图已使用插画道具；已移除永远不会命中的旧像素回退代码。",
+      "bytes": 1616339,
+      "sha256": "4f25e94bb79a3013384afea06d664d24eab4b72532932fc454a009b2ed795a14",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-678546da-3d3c-4a9f-8207-a32d4b93a8be.png",
+      "transparentBackgroundRequested": true,
+      "usage": "4×2 场景道具图集。",
+      "finalPrompt": "Use case: stylized-concept. Asset type: production game prop sprite atlas, genuine transparent PNG, EXACT 4 columns by 2 rows, all eight cells equal square sizes on a 1536x768 canvas. Each object centered in its own cell with 18% clear padding, isolated, no shadows outside the object, no overlapping cells. Beautiful detailed crisp fine pixel art for a lush top-down countryside fantasy RPG, small square pixels, mossy weathered materials, same orthographic slightly overhead camera as a 2D top-down game. Row 1 left to right: a small weathered wooden direction sign on a single wooden post with tiny ivy (NO writing); a cluster of pale glowing gold crystals and small broken twig as a quest clue; a carved mossy pale jade stone stele with tiny leaf rune and weathered base; a compact brown wooden treasure chest with antique bronze bands. Row 2 left to right: a thick mossy fallen oak trunk lying HORIZONTALLY with visible circular cut end and bark; a low small rustic wooden gate with leafy vine arch; a dense square screen of tangled green vines and little pale flowers that blocks a garden doorway; a small intriguing dark blue ore rock with luminous turquoise veins. No labels, no text, no grid, no background, no people, no creatures, no watermark. Clean detailed pixel shading, distinct silhouettes, complete uncut objects inside each cell.",
+      "dimensions": [1774, 887]
     }
-  ]
+  ],
+  "sceneStyle": "全部88张地图与9套战斗背景统一为奶油纸色、棕色描边的插画；相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。"
 }

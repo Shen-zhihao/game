@@ -15,6 +15,7 @@ import wave
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+APP_NAME = json.loads((ROOT / "src" / "content" / "brand" / "brand.json").read_text(encoding="utf-8"))["name"]
 RATE = 44100
 # Each piece has its own harmony, motif, orchestration and rhythm. MIDI note numbers.
 SCORES = [
@@ -182,7 +183,7 @@ def main():
             print(f"{key}: {len(samples) / RATE:.2f}s, {len(data)} bytes", flush=True)
     manifest = ROOT / "docs" / "音乐资源" / "背景音乐.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(json.dumps({"来源": "为星苔远征编写的原创程序合成配乐；无第三方录音、采样或现有游戏旋律。",
+    manifest.write_text(json.dumps({"来源": f"为{APP_NAME}编写的原创程序合成配乐；无第三方录音、采样或现有游戏旋律。",
                                     "使用范围": "随本项目分发、修改和商用，无第三方署名要求。",
                                     "生成工具": "tools/generate-music.py（Python 3、numpy；AAC 编码使用 macOS afconvert 或 ffmpeg）",
                                     "音频格式": "AAC-LC / M4A，44.1 kHz，立体声，目标 64 kbit/s；运行时离线播放本地文件。",

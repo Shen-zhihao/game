@@ -5,6 +5,7 @@ import { SaveRepository } from '../../persistence/repository';
 import { Entropy, Snapshot } from '../../persistence/snapshot';
 import { makeReceiver, Pairing, ReceiverIdentity } from '../crypto';
 import { TransferEvents, TransferPeer, Wire } from '../protocol';
+import { APP_NAME } from '../../content/brand';
 
 export type NearbyDevice = {
   sessionId: string;
@@ -55,7 +56,7 @@ export class LanTransfer {
       if (!host || !s.port) return;
       devices.set(s.txt.session, {
         sessionId: s.txt.session,
-        name: s.txt.alias ?? '星苔旅人',
+        name: s.txt.alias ?? `${APP_NAME}旅人`,
         host,
         port: s.port,
         serviceName: s.name,
@@ -135,9 +136,9 @@ export class LanTransfer {
       const published = await z.publishService({
         type: 'stargrovesave',
         protocol: 'tcp',
-        name: `星苔-${pairing.sessionId.slice(0, 6)}`,
+        name: `${APP_NAME}-${pairing.sessionId.slice(0, 6)}`,
         port,
-        txt: { v: '1', session: pairing.sessionId, alias: '星苔接收端' },
+        txt: { v: '1', session: pairing.sessionId, alias: `${APP_NAME}接收端` },
       });
       if (generation !== this.generation) {
         await z.unpublishService(published.name);

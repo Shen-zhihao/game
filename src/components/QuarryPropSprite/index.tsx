@@ -1,6 +1,7 @@
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
+import { sceneInk as c } from '../../content/sceneArt';
 
-/** Small interactive quarry objects stay separate from the map and its collision. */
+/** Collision objects use the same warm outlines as their illustrated surroundings. */
 export function QuarryPropSprite({
   kind,
   size,
@@ -11,61 +12,48 @@ export function QuarryPropSprite({
   active?: boolean;
 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32">
-      <Rect x={3} y={28} width={27} height={3} fill="#211e25" opacity={0.4} />
-      {kind === 'rock' ? (
-        <>
-          <Path d="M3 25 V16 H6 V9 H11 V5 H22 V8 H26 V14 H29 V26 H24 V29 H8 V27 Z" fill="#5d5b54" />
-          <Path d="M5 16 L11 7 H21 L25 15 L19 23 H7 Z" fill="#aaa084" />
-          <Path d="M11 7 L16 14 L25 15 L21 7 Z" fill="#d4c49b" />
-          <Path d="M7 24 L16 16 L19 23 L25 17 L27 25 L22 27 H9 Z" fill="#807b68" />
-          <Path d="M17 8 L14 14 L18 17 L14 23" fill="none" stroke="#494b47" strokeWidth={2} />
-          <Rect x={8} y={13} width={4} height={2} fill="#e4d5ae" />
-          <Rect x={23} y={23} width={3} height={2} fill="#bbb293" />
-        </>
-      ) : kind === 'door' ? (
-        <>
-          <Rect x={2} y={3} width={28} height={27} fill="#3c3e41" />
-          <Rect x={4} y={4} width={24} height={25} fill="#81775e" />
-          <Rect x={7} y={5} width={18} height={24} fill="#585d60" />
-          {[8, 15, 22].map((y) => (
-            <Rect key={y} x={8} y={y} width={16} height={3} fill="#818580" />
-          ))}
-          <Rect x={3} y={3} width={26} height={3} fill="#d4b774" />
-          <Rect x={4} y={6} width={3} height={23} fill="#baa36d" />
-          <Rect x={25} y={6} width={3} height={23} fill="#baa36d" />
-          <Path d="M16 10 L20 16 L16 22 L12 16 Z" fill="#bea56d" />
-          <Rect x={15} y={14} width={2} height={4} fill="#ead7a4" />
-        </>
-      ) : (
-        <>
-          <Rect x={6} y={24} width={23} height={5} fill="#51555a" />
-          <Rect x={8} y={10} width={19} height={15} fill="#8c8268" />
-          <Rect x={10} y={12} width={15} height={10} fill="#363f42" />
-          <Rect x={8} y={9} width={19} height={3} fill="#d4bb7d" />
-          <Rect x={11} y={14} width={6} height={5} fill={active ? '#85cbaa' : '#c59c68'} />
-          <Rect x={19} y={15} width={4} height={2} fill="#dfcc8d" />
-          {kind === 'weight' ? (
-            <>
-              <Path d={active ? 'M19 13 L25 5' : 'M19 13 L13 4'} stroke="#d2c4a4" strokeWidth={3} />
-              <Rect
-                x={active ? 23 : 10}
-                y={3}
-                width={5}
-                height={4}
-                fill={active ? '#91d4a3' : '#daaa70'}
-              />
-              <Rect x={4} y={19} width={5} height={7} fill="#b8ab85" />
-            </>
-          ) : (
-            <>
-              <Rect x={18} y={19} width={3} height={2} fill={active ? '#7bcc9d' : '#d98f6f'} />
-              <Rect x={22} y={19} width={2} height={2} fill="#9da79b" />
-              <Path d="M27 14 H30 V26 H27" stroke="#626a68" strokeWidth={2} fill="none" />
-            </>
-          )}
-        </>
-      )}
+    <Svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
+      <Ellipse cx={24} cy={42} rx={20} ry={4} fill={c.outline} opacity={0.14} />
+      <G stroke={c.outline} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        {kind === 'rock' ? (
+          <>
+            <Path d="M5 38 4 25 13 10Q23 4 34 11l10 17-4 13-26 2Z" fill="#bfb49d" />
+            <Path d="m10 25 9-12 12-1 8 13-17 9Z" fill="#d9ceb5" strokeWidth={1} />
+            <Path d="m25 11-5 13 7 5-6 11" fill="none" />
+          </>
+        ) : kind === 'door' ? (
+          <>
+            <Path d="M5 42V13Q24-3 43 13v29Z" fill="#d4c5a5" />
+            <Path d="M11 42V16q13-10 26 0v26Z" fill="#b3b9a1" />
+            <Path d="M13 25h22m-22 9h22" stroke="#e8d8af" strokeWidth={3} />
+            <Path d="m24 17 6 7-6 7-6-7Z" fill={c.gold} />
+          </>
+        ) : (
+          <>
+            <Rect x={7} y={16} width={34} height={24} rx={5} fill="#c9b99a" />
+            <Rect
+              x={12}
+              y={20}
+              width={24}
+              height={13}
+              rx={3}
+              fill={active ? '#c4d7ae' : '#eedab3'}
+            />
+            <Path d="M10 38h28" stroke="#a38b67" />
+            {kind === 'weight' ? (
+              <>
+                <Path d={active ? 'm24 20 10-14' : 'm24 20-11-14'} strokeWidth={3} />
+                <Circle cx={active ? 34 : 13} cy={6} r={4} fill={c.gold} />
+              </>
+            ) : (
+              <>
+                <Circle cx={18} cy={26} r={3} fill={c.gold} />
+                <Path d="M25 24h6m-6 5h4" />
+              </>
+            )}
+          </>
+        )}
+      </G>
     </Svg>
   );
 }

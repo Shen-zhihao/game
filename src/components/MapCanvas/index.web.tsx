@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import { Image, View } from 'react-native';
 import { GameState, MapId } from '../../game/model';
 import { MAP_IMAGES } from '../sceneAssets';
-import { MapPatch, TileMap } from '../TileMap';
-import { useSceneReady } from '../../useSceneReady';
+import { TileMap } from '../TileMap';
+import { useSceneReady } from '../../hooks/useSceneReady';
 
 export function MapCanvas({
   state,
@@ -33,9 +33,6 @@ export function MapCanvas({
         />
       ) : (
         <TileMap map={state.player.map} width={width} height={height} />
-      )}
-      {!!MAP_IMAGES[state.player.map] && (
-        <MapPatch map={state.player.map} width={width} height={height} />
       )}
     </View>
   );

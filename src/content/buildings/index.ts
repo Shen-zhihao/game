@@ -2,6 +2,30 @@ import type { InteriorMapId, MapId, WorldMapId } from '../../game/model';
 import type { GameMap, Npc } from '../world';
 
 export type RoomKind = 'home' | 'center' | 'shop' | 'lobby';
+export interface InteriorCounter {
+  npcId: string;
+  x: number;
+  y: number;
+  width: number;
+  kind: 'healing' | 'shop' | 'reception' | 'research' | 'workbench';
+}
+
+const WORK_DESKS: Record<string, InteriorCounter['kind']> = {
+  professor: 'research',
+  researcher: 'research',
+  rubbingScholar: 'research',
+  windScientist: 'research',
+  harborMaster: 'reception',
+  powerEngineer: 'workbench',
+  mineForeman: 'workbench',
+  toolMaker: 'workbench',
+  springKeeper: 'reception',
+};
+
+/** The customer stands one tile beyond a solid counter, facing its attendant. */
+export function servicePosition(map: GameMap, npc: Npc) {
+  return { x: npc.x, y: npc.y + (map.rows[npc.y + 1]?.[npc.x] === 'K' ? 2 : 1) };
+}
 export const ROOM_SITES = [
   'dawn_3_2',
   'dawn_15_2',
@@ -143,6 +167,7 @@ export interface BuildingEntrance {
   map: MapId;
   name: string;
   doorway: BuildingDoorway;
+  footprint: { x: number; y: number; width: number; height: number; kind: string };
 }
 export const worldMapFor = (map: MapId): WorldMapId =>
   (map.startsWith('interior_') ? map.split('_')[1] : map) as WorldMapId;
@@ -167,7 +192,7 @@ const RESIDENTS: Record<string, { name: string; ids: string[] }> = {
   lake_25_22: { name: '拓片研究室', ids: ['rubbingScholar'] },
 };
 
-function roomRows(kind: RoomKind): string[] {
+function roomRows(kind: RoomKind, counters: InteriorCounter[]): string[] {
   const cells: string[][] = Array.from({ length: 12 }, (_, y) =>
     Array.from({ length: 14 }, (_, x) => (x === 0 || x === 13 || y === 0 || y === 11 ? '#' : ':')),
   );
@@ -190,9 +215,84 @@ function roomRows(kind: RoomKind): string[] {
         [11, 8],
       ])
     cells[y!]![x!] = 'F';
+  for (const counter of counters)
+    for (let x = counter.x; x < counter.x + counter.width; x++) cells[counter.y]![x] = 'K';
   cells[10]![7] = 'E';
   cells[11]![7] = 'E';
   return cells.map((r) => r.join(''));
+}
+
+/** Extend disconnected porches across ordinary ground to the existing main street. */
+function connectBuildingApproaches(map: GameMap): void {
+  if (!map.entrances?.length) return;
+  const key = (x: number, y: number) => `${x},${y}`;
+  const neighbours = (x: number, y: number): [number, number][] => [
+    [x, y + 1],
+    [x - 1, y],
+    [x + 1, y],
+    [x, y - 1],
+  ];
+  const street = (x: number, y: number) =>
+    ':='.includes(map.rows[y]?.[x] ?? ' ') && !!map.rows[y]?.[x];
+  const flood = (x: number, y: number) => {
+    const component = new Set<string>();
+    const queue: [number, number][] = [[x, y]];
+    for (let i = 0; i < queue.length; i++) {
+      const [xx, yy] = queue[i]!;
+      if (!street(xx, yy) || component.has(key(xx, yy))) continue;
+      component.add(key(xx, yy));
+      queue.push(...neighbours(xx, yy));
+    }
+    return component;
+  };
+  let main = new Set<string>();
+  const checked = new Set<string>();
+  map.rows.forEach((row, y) =>
+    [...row].forEach((_, x) => {
+      if (!street(x, y) || checked.has(key(x, y))) return;
+      const component = flood(x, y);
+      component.forEach((cell) => checked.add(cell));
+      if (component.size > main.size) main = component;
+    }),
+  );
+  const occupied = new Set(map.npcs.map((npc) => key(npc.x, npc.y)));
+  for (const entrance of map.entrances) {
+    const start: [number, number] = [entrance.x, entrance.y + 1];
+    if (main.has(key(...start))) continue;
+    const queue: [number, number][] = [start];
+    const previous = new Map<string, [number, number] | null>([[key(...start), null]]);
+    let end: [number, number] | undefined;
+    for (let i = 0; i < queue.length; i++) {
+      const cell = queue[i]!;
+      if (main.has(key(...cell))) {
+        end = cell;
+        break;
+      }
+      for (const [x, y] of neighbours(...cell)) {
+        const tile = map.rows[y]?.[x];
+        const id = key(x, y);
+        // Do not pave over encounters, obstacles, water, buildings or field objects.
+        if (
+          !tile ||
+          !'.,:='.includes(tile) ||
+          previous.has(id) ||
+          (occupied.has(id) && !street(x, y))
+        )
+          continue;
+        previous.set(id, cell);
+        queue.push([x, y]);
+      }
+    }
+    if (!end) throw new Error(`建筑门前道路无法接入主街：${map.id}/${entrance.name}`);
+    let cell: [number, number] | null = end;
+    while (cell) {
+      const [x, y]: [number, number] = cell;
+      if (map.rows[y]![x] !== '=')
+        map.rows[y] = map.rows[y]!.slice(0, x) + ':' + map.rows[y]!.slice(x + 1);
+      cell = previous.get(key(x, y)) ?? null;
+    }
+    main = flood(...start);
+  }
 }
 
 /** Install one real doorway for every connected painted building footprint. */
@@ -235,6 +335,27 @@ export function installBuildingInteriors(
           ? Math.floor((visual.x + visual.width / 2) / 32)
           : (gate?.x ?? Math.floor((left + right + 1) / 2));
         const doorY = visual.raster ? Math.round((visual.y + visual.height) / 32) - 1 : bottom;
+        // Keep legacy entry tiles and saved return positions; snap the new artwork to those cells.
+        // Roads, the animated door and night lamps now share this exact threshold centre.
+        const centre = doorX * 32 + 16;
+        const threshold = (doorY + 1) * 32;
+        Object.assign(visual, {
+          x: centre - 10,
+          y: threshold - 28,
+          width: 20,
+          height: 28,
+          raster: true,
+          windows: [0.22, 0.78]
+            .map((t) => ({ x: (left + (right - left + 1) * t) * 32, y: threshold - 20 }))
+            .filter((w) => Math.abs(w.x - centre) > 18),
+        });
+        const footprint = {
+          x: left * 32,
+          y: top * 32,
+          width: (right - left + 1) * 32,
+          height: (bottom - top + 1) * 32,
+          kind: tile,
+        };
         const porchY = doorY + 1;
         // An older collision footprint may extend below the painted threshold.
         // Connect its approach to the street, without moving the building or its room ID.
@@ -261,6 +382,7 @@ export function installBuildingInteriors(
             map: gym.map,
             name: maps[gym.map].name,
             doorway: visual,
+            footprint,
           });
           continue;
         }
@@ -296,10 +418,16 @@ export function installBuildingInteriors(
           npcs = occupants.filter((n) => ids.includes(n.id));
         }
         outside.npcs = outside.npcs.filter((n) => !npcs.includes(n));
-        npcs = npcs.map((n, i) => ({ ...n, x: 5 + i * 3, y: 4, patrol: undefined }));
+        npcs = npcs.map((n, i) => ({
+          ...n,
+          role: kind === 'lobby' ? 'resident' : n.role,
+          x: 5 + i * 3,
+          y: 4,
+          patrol: undefined,
+        }));
         const name =
           resident?.name ??
-          `${outside.name}${kind === 'center' ? '精灵中心' : kind === 'shop' ? '补给商店' : kind === 'lobby' ? '联盟接待大厅' : '民居'}`;
+          `${outside.name}${kind === 'center' ? '精灵中心' : kind === 'shop' ? '补给商店' : kind === 'lobby' ? '接待大厅' : '民居'}`;
         if (!npcs.length)
           npcs.push({
             id: `${key}_resident`,
@@ -309,18 +437,42 @@ export function installBuildingInteriors(
             name: '居民',
             lines: [`欢迎来到${name}。旅途中记得常让伙伴休息，也去看看附近的居民有什么新消息。`],
           });
+        const counters = npcs.flatMap((npc): InteriorCounter[] => {
+          const style =
+            kind === 'center'
+              ? 'healing'
+              : kind === 'shop'
+                ? 'shop'
+                : kind === 'lobby'
+                  ? 'reception'
+                  : WORK_DESKS[npc.id];
+          if (!style) return [];
+          const width = kind === 'center' || kind === 'lobby' ? 5 : 3;
+          return [
+            { npcId: npc.id, x: npc.x - Math.floor(width / 2), y: npc.y + 1, width, kind: style },
+          ];
+        });
         maps[id] = {
           id,
           name,
           subtitle: '沿南侧门口离开，回到刚才的街道',
           interior: { exterior: outside.id, kind },
-          rows: roomRows(kind),
+          rows: roomRows(kind, counters),
+          counters,
           npcs,
           encounters: [],
           portals: [{ x: 7, y: 11, map: outside.id, toX: doorX, toY: porchY }],
         };
         outside.portals.push({ x: doorX, y: doorY, map: id, toX: 7, toY: 9 });
-        (outside.entrances ??= []).push({ x: doorX, y: doorY, map: id, name, doorway: visual });
+        (outside.entrances ??= []).push({
+          x: doorX,
+          y: doorY,
+          map: id,
+          name,
+          doorway: visual,
+          footprint,
+        });
       }
+    connectBuildingApproaches(outside);
   }
 }

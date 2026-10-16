@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import { Command } from '../game/model';
 import { SaveRepository } from '../persistence/repository';
 import { SaveSession, SessionState } from '../persistence/session';
-import { travelProfile } from '../game/environment';
+import { resolveWalk } from '../game/movement';
 
 export function useGameSession(repository: SaveRepository | null) {
   const [state, setState] = useState<SessionState>({ game: null, slot: 1, saveStatus: '' });
@@ -31,13 +31,7 @@ export function useGameSession(repository: SaveRepository | null) {
       if (!current) return;
       if (command.kind === 'walk') {
         if (Date.now() < lastWalkInput.current) return;
-        const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[
-          command.direction
-        ]!;
-        lastWalkInput.current =
-          Date.now() +
-          travelProfile(current, current.player.x + dx!, current.player.y + dy!).interval -
-          12;
+        lastWalkInput.current = Date.now() + resolveWalk(current, command.direction).interval - 12;
       }
       if (command.kind === 'battle') {
         if (Date.now() - lastBattleInput.current < 300) return;

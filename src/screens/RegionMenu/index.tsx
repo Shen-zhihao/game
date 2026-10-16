@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Image, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { MAP_IMAGES } from '../../components/sceneAssets';
@@ -16,7 +16,8 @@ import {
 import { MAPS } from '../../content/world';
 import { GameState, MapId } from '../../game/model';
 import { HABITAT_SITES } from '../../content/habitats';
-import { MapPatchLayers, TileMapLayers } from '../../components/TileMap';
+import { TileMapLayers } from '../../components/TileMap';
+import { layoutRegionLabels } from '../../content/regionLabels';
 import { ADVENTURE_GYMS } from '../../content/adventure';
 
 function LocalMap({ game, map }: { game: GameState; map: MapId }) {
@@ -37,7 +38,6 @@ function LocalMap({ game, map }: { game: GameState; map: MapId }) {
       ) : (
         <TileMapLayers map={map} />
       )}
-      {!!MAP_IMAGES[map] && <MapPatchLayers map={map} />}
       {game.player.map === map && (
         <G
           testID="local-player-pin"
@@ -61,6 +61,10 @@ function WorldMap({
   onSelect: (place: RegionPlace) => void;
 }) {
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const labels = useMemo(
+    () => layoutRegionLabels(REGION_PLACES, selected, current),
+    [selected, current],
+  );
   const scale = Math.min(size.width / REGION_SIZE.width, size.height / REGION_SIZE.height);
   const left = (size.width - REGION_SIZE.width * scale) / 2;
   const top = (size.height - REGION_SIZE.height * scale) / 2;
@@ -168,22 +172,6 @@ function WorldMap({
                   strokeWidth={2}
                 />
               )}
-              <SvgText
-                x={place.x}
-                y={place.y + 29}
-                fontSize={17}
-                fontWeight={active ? '800' : '600'}
-                textAnchor="middle"
-                fill={active ? '#362f26' : '#625642'}
-                stroke="#fff8e2"
-                strokeWidth={0.5}
-              >
-                {place.id === 'route'
-                  ? '一号路'
-                  : place.id === 'stoneRoute'
-                    ? '二号路'
-                    : place.name}
-              </SvgText>
               {here && (
                 <Path
                   d={`M${place.x + 10} ${place.y - 25} l15 0 -7.5 12 Z`}
@@ -192,6 +180,47 @@ function WorldMap({
                   strokeWidth={2}
                 />
               )}
+            </G>
+          );
+        })}
+        {labels.map((label) => {
+          const active = label.id === selected;
+          const toX = Math.max(label.x, Math.min(label.x + label.width, label.anchor.x));
+          const toY = Math.max(label.y, Math.min(label.y + label.height, label.anchor.y));
+          return (
+            <G key={`label-${label.id}`} testID={`region-label-${label.id}`}>
+              <Line
+                x1={label.anchor.x}
+                y1={label.anchor.y}
+                x2={toX}
+                y2={toY}
+                stroke={active ? '#a36c18' : '#b4a889'}
+                strokeWidth={active ? 1.5 : 0.8}
+              />
+              <Rect
+                x={label.x}
+                y={label.y}
+                width={label.width}
+                height={label.height}
+                rx={4}
+                fill={active ? '#fff0c4' : '#fffcf5'}
+                fillOpacity={0.96}
+                stroke={active ? '#b47b20' : '#ded2bd'}
+                strokeWidth={0.7}
+              />
+              {label.lines.map((text, i) => (
+                <SvgText
+                  key={i}
+                  x={label.x + label.width / 2}
+                  y={label.y + 3 + label.fontSize + i * (label.fontSize + 3)}
+                  fontSize={label.fontSize}
+                  fontWeight={active ? '800' : '600'}
+                  textAnchor="middle"
+                  fill="#362f26"
+                >
+                  {text}
+                </SvgText>
+              ))}
             </G>
           );
         })}
@@ -210,6 +239,23 @@ function WorldMap({
               { left: left + place.x * scale - 22, top: top + place.y * scale - 22 },
               pressed && { backgroundColor: '#ffdda33a', transform: [{ scale: 0.92 }] },
             ]}
+          />
+        ))}
+      {scale > 0 &&
+        labels.map((label) => (
+          <Pressable
+            key={`label-hit-${label.id}`}
+            testID={`region-label-target-${label.id}`}
+            accessibilityRole="button"
+            accessibilityLabel={`查看${REGION_PLACES.find((p) => p.id === label.id)!.name}`}
+            onPress={() => onSelect(REGION_PLACES.find((p) => p.id === label.id)!)}
+            style={{
+              position: 'absolute',
+              left: left + label.x * scale,
+              top: top + label.y * scale,
+              width: label.width * scale,
+              height: label.height * scale,
+            }}
           />
         ))}
     </View>

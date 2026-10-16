@@ -25,6 +25,7 @@ interface Manifest {
 }
 
 const temporaryDirectories = new Set([
+  'android-package-staging',
   'ios-build',
   'ios-device-build',
   'bundles',

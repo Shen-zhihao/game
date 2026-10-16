@@ -1,4 +1,5 @@
 import { effectiveAccessFlags } from '../../content/keyItems';
+import { servicePosition } from '../../content/buildings';
 import {
   MAPS,
   isTown,
@@ -26,12 +27,13 @@ export const RECOVERY_CENTERS = Object.values(MAPS).flatMap((map) => {
   if (map.interior?.kind !== 'center' || !town || !isTown(town)) return [];
   const healer = map.npcs.find((npc) => npc.role === 'healer');
   if (!healer) return [];
-  const landing = directions
-    .map(([dx, dy]) => ({ x: healer.x + dx, y: healer.y + dy }))
-    .find(
-      ({ x, y }) =>
-        terrainPassable(map.id, x, y, {}) && !map.npcs.some((npc) => npc.x === x && npc.y === y),
-    );
+  const landing = [
+    servicePosition(map, healer),
+    ...directions.map(([dx, dy]) => ({ x: healer.x + dx, y: healer.y + dy })),
+  ].find(
+    ({ x, y }) =>
+      terrainPassable(map.id, x, y, {}) && !map.npcs.some((npc) => npc.x === x && npc.y === y),
+  );
   return landing ? [{ town, map: map.id, ...landing }] : [];
 });
 

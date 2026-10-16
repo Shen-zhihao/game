@@ -1,18 +1,21 @@
 export const CONTROL_IDS = ['dpad', 'interact', 'menu', 'growth'] as const;
 export type ControlId = (typeof CONTROL_IDS)[number];
 export const CONTROL_NAMES: Record<ControlId, string> = {
-  dpad: '方向键',
+  dpad: '摇杆',
   interact: 'A 键',
   menu: '菜单',
   growth: '培养',
 };
 export const MIN_CONTROL_SCALE = 0.75;
 export const MAX_CONTROL_SCALE = 1.75;
+export const DEFAULT_JOYSTICK_OPACITY = 0.85;
+export const MIN_JOYSTICK_OPACITY = 0;
 export type Orientation = 'landscape' | 'portrait';
 export interface ControlPlacement {
   x: number;
   y: number;
   scale: number;
+  opacity?: number;
 }
 export type ControlLayout = Partial<Record<ControlId, ControlPlacement>>;
 export interface ControlPreferences {
@@ -49,12 +52,15 @@ function parseLayout(value: unknown): ControlLayout {
   for (const id of CONTROL_IDS) {
     const placement = (value as Record<string, unknown>)[id];
     if (!placement || typeof placement !== 'object') continue;
-    const { x, y, scale } = placement as ControlPlacement;
+    const { x, y, scale, opacity } = placement as ControlPlacement;
     if (![x, y, scale].every((n) => typeof n === 'number' && Number.isFinite(n))) continue;
     result[id] = {
       x: clamp(x, 0, 1),
       y: clamp(y, 0, 1),
       scale: clamp(scale, MIN_CONTROL_SCALE, MAX_CONTROL_SCALE),
+      ...(id === 'dpad' && typeof opacity === 'number' && Number.isFinite(opacity)
+        ? { opacity: clamp(opacity, MIN_JOYSTICK_OPACITY, 1) }
+        : {}),
     };
   }
   return result;
@@ -128,6 +134,7 @@ export function moveControl(
   return {
     ...layout,
     [id]: {
+      ...layout[id],
       x: horizontal ? clamp((left - area.left) / horizontal, 0, 1) : 0,
       y: vertical ? clamp((top - area.top) / vertical, 0, 1) : 0,
       scale: layout[id]?.scale ?? 1,
@@ -145,7 +152,7 @@ export function resizeControl(
   // Preserve the centre while resizing, then clamp the whole control inside the safe area.
   const resized = {
     ...layout,
-    [id]: { x: 0, y: 0, scale: clamp(scale, MIN_CONTROL_SCALE, MAX_CONTROL_SCALE) },
+    [id]: { ...layout[id], x: 0, y: 0, scale: clamp(scale, MIN_CONTROL_SCALE, MAX_CONTROL_SCALE) },
   };
   const size = resolveControlFrame(id, resized, area);
   return moveControl(
@@ -155,6 +162,19 @@ export function resizeControl(
     frame.left + (frame.width - size.width) / 2,
     frame.top + (frame.height - size.height) / 2,
   );
+}
+export function setJoystickOpacity(
+  layout: ControlLayout,
+  area: ControlArea,
+  opacity: number,
+): ControlLayout {
+  if (!Number.isFinite(opacity)) return layout;
+  const frame = resolveControlFrame('dpad', layout, area);
+  const positioned = moveControl('dpad', layout, area, frame.left, frame.top);
+  return {
+    ...positioned,
+    dpad: { ...positioned.dpad!, opacity: clamp(opacity, MIN_JOYSTICK_OPACITY, 1) },
+  };
 }
 /** Leave room for the custom A key; long dialogue can scroll within the free region. */
 export function resolveDialogueFrame(area: ControlArea, action: ControlFrame) {

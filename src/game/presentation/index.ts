@@ -1,7 +1,7 @@
-import { GYM_REWARDS, MAPS, npcVisible } from '../../content/world';
+import { GYM_REWARDS, MAPS } from '../../content/world';
 import { SPECIES } from '../../content/catalog';
 import { atCenter } from '../fieldSkills';
-import { worldNpcs } from '../exploration';
+import { facingNpc } from '../exploration';
 import { battleFigure } from '../battleVisuals';
 import { canEvolve, creatureName } from '../rules';
 import { hasFieldAccess } from '../../content/keyItems';
@@ -34,12 +34,6 @@ export type JourneyEvent =
 
 export const presentationParty = (game: GameState) =>
   game.party.map((id) => battleFigure(game.creatures[id]!));
-const facingNpc = (game: GameState) => {
-  const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[game.player.facing]!;
-  return worldNpcs(game).find(
-    (n) => n.x === game.player.x + dx! && n.y === game.player.y + dy! && npcVisible(game, n),
-  );
-};
 export function commandPresentation(game: GameState, command: Command): JourneyEvent | null {
   if (game.battle || game.dialogue || game.progress.flags.starterChoice) return null;
   if (command.kind === 'evolve' && command.accept) {

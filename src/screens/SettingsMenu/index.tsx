@@ -14,14 +14,14 @@ import { MenuIcon } from '../../components/MenuIcon';
 import type { Command, GameState } from '../../game/model';
 import { cheatReason } from '../../game/cheats';
 import { HelpMenu, menuStyles } from '../GameMenus';
-import { setHapticsEnabled, useHapticsEnabled, haptic } from '../../platform/haptics';
-import { setMusicPreferences, useMusicPreferences } from '../../platform/music';
-import { setDayNightEnabled, useDayNightEnabled } from '../../platform/dayNight';
-import {
-  BATTLE_MESSAGE_DELAYS,
-  setBattleMessageDelay,
-  useBattleMessageDelay,
-} from '../../platform/battlePlayback';
+import { setHapticsEnabled, haptic } from '../../platform/haptics';
+import { setMusicPreferences } from '../../platform/music';
+import { setDayNightEnabled } from '../../platform/dayNight';
+import { useHapticsEnabled } from '../../hooks/useHapticsEnabled';
+import { useMusicPreferences } from '../../hooks/useMusicPreferences';
+import { useDayNightEnabled } from '../../hooks/useDayNightEnabled';
+import { useBattleMessageDelay } from '../../hooks/useBattleMessageDelay';
+import { BATTLE_MESSAGE_DELAYS, setBattleMessageDelay } from '../../platform/battlePlayback';
 
 export function SettingsMenu({
   game,
@@ -117,7 +117,7 @@ export function SettingsMenu({
             }}
           />
           <Label muted style={settingsStyles.description}>
-            按钮、方向键与战斗命中提供轻触反馈。
+            按钮、摇杆与战斗命中提供轻触反馈。
           </Label>
         </SettingSection>
         <SettingSection title="旅途与节奏" icon="map" wide={contentWidth >= 650}>
@@ -165,7 +165,7 @@ export function SettingsMenu({
             </Button>
           </View>
           <Label muted style={settingsStyles.description}>
-            拖动方向键、A 键、菜单与培养按钮，分别调整大小；横竖屏分别保存。
+            拖动摇杆、A 键、菜单与培养按钮，调整大小和摇杆透明度；横竖屏分别保存。
           </Label>
           {!game && <Label muted>开始或继续一段冒险后，可以使用金手指。</Label>}
         </SettingSection>

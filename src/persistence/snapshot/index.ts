@@ -846,6 +846,26 @@ export function validateGame(input: unknown): GameState {
       );
     }
   }
+  // Old room saves could stand where the new service counters now sit.
+  // Move only this newly blocked tile to the customer side without resetting the journey.
+  if (
+    MAPS[game.player.map].interior &&
+    MAPS[game.player.map].rows[game.player.y]?.[game.player.x] === 'K'
+  ) {
+    const landing = [
+      [0, 1],
+      [1, 0],
+      [-1, 0],
+      [0, -1],
+    ]
+      .map(([dx, dy]) => ({ x: game.player.x + dx!, y: game.player.y + dy! }))
+      .find(
+        ({ x, y }) =>
+          safePosition(game.player.map, x, y, effectiveAccessFlags(game)) &&
+          !worldNpcs(game).some((npc) => npc.x === x && npc.y === y && npcVisible(game, npc)),
+      );
+    if (landing) Object.assign(game.player, landing);
+  }
   invariant(
     safePosition(game.player.map, game.player.x, game.player.y, effectiveAccessFlags(game)),
     '位置不可站立',

@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Easing } from 'react-native';
 import { calendarDetails } from '../game/calendar';
 import { isIndoor } from '../game/environment';
 import type { GameState } from '../game/model';
-import { useDayNightEnabled } from '../platform/dayNight';
+import { useDayNightEnabled } from './useDayNightEnabled';
 
 export function useNightLighting(game: GameState, coveredTransition = false) {
   const enabled = useDayNightEnabled();

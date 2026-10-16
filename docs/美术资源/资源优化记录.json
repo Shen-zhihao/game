@@ -1229,6 +1229,61 @@
         "nativeBuild": false,
         "applicationPackaging": false
       }
+    },
+    {
+      "date": "2026-10-16",
+      "scope": "插画场景统一后的废弃素材清理与相同室内去重。",
+      "summary": {
+        "beforeAssetCount": 145,
+        "afterAssetCount": 102,
+        "beforeBytes": 59110791,
+        "afterBytes": 56533417,
+        "savedBytes": 2577374,
+        "remainingImages": 81,
+        "remainingMusicTracks": 21,
+        "missingRuntimeAssets": 0,
+        "unusedAssets": 0,
+        "duplicateContentGroups": 0
+      },
+      "removedObsoleteAssets": [
+        "assets/maps/expedition-tiles.png",
+        "assets/maps/biome-tiles.png",
+        "assets/maps/city-ground-tiles.png",
+        "assets/characters/props.png",
+        "assets/.DS_Store"
+      ],
+      "sharedInteriors": {
+        "logicalMaps": 42,
+        "sharedImages": 4,
+        "removedDuplicateCopies": 38,
+        "images": [
+          "assets/maps/illustrated/interior-home.png",
+          "assets/maps/illustrated/interior-center.png",
+          "assets/maps/illustrated/interior-shop.png",
+          "assets/maps/illustrated/interior-lobby.png"
+        ],
+        "comparison": "按完整PNG的SHA-256去重；重复生成后所有保留素材的SHA-256不变。",
+        "mapIdsAndNpcsPreserved": true
+      },
+      "codeCleanup": [
+        "移除旧像素PropSprite、FieldBagSprite及无法命中的野外回退分支。",
+        "移除旧图块生成函数；地图生成工具输出共享室内图片，并维护退役来源。"
+      ],
+      "validation": {
+        "typeScript": true,
+        "eslint": true,
+        "allMapImageReferences": 88,
+        "battleBackgrounds": 9,
+        "entranceRoundTrips": 50,
+        "snapshotRoundTrips": 50,
+        "historicalSaveEntries": 1,
+        "generatorIdempotent": true,
+        "currentImageSourceRecords": 81,
+        "browserScreens": ["精灵中心共享图片", "补给商店共享图片", "森林插画道具"],
+        "browserConsoleErrors": 0,
+        "nativeBuild": false,
+        "applicationPackaging": false
+      }
     }
   ]
 }

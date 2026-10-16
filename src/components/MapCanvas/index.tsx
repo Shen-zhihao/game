@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { Canvas, Image, useImage, FilterMode, MipmapMode } from '@shopify/react-native-skia';
 import { GameState, MapId } from '../../game/model';
 import { MAP_IMAGES } from '../sceneAssets';
-import { MapPatch, TileMap } from '../TileMap';
-import { useSceneReady } from '../../useSceneReady';
+import { TileMap } from '../TileMap';
+import { useSceneReady } from '../../hooks/useSceneReady';
 
 export function MapCanvas({
   state,
@@ -30,7 +30,6 @@ export function MapCanvas({
         height={height}
         onReady={onReady ? notifyReady : undefined}
       />
-      <MapPatch map={state.player.map} width={width} height={height} />
     </View>
   ) : (
     <TileMap map={state.player.map} width={width} height={height} />

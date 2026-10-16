@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { decodeSnapshot, digest, Snapshot, utf8 } from '../snapshot';
+import { APP_NAME } from '../../content/brand';
 
 export const MAX_SAVE_FILE_BYTES = 64 * 1024 * 1024;
 export interface SaveEntry {
@@ -58,8 +59,8 @@ export function saveFileData(save: PortableSave): { filename: string; text: stri
   return {
     filename:
       'format' in save
-        ? `stargrove-all-${save.createdAt.replace(/[:.]/g, '-')}.stargrove`
-        : `stargrove-${save.revisionId.slice(0, 8)}.stargrove`,
+        ? `${APP_NAME}-all-${save.createdAt.replace(/[:.]/g, '-')}.stargrove`
+        : `${APP_NAME}-${save.revisionId.slice(0, 8)}.stargrove`,
     text,
   };
 }

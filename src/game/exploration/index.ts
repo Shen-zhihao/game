@@ -147,6 +147,24 @@ export function worldNpcs(game: GameState, mapId = game.player.map): Npc[] {
 function facing(dx: number, dy: number): Direction {
   return dx > 0 ? 'right' : dx < 0 ? 'left' : dy > 0 ? 'down' : 'up';
 }
+export function npcInReach(game: GameState, npc: Npc): boolean {
+  const dx = npc.x - game.player.x,
+    dy = npc.y - game.player.y;
+  if (Math.abs(dx) + Math.abs(dy) === 1) return true;
+  return (
+    (dx === 0 || dy === 0) &&
+    Math.abs(dx) + Math.abs(dy) === 2 &&
+    MAPS[game.player.map].rows[game.player.y + dy / 2]?.[game.player.x + dx / 2] === 'K'
+  );
+}
+export function facingNpc(game: GameState): Npc | undefined {
+  const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[game.player.facing]!;
+  const { x, y, map } = game.player;
+  const distance = MAPS[map].rows[y + dy!]?.[x + dx!] === 'K' ? 2 : 1;
+  return worldNpcs(game).find(
+    (npc) => npc.x === x + dx! * distance && npc.y === y + dy! * distance && npcVisible(game, npc),
+  );
+}
 export function faceTraveler(game: GameState, npc: Npc): void {
   const patrol = ensureExploration(game).patrols[`${game.player.map}:${npc.id}`];
   if (patrol) patrol.facing = facing(game.player.x - npc.x, game.player.y - npc.y);

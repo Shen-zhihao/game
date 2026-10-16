@@ -2,9 +2,11 @@ import React, { useRef } from 'react';
 import { StyleSheet, Text, View, type GestureResponderEvent } from 'react-native';
 import { HapticPressable as Pressable } from '../HapticPressable';
 import { palette } from '../ui';
-import type { Direction } from '../../game/model';
+import type { WalkDirection } from '../../game/model';
+import { VirtualJoystick } from '../VirtualJoystick';
 import {
   CONTROL_NAMES,
+  DEFAULT_JOYSTICK_OPACITY,
   resolveControlFrame,
   type ControlArea,
   type ControlFrame,
@@ -96,7 +98,7 @@ export function GameControls({
   dialogue?: boolean;
   facingWater?: boolean;
   growthPoints?: number;
-  onDirection?: (direction: Direction) => void;
+  onDirection?: (direction: WalkDirection) => void;
   onDirectionEnd?: () => void;
   onInteract?: () => void;
   onMenu?: () => void;
@@ -106,41 +108,18 @@ export function GameControls({
   const action = resolveControlFrame('interact', layout, area);
   const menu = resolveControlFrame('menu', layout, area);
   const growth = resolveControlFrame('growth', layout, area);
-  const arrows: [Direction, string, number, number][] = [
-    ['up', '▴', 1, 0],
-    ['left', '◂', 0, 1],
-    ['right', '▸', 2, 1],
-    ['down', '▾', 1, 2],
-  ];
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       {(!dialogue || editing) && (
         <Control id="dpad" frame={dpad} editing={editing}>
-          {arrows.map(([direction, symbol, x, y]) => (
-            <Pressable
-              key={direction}
-              testID={`move-${direction}`}
-              accessibilityRole="button"
-              accessibilityLabel={`向${{ up: '上', down: '下', left: '左', right: '右' }[direction]}移动`}
-              onPressIn={() => onDirection?.(direction)}
-              onPressOut={onDirectionEnd}
-              disabled={!editing && blocked}
-              style={({ pressed }) => [
-                s.arrow,
-                {
-                  left: (x * dpad.width) / 3,
-                  top: (y * dpad.height) / 3,
-                  width: dpad.width / 3,
-                  height: dpad.height / 3,
-                  borderRadius: 13 * dpad.scale,
-                },
-                pressed && s.pressed,
-                !editing && blocked && { opacity: 0.3 },
-              ]}
-            >
-              <Text style={[s.arrowText, { fontSize: 25 * dpad.scale }]}>{symbol}</Text>
-            </Pressable>
-          ))}
+          <VirtualJoystick
+            key={`${dpad.left}:${dpad.top}:${dpad.width}`}
+            size={dpad.width}
+            opacity={layout.dpad?.opacity ?? DEFAULT_JOYSTICK_OPACITY}
+            disabled={!editing && blocked}
+            onDirection={onDirection}
+            onRelease={onDirectionEnd}
+          />
         </Control>
       )}
       <Control id="interact" frame={action} editing={editing}>
@@ -206,15 +185,6 @@ export function GameControls({
   );
 }
 const s = StyleSheet.create({
-  arrow: {
-    position: 'absolute',
-    backgroundColor: `${palette.panel}eb`,
-    borderWidth: 1,
-    borderColor: `${palette.ink}40`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowText: { color: palette.ink },
   aButton: {
     flex: 1,
     borderRadius: 100,

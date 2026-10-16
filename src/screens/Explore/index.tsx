@@ -1,17 +1,17 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, AppState, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { trackedQuest } from '../../content/quests';
 import { MAPS, objective } from '../../content/world';
-import { Command, Direction, GameState, MapId } from '../../game/model';
+import { Command, GameState, MapId } from '../../game/model';
 import { WorldViewport } from '../../components/WorldViewport';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Label, palette } from '../../components/ui';
 import { availablePoints } from '../../game/growth';
-import { isIndoor, localWeather, travelProfile, WEATHER, weatherAt } from '../../game/environment';
-import { useBuildingPassage } from '../../useBuildingPassage';
+import { isIndoor, localWeather, WEATHER, weatherAt } from '../../game/environment';
+import { useBuildingPassage } from '../../hooks/useBuildingPassage';
 import { GameControls } from '../../components/GameControls';
-import { useControlPreferences } from '../../platform/controlLayout';
+import { useControlPreferences } from '../../hooks/useControlPreferences';
 import {
   controlOrientation,
   resolveControlFrame,
@@ -19,9 +19,10 @@ import {
 } from '../../platform/controlLayout/controller';
 import { SCENE_TRANSITION } from '../../sceneTransition';
 import { calendarDetails } from '../../game/calendar';
-import { useDayNightEnabled } from '../../platform/dayNight';
-import { useNightLighting } from '../../useNightLighting';
+import { useDayNightEnabled } from '../../hooks/useDayNightEnabled';
+import { useNightLighting } from '../../hooks/useNightLighting';
 import { useMapPassage } from '../../hooks/useMapPassage';
+import { useWalkInput } from '../../hooks/useWalkInput';
 import { MapArrivalIllustration } from '../../components/MapArrivalIllustration';
 
 export function Explore({
@@ -57,100 +58,13 @@ export function Explore({
     },
     [passageReady, onReady],
   );
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const held = useRef<Direction | null>(null);
   const blocked =
     paused ||
     !!game.dialogue ||
     !!game.battle ||
     !!game.pending.length ||
     !!game.progress.flags.starterChoice;
-  const input = useRef({ paused, blocked, dispatch, onMenu, dialogue: !!game.dialogue, game });
-  useEffect(() => {
-    input.current = { paused, blocked, dispatch, onMenu, dialogue: !!game.dialogue, game };
-  }, [paused, blocked, dispatch, game, onMenu]);
-  const stop = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = null;
-    held.current = null;
-  }, []);
-  const direction = useCallback(
-    (d: Direction) => {
-      if (input.current.blocked || held.current === d) return;
-      stop();
-      held.current = d;
-      const step = () => {
-        if (input.current.blocked) {
-          stop();
-          return;
-        }
-        const current = input.current.game;
-        const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[d]!;
-        const delay = travelProfile(
-          current,
-          current.player.x + dx!,
-          current.player.y + dy!,
-        ).interval;
-        input.current.dispatch({ kind: 'walk', direction: d });
-        timer.current = setTimeout(step, delay);
-      };
-      step();
-    },
-    [stop],
-  );
-  useEffect(() => {
-    if (blocked) stop();
-    return stop;
-  }, [blocked, stop]);
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', stop);
-    return () => sub.remove();
-  }, [stop]);
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const directions: Record<string, Direction> = {
-      arrowup: 'up',
-      w: 'up',
-      arrowdown: 'down',
-      s: 'down',
-      arrowleft: 'left',
-      a: 'left',
-      arrowright: 'right',
-      d: 'right',
-    };
-    const keyDown = (e: KeyboardEvent) => {
-      if (input.current.paused) return;
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
-      const key = e.key.toLowerCase();
-      if (directions[key]) {
-        e.preventDefault();
-        if (!e.repeat) direction(directions[key]!);
-        return;
-      }
-      if (!e.repeat && ['enter', ' ', 'z'].includes(key)) {
-        e.preventDefault();
-        stop();
-        if (input.current.dialogue) input.current.dispatch({ kind: 'nextDialogue' });
-        else if (!input.current.blocked) input.current.dispatch({ kind: 'interact' });
-      }
-      if (key === 'escape' && !e.repeat && !input.current.blocked) {
-        stop();
-        input.current.onMenu();
-      }
-    };
-    const keyUp = (e: KeyboardEvent) => {
-      if (directions[e.key.toLowerCase()] === held.current) stop();
-    };
-    window.addEventListener('keydown', keyDown);
-    window.addEventListener('keyup', keyUp);
-    window.addEventListener('blur', stop);
-    return () => {
-      window.removeEventListener('keydown', keyDown);
-      window.removeEventListener('keyup', keyUp);
-      window.removeEventListener('blur', stop);
-      stop();
-    };
-  }, [direction, stop]);
+  const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu });
   const insets = useSafeAreaInsets();
   const preferences = useControlPreferences();
   const layout = preferences[controlOrientation(width, height)];

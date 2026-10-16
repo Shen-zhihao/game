@@ -2,10 +2,10 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { MAPS, GYM_BARRIERS, mapSize, npcVisible } from '../../content/world';
 import { GameState, MapId } from '../../game/model';
-import { TravelerSprite, PropSprite, FieldBagSprite } from '../CharacterSprite';
+import { TravelerSprite } from '../CharacterSprite';
 import { CreatureSprite } from '../CreatureSprite';
 import { MapCanvas } from '../MapCanvas';
-import { worldNpcs } from '../../game/exploration';
+import { facingNpc, npcInReach, worldNpcs } from '../../game/exploration';
 import { GrassWind } from '../GrassWind';
 import { WorldNpc } from '../WorldNpc';
 import { CoastAmbient } from '../CoastAmbient';
@@ -14,12 +14,13 @@ import { QuarryPropSprite } from '../QuarryPropSprite';
 import { travelProfile, weatherAt, isIndoor } from '../../game/environment';
 import { WeatherOverlay } from '../WeatherOverlay';
 import { BuildingDoors } from '../BuildingDoor';
-import type { DoorPresentation } from '../../useBuildingPassage';
+import type { DoorPresentation } from '../../hooks/useBuildingPassage';
 import { DOOR_TIMINGS } from '../../game/buildingPassage';
 import { NightBuildingLights } from '../NightBuildingLights';
-import { hasIllustratedMap } from '../../content/sceneArt';
+import { sceneInk } from '../../content/sceneArt';
 import { FieldPropIllustration } from '../FieldPropIllustration';
 import { BagIllustration } from '../ItemIcon';
+import { ServiceCounters } from '../ServiceCounters';
 import { palette } from '../ui';
 import {
   ADVENTURE_GYMS,
@@ -73,7 +74,6 @@ export function WorldViewport({
   night?: Animated.Value;
 }) {
   const world = mapSize(game.player.map);
-  const illustrated = hasIllustratedMap(game.player.map);
   const scale = MAPS[game.player.map].interior
     ? Math.max(height / world.height, Math.min(width / world.width, height / 320))
     : Math.max(height / 360, width / world.width);
@@ -86,11 +86,13 @@ export function WorldViewport({
   useLayoutEffect(() => {
     const previous = last.current;
     const changedMap = previous.map !== game.player.map;
-    const distance = Math.abs(previous.x - game.player.x) + Math.abs(previous.y - game.player.y);
+    const dx = Math.abs(previous.x - game.player.x);
+    const dy = Math.abs(previous.y - game.player.y);
+    const distance = Math.hypot(dx, dy);
     last.current = { map: game.player.map, x: game.player.x, y: game.player.y };
     const target = { x: game.player.x * 32, y: game.player.y * 32 };
     position.stopAnimation();
-    if (changedMap || distance !== 1 || paused) {
+    if (changedMap || Math.max(dx, dy) !== 1 || paused) {
       if (distance || changedMap || paused) position.setValue(target);
       if (changedMap) {
         opacity.stopAnimation();
@@ -104,7 +106,7 @@ export function WorldViewport({
     }
     Animated.timing(position, {
       toValue: target,
-      duration: stepDuration,
+      duration: Math.round(stepDuration * distance),
       easing: Easing.linear,
       useNativeDriver: true,
     }).start();
@@ -141,10 +143,7 @@ export function WorldViewport({
     return { x, y };
   }, [height, position, scale, width, world.width, world.height]);
   const npcs = worldNpcs(game);
-  const nearby = npcs.find(
-    (n) =>
-      npcVisible(game, n) && Math.abs(n.x - game.player.x) + Math.abs(n.y - game.player.y) === 1,
-  );
+  const nearby = facingNpc(game) ?? npcs.find((n) => npcVisible(game, n) && npcInReach(game, n));
   return (
     <View
       testID="world-viewport"
@@ -152,7 +151,7 @@ export function WorldViewport({
         width,
         height,
         overflow: 'hidden',
-        backgroundColor: MAPS[game.player.map].interior ? '#283c36' : '#4e7950',
+        backgroundColor: sceneInk.cream,
       }}
     >
       <Animated.View
@@ -237,11 +236,7 @@ export function WorldViewport({
                     animate={!paused}
                   />
                 ) : n.role === 'professorBag' ? (
-                  illustrated ? (
-                    <BagIllustration size={size * scale} />
-                  ) : (
-                    <FieldBagSprite size={size * scale} />
-                  )
+                  <BagIllustration size={size * scale} />
                 ) : friend && !game.progress.flags[friend[1]] ? (
                   <CreatureSprite speciesId={friend[0]} size={size * scale} animate={!paused} />
                 ) : coastProp ? (
@@ -281,10 +276,8 @@ export function WorldViewport({
                     size={size * scale}
                     animate
                   />
-                ) : illustrated ? (
-                  <FieldPropIllustration cell={cell} size={size * scale} />
                 ) : (
-                  <PropSprite cell={cell} size={size * scale} />
+                  <FieldPropIllustration cell={cell} size={size * scale} />
                 )}
               </View>
             );
@@ -309,10 +302,8 @@ export function WorldViewport({
               ) : game.player.map === 'rockGym' ||
                 ADVENTURE_GYMS.some((g) => g.map === game.player.map) ? (
                 <QuarryPropSprite kind="door" size={48 * scale} />
-              ) : illustrated ? (
-                <FieldPropIllustration cell={6} size={48 * scale} />
               ) : (
-                <PropSprite cell={6} size={48 * scale} />
+                <FieldPropIllustration cell={6} size={48 * scale} />
               )}
             </View>
           ))}
@@ -321,11 +312,7 @@ export function WorldViewport({
             pointerEvents="none"
             style={{ position: 'absolute', left: 10.9 * 32 * scale, top: -20 * scale, zIndex: 1 }}
           >
-            {illustrated ? (
-              <FieldPropIllustration cell={5} size={84 * scale} />
-            ) : (
-              <PropSprite cell={5} size={84 * scale} />
-            )}
+            <FieldPropIllustration cell={5} size={84 * scale} />
           </View>
         )}
         {npcs
@@ -339,6 +326,7 @@ export function WorldViewport({
           .map((n) => (
             <WorldNpc key={n.id} npc={n} scale={scale} paused={paused} />
           ))}
+        <ServiceCounters map={game.player.map} scale={scale} />
         <Animated.View
           key={game.player.map}
           pointerEvents="none"

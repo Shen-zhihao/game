@@ -1,8 +1,42 @@
 import { MOVES } from '../../content/catalog';
-import { chanceLabel, criticalChance, stageEffectLabel } from '../combat';
+import { chanceLabel, COMBAT_STAGE_NAMES, criticalChance, stageEffectLabel } from '../combat';
 import { WEATHER } from '../environment';
+import { WeatherId } from '../model';
 
 const STATUS_NAMES = { poison: '中毒', burn: '灼伤', paralysis: '麻痹', sleep: '睡眠' };
+
+export function battleMoveDetails(moveId: string, weather: WeatherId = 'clear') {
+  const move = MOVES[moveId]!;
+  const effects: string[] = [];
+  const effect = move.effect;
+  if (effect?.heal) {
+    const amount =
+      moveId === 'recover'
+        ? weather === 'sun'
+          ? '2/3'
+          : ['rain', 'storm', 'sand', 'snow'].includes(weather)
+            ? '25%'
+            : chanceLabel(effect.heal)
+        : chanceLabel(effect.heal);
+    effects.push(`恢复自身 ${amount} 最大HP`);
+  }
+  if (effect?.stage) {
+    const amount = effect.amount ?? 0;
+    effects.push(
+      `${effect.target === 'self' ? '自身' : '对方'}${COMBAT_STAGE_NAMES[effect.stage]} ${amount > 0 ? '+' : ''}${amount}级`,
+    );
+  }
+  if (effect?.status)
+    effects.push(`${chanceLabel(effect.chance ?? 1)}使对方${STATUS_NAMES[effect.status]}`);
+  if (move.weather) effects.push(`${WEATHER[move.weather].name}持续5轮`);
+  if (move.criticalStage) effects.push('更容易命中要害');
+  if (move.priority) effects.push(`行动优先度 ${move.priority > 0 ? '+' : ''}${move.priority}`);
+  if (moveId === 'struggle') effects.push('自身损失1/4最大HP');
+  return {
+    category: move.category === 'physical' ? '物攻' : move.category === 'special' ? '特攻' : '变化',
+    effect: effects.join('；') || '无附加效果',
+  };
+}
 
 export function moveEffectLines(moveId: string): string[] {
   const move = MOVES[moveId]!;

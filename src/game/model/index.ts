@@ -114,6 +114,7 @@ export interface Creature {
   history: { kind: 'caught' | 'evolved' | 'learned'; label: string; level: number }[];
 }
 export type Direction = 'up' | 'down' | 'left' | 'right';
+export type WalkDirection = Direction | 'upLeft' | 'upRight' | 'downLeft' | 'downRight';
 export type TownId =
   'dawn' | 'moss' | 'stone' | 'harbor' | 'volt' | 'wind' | 'furnace' | 'lake' | 'star' | 'league';
 export type MapId = WorldMapId | InteriorMapId;
@@ -384,7 +385,7 @@ export type BattleAction =
   | { kind: 'run' };
 export type Command =
   | { kind: 'cheat'; code: string }
-  | { kind: 'walk'; direction: Direction }
+  | { kind: 'walk'; direction: WalkDirection }
   | { kind: 'interact' }
   | { kind: 'nextDialogue' }
   | { kind: 'closeBattle' }
