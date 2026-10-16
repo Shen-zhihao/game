@@ -5,6 +5,7 @@ import { ADVENTURE_CHAPTERS, ADVENTURE_STORY_CONTENT } from '../../content/adven
 import { MapId } from '../../game/model';
 import { cityGroundMaterial, citySurfaceFor } from '../../content/surfaces';
 import { isIndoor } from '../../game/environment';
+import { hasIllustratedMap } from '../../content/sceneArt';
 
 const atlas = require('../../../assets/maps/expedition-tiles.png');
 const biomes = require('../../../assets/maps/biome-tiles.png');
@@ -318,6 +319,8 @@ export const TileMap = React.memo(function TileMap({
 });
 export function MapPatchLayers({ map }: { map: MapId }) {
   const prefix = `patch${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  // This art is generated from the final collision grid, including extension roads.
+  if (hasIllustratedMap(map)) return null;
   const links = ADVENTURE_STORY_CONTENT.flatMap((c) => c.links).filter((l) => l.from === map);
   const surface = citySurfaceFor(map);
   const cell = surface?.street ?? 2;

@@ -1,6 +1,6 @@
 import type { BattleTheme } from '../../../content/battleScenes';
 export const BATTLE_BACKGROUNDS: Record<BattleTheme, number> = {
-  meadow: require('../../../../assets/maps/battle-meadow.png'),
+  meadow: require('../../../../assets/maps/illustrated/battle-meadow.png'),
   highlands: require('../../../../assets/maps/battle-highlands.png'),
   coast: require('../../../../assets/maps/battle-coast.png'),
   electric: require('../../../../assets/maps/battle-electric.png'),

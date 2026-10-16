@@ -4,8 +4,11 @@ import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Rect } from 'react-native
 import { MOVES } from '../../content/catalog';
 import { BattleMoveEvent, BattleScene } from '../../game/model';
 import { moveFeedback, MOVE_VISUALS, MoveVisual, VisualPattern } from '../../game/battleVisuals';
+import type { BattleSwitchVisual } from '../../game/battleVisuals';
 import { haptic } from '../../platform/haptics';
 import { CreatureSprite } from '../CreatureSprite';
+import { palette } from '../ui';
+import { BattleSwitchIllustration } from '../BattleSwitchIllustration';
 
 type Point = { x: number; y: number };
 function Glyph({ pattern, color, glow, variant, signature }: MoveVisual) {
@@ -248,6 +251,10 @@ export function BattleStage({
   onImpact,
   onFinished,
   ended,
+  switches,
+  completedSwitches,
+  switchesPaused,
+  onSwitchFinished,
 }: {
   scene: BattleScene;
   playerAnchor: Point;
@@ -260,6 +267,10 @@ export function BattleStage({
   onImpact: (key: string) => void;
   onFinished: (key: string) => void;
   ended: boolean;
+  switches: BattleSwitchVisual[];
+  completedSwitches: string[];
+  switchesPaused: boolean;
+  onSwitchFinished: (key: string) => void;
 }) {
   const [progress] = useState(() => new Animated.Value(0));
   const impactKey = useRef('');
@@ -372,39 +383,60 @@ export function BattleStage({
   const feedback = playing ? event : feedbackEvent;
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            left: enemyAnchor.x - size / 2,
-            top: enemyAnchor.y - size * 0.92,
-          },
-          spriteStyle('enemy'),
-        ]}
-      >
-        <CreatureSprite
-          speciesId={scene.enemy.speciesId}
-          size={size}
-          animate={!ended && !playing}
-        />
-      </Animated.View>
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            left: playerAnchor.x - size * 0.6,
-            top: playerAnchor.y - size * 1.1,
-          },
-          spriteStyle('player'),
-        ]}
-      >
-        <CreatureSprite
-          speciesId={scene.player.speciesId}
-          size={size * 1.2}
-          flip
-          animate={!ended && !playing}
-        />
-      </Animated.View>
+      {!switches.some((visual) => visual.side === 'enemy') && (
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              left: enemyAnchor.x - size / 2,
+              top: enemyAnchor.y - size * 0.92,
+            },
+            spriteStyle('enemy'),
+          ]}
+        >
+          <CreatureSprite
+            speciesId={scene.enemy.speciesId}
+            size={size}
+            animate={!ended && !playing}
+          />
+        </Animated.View>
+      )}
+      {!switches.some((visual) => visual.side === 'player') && (
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              left: playerAnchor.x - size * 0.6,
+              top: playerAnchor.y - size * 1.1,
+            },
+            spriteStyle('player'),
+          ]}
+        >
+          <CreatureSprite
+            speciesId={scene.player.speciesId}
+            size={size * 1.2}
+            flip
+            animate={!ended && !playing}
+          />
+        </Animated.View>
+      )}
+      {switches.map((visual) => {
+        const key = `${eventKey}:${visual.side}`;
+        return (
+          <BattleSwitchIllustration
+            key={key}
+            visual={visual}
+            anchor={visual.side === 'player' ? playerAnchor : enemyAnchor}
+            size={size}
+            eventKey={key}
+            paused={switchesPaused}
+            completed={completedSwitches.includes(key)}
+            reduced={reduced}
+            ended={ended}
+            onFinished={onSwitchFinished}
+          />
+        );
+      })}
       {playing && visual && event && (
         <View
           testID="battle-skill-effect"
@@ -492,14 +524,14 @@ export function BattleStage({
               borderRadius: 20,
               borderWidth: 1,
               borderColor: visual.color,
-              backgroundColor: '#102a37e8',
+              backgroundColor: `${palette.panel}f5`,
               opacity: interp([0, 0.08, 0.75, 1], [0, 1, 1, 0]),
               transform: [{ translateY: reduced ? 0 : interp([0, 0.15, 1], [-8, 0, 0]) }],
             }}
           >
             <Text
               style={{
-                color: visual.glow,
+                color: palette.ink,
                 fontWeight: '800',
                 fontSize: visual.signature ? 20 : 15,
                 letterSpacing: 2,
@@ -545,7 +577,7 @@ export function BattleStage({
                 textShadowColor: '#10241f',
                 textShadowOffset: { width: 1, height: 2 },
                 textShadowRadius: 4,
-                backgroundColor: '#102820d9',
+                backgroundColor: `${palette.ink}ed`,
                 paddingHorizontal: 10,
                 paddingVertical: 3,
                 borderRadius: 8,

@@ -17,6 +17,10 @@ import { BuildingDoors } from '../BuildingDoor';
 import type { DoorPresentation } from '../../useBuildingPassage';
 import { DOOR_TIMINGS } from '../../game/buildingPassage';
 import { NightBuildingLights } from '../NightBuildingLights';
+import { hasIllustratedMap } from '../../content/sceneArt';
+import { FieldPropIllustration } from '../FieldPropIllustration';
+import { BagIllustration } from '../ItemIcon';
+import { palette } from '../ui';
 import {
   ADVENTURE_GYMS,
   ADVENTURE_INTERACTIONS,
@@ -69,6 +73,7 @@ export function WorldViewport({
   night?: Animated.Value;
 }) {
   const world = mapSize(game.player.map);
+  const illustrated = hasIllustratedMap(game.player.map);
   const scale = MAPS[game.player.map].interior
     ? Math.max(height / world.height, Math.min(width / world.width, height / 320))
     : Math.max(height / 360, width / world.width);
@@ -232,7 +237,11 @@ export function WorldViewport({
                     animate={!paused}
                   />
                 ) : n.role === 'professorBag' ? (
-                  <FieldBagSprite size={size * scale} />
+                  illustrated ? (
+                    <BagIllustration size={size * scale} />
+                  ) : (
+                    <FieldBagSprite size={size * scale} />
+                  )
                 ) : friend && !game.progress.flags[friend[1]] ? (
                   <CreatureSprite speciesId={friend[0]} size={size * scale} animate={!paused} />
                 ) : coastProp ? (
@@ -272,6 +281,8 @@ export function WorldViewport({
                     size={size * scale}
                     animate
                   />
+                ) : illustrated ? (
+                  <FieldPropIllustration cell={cell} size={size * scale} />
                 ) : (
                   <PropSprite cell={cell} size={size * scale} />
                 )}
@@ -298,6 +309,8 @@ export function WorldViewport({
               ) : game.player.map === 'rockGym' ||
                 ADVENTURE_GYMS.some((g) => g.map === game.player.map) ? (
                 <QuarryPropSprite kind="door" size={48 * scale} />
+              ) : illustrated ? (
+                <FieldPropIllustration cell={6} size={48 * scale} />
               ) : (
                 <PropSprite cell={6} size={48 * scale} />
               )}
@@ -308,7 +321,11 @@ export function WorldViewport({
             pointerEvents="none"
             style={{ position: 'absolute', left: 10.9 * 32 * scale, top: -20 * scale, zIndex: 1 }}
           >
-            <PropSprite cell={5} size={84 * scale} />
+            {illustrated ? (
+              <FieldPropIllustration cell={5} size={84 * scale} />
+            ) : (
+              <PropSprite cell={5} size={84 * scale} />
+            )}
           </View>
         )}
         {npcs
@@ -447,17 +464,17 @@ export function WorldViewport({
   );
 }
 const s = StyleSheet.create({
-  vignette: { ...StyleSheet.absoluteFill, borderWidth: 1, borderColor: '#253c3477' },
+  vignette: { ...StyleSheet.absoluteFill, borderWidth: 1, borderColor: `${palette.ink}22` },
   hint: {
     position: 'absolute',
     alignSelf: 'center',
     bottom: 12,
     paddingHorizontal: 15,
     paddingVertical: 6,
-    borderRadius: 7,
-    backgroundColor: '#15382aeb',
+    borderRadius: 12,
+    backgroundColor: `${palette.panel}f5`,
     borderWidth: 1,
-    borderColor: '#d5c889',
+    borderColor: palette.line,
   },
-  hintText: { color: '#f3e6b9', fontSize: 12, letterSpacing: 1 },
+  hintText: { color: palette.ink, fontSize: 12, fontWeight: '700', letterSpacing: 1 },
 });

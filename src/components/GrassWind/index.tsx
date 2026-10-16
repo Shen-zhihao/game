@@ -3,6 +3,7 @@ import { Animated, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { MAPS, mapSize } from '../../content/world';
 import { MapId, WeatherId } from '../../game/model';
+import { hasIllustratedMap } from '../../content/sceneArt';
 
 export function GrassWind({
   mapId,
@@ -15,6 +16,7 @@ export function GrassWind({
   paused: boolean;
   weather: WeatherId;
 }) {
+  const illustrated = hasIllustratedMap(mapId);
   const gust =
     weather === 'storm'
       ? 3
@@ -29,7 +31,18 @@ export function GrassWind({
     MAPS[mapId].rows.forEach((row, y) =>
       [...row].forEach((tile, x) => {
         if ((tile !== 'g' && tile !== '^') || (x + y) % 2) return;
+        if (illustrated && tile === '^') return;
         const phase = (x * 3 + y) % 4;
+        if (illustrated) {
+          const n = (x * 37 + y * 59) % 13;
+          for (let j = 0; j < 3; j++) {
+            const xx = x * 32 + 5 + j * 10;
+            const yy = y * 32 + 12 + ((j + n) % 2) * 13;
+            groups[phase] +=
+              `M${xx},${yy}q-5,-8-5,-10 7,2 5,10 0,-11 4,-13 3,8-4,13 6,-7 9,-5-2,6-9,5z `;
+          }
+          return;
+        }
         for (let j = 0; j < 4; j++) {
           const xx = x * 32 + 3 + j * 7;
           const yy = y * 32 + 23 + (j % 2) * 4;
@@ -38,7 +51,7 @@ export function GrassWind({
       }),
     );
     return groups;
-  }, [mapId]);
+  }, [illustrated, mapId]);
   useEffect(() => {
     if (paused) return;
     const loops = winds.map((wind, i) =>
@@ -91,15 +104,19 @@ export function GrassWind({
               <Path
                 d={d}
                 fill={
-                  weather === 'snow'
-                    ? '#dce9e5'
-                    : weather === 'rain' || weather === 'storm'
-                      ? i % 2
-                        ? '#8ba781'
-                        : '#527d68'
-                      : i % 2
-                        ? '#c0d17b'
-                        : '#78b65d'
+                  illustrated
+                    ? i % 2
+                      ? '#b7ca9a'
+                      : '#8fa87c'
+                    : weather === 'snow'
+                      ? '#dce9e5'
+                      : weather === 'rain' || weather === 'storm'
+                        ? i % 2
+                          ? '#8ba781'
+                          : '#527d68'
+                        : i % 2
+                          ? '#c0d17b'
+                          : '#78b65d'
                 }
               />
             </Svg>

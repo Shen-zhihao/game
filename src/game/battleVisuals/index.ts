@@ -10,6 +10,40 @@ import type {
 } from '../model';
 import { statsFor } from '../rules';
 
+export interface BattleSwitchVisual {
+  side: 'player' | 'enemy';
+  phase: 'recall' | 'send';
+  figure: BattleFigure;
+}
+
+/** Derive switching from existing scene snapshots, preserving the saved battle format. */
+export function presentationSwitches(
+  initial: BattleScene,
+  events: BattleVisualEvent[],
+  line: number,
+): BattleSwitchVisual[] {
+  let previous = initial;
+  const switches: BattleSwitchVisual[] = [];
+  for (const event of events) {
+    if (event.kind === 'move') {
+      previous = event.after;
+      continue;
+    }
+    for (const side of ['player', 'enemy'] as const) {
+      const outgoing = previous[side];
+      const incoming = event.scene[side];
+      if (outgoing.id === incoming.id) continue;
+      // A voluntary player switch has a recall message immediately before the send-out.
+      // Fainted partners and opposing reinforcements only need the send-out animation.
+      if (side === 'player' && outgoing.hp > 0 && event.logIndex - 1 === line)
+        switches.push({ side, phase: 'recall', figure: outgoing });
+      if (event.logIndex === line) switches.push({ side, phase: 'send', figure: incoming });
+    }
+    previous = event.scene;
+  }
+  return switches;
+}
+
 export const battleFigure = (c: Creature): BattleFigure => ({
   id: c.id,
   speciesId: c.speciesId,

@@ -196,7 +196,7 @@ export function GameControls({
               pressed && s.pressed,
             ]}
           >
-            <Text style={[s.menuText, { color: palette.amber, fontSize: 14 * growth.scale }]}>
+            <Text style={[s.menuText, { color: palette.gold, fontSize: 14 * growth.scale }]}>
               培养 +{growthPoints || 8}
             </Text>
           </Pressable>
@@ -208,27 +208,25 @@ export function GameControls({
 const s = StyleSheet.create({
   arrow: {
     position: 'absolute',
-    backgroundColor: `${palette.ink}a8`,
+    backgroundColor: `${palette.panel}eb`,
     borderWidth: 1,
-    borderColor: `${palette.onDark}78`,
+    borderColor: `${palette.ink}40`,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrowText: { color: palette.onDark, textShadowColor: palette.ink, textShadowRadius: 3 },
+  arrowText: { color: palette.ink },
   aButton: {
     flex: 1,
     borderRadius: 100,
-    backgroundColor: `${palette.amber}99`,
+    backgroundColor: `${palette.amber}eb`,
     borderWidth: 2,
-    borderColor: `${palette.amber}cc`,
+    borderColor: '#b99042',
     alignItems: 'center',
     justifyContent: 'center',
   },
   aText: {
-    color: palette.onDark,
+    color: palette.ink,
     fontWeight: '800',
-    textShadowColor: palette.ink,
-    textShadowRadius: 3,
   },
   menuButton: {
     flex: 1,
@@ -236,18 +234,19 @@ const s = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: `${palette.onDark}66`,
-    backgroundColor: `${palette.ink}a8`,
+    borderColor: palette.line,
+    backgroundColor: `${palette.panel}f2`,
   },
-  menuText: { color: palette.onDark, fontWeight: '700' },
-  pressed: { backgroundColor: `${palette.ink}e0`, transform: [{ scale: 0.97 }] },
+  menuText: { color: palette.ink, fontWeight: '700' },
+  pressed: { backgroundColor: palette.tint, transform: [{ scale: 0.97 }] },
   hint: {
     position: 'absolute',
-    color: palette.onDark,
+    color: palette.ink,
     fontSize: 11,
     textAlign: 'center',
-    textShadowColor: palette.ink,
-    textShadowRadius: 3,
+    backgroundColor: `${palette.panel}d9`,
+    borderRadius: 5,
+    paddingVertical: 2,
   },
   editable: {
     outlineWidth: 1,

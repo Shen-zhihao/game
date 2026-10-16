@@ -236,7 +236,7 @@ export function Explore({
           <Text
             testID="tracked-quest-name"
             numberOfLines={1}
-            style={[s.goalText, { fontWeight: '800', color: '#ffe09c' }]}
+            style={[s.goalText, { fontWeight: '800', color: palette.gold }]}
           >
             追踪 · {tracked.name}
           </Text>
@@ -263,7 +263,7 @@ export function Explore({
               height: 3,
               borderRadius: 2,
               overflow: 'hidden',
-              backgroundColor: `${palette.onDark}40`,
+              backgroundColor: palette.panel2,
             }}
           >
             <View
@@ -279,6 +279,7 @@ export function Explore({
       )}
       {hiddenNotice !== game.notice && !!game.notice && !weatherChanged && !game.dialogue && (
         <View
+          testID="explore-notice"
           pointerEvents="none"
           style={[
             s.notice,
@@ -288,7 +289,7 @@ export function Explore({
             },
           ]}
         >
-          <Text numberOfLines={2} style={s.smallText}>
+          <Text testID="explore-notice-text" numberOfLines={2} style={s.noticeText}>
             {game.notice}
           </Text>
         </View>
@@ -371,49 +372,58 @@ const s = StyleSheet.create({
     alignItems: 'flex-start',
   },
   locationCard: {
-    backgroundColor: `${palette.ink}b0`,
+    backgroundColor: `${palette.panel}f2`,
+    borderWidth: 1,
+    borderColor: palette.line,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 9,
     gap: 3,
   },
   location: {
-    color: palette.onDark,
+    color: palette.ink,
     fontSize: 18,
     fontWeight: '800',
     letterSpacing: 1,
-    textShadowColor: `${palette.ink}c0`,
-    textShadowRadius: 3,
   },
   smallText: {
-    color: palette.onDark,
+    color: palette.muted,
     fontSize: 11,
     lineHeight: 16,
-    textShadowColor: palette.ink,
-    textShadowRadius: 2,
   },
   objective: {
     position: 'absolute',
     borderRadius: 10,
-    backgroundColor: `${palette.ink}a0`,
+    backgroundColor: `${palette.panel}eb`,
+    borderWidth: 1,
+    borderColor: palette.line,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   goalText: {
-    color: palette.onDark,
+    color: palette.ink,
     fontSize: 12,
     lineHeight: 18,
-    textShadowColor: palette.ink,
-    textShadowRadius: 2,
   },
   pressed: { backgroundColor: `${palette.ink}c7`, transform: [{ scale: 0.97 }] },
   notice: {
     position: 'absolute',
     alignSelf: 'center',
     borderRadius: 9,
-    backgroundColor: `${palette.ink}b0`,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    backgroundColor: palette.panel,
+    borderWidth: 1,
+    borderColor: palette.line,
+    minHeight: 36,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  noticeText: {
+    color: palette.ink,
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   dialogue: {
     position: 'absolute',

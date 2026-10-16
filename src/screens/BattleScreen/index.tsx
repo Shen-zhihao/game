@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   BackHandler,
@@ -13,12 +13,13 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MOVES, SPECIES, TYPES, TYPE_COLORS } from '../../content/catalog';
 import { BattleStage } from '../../components/BattleStage';
+import { BattleCommandIcon } from '../../components/BattleCommandIcon';
 import { BATTLE_BACKGROUNDS } from '../../components/BattleStage/backgrounds';
 import { battleAnchors, battleTheme, BATTLE_SCENES } from '../../content/battleScenes';
 import { BattleMenus } from '../../components/BattleMenus';
 import { Button, HpBar, Label, palette, Panel, TypeBadges } from '../../components/ui';
 import { BattleAction, BattleVisualEvent, Command, GameState } from '../../game/model';
-import { battleScene, presentationScene } from '../../game/battleVisuals';
+import { battleScene, presentationScene, presentationSwitches } from '../../game/battleVisuals';
 import { creatureName, typeMultiplier, xpAt } from '../../game/rules';
 import { chanceLabel, criticalChance, hitChance, roundPace } from '../../game/combat';
 import { WEATHER } from '../../game/environment';
@@ -36,6 +37,7 @@ function BattleTile({
   disabled = false,
   onPress,
   testID,
+  icon = false,
 }: {
   title: string;
   detail?: string;
@@ -43,6 +45,7 @@ function BattleTile({
   disabled?: boolean;
   onPress: () => void;
   testID?: string;
+  icon?: boolean;
 }) {
   return (
     <Pressable
@@ -57,7 +60,11 @@ function BattleTile({
         pressed && { backgroundColor: '#f2df9c', transform: [{ translateY: 1 }] },
       ]}
     >
-      <View style={[s.tileDot, { backgroundColor: color ?? palette.accent }]} />
+      {icon ? (
+        <BattleCommandIcon name={title} />
+      ) : (
+        <View style={[s.tileDot, { backgroundColor: color ?? palette.accent }]} />
+      )}
       <View style={{ flex: 1 }}>
         <Text numberOfLines={1} style={s.tileTitle}>
           {title}
@@ -111,6 +118,10 @@ export function BattleScreen({
   const [visualEvents, setVisualEvents] = useState<BattleVisualEvent[]>([]);
   const [completedEffect, setCompletedEffect] = useState('');
   const [impactedEffect, setImpactedEffect] = useState('');
+  const [completedSwitches, setCompletedSwitches] = useState<string[]>([]);
+  const onSwitchFinished = useCallback((key: string) => {
+    setCompletedSwitches((keys) => (keys.includes(key) ? keys : [...keys, key]));
+  }, []);
   const [playbackClock] = useState(createBattlePlaybackClock);
   const [playbackPaused, setPlaybackPaused] = useState(false);
   const messageDelay = useBattleMessageDelay();
@@ -132,9 +143,23 @@ export function BattleScreen({
     line,
     completedEffect === effectKey || impactedEffect === effectKey,
   );
-  const scene = presenting ? playback.scene : battleScene(game);
+  const scene = presenting ? playback.scene : busy ? initialScene : battleScene(game);
+  const displayedPace = roundPace(
+    game.creatures[scene.player.id] ?? player,
+    b.enemies.find((creature) => creature.id === scene.enemy.id) ?? enemy,
+    b.playerStages,
+    b.enemyStages,
+    b.weather?.kind,
+  );
   const activeMove = presenting ? playback.move : null;
-  const animating = !!activeMove && completedEffect !== effectKey;
+  const switches = useMemo(
+    () => (presenting ? presentationSwitches(initialScene, visualEvents, line) : []),
+    [presenting, initialScene, visualEvents, line],
+  );
+  const animatingMove = !!activeMove && completedEffect !== effectKey;
+  const animating =
+    animatingMove ||
+    switches.some((visual) => !completedSwitches.includes(`${effectKey}:${visual.side}`));
   const feedbackEvent =
     presenting && !animating
       ? (visualEvents.find(
@@ -149,6 +174,7 @@ export function BattleScreen({
     setPresentationId((value) => value + 1);
     setVisualEvents(b.visualEvents ?? []);
     setCompletedEffect('');
+    setCompletedSwitches([]);
     setLine(0);
     setBusy(false);
   }, [b]);
@@ -289,6 +315,7 @@ export function BattleScreen({
             height: size * 0.14,
             borderRadius: size,
             backgroundColor: `${palette.ink}35`,
+            opacity: switches.some((visual) => visual.side === 'player') ? 0 : 1,
           }}
         />
         <View
@@ -301,6 +328,7 @@ export function BattleScreen({
             height: size * 0.1,
             borderRadius: size,
             backgroundColor: `${palette.ink}35`,
+            opacity: switches.some((visual) => visual.side === 'enemy') ? 0 : 1,
           }}
         />
         <BattleStage
@@ -311,10 +339,14 @@ export function BattleScreen({
           event={activeMove}
           feedbackEvent={feedbackEvent}
           eventKey={effectKey}
-          playing={animating && !playbackStopped}
+          playing={animatingMove && !playbackStopped}
           onImpact={onEffectImpact}
           onFinished={onEffectFinished}
           ended={ended}
+          switches={switches}
+          completedSwitches={completedSwitches}
+          switchesPaused={playbackStopped}
+          onSwitchFinished={onSwitchFinished}
         />
         <View
           style={[
@@ -345,7 +377,7 @@ export function BattleScreen({
           </View>
           {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
           <Text testID="enemy-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
-            速度 {Number(pace.enemySpeed.toFixed(1))} · 行动 {enemyActionTotal} 次 / 回合
+            速度 {Number(displayedPace.enemySpeed.toFixed(1))} · 行动 {enemyActionTotal} 次 / 回合
           </Text>
         </View>
         <View
@@ -379,7 +411,7 @@ export function BattleScreen({
             style={{
               height: 3,
               marginLeft: 22,
-              backgroundColor: '#c0c8d6',
+              backgroundColor: palette.panel2,
               borderRadius: 2,
               overflow: 'hidden',
               marginTop: 3,
@@ -389,7 +421,7 @@ export function BattleScreen({
               style={{
                 height: '100%',
                 width: `${player.level === 100 ? 100 : Math.min(100, ((player.experience - baseXp) / Math.max(1, nextXp - baseXp)) * 100)}%`,
-                backgroundColor: '#75a9bd',
+                backgroundColor: '#a5b9b0',
               }}
             />
           </View>
@@ -397,7 +429,7 @@ export function BattleScreen({
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
           <Text testID="player-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
-            速度 {Number(pace.playerSpeed.toFixed(1))} · 行动 {actionTotal} 次 / 回合
+            速度 {Number(displayedPace.playerSpeed.toFixed(1))} · 行动 {actionTotal} 次 / 回合
           </Text>
           {!ended && (
             <Text
@@ -543,7 +575,7 @@ export function BattleScreen({
               marginBottom: compact ? 3 : 8,
             }}
           >
-            <Text style={{ color: '#d5c789', fontSize: compact ? 11 : 13, fontWeight: '700' }}>
+            <Text style={{ color: palette.gold, fontSize: compact ? 11 : 13, fontWeight: '700' }}>
               {presenting
                 ? '战斗进程'
                 : ended
@@ -582,7 +614,9 @@ export function BattleScreen({
                 {playbackStopped
                   ? '播放已暂停'
                   : animating
-                    ? '技能演出中 · 自动播放'
+                    ? activeMove
+                      ? '技能演出中 · 自动播放'
+                      : '精灵切换中 · 自动播放'
                     : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
               </Text>
             </Pressable>
@@ -704,6 +738,7 @@ export function BattleScreen({
             <>
               <BattleTile
                 testID="fight"
+                icon
                 title="战斗"
                 detail="选择技能"
                 color="#b97662"
@@ -712,6 +747,7 @@ export function BattleScreen({
               />
               <BattleTile
                 title="背包"
+                icon
                 detail={`精灵球 ${Object.keys(BALLS).reduce((n, id) => n + (game.inventory[id] ?? 0), 0)}`}
                 color="#ceae65"
                 disabled={busy || choosingParty}
@@ -719,6 +755,7 @@ export function BattleScreen({
               />
               <BattleTile
                 title="精灵"
+                icon
                 detail={`队伍 ${game.party.length} 只`}
                 color={palette.accent}
                 disabled={busy || choosingParty}
@@ -726,6 +763,7 @@ export function BattleScreen({
               />
               <BattleTile
                 title="逃跑"
+                icon
                 detail={
                   b.event === 'openingRescue'
                     ? '先帮助博士脱险'
@@ -774,13 +812,13 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flexShrink: 0,
     backgroundColor: palette.panel,
-    borderTopWidth: 3,
+    borderTopWidth: 1,
     borderColor: palette.line,
   },
   commandBox: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderLeftWidth: 2,
+    borderLeftWidth: 1,
     borderColor: palette.line,
     backgroundColor: palette.panel2,
     alignContent: 'stretch',
@@ -792,36 +830,31 @@ const s = StyleSheet.create({
     flexGrow: 1,
     minHeight: 42,
     flexBasis: '45%',
-    backgroundColor: '#f4f2ed',
+    backgroundColor: palette.panel,
     borderWidth: 1,
-    borderBottomWidth: 3,
     borderColor: palette.line,
-    borderRadius: 5,
+    borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 3,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   tileDot: { width: 5, height: 25, borderRadius: 2 },
   tileTitle: { fontSize: 15, lineHeight: 18, fontWeight: '800', color: palette.ink },
-  tileDetail: { fontSize: 10, lineHeight: 14, color: '#58647a', marginTop: 2 },
+  tileDetail: { fontSize: 10, lineHeight: 14, color: palette.muted, marginTop: 2 },
   statusCard: {
     position: 'absolute',
-    backgroundColor: '#f4f2edef',
-    borderWidth: 2,
-    borderBottomWidth: 4,
+    backgroundColor: `${palette.panel}f5`,
+    borderWidth: 1,
     borderColor: palette.line,
-    borderTopLeftRadius: 13,
-    borderBottomRightRadius: 13,
-    borderTopRightRadius: 4,
-    borderBottomLeftRadius: 4,
+    borderRadius: 16,
   },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 12, justifyContent: 'space-between' },
   creatureName: { color: palette.ink, fontSize: 18, fontWeight: '800', flexShrink: 1 },
-  level: { color: '#4a576d', fontSize: 12, fontWeight: '700' },
+  level: { color: palette.muted, fontSize: 12, fontWeight: '700' },
   hpLabel: { fontSize: 10, fontWeight: '900', color: '#aa9251' },
-  hpNumber: { fontSize: 11, color: '#4a576d' },
+  hpNumber: { fontSize: 11, color: palette.muted },
   statusText: { fontSize: 10, color: '#97644b' },
   battleTag: {
     position: 'absolute',
@@ -830,7 +863,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 4,
     backgroundColor: `${palette.panel}ee`,
-    borderRadius: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: palette.line,
   },
   logButton: {
     position: 'absolute',
@@ -838,7 +873,9 @@ const s = StyleSheet.create({
     top: 10,
     padding: 7,
     backgroundColor: `${palette.panel}ee`,
-    borderRadius: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: palette.line,
   },
   selection: {
     position: 'absolute',
