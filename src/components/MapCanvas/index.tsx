@@ -63,7 +63,7 @@ function RasterMap({
           width={width}
           height={height}
           fit="fill"
-          sampling={{ filter: FilterMode.Nearest, mipmap: MipmapMode.None }}
+          sampling={{ filter: FilterMode.Linear, mipmap: MipmapMode.None }}
         />
       )}
     </Canvas>

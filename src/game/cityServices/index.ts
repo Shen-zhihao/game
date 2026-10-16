@@ -36,6 +36,10 @@ export function transactQuest(state: GameState, questId: string, action: 'accept
   const ledger = (state.cityServices ??= { merit: 0, quests: {}, exchanges: {} });
   const status = ledger.quests[questId];
   if (action === 'accept') {
+    if (quest.prerequisite && ledger.quests[quest.prerequisite] !== 'claimed') {
+      state.notice = `请先交付「${CITY_QUESTS[quest.prerequisite]!.name}」。`;
+      return;
+    }
     if (!status) {
       ledger.quests[questId] = 'active';
       state.notice = `已接受「${quest.name}」，可在任务管理查看进度。`;

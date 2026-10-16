@@ -3,6 +3,7 @@ import { MapId, TypeId } from '../../game/model';
 import { TYPES } from '../catalog';
 import { MAPS } from '../world';
 import { ADVENTURE_CHAPTERS, ADVENTURE_GYMS } from '../adventure';
+import { CITY_TOWNS, CITY_IDENTITIES } from '../cityDistricts';
 
 export const REGION_SIZE = { width: 600, height: 420 };
 export interface RegionPlace {
@@ -269,6 +270,13 @@ export function regionRoadOpen(from: string, to: string): boolean {
 export function localMapPoint(map: MapId, x: number, y: number) {
   const rows = MAPS[map].rows;
   return { x: (x + 0.5) / rows[0]!.length, y: (y + 0.5) / rows.length };
+}
+for (const town of CITY_TOWNS) {
+  const place = REGION_PLACES.find((entry) => entry.map === town);
+  if (!place) continue;
+  const identity = CITY_IDENTITIES[town];
+  place.description += ` 城区现已扩为约三倍面积，东侧是${identity.quarters[0]}，南侧有${identity.quarters[1]}与${identity.quarters[2]}。`;
+  place.services += ` · 六处居民建筑 · 五份街区支线 · ${identity.celebration}`;
 }
 for (const map of Object.values(MAPS))
   for (const portal of map.portals) {

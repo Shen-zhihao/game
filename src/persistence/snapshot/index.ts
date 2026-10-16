@@ -33,7 +33,9 @@ import { safePosition } from '../../game/engine';
 import { CLIMATE_IDS, GameState, STAT_KEYS } from '../../game/model';
 import { statsFor, xpAt } from '../../game/rules';
 import { journalQuests, STORY_QUESTS } from '../../content/quests';
-import { CITY_EXCHANGES, CITY_QUESTS, CITIES } from '../../content/cities';
+import { CITY_EXCHANGES, CITY_QUESTS, CITIES, questProgress } from '../../content/cities';
+import { DISTRICT_FLAGS } from '../../content/cityQuests';
+import { CITY_TOWNS, districtFlag, districtQuestId } from '../../content/cityDistricts';
 import { growthRoll, sumStats } from '../../game/growth';
 import { COAST_STORY_ENCOUNTERS } from '../../game/coastStory';
 import { copyableMove } from '../../game/skills';
@@ -386,6 +388,7 @@ const gameSchema = z.strictObject({
   notice: z.string().max(500),
 });
 const FLAGS = new Set([
+  ...DISTRICT_FLAGS,
   ...RECOVERY_TOWNS.map(townVisitFlag),
   ...Object.values(MAPS).flatMap((m) =>
     m.npcs
@@ -598,7 +601,17 @@ export function validateGame(input: unknown): GameState {
         quest && CITIES.some((c) => c.id === quest.cityId && c.implemented) && flags.catchTutorial,
         '城市委托记录无效',
       );
-      if (status === 'claimed') earned += quest.reward.merit;
+      invariant(
+        !quest.prerequisite || ledger.quests[quest.prerequisite] === 'claimed',
+        '街区后续委托缺少筹备交付',
+      );
+      if (status === 'claimed') {
+        invariant(
+          quest.condition.kind !== 'checklist' || questProgress(game, quest).ready,
+          '街区委托领奖缺少目标记录',
+        );
+        earned += quest.reward.merit;
+      }
     }
     for (const [id, count] of Object.entries(ledger.exchanges)) {
       const offer = CITY_EXCHANGES[id];
@@ -610,6 +623,16 @@ export function validateGame(input: unknown): GameState {
     }
     invariant(ledger.merit === earned - spent, '调查印记余额与奖励兑换不符');
   }
+  invariant(
+    DISTRICT_FLAGS.every((flag) => !flags[flag] || flags.catchTutorial),
+    '街区记录早于捕捉入门',
+  );
+  for (const town of CITY_TOWNS)
+    invariant(
+      !flags[districtFlag(town, 'festival')] ||
+        game.cityServices?.quests[districtQuestId(town, 'craft')] === 'claimed',
+      '街区相聚缺少筹备交付',
+    );
   const noPartnerYet = !!flags.opening && !flags.professorRescued && game.party.length === 0;
   if (game.league) {
     const l = game.league;

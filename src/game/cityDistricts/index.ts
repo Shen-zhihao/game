@@ -1,0 +1,91 @@
+import {
+  CITY_BUILDING_KINDS,
+  CITY_IDENTITIES,
+  CITY_TOWNS,
+  districtFlag,
+  districtQuestId,
+} from '../../content/cityDistricts';
+import { CITY_QUESTS, servicesUnlocked } from '../../content/cities';
+import type { Npc } from '../../content/world';
+import type { GameState } from '../model';
+
+/** Street and indoor interactions feed the same persistent ledger as the quest board. */
+export function interactCityDistrict(
+  game: GameState,
+  npc: Npc,
+  talk: (speaker: string, lines: string[]) => void,
+): boolean {
+  const town = CITY_TOWNS.find((id) => npc.id.startsWith(`district_${id}_`));
+  if (!town) return false;
+  const identity = CITY_IDENTITIES[town];
+  const point = npc.id.slice(`district_${town}_`.length);
+  if (!servicesUnlocked(game)) {
+    talk(npc.name, ['欢迎来街区散步。先完成基础捕捉练习，再来与邻居一起筹备活动吧。']);
+    return true;
+  }
+  const flags = game.progress.flags;
+  const ledger = (game.cityServices ??= { merit: 0, quests: {}, exchanges: {} });
+  const quest = point.startsWith('craft_')
+    ? 'craft'
+    : CITY_BUILDING_KINDS.some((kind) => kind === point)
+      ? 'neighbors'
+      : point === 'festival'
+        ? 'festival'
+        : 'tour';
+  const questId = districtQuestId(town, quest);
+  const task = CITY_QUESTS[questId]!;
+  if (task.prerequisite && ledger.quests[task.prerequisite] !== 'claimed') {
+    talk(npc.name, [
+      `${identity.celebration}还在筹备。先帮烘焙坊、工坊和书馆整理工作记录，再交付筹备委托；我会在这里等大家。`,
+    ]);
+    return true;
+  }
+  const first = !flags[districtFlag(town, point)];
+  ledger.quests[questId] ??= 'active';
+  flags[districtFlag(town, point)] = true;
+  const lines: string[] = [];
+  if (point === 'festival') lines.push(identity.ending);
+  else if (point.startsWith('craft_')) {
+    const index = ['bakery', 'workshop', 'library'].indexOf(point.slice(6));
+    lines.push(
+      first
+        ? identity.actions[index]!
+        : `你已经整理过${identity.craft[index]}，居民们把这份帮助记在心里。`,
+    );
+  } else {
+    const index = CITY_BUILDING_KINDS.findIndex((kind) => kind === point);
+    if (index >= 0) {
+      lines.push(`欢迎来到${identity.houses[index]}，我是${identity.people[index]}。`);
+      lines.push(
+        index < 3
+          ? `我们在为${identity.celebration}做准备，东南侧的${identity.craft[index]}等你帮忙整理。调查工作记录会另外记入筹备委托。`
+          : index === 3
+            ? `这里有大家共用的补给箱，委托板也在任务菜单里。街区的小事会一直等你，不影响道馆挑战。`
+            : index === 4
+              ? `等大家备好物资，去${identity.quarters[2]}找筹备人，我们一起参加${identity.celebration}。`
+              : `这些花会摆在${identity.quarters[2]}。集市、工坊街和花园各有一块导览牌，散步时可以看看。`,
+      );
+    } else {
+      const title =
+        point === 'market'
+          ? identity.quarters[0]
+          : point === 'garden'
+            ? identity.quarters[2]
+            : identity.quarters[1];
+      lines.push(
+        `${title}：东侧两条街有烘焙坊、工坊、书馆和会馆；南侧是茶舍、温室与花园环路。所有房屋都能从正门进入。`,
+      );
+      lines.push(
+        `本地的${identity.celebration}由邻居共同筹备。沿路阅读三块导览牌，可以补全漫游手帖。`,
+      );
+    }
+  }
+  lines.push(
+    ledger.quests[questId] === 'claimed'
+      ? '这份委托已完成，欢迎常来。'
+      : `${first ? '已记入' : '可在'}任务管理「${task.name}」，目标完成后到本城委托板领奖。`,
+  );
+  game.notice = first ? `街区记录已更新：${task.name}` : `正在查看：${task.name}`;
+  talk(npc.name, lines);
+  return true;
+}

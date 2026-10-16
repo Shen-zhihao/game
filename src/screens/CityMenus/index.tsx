@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 import { ITEMS } from '../../content/catalog';
-import { CITIES, cityFor, questProgress, servicesUnlocked } from '../../content/cities';
+import {
+  CITIES,
+  CITY_QUESTS,
+  cityFor,
+  questProgress,
+  servicesUnlocked,
+} from '../../content/cities';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
 import { Command, GameState } from '../../game/model';
 
@@ -46,6 +52,7 @@ export function CityQuestBoard({
       {city.quests.map((q) => {
         const status = game.cityServices?.quests[q.id];
         const live = questProgress(game, q);
+        const locked = !!q.prerequisite && game.cityServices?.quests[q.prerequisite] !== 'claimed';
         const progress =
           status === 'claimed'
             ? { ...live, current: live.target, ready: true, label: '委托目标已完成' }
@@ -75,6 +82,11 @@ export function CityQuestBoard({
             <Label muted style={{ fontSize: 12 }}>
               {q.story}
             </Label>
+            {locked && (
+              <Label muted style={{ fontSize: 12 }}>
+                先交付：{CITY_QUESTS[q.prerequisite!]!.name}
+              </Label>
+            )}
             <Label style={{ fontSize: 12 }}>
               {progress.label}　{progress.current}/{progress.target}
             </Label>
@@ -104,7 +116,12 @@ export function CityQuestBoard({
               small
               accent={status !== 'claimed'}
               testID={`quest-action-${q.id}`}
-              disabled={!canAct || status === 'claimed' || (status === 'active' && !progress.ready)}
+              disabled={
+                !canAct ||
+                locked ||
+                status === 'claimed' ||
+                (status === 'active' && !progress.ready)
+              }
               onPress={() =>
                 dispatch({ kind: 'cityQuest', questId: q.id, action: status ? 'claim' : 'accept' })
               }

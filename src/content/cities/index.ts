@@ -4,6 +4,8 @@ import { GameState, MapId, TownId, TypeId } from '../../game/model';
 import { sumStats, trainingFor } from '../../game/growth';
 import { ADVENTURE_CHAPTERS } from '../adventure';
 import { worldMapFor } from '../buildings';
+import { CITY_TOWNS } from '../cityDistricts';
+import { districtQuests } from '../cityQuests';
 
 export interface CityQuest {
   id: string;
@@ -11,11 +13,13 @@ export interface CityQuest {
   name: string;
   client: string;
   story: string;
+  prerequisite?: string;
   condition:
     | { kind: 'collection'; types: TypeId[]; target: number }
     | { kind: 'delivery'; items: Record<string, number> }
     | { kind: 'training'; target: number }
-    | { kind: 'flag'; flag: string; label: string };
+    | { kind: 'flag'; flag: string; label: string }
+    | { kind: 'checklist'; stops: { flag: string; label: string }[] };
   reward: { money: number; merit: number; items: Record<string, number> };
 }
 export interface CityService {
@@ -226,6 +230,11 @@ for (const [index, gym] of campaign.gyms.slice(2).entries()) {
     ),
   );
 }
+for (const town of CITY_TOWNS) {
+  const service = CITIES.find((c) => c.map === (town === 'league' ? 'star' : town));
+  if (!service) throw new Error(`缺少城市委托服务：${town}`);
+  service.quests.push(...districtQuests(town).map((q) => ({ ...q, cityId: service.id })));
+}
 export const CITY_QUESTS = Object.fromEntries(
   CITIES.flatMap((c) => c.quests.map((q) => [q.id, q])),
 );
@@ -249,6 +258,17 @@ export function shopStock(game: GameState): string[] {
 export function questProgress(game: GameState, quest: CityQuest) {
   const condition = quest.condition;
   switch (condition.kind) {
+    case 'checklist': {
+      const current = condition.stops.filter((stop) => game.progress.flags[stop.flag]).length;
+      return {
+        current,
+        target: condition.stops.length,
+        ready: current === condition.stops.length,
+        label:
+          condition.stops.find((stop) => !game.progress.flags[stop.flag])?.label ??
+          '街区目标全部完成',
+      };
+    }
     case 'collection': {
       const current = game.dex.caught.filter(
         (id) =>

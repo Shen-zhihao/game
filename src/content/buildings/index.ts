@@ -1,5 +1,12 @@
 import type { InteriorMapId, MapId, WorldMapId } from '../../game/model';
 import type { GameMap, Npc } from '../world';
+import {
+  CITY_BUILDING_SITES,
+  CITY_IDENTITIES,
+  cityBuildingAt,
+  districtNpcId,
+  type CityBuildingKind,
+} from '../cityDistricts';
 
 export type RoomKind = 'home' | 'center' | 'shop' | 'lobby';
 export interface InteriorCounter {
@@ -69,6 +76,7 @@ export const ROOM_SITES = [
   'star_3_12',
   'star_26_22',
   'star_4_24',
+  ...CITY_BUILDING_SITES,
 ] as const;
 export interface BuildingDoorway {
   x: number;
@@ -139,10 +147,12 @@ function buildingDoorway(
 ): BuildingDoorway {
   const art = PAINTED_BUILDINGS[outside.id];
   const rect = art?.doors[destination];
-  if (art && !rect) throw new Error(`缺少建筑门洞标定：${destination}`);
+  const town = CITY_IDENTITIES[outside.id as keyof typeof CITY_IDENTITIES];
+  if (art && !rect && !destination.match(/_(bakery|workshop|library|guild|teahouse|greenhouse)$/))
+    throw new Error(`缺少建筑门洞标定：${destination}`);
   if (art && rect) {
-    const sx = (outside.rows[0]!.length * 32) / art.size[0];
-    const sy = (outside.rows.length * 32) / art.size[1];
+    const sx = ((town?.size[0] ?? outside.rows[0]!.length) * 32) / art.size[0];
+    const sy = ((town?.size[1] ?? outside.rows.length) * 32) / art.size[1];
     return {
       x: rect[0] * sx,
       y: rect[1] * sy,
@@ -166,6 +176,7 @@ export interface BuildingEntrance {
   y: number;
   map: MapId;
   name: string;
+  style?: CityBuildingKind;
   doorway: BuildingDoorway;
   footprint: { x: number; y: number; width: number; height: number; kind: string };
 }
@@ -192,7 +203,7 @@ const RESIDENTS: Record<string, { name: string; ids: string[] }> = {
   lake_25_22: { name: '拓片研究室', ids: ['rubbingScholar'] },
 };
 
-function roomRows(kind: RoomKind, counters: InteriorCounter[]): string[] {
+function roomRows(kind: RoomKind, counters: InteriorCounter[], style?: CityBuildingKind): string[] {
   const cells: string[][] = Array.from({ length: 12 }, (_, y) =>
     Array.from({ length: 14 }, (_, x) => (x === 0 || x === 13 || y === 0 || y === 11 ? '#' : ':')),
   );
@@ -217,6 +228,85 @@ function roomRows(kind: RoomKind, counters: InteriorCounter[]): string[] {
     cells[y!]![x!] = 'F';
   for (const counter of counters)
     for (let x = counter.x; x < counter.x + counter.width; x++) cells[counter.y]![x] = 'K';
+  if (style) {
+    for (const row of cells) for (let x = 0; x < row.length; x++) if (row[x] === 'F') row[x] = ':';
+    const layouts: Record<CityBuildingKind, [number, number][]> = {
+      bakery: [
+        [2, 2],
+        [3, 2],
+        [10, 2],
+        [11, 2],
+        [2, 6],
+        [3, 6],
+        [4, 6],
+        [10, 5],
+      ],
+      workshop: [
+        [2, 2],
+        [3, 2],
+        [10, 2],
+        [11, 2],
+        [2, 7],
+        [3, 7],
+        [10, 9],
+        [11, 9],
+      ],
+      library: [
+        [2, 2],
+        [3, 2],
+        [4, 2],
+        [5, 2],
+        [8, 2],
+        [9, 2],
+        [10, 2],
+        [11, 2],
+        [2, 5],
+        [2, 6],
+        [2, 7],
+        [6, 7],
+        [7, 7],
+      ],
+      guild: [
+        [2, 2],
+        [3, 2],
+        [10, 2],
+        [11, 2],
+        [2, 7],
+        [3, 7],
+        [10, 7],
+        [11, 7],
+      ],
+      teahouse: [
+        [2, 2],
+        [3, 2],
+        [10, 2],
+        [11, 2],
+        [3, 6],
+        [4, 6],
+        [9, 6],
+        [10, 6],
+        [3, 9],
+        [10, 9],
+      ],
+      greenhouse: [
+        [2, 2],
+        [3, 2],
+        [4, 2],
+        [9, 2],
+        [10, 2],
+        [11, 2],
+        [2, 5],
+        [3, 5],
+        [10, 5],
+        [11, 5],
+        [2, 8],
+        [3, 8],
+        [10, 8],
+        [11, 8],
+      ],
+    };
+    for (const [x, y] of layouts[style]) cells[y]![x] = 'F';
+  }
   cells[10]![7] = 'E';
   cells[11]![7] = 'E';
   return cells.map((r) => r.join(''));
@@ -323,7 +413,8 @@ export function installBuildingInteriors(
         const top = Math.min(...cells.map(([, yy]) => yy));
         const gym = tile === 'G' ? gyms.find((g) => g.town === outside.id) : undefined;
         const gate = gym && occupants.find((n) => n.id === gym.gate);
-        const key = `${outside.id}_${left}_${top}`;
+        const district = cityBuildingAt(outside.id, left, top);
+        const key = district?.site ?? `${outside.id}_${left}_${top}`;
         const destination = gym?.map ?? (`interior_${key}` as MapId);
         const visual = buildingDoorway(
           outside,
@@ -345,7 +436,7 @@ export function installBuildingInteriors(
           width: 20,
           height: 28,
           raster: true,
-          windows: [0.22, 0.78]
+          windows: (district ? [0.13, 0.3, 0.7, 0.87] : [0.22, 0.78])
             .map((t) => ({ x: (left + (right - left + 1) * t) * 32, y: threshold - 20 }))
             .filter((w) => Math.abs(w.x - centre) > 18),
         });
@@ -415,7 +506,18 @@ export function installBuildingInteriors(
               ];
         } else {
           const ids = kind === 'lobby' ? ['leagueRegistrar'] : (resident?.ids ?? []);
-          npcs = occupants.filter((n) => ids.includes(n.id));
+          npcs = district
+            ? [
+                {
+                  id: districtNpcId(outside.id as keyof typeof CITY_IDENTITIES, district.kind),
+                  x: 5,
+                  y: 4,
+                  name: district.person,
+                  role: 'resident',
+                  lines: [`欢迎来到${district.name}。`],
+                },
+              ]
+            : occupants.filter((n) => ids.includes(n.id));
         }
         outside.npcs = outside.npcs.filter((n) => !npcs.includes(n));
         npcs = npcs.map((n, i) => ({
@@ -426,6 +528,7 @@ export function installBuildingInteriors(
           patrol: undefined,
         }));
         const name =
+          district?.name ??
           resident?.name ??
           `${outside.name}${kind === 'center' ? '精灵中心' : kind === 'shop' ? '补给商店' : kind === 'lobby' ? '接待大厅' : '民居'}`;
         if (!npcs.length)
@@ -452,12 +555,22 @@ export function installBuildingInteriors(
             { npcId: npc.id, x: npc.x - Math.floor(width / 2), y: npc.y + 1, width, kind: style },
           ];
         });
+        if (district && ['bakery', 'workshop', 'library'].includes(district.kind))
+          npcs.push({
+            id: districtNpcId(outside.id as keyof typeof CITY_IDENTITIES, `craft_${district.kind}`),
+            x: 9,
+            y: 7,
+            name: CITY_IDENTITIES[outside.id as keyof typeof CITY_IDENTITIES].craft[
+              ['bakery', 'workshop', 'library'].indexOf(district.kind)
+            ]!,
+            role: 'clue',
+          });
         maps[id] = {
           id,
           name,
           subtitle: '沿南侧门口离开，回到刚才的街道',
-          interior: { exterior: outside.id, kind },
-          rows: roomRows(kind, counters),
+          interior: { exterior: outside.id, kind, style: district?.kind },
+          rows: roomRows(kind, counters, district?.kind),
           counters,
           npcs,
           encounters: [],
@@ -471,6 +584,7 @@ export function installBuildingInteriors(
           name,
           doorway: visual,
           footprint,
+          style: district?.kind,
         });
       }
     connectBuildingApproaches(outside);

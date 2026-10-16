@@ -31,6 +31,7 @@ import {
   presentCompleteJourney,
 } from '../league';
 import { journalQuests, recordQuestContact } from '../../content/quests';
+import { interactCityDistrict } from '../cityDistricts';
 import { buyItem, exchangeItem, transactQuest } from '../cityServices';
 import {
   allocatePoints,
@@ -308,6 +309,7 @@ function interact(state: GameState): void {
     return;
   }
   faceTraveler(state, npc);
+  if (interactCityDistrict(state, npc, (speaker, lines) => talk(state, speaker, lines))) return;
   recordQuestContact(state, npc.id);
   if (
     (GYM_TRAINERS.has(npc.event!) || (npc.role === 'switch' && GYM_BARRIERS[player.map])) &&

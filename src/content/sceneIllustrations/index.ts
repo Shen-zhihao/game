@@ -1,9 +1,11 @@
+import { illustratedPine, illustratedSceneDetails } from './details';
 import { MAPS, mapSize } from '../world';
 import { battleTheme, type BattleTheme } from '../battleScenes';
 import { isIndoor } from '../../game/environment';
 import { sceneInk as c } from '../sceneArt';
 import type { MapId } from '../../game/model';
 import type { BuildingEntrance } from '../buildings';
+import type { CityScenery } from '../cityDistricts';
 
 const rect = (x: number, y: number, w: number, h: number, fill: string, extra = '') =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" ${extra}/>`;
@@ -325,6 +327,115 @@ function building(entrance: BuildingEntrance, theme: BattleTheme) {
   if (kind === 'S')
     for (let i = 0; i < Math.floor((w - 8) / 12); i++)
       art += rect(x + 4 + i * 12, roofBottom + 2, 12, 7, i % 2 ? '#dbc5a3' : c.paper, 'rx="2"');
+  const style = entrance.style;
+  if (style && style !== 'greenhouse') {
+    // Dormers, ridge caps, timber braces and a side porch break up the long roof silhouettes.
+    for (const ratio of [0.24, 0.76]) {
+      const wx = x + w * ratio,
+        wy = roofTop + (roofBottom - roofTop) * 0.46;
+      art += rect(wx - 12, wy - 4, 24, 19, '#efdfbd', `rx="2" ${line}`);
+      art += path(`M${wx - 16},${wy - 3}l16,-15 16,15Z`, roof, line);
+      art += rect(wx - 6, wy + 1, 12, 10, '#b8ceca', `rx="2" ${line}`);
+      art += path(`M${wx},${wy + 2}v8m-5,-4h10`, 'none', 'stroke="#fffcf5" stroke-width="1"');
+    }
+    art += path(
+      `M${x + 12},${roofTop + 1}h${w - 24}`,
+      'none',
+      `stroke="${c.outline}" stroke-width="2" opacity=".4"`,
+    );
+    art += path(
+      `M${x + 9},${roofBottom + 7}v${bottom - roofBottom - 10}m${w - 18},0v-${bottom - roofBottom - 10}`,
+      'none',
+      'stroke="#b39b74" stroke-width="3"',
+    );
+    art += path(
+      `M${x + 9},${roofBottom + 8}l14,14m${w - 32},-14-14,14`,
+      'none',
+      'stroke="#b39b74" stroke-width="2"',
+    );
+    if (theme === 'wind')
+      art += path(
+        `M${x + 5},${roofBottom - 3}h${w - 10}`,
+        'none',
+        'stroke="#fff9e9" stroke-width="4" stroke-linecap="round"',
+      );
+    if (theme === 'star' || theme === 'league')
+      for (const dx of [14, w - 23])
+        art += path(`M${x + dx},${roofBottom + 8}h9v20l-4,-4-5,4Z`, '#e5d19b', line);
+  }
+  if (style === 'greenhouse') {
+    art += path(
+      `M${x + 9},${roofBottom - 3}l11,${roofTop - roofBottom + 9}h${w - 40}l11,${roofBottom - roofTop - 9}Z`,
+      '#b9d2ca',
+      line,
+    );
+    for (let i = 1; i < 6; i++)
+      art += path(
+        `M${x + 12 + ((w - 24) * i) / 6},${roofTop + 9}v${roofBottom - roofTop - 12}`,
+        'none',
+        'stroke="#f7f3da" stroke-width="2"',
+      );
+  } else if (style === 'bakery' || style === 'workshop') {
+    art += rect(x + w - 34, roofTop - 11, 16, 30, '#c3a083', `rx="3" ${line}`);
+    art += rect(x + w - 37, roofTop - 14, 22, 5, '#e5cfac', `rx="2" ${line}`);
+    art += path(
+      `M${x + w - 26},${roofTop - 20}q-9,-8 0,-15m4,-3q-7,-8 0,-13`,
+      'none',
+      'stroke="#f4e8cf" stroke-width="3" stroke-linecap="round"',
+    );
+  } else if (style === 'library') {
+    art += path(`M${symbolX - 32},${roofTop + 22}l32,-30 32,30Z`, '#d0bf9a', line);
+    art += ellipse(symbolX, roofTop + 10, 8, 9, '#b4ceca', line);
+    art += path(
+      `M${symbolX},${roofTop + 3}v14m-6,-7h12`,
+      'none',
+      'stroke="#fffcf5" stroke-width="1.5"',
+    );
+  } else if (style === 'guild') {
+    art += rect(symbolX - 15, roofTop - 17, 30, 30, '#e8d8b4', `rx="7" ${line}`);
+    art += ellipse(symbolX, roofTop - 2, 10, 10, '#fffcf5', line);
+    art += path(`M${symbolX},${roofTop - 9}v7l5,3`, 'none', line);
+  }
+  if (style === 'teahouse' || style === 'bakery')
+    for (let i = 0; i < 8; i++)
+      art += rect(
+        x + 3 + (i * (w - 6)) / 8,
+        roofBottom + 3,
+        (w - 6) / 8,
+        12,
+        i % 2 ? (style === 'teahouse' ? '#acc3ac' : '#dfb397') : c.paper,
+        `rx="3" ${line}`,
+      );
+  if (style) {
+    const signX = x + w - 34,
+      signY = bottom - 42;
+    art += path(`M${signX},${signY - 13}h24v11`, 'none', `stroke="${c.outline}" stroke-width="2"`);
+    art += rect(signX + 3, signY - 3, 24, 21, '#f7e9c7', `rx="5" ${line}`);
+    if (style === 'bakery') {
+      art += ellipse(signX + 15, signY + 8, 8, 5, '#dbad68', line);
+      art += path(
+        `M${signX + 12},${signY + 5}l-2,5m7,-5-2,5`,
+        'none',
+        'stroke="#fff1ce" stroke-width="1.5"',
+      );
+    } else if (style === 'library')
+      art += path(
+        `M${signX + 8},${signY + 3}q4,-3 7,1 4,-4 8,-1v11q-4,-3-8,0-3,-3-7,0Z M${signX + 15},${signY + 4}v10`,
+        '#bed0bf',
+        line,
+      );
+    else if (style === 'workshop')
+      art += path(
+        `M${signX + 9},${signY + 13}l12,-12m-4,0 4,4m-10,8-3,-3`,
+        'none',
+        'stroke="#8c9c97" stroke-width="3" stroke-linecap="round"',
+      );
+    else if (style === 'teahouse')
+      art += path(`M${signX + 8},${signY + 5}h12v6q-6,8-12,0Z m12,1q9,-2 3,6h-3`, '#adc5b1', line);
+    else art += path(`M${signX + 15},${signY + 2}q-12,4 0,13 12,-9 0,-13Z`, c.leaf, line);
+    art += rect(x + 8, bottom - 9, 25, 8, '#c6b18a', `rx="2" ${line}`);
+    for (let i = 0; i < 3; i++) art += flower(x + 12 + i * 8, bottom - 12, i + x);
+  }
   return art;
 }
 function boulder(x: number, y: number, fill: string, small = false) {
@@ -332,7 +443,67 @@ function boulder(x: number, y: number, fill: string, small = false) {
 }
 function furniture(x: number, y: number, kind: string, variant: number) {
   let art = rect(x + 2, y + 6, 28, 24, '#c6ac86', `rx="4" ${line}`);
-  if (kind === 'center') {
+  if (kind === 'greenhouse') {
+    art = rect(x + 3, y + 18, 26, 12, '#c9aa87', `rx="4" ${line}`);
+    art += path(
+      `M${x + 16},${y + 23}v-16m0,10q-15,0-12,-12 12,0 12,12m0,-2q15,0 12,-12-12,0-12,12`,
+      c.leaf,
+      line,
+    );
+    art += flower(x + 16, y + 5, variant);
+  } else if (kind === 'library') {
+    art += rect(x + 4, y + 7, 24, 22, '#a98c69', `rx="2" ${line}`);
+    for (let i = 0; i < 5; i++)
+      art += rect(
+        x + 6 + i * 4,
+        y + 10 + (i % 2) * 3,
+        3,
+        13,
+        ['#b5c7b3', '#d6b398', '#e3d19d'][i % 3]!,
+        'rx="1"',
+      );
+    art += path(`M${x + 5},${y + 25}h22`, 'none', 'stroke="#ead7b1" stroke-width="2"');
+  } else if (kind === 'bakery' && variant % 2 === 1) {
+    art += rect(x + 3, y + 8, 26, 5, '#ebd5ae', `rx="2" ${line}`);
+    for (const py of [18, 26])
+      for (const px of [9, 22]) {
+        art += ellipse(x + px, y + py, 5, 3, '#dfba7f', line);
+        art += path(
+          `M${x + px - 1},${y + py - 2}l-1,3`,
+          'none',
+          'stroke="#fff1ce" stroke-width="1"',
+        );
+      }
+  } else if (kind === 'bakery') {
+    art = rect(x + 2, y + 3, 28, 28, '#c5a88a', `rx="5" ${line}`);
+    art += path(`M${x + 7},${y + 26}v-8q9,-15 18,0v8Z`, '#7e7061', line);
+    art += ellipse(x + 16, y + 23, 6, 3, '#e6bb75', line);
+    art += path(
+      `M${x + 5},${y + 9}h22m-17,-4v4m10,-4v4`,
+      'none',
+      'stroke="#ebd7b5" stroke-width="1.2"',
+    );
+  } else if (kind === 'workshop') {
+    art += rect(x + 1, y + 10, 30, 9, '#e1c79c', `rx="2" ${line}`);
+    art += path(
+      `M${x + 7},${y + 10}l9,-6m-3,-3 5,6m5,3v-8`,
+      'none',
+      'stroke="#7c8c88" stroke-width="2" stroke-linecap="round"',
+    );
+  } else if (kind === 'teahouse') {
+    art = ellipse(x + 16, y + 19, 14, 11, '#d9c39c', line);
+    art += ellipse(x + 16, y + 16, 13, 9, '#f1e2bd', line);
+    art += path(`M${x + 8},${y + 12}h8v5q-4,5-8,0Zm8,1q6,-1 3,4h-3`, '#abc6bb', line);
+  } else if (kind === 'guild') {
+    art += rect(x + 1, y + 9, 30, 7, '#e7cfa5', `rx="2" ${line}`);
+    art += path(`M${x + 10},${y + 18}h12v11l-6,-3-6,3Z`, '#aebfb8', line);
+    art += rect(x + 7, y + 3, 13, 9, '#f8ecd0', `rx="1" ${line}`);
+    art += path(
+      `M${x + 10},${y + 6}h7m-7,3h5m12,3v-9l4,-2`,
+      'none',
+      'stroke="#a08c68" stroke-width=".8"',
+    );
+  } else if (kind === 'center') {
     art =
       rect(x + 2, y + 4, 28, 26, '#dce5d7', `rx="4" ${line}`) +
       rect(x + 5, y + 6, 22, 8, '#abc9c5', 'rx="2"') +
@@ -350,6 +521,111 @@ function furniture(x: number, y: number, kind: string, variant: number) {
     art +=
       rect(x + 5, y + 9, 22, 3, '#ead7b1') +
       path(`M${x + 7},${y + 19}h18`, 'none', `stroke="${c.outline}" stroke-width="1"`);
+  return art;
+}
+
+function cityScenery(prop: CityScenery, theme: BattleTheme) {
+  const x = prop.x * 32,
+    y = prop.y * 32,
+    w = prop.width * 32,
+    h = prop.height * 32;
+  const p = themes[theme];
+  let art = ellipse(x + w / 2, y + h - 2, w * 0.5, 5, c.outline, 'opacity=".12"');
+  if (prop.kind === 'bench')
+    return (
+      art +
+      `<g ${line}>${rect(x + 3, y + 9, 26, 12, '#d8bb8e', 'rx="3"')}${path(`M${x + 6},${y + 21}v9m20,-9v9m-24,-16h24m-24,5h24`, 'none')}</g>`
+    );
+  if (prop.kind === 'lamp')
+    return (
+      art +
+      path(
+        `M${x + 16},${y + 31}V9m-5,21h10m-5,-21q-15,1-7,-8`,
+        'none',
+        `stroke="${c.outline}" stroke-width="2" stroke-linecap="round"`,
+      ) +
+      rect(x + 4, y - 4, 11, 14, '#f3d58f', `rx="3" ${line}`) +
+      path(`M${x + 9},${y - 2}v10`, 'none', 'stroke="#fff8de" stroke-width="2"')
+    );
+  if (prop.kind === 'planter') {
+    art += rect(x + 3, y + 18, w - 6, 12, '#c5ad88', `rx="4" ${line}`);
+    for (let i = 0; i < prop.width * 3; i++) art += flower(x + 8 + i * 8, y + 14, i);
+    return art;
+  }
+  if (prop.kind === 'stall') {
+    art += rect(x + 3, y + 11, w - 6, h - 12, '#e3cba2', `rx="3" ${line}`);
+    for (let i = 0; i < 6; i++)
+      art += rect(x + (i * w) / 6, y - 4, w / 6, 15, i % 2 ? p.roof : c.paper, `rx="3" ${line}`);
+    for (let i = 0; i < 4; i++)
+      art += ellipse(
+        x + 12 + i * 13,
+        y + 17,
+        5,
+        4,
+        ['#d9b178', '#b6c798', '#e5c2a0'][i % 3]!,
+        line,
+      );
+    return art;
+  }
+  if (prop.kind === 'fountain')
+    return (
+      art +
+      ellipse(x + w / 2, y + h - 12, w / 2 - 3, 12, '#d5c8ac', line) +
+      ellipse(x + w / 2, y + h - 15, w / 2 - 7, 8, p.water, line) +
+      path(
+        `M${x + w / 2},${y + h - 18}v-27q-20,0-16,15m16,-15q20,0 16,15`,
+        'none',
+        'stroke="#aed0cf" stroke-width="3" stroke-linecap="round"',
+      ) +
+      ellipse(x + w / 2, y + h - 19, 7, 4, '#e4d7bb', line)
+    );
+  if (prop.kind === 'landmark') {
+    const cx = x + w / 2,
+      cy = y + h - 20;
+    art += rect(x + 9, y + h - 16, w - 18, 13, '#dbccb0', `rx="5" ${line}`);
+    if (theme === 'wind') {
+      art += path(`M${cx - 8},${cy}l4,-38h8l4,38Z`, '#c7bda7', line);
+      art += path(
+        `M${cx},${cy - 28}l-23,-18 6,-5 17,23 22,-18 5,6-27,12 18,23-7,4-11,-27-21,18-4,-7Z`,
+        '#f4ead5',
+        line,
+      );
+    } else if (theme === 'coast') {
+      art += path(`M${cx},${cy}v-43m-2,1-24,29h24Zm6,6 18,23H${cx + 4}Z`, c.paper, line);
+      art += path(`M${cx - 26},${cy - 3}h52l-8,10h-36Z`, '#c6a680', line);
+    } else if (theme === 'furnace') {
+      art += path(`M${cx - 21},${cy}v-21q21,-34 42,0v21Z`, '#c29a7b', line);
+      art += path(`M${cx - 11},${cy}v-16q11,-16 22,0v16Z`, '#f0cd94', line);
+    } else if (theme === 'electric') {
+      art += rect(cx - 6, cy - 30, 12, 31, '#c1a97d', `rx="3" ${line}`);
+      art +=
+        ellipse(cx, cy - 32, 17, 17, '#eee0b9', line) + ellipse(cx, cy - 32, 12, 12, c.paper, line);
+      art += path(`M${cx},${cy - 41}v9l7,4`, 'none', line);
+    } else if (theme === 'lake') {
+      art += ellipse(cx, cy, 24, 7, '#b4c69e', line);
+      for (const a of [-45, 0, 45])
+        art += `<g transform="rotate(${a},${cx},${cy})">${path(`M${cx},${cy}q-22,-24 0,-39 22,15 0,39Z`, '#e5c2b2', line)}</g>`;
+    } else if (theme === 'star' || theme === 'league') {
+      art += path(`M${cx},${cy}v-36m-22,16h44`, 'none', 'stroke="#b29b70" stroke-width="4"');
+      art += ellipse(
+        cx,
+        cy - 25,
+        21,
+        16,
+        'none',
+        `stroke="#b49e7a" stroke-width="2" transform="rotate(-30,${cx},${cy - 25})"`,
+      );
+      art += path(
+        `M${cx},${cy - 46}l5,10 12,2-9,8 3,12-11,-6-11,6 3,-12-9,-8 12,-2Z`,
+        c.gold,
+        line,
+      );
+    } else if (theme === 'highlands') {
+      art += path(`M${cx - 23},${cy}l4,-18 16,-7 21,6 6,19Z`, p.rock, line);
+      art += path(`M${cx - 15},${cy - 23}l7,-16 17,3 6,17Z`, '#cdc0a5', line);
+    } else
+      art += `<g transform="translate(${cx - 17},${cy - 40}) scale(1,1.4)">${tree(0, 0, 4, false)}</g>`;
+  }
   return art;
 }
 
@@ -452,6 +728,7 @@ export function illustratedMap(map: MapId) {
     '#dcaa7a',
     'fill-rule="evenodd" stroke="#f9d498" stroke-width="4"',
   );
+  if (data.interior) art += illustratedSceneDetails(map);
   rows.forEach((row, y) =>
     [...row].forEach((tile, x) => {
       const xx = x * 32,
@@ -530,6 +807,8 @@ export function illustratedMap(map: MapId) {
       if (tile === '^')
         for (let i = 0; i < 3; i++)
           art += flower(xx + 7 + i * 9, yy + 9 + ((i + n) % 2) * 13, n + i);
+      if (tile === 'T')
+        art += `<g transform="translate(${xx - 1},${yy - 8}) scale(1.05,1.3)">${tree(0, 0, n, false)}</g>`;
       if (tile === '~' || tile === 'W')
         art += path(
           `M${xx + 5},${yy + 12}q4,2 9,0m4,10h6`,
@@ -542,7 +821,7 @@ export function illustratedMap(map: MapId) {
           'none',
           'stroke="#ffe2a7" stroke-width="2" stroke-linecap="round"',
         );
-      if (tile === 'F') art += furniture(xx, yy, room ?? 'home', x + y);
+      if (tile === 'F' && room) art += furniture(xx, yy, data.interior?.style ?? room, x + y);
       if (tile === 'E')
         art +=
           rect(xx + 2, yy + 1, 28, 30, '#d8c193', 'rx="3"') +
@@ -561,10 +840,13 @@ export function illustratedMap(map: MapId) {
               );
         } else if (cave || theme === 'highlands' || theme === 'furnace')
           art += boulder(xx, yy, p.rock);
+        else if (theme === 'wind') art += illustratedPine(xx, yy, true);
         else art += tree(xx, yy, n, forest);
       }
     }),
   );
+  if (!data.interior) art += illustratedSceneDetails(map);
+  for (const prop of data.scenery ?? []) art += cityScenery(prop, theme);
   for (const entrance of data.entrances ?? []) art += building(entrance, theme);
   return svg(width, height, art);
 }

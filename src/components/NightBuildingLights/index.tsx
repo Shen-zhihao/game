@@ -18,6 +18,20 @@ export function NightBuildingLights({ map, scale }: { map: MapId; scale: number 
           <Stop offset="100%" stopColor="#ffc96b" stopOpacity={0} />
         </RadialGradient>
       </Defs>
+      {(MAPS[map].scenery ?? [])
+        .filter((prop) => prop.kind === 'lamp')
+        .map((lamp) => (
+          <G key={`street-${lamp.x}-${lamp.y}`}>
+            <Ellipse
+              cx={lamp.x * 32 + 10}
+              cy={lamp.y * 32 + 8}
+              rx={35}
+              ry={33}
+              fill={`url(#${glowId})`}
+            />
+            <Circle cx={lamp.x * 32 + 10} cy={lamp.y * 32 + 3} r={3} fill="#ffeab1" />
+          </G>
+        ))}
       {MAPS[map].entrances!.map((entrance) => {
         const d = entrance.doorway;
         const x = d.x + d.width / 2;

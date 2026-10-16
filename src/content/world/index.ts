@@ -2,6 +2,7 @@ import { habitatZones, landEncounters } from '../habitats';
 import { Direction, MapId, StoryEvent, TownId, WorldMapId } from '../../game/model';
 import { HIGHLAND_MAPS } from '../highlands';
 import { COAST_MAPS } from '../coast';
+import { expandCityDistricts, type CityScenery, type CityBuildingKind } from '../cityDistricts';
 import {
   BuildingEntrance,
   installBuildingInteriors,
@@ -71,8 +72,9 @@ export interface GameMap {
   rows: string[];
   npcs: Npc[];
   entrances?: BuildingEntrance[];
-  interior?: { exterior: MapId; kind: RoomKind };
+  interior?: { exterior: MapId; kind: RoomKind; style?: CityBuildingKind };
   counters?: InteriorCounter[];
+  scenery?: CityScenery[];
   portals: {
     x: number;
     y: number;
@@ -403,6 +405,7 @@ for (const map of Object.values(MAPS)) {
   const width = Math.max(...map.rows.map((row) => row.length));
   map.rows = map.rows.map((row) => row.padEnd(width, '#'));
 }
+expandCityDistricts(MAPS);
 installBuildingInteriors(MAPS, [
   { town: 'moss', map: 'gym', gate: 'gymGate', entrance: { x: 11, y: 14 } },
   { town: 'stone', map: 'rockGym', gate: 'rockGymGate', entrance: { x: 13, y: 18 } },
@@ -453,7 +456,7 @@ export function terrainPassable(
 ): boolean {
   const tile = MAPS[mapId]?.rows[y]?.[x];
   if (MAPS[mapId]?.entrances?.some((e) => e.x === x && e.y === y)) return true;
-  if (!tile || '#HCSGLFK'.includes(tile)) return false;
+  if (!tile || '#HCSGLFKT'.includes(tile)) return false;
   if ((tile === '~' || tile === 'W') && !flags.waterRig && !flags.lighthouseRepaired) return false;
   if (tile === 'R' && !flags[mapId === 'stoneRoute' ? 'foothillRock' : 'mineRock']) return false;
   if (GYM_BARRIERS[mapId]?.some(([xx, yy, flag]) => x === xx && y === yy && !flags[flag]))

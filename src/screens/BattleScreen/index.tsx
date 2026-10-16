@@ -370,7 +370,12 @@ export function BattleScreen({
           resizeMode="cover"
           style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
         />
-        <WeatherOverlay weather={b.weather?.kind ?? 'clear'} />
+        <WeatherOverlay
+          weather={b.weather?.kind ?? 'clear'}
+          width={field.width}
+          height={field.height}
+          paused={playbackStopped}
+        />
         <View
           pointerEvents="none"
           style={{

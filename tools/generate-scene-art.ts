@@ -25,6 +25,7 @@ const originals: Partial<Record<MapId, string>> = {
 };
 mkdirSync('assets/maps/illustrated', { recursive: true });
 const files = new Map<MapId, string>();
+const imageDigests = new Map<string, string>();
 const roomImages = new Map<string, string>();
 const reservedRoomNames = new Set<string>();
 for (const map of ILLUSTRATED_MAPS) {
@@ -51,6 +52,7 @@ for (const map of ILLUSTRATED_MAPS) {
     reservedRoomNames.add(file);
   }
   writeFileSync(`assets/maps/${file}`, png);
+  imageDigests.set(file, hash);
   files.set(map, file);
 }
 for (const theme of Object.keys(BATTLE_SCENES) as BattleTheme[])
@@ -78,12 +80,16 @@ const sceneRecords = [
           ? `${mapIds.length}个相同室内共用的插画；各自NPC、入口和存档地图ID保持独立。`
           : `${MAPS[map].name}完整插画地图；道路、建筑、门槛与最终可行走格一致。`,
       dimensions: [mapSize(map).width * 2, mapSize(map).height * 2],
+      sha256: imageDigests.get(file)!,
     };
   }),
   ...Object.values(BATTLE_SCENES).map((scene) => ({
     file: `assets/maps/${scene.file}`,
     usage: `${scene.name}插画战斗背景；沿用双方站位锚点。`,
     dimensions: [scene.width, scene.height],
+    sha256: createHash('sha256')
+      .update(readFileSync(`assets/maps/${scene.file}`))
+      .digest('hex'),
   })),
 ];
 let changedProvenance = false;
@@ -139,8 +145,8 @@ for (const record of sceneRecords) {
 }
 if (changedProvenance) {
   provenance.version += 1;
-  provenance.sceneStyle =
-    '全部88张地图与9套战斗背景统一为奶油纸色、棕色描边的插画；相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。';
+  provenance.date = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
+  provenance.sceneStyle = `全部${files.size}张地图与${Object.keys(BATTLE_SCENES).length}套战斗背景统一使用参考截图的奶油纸色、低饱和青绿、柔和棕色描边与圆润造型；城市包含扩建街区、地域地标及不同用途的室内，后续地图补充同风格的设备、书柜、窑炉、观测仪与遗迹雕饰，相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。`;
   writeFileSync(provenancePath, `${JSON.stringify(provenance, null, 2)}\n`);
 }
 console.log(

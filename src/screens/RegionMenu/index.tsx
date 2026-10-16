@@ -19,12 +19,16 @@ import { HABITAT_SITES } from '../../content/habitats';
 import { TileMapLayers } from '../../components/TileMap';
 import { layoutRegionLabels } from '../../content/regionLabels';
 import { ADVENTURE_GYMS } from '../../content/adventure';
+import { CITY_TOWNS, CITY_IDENTITIES, cityLayout } from '../../content/cityDistricts';
 
 function LocalMap({ game, map }: { game: GameState; map: MapId }) {
   const data = MAPS[map];
   const width = data.rows[0]!.length * 32;
   const height = data.rows.length * 32;
   const point = localMapPoint(map, game.player.x, game.player.y);
+  const town = CITY_TOWNS.find((id) => id === map);
+  const layout = town && cityLayout(town);
+  const quarters = town && CITY_IDENTITIES[town].quarters;
   return (
     <Svg
       testID={`local-map-${map}`}
@@ -38,6 +42,29 @@ function LocalMap({ game, map }: { game: GameState; map: MapId }) {
       ) : (
         <TileMapLayers map={map} />
       )}
+      {layout &&
+        quarters &&
+        [
+          { text: quarters[0], x: layout.boulevard + 1, y: 11.7 },
+          { text: quarters[1], x: layout.oldWidth / 2, y: layout.oldHeight + 11.5 },
+          { text: quarters[2], x: layout.gardenX, y: layout.gardenY - 4.5 },
+        ].map((label) => (
+          <G key={label.text} transform={`translate(${label.x * 32},${label.y * 32})`}>
+            <Rect
+              x={-label.text.length * 15 - 10}
+              y={-22}
+              width={label.text.length * 30 + 20}
+              height={36}
+              rx={9}
+              fill="#fffcf5ed"
+              stroke="#b9a986"
+              strokeWidth={1.5}
+            />
+            <SvgText textAnchor="middle" fontSize={26} fontWeight="700" fill="#655541" y={5}>
+              {label.text}
+            </SvgText>
+          </G>
+        ))}
       {game.player.map === map && (
         <G
           testID="local-player-pin"
@@ -335,7 +362,9 @@ export function RegionMenu({ game }: { game: GameState }) {
               <WorldMap selected={selected} current={current.id} onSelect={selectPlace} />
             )}
             <Label muted style={s.legend}>
-              {local ? '▲ 你的位置' : '▲ 你的位置　点选地点查看小地图与道路连接'}
+              {local
+                ? '▲ 你的位置　街区名称标在全图上，沿建筑正门可进入室内'
+                : '▲ 你的位置　点选地点查看小地图与道路连接'}
             </Label>
           </View>
         )}

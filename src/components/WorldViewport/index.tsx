@@ -13,6 +13,7 @@ import { CoastPropKind, CoastPropSprite } from '../CoastPropSprite';
 import { QuarryPropSprite } from '../QuarryPropSprite';
 import { travelProfile, weatherAt, isIndoor } from '../../game/environment';
 import { WeatherOverlay } from '../WeatherOverlay';
+import { GroundWeather } from '../GroundWeather';
 import { BuildingDoors } from '../BuildingDoor';
 import type { DoorPresentation } from '../../hooks/useBuildingPassage';
 import { DOOR_TIMINGS } from '../../game/buildingPassage';
@@ -170,6 +171,16 @@ export function WorldViewport({
         />
         <BuildingDoors map={game.player.map} scale={scale} passage={door} night={night} />
         <CoastAmbient game={game} scale={scale} paused={paused} />
+        <GroundWeather
+          map={game.player.map}
+          weather={weatherAt(game)}
+          focusX={game.player.x}
+          focusY={game.player.y}
+          scale={scale}
+          width={width}
+          height={height}
+          paused={paused}
+        />
         {!isIndoor(game.player.map) && (
           <GrassWind
             mapId={game.player.map}
@@ -413,7 +424,14 @@ export function WorldViewport({
           </Animated.View>
         </Animated.View>
       </Animated.View>
-      <WeatherOverlay weather={weatherAt(game)} paused={paused} />
+      <WeatherOverlay
+        key={game.player.map}
+        weather={weatherAt(game)}
+        width={width}
+        height={height}
+        paused={paused}
+        night={night}
+      />
       {night && (
         <>
           <Animated.View

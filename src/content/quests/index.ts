@@ -848,7 +848,17 @@ export function journalQuests(game: GameState): JournalQuest[] {
           ],
           status: completed ? 'completed' : progress.ready ? 'ready' : 'active',
           steps: [
-            { label: completed ? q.story : progress.label, done: completed || progress.ready },
+            ...(q.condition.kind === 'checklist'
+              ? q.condition.stops.map((stop) => ({
+                  label: stop.label,
+                  done: completed || !!flags[stop.flag],
+                }))
+              : [
+                  {
+                    label: completed ? q.story : progress.label,
+                    done: completed || progress.ready,
+                  },
+                ]),
             { label: `回${city.name}交付并领取奖励`, done: completed },
           ],
           current: completed ? progress.target : progress.current,
@@ -857,7 +867,9 @@ export function journalQuests(game: GameState): JournalQuest[] {
             ? '奖励已领取。'
             : progress.ready
               ? `回${city.name}交付并领取奖励`
-              : q.story,
+              : q.condition.kind === 'checklist'
+                ? progress.label
+                : q.story,
         };
       }),
   );
