@@ -58,7 +58,7 @@ export function SkillCopyMenu({
         aria-modal
         style={{
           flex: 1,
-          backgroundColor: '#102b23',
+          backgroundColor: palette.canvas,
           paddingTop: insets.top + 10,
           paddingBottom: insets.bottom + 10,
           paddingLeft: insets.left + 14,
@@ -67,7 +67,7 @@ export function SkillCopyMenu({
         }}
       >
         <View style={[styles.row, { justifyContent: 'space-between' }]}>
-          <View>
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Label style={{ fontWeight: '800', fontSize: 21, color: palette.gold }}>
               技能复刻剂 · 持有 {game.inventory.skill_copy ?? 0}
             </Label>
@@ -266,7 +266,10 @@ export function SkillCopyMenu({
             </View>
             {step === 'target' && (
               <View
-                style={[styles.row, { paddingTop: 8, borderTopWidth: 1, borderColor: '#496653' }]}
+                style={[
+                  styles.row,
+                  { paddingTop: 8, borderTopWidth: 1, borderColor: palette.line },
+                ]}
               >
                 <Label muted style={{ flex: 1, fontSize: 12 }}>
                   {reason ||

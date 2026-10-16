@@ -38,25 +38,46 @@ export function WeatherOverlay({
           ? '#d3ae6625'
           : weather === 'snow'
             ? '#c6e5ff18'
-            : '#30587b22';
+            : weather === 'storm'
+              ? '#172d4d45'
+              : '#30587b38';
+  const particles =
+    weather === 'sun'
+      ? 6
+      : weather === 'fog'
+        ? 10
+        : weather === 'storm'
+          ? 64
+          : weather === 'rain'
+            ? 40
+            : 32;
   return (
     <View
       testID={`weather-effect-${weather}`}
       pointerEvents="none"
       style={[StyleSheet.absoluteFill, { backgroundColor: tint }]}
     >
-      {Array.from({ length: weather === 'sun' ? 6 : 24 }, (_, i) => (
+      {Array.from({ length: particles }, (_, i) => (
         <Animated.View
           key={i}
           style={{
             position: 'absolute',
             left: `${(i * 31 + 7) % 101}%`,
             top: `${(i * 17 + 3) % 94}%`,
-            width: rain ? 1 : weather === 'fog' ? 140 : weather === 'sand' ? 12 : 3,
-            height: rain ? 20 : weather === 'fog' ? 22 : 3,
+            width: rain
+              ? 1
+              : weather === 'fog'
+                ? 140
+                : weather === 'sand'
+                  ? 12
+                  : weather === 'snow'
+                    ? 4
+                    : 3,
+            height: rain ? 20 : weather === 'fog' ? 22 : weather === 'snow' ? 4 : 3,
             borderRadius: rain ? 0 : 30,
             backgroundColor: weather === 'sand' ? '#ead6a7' : '#ecfaff',
-            opacity: weather === 'fog' ? 0.08 : weather === 'sun' ? 0.2 : 0.32,
+            opacity:
+              weather === 'fog' ? 0.12 : weather === 'sun' ? 0.2 : weather === 'snow' ? 0.65 : 0.5,
             transform: [
               {
                 translateY: drift.interpolate({

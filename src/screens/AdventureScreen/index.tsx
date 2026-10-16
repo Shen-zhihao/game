@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 import { Label, palette } from '../../components/ui';
-import { Command, GameState } from '../../game/model';
+import { Command, GameState, MapId } from '../../game/model';
 import { BattleScreen } from '../BattleScreen';
 import { Explore } from '../Explore';
 import { SCENE_TRANSITION } from '../../sceneTransition';
@@ -18,7 +18,6 @@ export function AdventureScreen({
   width,
   height,
   paused,
-  saveStatus,
   onMenu,
   onBattlePlayback,
 }: {
@@ -27,7 +26,6 @@ export function AdventureScreen({
   width: number;
   height: number;
   paused: boolean;
-  saveStatus: string;
   onMenu: () => void;
   onBattlePlayback: (id: string, playing: boolean) => void;
 }) {
@@ -50,6 +48,8 @@ export function AdventureScreen({
   }
   const [flash] = useState(() => new Animated.Value(0));
   const [curtain] = useState(() => new Animated.Value(0));
+  const [readyMap, setReadyMap] = useState<MapId | null>(null);
+  const onMapReady = useCallback((map: MapId) => setReadyMap(map), []);
   const reduced = useRef(false);
   useEffect(() => {
     let alive = true;
@@ -80,7 +80,7 @@ export function AdventureScreen({
         useNativeDriver: true,
       });
     // Retain the source scene until fully covered, including the final battle frame on return.
-    let animation = Animated.sequence([
+    const animation = Animated.sequence([
       ...(reduceMotion || !transition.entering
         ? []
         : [
@@ -96,48 +96,71 @@ export function AdventureScreen({
       setView((current) =>
         current.transition === transition ? { ...current, showDestination: true } : current,
       );
-      animation = Animated.sequence([
-        Animated.delay(SCENE_TRANSITION.coveredFrame),
-        timing(curtain, 0, SCENE_TRANSITION.fadeIn),
-      ]);
-      animation.start(({ finished: revealed }) => {
-        if (revealed)
-          setView((current) =>
-            current.transition === transition ? { ...current, transition: null } : current,
-          );
-      });
     });
     return () => animation.stop();
   }, [transition, flash, curtain]);
+  const destinationReady = !!transition?.entering || readyMap === game.player.map;
+  useEffect(() => {
+    if (!transition || !view.showDestination || !destinationReady) return;
+    // A timeout alone cannot establish that a freshly loaded map image is ready.
+    const animation = Animated.sequence([
+      Animated.delay(SCENE_TRANSITION.coveredFrame),
+      Animated.timing(curtain, {
+        toValue: 0,
+        duration: reduced.current ? Math.min(80, SCENE_TRANSITION.fadeIn) : SCENE_TRANSITION.fadeIn,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]);
+    animation.start(({ finished }) => {
+      if (finished)
+        setView((current) =>
+          current.transition === transition ? { ...current, transition: null } : current,
+        );
+    });
+    return () => animation.stop();
+  }, [transition, view.showDestination, destinationReady, curtain]);
   const transitioning = !!transition;
   const presentedGame = transition && !view.showDestination ? transition.source : game;
+  const showingBattle = !!presentedGame.battle;
+  const [lastExplore, setLastExplore] = useState(game);
+  if (!showingBattle && lastExplore !== presentedGame) setLastExplore(presentedGame);
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: SCENE_TRANSITION.color }}>
       <View
         style={{ flex: 1 }}
         pointerEvents={transitioning ? 'none' : 'auto'}
         accessibilityElementsHidden={transitioning}
         importantForAccessibility={transitioning ? 'no-hide-descendants' : 'auto'}
       >
-        {presentedGame.battle ? (
-          <BattleScreen
-            onPlaybackChange={onBattlePlayback}
-            key={presentedGame.battle.id}
-            game={presentedGame}
-            dispatch={dispatch}
-            height={height}
-            paused={paused || transitioning}
-          />
-        ) : (
+        <View
+          style={StyleSheet.absoluteFill}
+          pointerEvents={showingBattle ? 'none' : 'auto'}
+          accessibilityElementsHidden={showingBattle}
+          importantForAccessibility={showingBattle ? 'no-hide-descendants' : 'auto'}
+        >
           <Explore
-            game={presentedGame}
+            game={showingBattle ? lastExplore : presentedGame}
             dispatch={dispatch}
             width={width}
             height={height}
-            paused={paused || transitioning}
-            saveStatus={saveStatus}
+            paused={paused || transitioning || showingBattle}
             onMenu={onMenu}
+            coveredTransition={transitioning}
+            onReady={onMapReady}
           />
+        </View>
+        {presentedGame.battle && (
+          <View style={StyleSheet.absoluteFill}>
+            <BattleScreen
+              onPlaybackChange={onBattlePlayback}
+              key={presentedGame.battle.id}
+              game={presentedGame}
+              dispatch={dispatch}
+              height={height}
+              paused={paused || transitioning}
+            />
+          </View>
         )}
         {!presentedGame.battle && !presentedGame.dialogue && presentedGame.pending.length > 0 && (
           <PendingScreen game={presentedGame} dispatch={dispatch} />
@@ -176,8 +199,8 @@ export function AdventureScreen({
           >
             {transition.entering && (
               <>
-                <View style={{ width: 64, height: 2, backgroundColor: palette.gold }} />
-                <Label style={{ color: palette.gold, fontSize: 22, fontWeight: '800' }}>
+                <View style={{ width: 64, height: 2, backgroundColor: palette.amber }} />
+                <Label style={{ color: palette.amber, fontSize: 22, fontWeight: '800' }}>
                   {game.battle?.kind === 'wild' ? '野生精灵出现了' : '对战即将开始'}
                 </Label>
               </>

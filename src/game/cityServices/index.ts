@@ -38,7 +38,7 @@ export function transactQuest(state: GameState, questId: string, action: 'accept
   if (action === 'accept') {
     if (!status) {
       ledger.quests[questId] = 'active';
-      state.notice = `已接受「${quest.name}」，可在任务日志查看进度。`;
+      state.notice = `已接受「${quest.name}」，可在任务管理查看进度。`;
     } else state.notice = status === 'claimed' ? '这份委托的奖励已领取。' : '委托已经在进行中。';
     return;
   }

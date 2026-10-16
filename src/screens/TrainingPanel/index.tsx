@@ -204,7 +204,7 @@ export function TrainingPanel({
         </Button>
       </View>
       <View testID="training-operation-notice" accessibilityLiveRegion="polite">
-        <Label style={{ color: palette.mint, fontSize: 12 }}>{game.notice}</Label>
+        <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
       </View>
       <Label muted style={{ fontSize: 11 }}>
         最近成长：

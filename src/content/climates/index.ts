@@ -1,7 +1,7 @@
-import type { MapId, WeatherId } from '../../game/model';
+import type { ClimateId, MapId, WeatherId } from '../../game/model';
 
 type WeatherWeights = Record<WeatherId, number>;
-const climates = {
+export const CLIMATES = {
   garden: {
     name: '温和草原',
     weights: { clear: 34, sun: 20, rain: 23, storm: 5, fog: 15, snow: 3, sand: 0 },
@@ -12,7 +12,7 @@ const climates = {
   },
   coast: {
     name: '海滨季风',
-    weights: { clear: 29, sun: 15, rain: 28, storm: 16, fog: 12, snow: 0, sand: 0 },
+    weights: { clear: 23, sun: 10, rain: 40, storm: 15, fog: 12, snow: 0, sand: 0 },
   },
   quarry: {
     name: '高地矿区',
@@ -20,7 +20,7 @@ const climates = {
   },
   alpine: {
     name: '高山冷风',
-    weights: { clear: 25, sun: 10, rain: 10, storm: 8, fog: 17, snow: 30, sand: 0 },
+    weights: { clear: 22, sun: 8, rain: 9, storm: 6, fog: 15, snow: 40, sand: 0 },
   },
   volcanic: {
     name: '火山暖谷',
@@ -34,8 +34,8 @@ const climates = {
     name: '星岚台地',
     weights: { clear: 32, sun: 17, rain: 14, storm: 8, fog: 23, snow: 6, sand: 0 },
   },
-} satisfies Record<string, { name: string; weights: WeatherWeights }>;
-const regions: Partial<Record<MapId, keyof typeof climates>> = {
+} satisfies Record<ClimateId, { name: string; weights: WeatherWeights }>;
+const regions: Partial<Record<MapId, ClimateId>> = {
   dawn: 'garden',
   route: 'garden',
   echoMeadow: 'garden',
@@ -66,8 +66,11 @@ const regions: Partial<Record<MapId, keyof typeof climates>> = {
   ancientTemple: 'star',
   league: 'star',
 };
-export const climateFor = (map: MapId) => climates[regions[map] ?? 'garden'];
-export const naturalWeatherChoices = (map: MapId, current: WeatherId): [WeatherId, number][] =>
+export const climateFor = (map: MapId) => {
+  const id = regions[map] ?? 'garden';
+  return { id, ...CLIMATES[id] };
+};
+export const naturalWeatherChoices = (map: MapId, current?: WeatherId): [WeatherId, number][] =>
   (Object.entries(climateFor(map).weights) as [WeatherId, number][]).filter(
     ([id, n]) => id !== current && n > 0,
   );

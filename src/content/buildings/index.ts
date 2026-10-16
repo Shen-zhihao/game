@@ -46,11 +46,103 @@ export const ROOM_SITES = [
   'star_26_22',
   'star_4_24',
 ] as const;
+export interface BuildingDoorway {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  raster: boolean;
+  windows: { x: number; y: number }[];
+}
+// Door leaves and windows are authored in source-image pixels, beside their building.
+// The original closed door stays in the scene; only its own pixels animate on crossing.
+const PAINTED_BUILDINGS: Record<
+  string,
+  {
+    size: [number, number];
+    doors: Record<string, [number, number, number, number, number, number, number]>;
+  }
+> = {
+  dawn: {
+    size: [1536, 1024],
+    doors: {
+      interior_dawn_3_2: [249, 206, 30, 42, 198, 330, 211],
+      interior_dawn_15_2: [851, 206, 30, 42, 803, 930, 211],
+      interior_dawn_3_9: [249, 560, 30, 42, 198, 330, 566],
+    },
+  },
+  moss: {
+    size: [1536, 1024],
+    doors: {
+      interior_moss_3_2: [264, 205, 29, 43, 205, 349, 210],
+      gym: [902, 204, 35, 45, 827, 1013, 210],
+      interior_moss_3_8: [262, 474, 31, 44, 205, 348, 478],
+      interior_moss_15_8: [819, 475, 27, 42, 779, 875, 478],
+    },
+  },
+  stone: {
+    size: [1465, 1073],
+    doors: {
+      interior_stone_3_2: [252, 194, 31, 47, 175, 355, 194],
+      rockGym: [985, 194, 32, 47, 859, 1142, 194],
+      interior_stone_4_9: [273, 510, 29, 43, 211, 361, 508],
+      interior_stone_18_10: [971, 560, 27, 43, 914, 1052, 562],
+    },
+  },
+  harbor: {
+    size: [1476, 1065],
+    doors: {
+      interior_harbor_2_2: [191, 168, 31, 47, 118, 292, 169],
+      waterGym: [964, 168, 33, 47, 855, 1107, 170],
+      interior_harbor_28_7: [1227, 352, 28, 47, 1169, 1310, 352],
+      interior_harbor_4_10: [265, 453, 29, 47, 205, 350, 452],
+      interior_harbor_13_10: [653, 452, 28, 47, 584, 748, 452],
+      interior_harbor_2_18: [173, 741, 28, 47, 112, 259, 740],
+    },
+  },
+  tideworks: {
+    size: [1500, 1049],
+    doors: {
+      interior_tideworks_2_2: [193, 164, 27, 40, 127, 258, 166],
+    },
+  },
+};
+function buildingDoorway(
+  outside: GameMap,
+  destination: MapId,
+  x: number,
+  y: number,
+): BuildingDoorway {
+  const art = PAINTED_BUILDINGS[outside.id];
+  const rect = art?.doors[destination];
+  if (art && !rect) throw new Error(`缺少建筑门洞标定：${destination}`);
+  if (art && rect) {
+    const sx = (outside.rows[0]!.length * 32) / art.size[0];
+    const sy = (outside.rows.length * 32) / art.size[1];
+    return {
+      x: rect[0] * sx,
+      y: rect[1] * sy,
+      width: rect[2] * sx,
+      height: rect[3] * sy,
+      raster: true,
+      windows: [rect[4], rect[5]].map((wx) => ({ x: wx * sx, y: rect[6] * sy })),
+    };
+  }
+  return {
+    x: x * 32 + 8,
+    y: y * 32 + 16,
+    width: 16,
+    height: 16,
+    raster: false,
+    windows: [-20, 20].map((dx) => ({ x: x * 32 + 16 + dx, y: y * 32 + 20 })),
+  };
+}
 export interface BuildingEntrance {
   x: number;
   y: number;
   map: MapId;
   name: string;
+  doorway: BuildingDoorway;
 }
 export const worldMapFor = (map: MapId): WorldMapId =>
   (map.startsWith('interior_') ? map.split('_')[1] : map) as WorldMapId;
@@ -131,12 +223,27 @@ export function installBuildingInteriors(
         const top = Math.min(...cells.map(([, yy]) => yy));
         const gym = tile === 'G' ? gyms.find((g) => g.town === outside.id) : undefined;
         const gate = gym && occupants.find((n) => n.id === gym.gate);
-        const doorX = gate?.x ?? Math.floor((left + right + 1) / 2);
-        const doorY = bottom;
-        const porchY = bottom + 1;
-        // Only the landing tile is cleared; surrounding walls and water stay intact.
-        outside.rows[porchY] =
-          outside.rows[porchY]!.slice(0, doorX) + ':' + outside.rows[porchY]!.slice(doorX + 1);
+        const key = `${outside.id}_${left}_${top}`;
+        const destination = gym?.map ?? (`interior_${key}` as MapId);
+        const visual = buildingDoorway(
+          outside,
+          destination,
+          gate?.x ?? Math.floor((left + right + 1) / 2),
+          bottom,
+        );
+        const doorX = visual.raster
+          ? Math.floor((visual.x + visual.width / 2) / 32)
+          : (gate?.x ?? Math.floor((left + right + 1) / 2));
+        const doorY = visual.raster ? Math.round((visual.y + visual.height) / 32) - 1 : bottom;
+        const porchY = doorY + 1;
+        // An older collision footprint may extend below the painted threshold.
+        // Connect its approach to the street, without moving the building or its room ID.
+        for (let approachY = porchY; approachY <= Math.max(porchY, bottom + 1); approachY++) {
+          outside.rows[approachY] =
+            outside.rows[approachY]!.slice(0, doorX) +
+            ':' +
+            outside.rows[approachY]!.slice(doorX + 1);
+        }
         if (gym) {
           outside.npcs = outside.npcs.filter((n) => n.id !== gym.gate);
           outside.portals.push({
@@ -153,10 +260,10 @@ export function installBuildingInteriors(
             y: doorY,
             map: gym.map,
             name: maps[gym.map].name,
+            doorway: visual,
           });
           continue;
         }
-        const key = `${outside.id}_${left}_${top}`;
         if (!(ROOM_SITES as readonly string[]).includes(key)) throw new Error(`未登记建筑：${key}`);
         const id = `interior_${key}` as InteriorMapId;
         const kind: RoomKind =
@@ -213,7 +320,7 @@ export function installBuildingInteriors(
           portals: [{ x: 7, y: 11, map: outside.id, toX: doorX, toY: porchY }],
         };
         outside.portals.push({ x: doorX, y: doorY, map: id, toX: 7, toY: 9 });
-        (outside.entrances ??= []).push({ x: doorX, y: doorY, map: id, name });
+        (outside.entrances ??= []).push({ x: doorX, y: doorY, map: id, name, doorway: visual });
       }
   }
 }

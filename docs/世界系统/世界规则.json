@@ -44,6 +44,17 @@
       "battle": "地面伤 ×1.15，岩石系特防 ×1.5；轮末扣 1/16 HP，岩石/地面/钢免疫。"
     }
   },
+  "calendar": {
+    "initial": "星苔历 1 年 1 月 1 日 06:00；旧存档按已有游玩时长初始化。",
+    "gameSecondsPerRealSecond": 24,
+    "halfCycleSeconds": 1800,
+    "daytime": "06:00–18:00",
+    "nighttime": "18:00–次日06:00",
+    "date": "午夜推进日期，按公历月份与闰年规则计算；日期和时间随存档、传档保留。",
+    "progression": "游玩时自动推进，室内、对话与战斗中继续；暂停菜单、后台和未运行时停止。",
+    "lighting": "夜间整个露天游戏画面适度变暗，建筑门窗和门前暖灯点亮，昼夜交替平滑过渡；战斗界面、室内不叠加夜色。",
+    "setting": "默认开启；本机设置可关闭昼夜循环，露天保持白天亮度，日期继续推进。"
+  },
   "citySurfaces": {
     "dawn": {
       "name": "暖白花园砖",
@@ -117,11 +128,11 @@
     }
   },
   "naturalWeather": {
-    "initial": "clear",
-    "initialSeconds": 240,
+    "initial": "按所在气候区权重随机生成，不固定晴天；旧存档保留当地有效天气和剩余时间。",
     "durationSeconds": [180, 360],
     "regions": {
       "dawn": {
+        "id": "garden",
         "name": "温和草原",
         "weights": {
           "clear": 34,
@@ -134,6 +145,7 @@
         }
       },
       "route": {
+        "id": "garden",
         "name": "温和草原",
         "weights": {
           "clear": 34,
@@ -146,6 +158,7 @@
         }
       },
       "moss": {
+        "id": "forest",
         "name": "湿润林地",
         "weights": {
           "clear": 28,
@@ -158,6 +171,7 @@
         }
       },
       "forest": {
+        "id": "forest",
         "name": "湿润林地",
         "weights": {
           "clear": 28,
@@ -170,6 +184,7 @@
         }
       },
       "stoneRoute": {
+        "id": "quarry",
         "name": "高地矿区",
         "weights": {
           "clear": 30,
@@ -182,6 +197,7 @@
         }
       },
       "stone": {
+        "id": "quarry",
         "name": "高地矿区",
         "weights": {
           "clear": 30,
@@ -194,54 +210,59 @@
         }
       },
       "coastRoute": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       },
       "harbor": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       },
       "tideworks": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       },
       "championRoad": {
+        "id": "alpine",
         "name": "高山冷风",
         "weights": {
-          "clear": 25,
-          "sun": 10,
-          "rain": 10,
-          "storm": 8,
-          "fog": 17,
-          "snow": 30,
+          "clear": 22,
+          "sun": 8,
+          "rain": 9,
+          "storm": 6,
+          "fog": 15,
+          "snow": 40,
           "sand": 0
         }
       },
       "league": {
+        "id": "star",
         "name": "星岚台地",
         "weights": {
           "clear": 32,
@@ -254,66 +275,72 @@
         }
       },
       "powerRoute": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       },
       "volt": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       },
       "windRoute": {
+        "id": "alpine",
         "name": "高山冷风",
         "weights": {
-          "clear": 25,
-          "sun": 10,
-          "rain": 10,
-          "storm": 8,
-          "fog": 17,
-          "snow": 30,
+          "clear": 22,
+          "sun": 8,
+          "rain": 9,
+          "storm": 6,
+          "fog": 15,
+          "snow": 40,
           "sand": 0
         }
       },
       "wind": {
+        "id": "alpine",
         "name": "高山冷风",
         "weights": {
-          "clear": 25,
-          "sun": 10,
-          "rain": 10,
-          "storm": 8,
-          "fog": 17,
-          "snow": 30,
+          "clear": 22,
+          "sun": 8,
+          "rain": 9,
+          "storm": 6,
+          "fog": 15,
+          "snow": 40,
           "sand": 0
         }
       },
       "windSanctuary": {
+        "id": "alpine",
         "name": "高山冷风",
         "weights": {
-          "clear": 25,
-          "sun": 10,
-          "rain": 10,
-          "storm": 8,
-          "fog": 17,
-          "snow": 30,
+          "clear": 22,
+          "sun": 8,
+          "rain": 9,
+          "storm": 6,
+          "fog": 15,
+          "snow": 40,
           "sand": 0
         }
       },
       "furnaceRoute": {
+        "id": "volcanic",
         "name": "火山暖谷",
         "weights": {
           "clear": 32,
@@ -326,6 +353,7 @@
         }
       },
       "furnace": {
+        "id": "volcanic",
         "name": "火山暖谷",
         "weights": {
           "clear": 32,
@@ -338,6 +366,7 @@
         }
       },
       "hotSprings": {
+        "id": "volcanic",
         "name": "火山暖谷",
         "weights": {
           "clear": 32,
@@ -350,6 +379,7 @@
         }
       },
       "lakeRoute": {
+        "id": "lake",
         "name": "湖畔湿地",
         "weights": {
           "clear": 27,
@@ -362,6 +392,7 @@
         }
       },
       "lake": {
+        "id": "lake",
         "name": "湖畔湿地",
         "weights": {
           "clear": 27,
@@ -374,6 +405,7 @@
         }
       },
       "mirrorRuins": {
+        "id": "lake",
         "name": "湖畔湿地",
         "weights": {
           "clear": 27,
@@ -386,6 +418,7 @@
         }
       },
       "starRoute": {
+        "id": "star",
         "name": "星岚台地",
         "weights": {
           "clear": 32,
@@ -398,6 +431,7 @@
         }
       },
       "star": {
+        "id": "star",
         "name": "星岚台地",
         "weights": {
           "clear": 32,
@@ -410,6 +444,7 @@
         }
       },
       "deepwood": {
+        "id": "forest",
         "name": "湿润林地",
         "weights": {
           "clear": 28,
@@ -422,6 +457,7 @@
         }
       },
       "echoMeadow": {
+        "id": "garden",
         "name": "温和草原",
         "weights": {
           "clear": 34,
@@ -434,19 +470,22 @@
         }
       },
       "kelpCove": {
+        "id": "coast",
         "name": "海滨季风",
         "weights": {
-          "clear": 29,
-          "sun": 15,
-          "rain": 28,
-          "storm": 16,
+          "clear": 23,
+          "sun": 10,
+          "rain": 40,
+          "storm": 15,
           "fog": 12,
           "snow": 0,
           "sand": 0
         }
       }
     },
-    "persistence": "独立种子；仅户外自由探索计时，菜单、对话、战斗、成长选择与室内暂停。存档、传档保留天气及剩余秒数。",
+    "persistence": "独立种子；每个气候区分别保存天气和剩余秒数，同气候区地图共享，跨区首次随机生成、重返不重抽；仅当前气候区户外自由探索计时，菜单、对话、战斗、成长选择与室内暂停。存档、传档保留各区天气和剩余秒数。",
+    "selection": "初次生成按基础权重抽签；每轮切换排除当前天气，按其余正权重重新归一化抽签，任何露天地图都有多种天气。",
+    "scene": "雨雪、雾气、光照叠加场景；草木颜色和摇动、露天水面波纹随天气变化，室内不显示自然天气。",
     "ecology": "偏好属性相对权重 ×1.8，受抑制属性 ×0.6，不相乘叠加；不增添原栖地之外或剧情限定种。",
     "battle": "入场冻结自然天气；天气招式覆盖五轮含施放轮，到期恢复入场天气。速度额度每轮锁定，天气不改十八属性克制表和免疫。"
   },

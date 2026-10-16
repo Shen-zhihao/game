@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
+import { CreatureSprite } from '../../components/CreatureSprite';
 import { SaveRepository } from '../../persistence/repository';
 import { exportSave, pickSave } from '../../persistence/saveFiles';
 import { Snapshot, summary } from '../../persistence/snapshot';
@@ -15,7 +16,7 @@ export function SnapshotInfo({ snapshot, label }: { snapshot: Snapshot; label?: 
   return (
     <View style={{ gap: 4 }}>
       {!!label && <Label style={{ color: palette.gold, fontWeight: '700' }}>{label}</Label>}
-      <Label>
+      <Label style={{ fontSize: 17, fontWeight: '800' }}>
         {s.name}　·　{s.map}
       </Label>
       <Label muted style={{ fontSize: 12 }}>
@@ -25,6 +26,23 @@ export function SnapshotInfo({ snapshot, label }: { snapshot: Snapshot; label?: 
       <Label muted style={{ fontSize: 11 }}>
         队伍 {s.party.length} 只 · 内容 {s.contentVersion}
       </Label>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+        {s.party.map((member, index) => (
+          <View
+            key={index}
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: palette.canvas,
+            }}
+          >
+            <CreatureSprite speciesId={member.speciesId} size={38} />
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -98,27 +116,40 @@ export function SaveMenu({
       <Label muted style={{ fontSize: 12 }}>
         存档不绑定账号或设备。分享文件后，其他玩家可导入为新档继续；角色名字与原进度一并保留。
       </Label>
-      <View style={styles.wrap}>
-        {slots.map((s) => (
-          <Button
-            key={s.slot}
-            testID={`save-slot-${s.slot}`}
-            small
-            selected={selected === s.slot}
-            accent={selected === s.slot}
-            disabled={busy}
-            onPress={() => {
-              setSelected(s.slot);
-              setHistory([]);
-              setConfirm(false);
-            }}
-          >
-            槽位 {s.slot}
-            {hasGame && s.slot === slot ? ' · 当前' : ''} {s.error ? '⚠' : s.snapshot ? '●' : '○'}
-            {s.summary ? ` ${s.summary.name}` : ''}
-          </Button>
-        ))}
-      </View>
+      <Panel style={{ padding: 12, gap: 8 }}>
+        <View style={[styles.row, { justifyContent: 'space-between', flexWrap: 'wrap' }]}>
+          <Label style={{ fontSize: 13, fontWeight: '800' }}>旅程记录</Label>
+          <Label muted style={{ fontSize: 11 }}>
+            当前选择 · 槽位 {selected}
+          </Label>
+        </View>
+        <ScrollView
+          testID="save-slot-list"
+          nestedScrollEnabled
+          style={{ maxHeight: 150 }}
+          contentContainerStyle={[styles.wrap, { gap: 6, paddingBottom: 2 }]}
+        >
+          {slots.map((s) => (
+            <Button
+              key={s.slot}
+              testID={`save-slot-${s.slot}`}
+              small
+              selected={selected === s.slot}
+              accent={selected === s.slot}
+              disabled={busy}
+              onPress={() => {
+                setSelected(s.slot);
+                setHistory([]);
+                setConfirm(false);
+              }}
+            >
+              槽位 {s.slot}
+              {hasGame && s.slot === slot ? ' · 当前' : ''} {s.error ? '⚠' : s.snapshot ? '●' : '○'}
+              {s.summary ? ` ${s.summary.name}` : ''}
+            </Button>
+          ))}
+        </ScrollView>
+      </Panel>
       {current?.snapshot && !current.error ? (
         <Panel>
           <SnapshotInfo snapshot={current.snapshot} />

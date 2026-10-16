@@ -50,10 +50,33 @@ export interface Species {
 }
 export type Status = 'poison' | 'burn' | 'paralysis' | 'sleep';
 export type WeatherId = 'clear' | 'sun' | 'rain' | 'storm' | 'fog' | 'snow' | 'sand';
+export const CLIMATE_IDS = [
+  'garden',
+  'forest',
+  'coast',
+  'quarry',
+  'alpine',
+  'volcanic',
+  'lake',
+  'star',
+] as const;
+export type ClimateId = (typeof CLIMATE_IDS)[number];
+export interface LocalWeather {
+  weather: WeatherId;
+  remaining: number;
+}
+export interface CalendarState {
+  /** One is the first day of year one. */
+  day: number;
+  /** In-game seconds since midnight; 24 in-game seconds pass per real second. */
+  time: number;
+}
 export interface EnvironmentState {
   seed: number;
   weather: WeatherId;
   remaining: number;
+  /** Shared by neighbouring maps in the same climate; absent in legacy saves. */
+  climates?: Partial<Record<ClimateId, LocalWeather>>;
 }
 export interface BattleWeather {
   kind: WeatherId;
@@ -304,12 +327,15 @@ export interface GameState {
     lastTeam: { speciesId: string; level: number; nickname: string }[] | null;
   };
   environment?: EnvironmentState;
+  calendar?: CalendarState;
   masterBalls?: { claimed: string[]; used: number };
   cityServices?: {
     merit: number;
     quests: Record<string, 'active' | 'claimed'>;
     exchanges: Record<string, number>;
   };
+  questJournal?: string[];
+  trackedQuestId?: string | null;
   world?: ExplorationState;
   player: {
     name: string;
@@ -366,6 +392,7 @@ export type Command =
   | { kind: 'buy'; itemId: string; quantity: number }
   | { kind: 'exchange'; offerId: string; quantity: number }
   | { kind: 'cityQuest'; questId: string; action: 'accept' | 'claim' }
+  | { kind: 'trackQuest'; questId: string | null }
   | { kind: 'allocate'; creatureId: string; points: Stats }
   | { kind: 'trainingMode'; creatureId: string; mode: 'manual' | 'auto' }
   | { kind: 'lead'; creatureId: string }

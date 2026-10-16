@@ -57,7 +57,7 @@ function BattleTile({
         pressed && { backgroundColor: '#f2df9c', transform: [{ translateY: 1 }] },
       ]}
     >
-      <View style={[s.tileDot, { backgroundColor: color ?? '#577c5b' }]} />
+      <View style={[s.tileDot, { backgroundColor: color ?? palette.accent }]} />
       <View style={{ flex: 1 }}>
         <Text numberOfLines={1} style={s.tileTitle}>
           {title}
@@ -244,7 +244,7 @@ export function BattleScreen({
     !presenting && (b.phase === 'forcedSwitch' || page === 'party' || page === 'targets');
   const ended = b.phase === 'ended';
   return (
-    <View testID="battle-screen" style={{ flex: 1, backgroundColor: '#122f25' }}>
+    <View testID="battle-screen" style={{ flex: 1, backgroundColor: palette.ink }}>
       <View
         style={{ flex: 1, overflow: 'hidden' }}
         onLayout={(e) => {
@@ -270,10 +270,10 @@ export function BattleScreen({
             paddingHorizontal: 10,
             paddingVertical: 4,
             borderRadius: 8,
-            backgroundColor: '#123b30ce',
+            backgroundColor: `${palette.panel}ee`,
           }}
         >
-          <Text testID="battle-weather" style={{ color: '#e9f2d8', fontSize: 11 }}>
+          <Text testID="battle-weather" style={{ color: palette.text, fontSize: 11 }}>
             {WEATHER[b.weather?.kind ?? 'clear'].mark} {WEATHER[b.weather?.kind ?? 'clear'].name}
             {b.weather?.turns ? ` · ${b.weather.turns} 轮` : ''}　经验池{' '}
             {b.rewards?.experience ?? 0} · 金币 +{b.rewards?.money ?? 0}
@@ -288,7 +288,7 @@ export function BattleScreen({
             width: size * 0.8,
             height: size * 0.14,
             borderRadius: size,
-            backgroundColor: '#1b433c35',
+            backgroundColor: `${palette.ink}35`,
           }}
         />
         <View
@@ -300,7 +300,7 @@ export function BattleScreen({
             width: size * 0.6,
             height: size * 0.1,
             borderRadius: size,
-            backgroundColor: '#1b433c35',
+            backgroundColor: `${palette.ink}35`,
           }}
         />
         <BattleStage
@@ -344,7 +344,7 @@ export function BattleScreen({
             </Text>
           </View>
           {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
-          <Text testID="enemy-pace" style={{ color: '#36513d', fontSize: compact ? 10 : 12 }}>
+          <Text testID="enemy-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
             速度 {Number(pace.enemySpeed.toFixed(1))} · 行动 {enemyActionTotal} 次 / 回合
           </Text>
         </View>
@@ -379,7 +379,7 @@ export function BattleScreen({
             style={{
               height: 3,
               marginLeft: 22,
-              backgroundColor: '#b5c0a2',
+              backgroundColor: '#c0c8d6',
               borderRadius: 2,
               overflow: 'hidden',
               marginTop: 3,
@@ -396,20 +396,20 @@ export function BattleScreen({
           {scene.player.status && (
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
-          <Text testID="player-pace" style={{ color: '#36513d', fontSize: compact ? 10 : 12 }}>
+          <Text testID="player-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
             速度 {Number(pace.playerSpeed.toFixed(1))} · 行动 {actionTotal} 次 / 回合
           </Text>
           {!ended && (
             <Text
               testID="battle-actions-remaining"
-              style={{ color: '#36513d', fontSize: compact ? 10 : 12, fontWeight: '700' }}
+              style={{ color: palette.muted, fontSize: compact ? 10 : 12, fontWeight: '700' }}
             >
               本回合剩余 {actionsRemaining}/{actionTotal} 次操作 · 每次重新选择
             </Text>
           )}
         </View>
         <View style={[s.battleTag, { top: 7 + insets.top }]}>
-          <Text style={{ color: '#f3e7bb', fontSize: 11 }}>
+          <Text style={{ color: palette.text, fontSize: 11 }}>
             {b.name} ·{' '}
             {b.kind === 'wild' ? '野生遭遇' : `训练师 ${b.enemyIndex + 1}/${b.enemies.length}`}
           </Text>
@@ -423,7 +423,7 @@ export function BattleScreen({
           }}
           style={[s.logButton, { right: 12 + insets.right, top: 10 + insets.top }]}
         >
-          <Text style={{ color: '#ede3ba', fontSize: 11 }}>回合 {b.turn}　☷ 战报</Text>
+          <Text style={{ color: palette.text, fontSize: 11 }}>回合 {b.turn}　☷ 战报</Text>
         </Pressable>
         {showLog && (
           <Panel style={[s.selection, { left: '15%', right: '15%', maxHeight: field.height - 18 }]}>
@@ -562,7 +562,7 @@ export function BattleScreen({
                 accessibilityLabel="返回战斗指令"
                 onPress={() => setPage('commands')}
               >
-                <Text style={{ color: '#ceceac', fontSize: 11 }}>‹ 返回指令</Text>
+                <Text style={{ color: palette.muted, fontSize: 11 }}>‹ 返回指令</Text>
               </Pressable>
             )}
           </View>
@@ -598,7 +598,7 @@ export function BattleScreen({
                   style={{
                     fontSize: compact ? 12 : 15,
                     lineHeight: compact ? 18 : 23,
-                    color: i === b.logs.slice(-3).length - 1 ? palette.text : '#b7c8ac',
+                    color: i === b.logs.slice(-3).length - 1 ? palette.text : palette.muted,
                   }}
                 >
                   {line}
@@ -621,7 +621,7 @@ export function BattleScreen({
             <View style={{ flex: 1, justifyContent: 'center', gap: compact ? 4 : 10 }}>
               <Label
                 testID="battle-autoplay-status"
-                style={{ color: '#36513d', fontSize: compact ? 11 : 13 }}
+                style={{ color: palette.muted, fontSize: compact ? 11 : 13 }}
               >
                 {playbackStopped ? '播放已暂停' : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
               </Label>
@@ -647,7 +647,7 @@ export function BattleScreen({
             <View style={{ flex: 1, justifyContent: 'center', gap: 8 }}>
               <Label
                 testID="battle-auto-return"
-                style={{ color: '#36513d', fontSize: compact ? 11 : 13 }}
+                style={{ color: palette.muted, fontSize: compact ? 11 : 13 }}
               >
                 {playbackStopped ? '播放已暂停' : `${messageDelay / 1000} 秒后自动返回旅程`}
               </Label>
@@ -720,7 +720,7 @@ export function BattleScreen({
               <BattleTile
                 title="精灵"
                 detail={`队伍 ${game.party.length} 只`}
-                color="#7f9f79"
+                color={palette.accent}
                 disabled={busy || choosingParty}
                 onPress={() => setPage('party')}
               />
@@ -773,16 +773,16 @@ const s = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     flexShrink: 0,
-    backgroundColor: '#123528',
+    backgroundColor: palette.panel,
     borderTopWidth: 3,
-    borderColor: '#b9b174',
+    borderColor: palette.line,
   },
   commandBox: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     borderLeftWidth: 2,
-    borderColor: '#8b9c6a',
-    backgroundColor: '#d8d5af',
+    borderColor: palette.line,
+    backgroundColor: palette.panel2,
     alignContent: 'stretch',
     justifyContent: 'center',
   },
@@ -792,10 +792,10 @@ const s = StyleSheet.create({
     flexGrow: 1,
     minHeight: 42,
     flexBasis: '45%',
-    backgroundColor: '#f0e8c9',
+    backgroundColor: '#f4f2ed',
     borderWidth: 1,
     borderBottomWidth: 3,
-    borderColor: '#95a17b',
+    borderColor: palette.line,
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 3,
@@ -804,24 +804,24 @@ const s = StyleSheet.create({
     gap: 8,
   },
   tileDot: { width: 5, height: 25, borderRadius: 2 },
-  tileTitle: { fontSize: 15, lineHeight: 18, fontWeight: '800', color: '#294936' },
-  tileDetail: { fontSize: 10, lineHeight: 14, color: '#586e50', marginTop: 2 },
+  tileTitle: { fontSize: 15, lineHeight: 18, fontWeight: '800', color: palette.ink },
+  tileDetail: { fontSize: 10, lineHeight: 14, color: '#58647a', marginTop: 2 },
   statusCard: {
     position: 'absolute',
-    backgroundColor: '#eee9caef',
+    backgroundColor: '#f4f2edef',
     borderWidth: 2,
     borderBottomWidth: 4,
-    borderColor: '#5c7954',
+    borderColor: palette.line,
     borderTopLeftRadius: 13,
     borderBottomRightRadius: 13,
     borderTopRightRadius: 4,
     borderBottomLeftRadius: 4,
   },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 12, justifyContent: 'space-between' },
-  creatureName: { color: '#283f2b', fontSize: 18, fontWeight: '800', flexShrink: 1 },
-  level: { color: '#405336', fontSize: 12, fontWeight: '700' },
+  creatureName: { color: palette.ink, fontSize: 18, fontWeight: '800', flexShrink: 1 },
+  level: { color: '#4a576d', fontSize: 12, fontWeight: '700' },
   hpLabel: { fontSize: 10, fontWeight: '900', color: '#aa9251' },
-  hpNumber: { fontSize: 11, color: '#455c3a' },
+  hpNumber: { fontSize: 11, color: '#4a576d' },
   statusText: { fontSize: 10, color: '#97644b' },
   battleTag: {
     position: 'absolute',
@@ -829,7 +829,7 @@ const s = StyleSheet.create({
     top: 7,
     paddingHorizontal: 11,
     paddingVertical: 4,
-    backgroundColor: '#1c4337ba',
+    backgroundColor: `${palette.panel}ee`,
     borderRadius: 5,
   },
   logButton: {
@@ -837,7 +837,7 @@ const s = StyleSheet.create({
     right: 12,
     top: 10,
     padding: 7,
-    backgroundColor: '#234536bd',
+    backgroundColor: `${palette.panel}ee`,
     borderRadius: 5,
   },
   selection: {
@@ -847,7 +847,7 @@ const s = StyleSheet.create({
     bottom: 10,
     borderColor: '#d0c18b',
     borderWidth: 2,
-    backgroundColor: '#15382afa',
+    backgroundColor: `${palette.panel}fa`,
   },
   result: {
     position: 'absolute',
@@ -856,6 +856,6 @@ const s = StyleSheet.create({
     top: 10,
     borderWidth: 2,
     borderColor: '#d7bf7d',
-    backgroundColor: '#15382af2',
+    backgroundColor: `${palette.panel}f2`,
   },
 });

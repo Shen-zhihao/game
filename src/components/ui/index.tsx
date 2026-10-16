@@ -5,15 +5,19 @@ import { TYPES, TYPE_COLORS } from '../../content/catalog';
 import { TypeId } from '../../game/model';
 
 export const palette = {
-  ink: '#102720',
-  panel: '#152f29',
-  panel2: '#203e34',
-  line: '#446251',
-  text: '#f3edce',
-  muted: '#b2c6ad',
-  gold: '#efcf81',
-  mint: '#a4d29d',
-  red: '#e1957f',
+  canvas: '#f7f2e7',
+  ink: '#362f26',
+  panel: '#fffcf5',
+  panel2: '#efe7d8',
+  line: '#ded2bd',
+  text: '#362f26',
+  muted: '#827463',
+  gold: '#a36c18',
+  accent: '#96621a',
+  amber: '#efbc48',
+  tint: '#fff0c4',
+  onDark: '#fffcf5',
+  red: '#af5143',
 };
 export function Label({
   children,
@@ -60,12 +64,14 @@ export function Button({
         accessibilityLabel ?? (typeof children === 'string' ? children : undefined)
       }
       accessibilityState={{ disabled, ...(selected === undefined ? {} : { selected }) }}
+      aria-pressed={selected}
       testID={testID}
       disabled={disabled}
       feedback={accent ? 'confirm' : 'selection'}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        selected && styles.selected,
         accent && styles.accent,
         small && styles.small,
         disabled && styles.disabled,
@@ -129,11 +135,10 @@ export const styles = StyleSheet.create({
   text: { color: palette.text, fontSize: 14, lineHeight: 21, fontFamily: 'System' },
   muted: { color: palette.muted },
   button: {
-    backgroundColor: '#294d3f',
-    borderColor: '#608367',
+    backgroundColor: palette.panel,
+    borderColor: palette.line,
     borderWidth: 1,
-    borderBottomWidth: 3,
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 17,
     paddingVertical: 11,
     alignItems: 'center',
@@ -141,7 +146,8 @@ export const styles = StyleSheet.create({
     minHeight: 44,
   },
   buttonText: { color: palette.text, fontSize: 14, fontWeight: '700', letterSpacing: 0.5 },
-  accent: { backgroundColor: palette.gold, borderColor: '#b59551' },
+  selected: { backgroundColor: palette.tint, borderColor: palette.amber },
+  accent: { backgroundColor: palette.amber, borderColor: palette.amber },
   small: { paddingHorizontal: 12, paddingVertical: 7, minHeight: 36 },
   disabled: { opacity: 0.35 },
   pressed: { opacity: 0.8, transform: [{ translateY: 1 }] },
@@ -149,20 +155,26 @@ export const styles = StyleSheet.create({
     backgroundColor: palette.panel,
     borderColor: palette.line,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 18,
   },
   typeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginVertical: 4 },
   type: { paddingHorizontal: 9, paddingVertical: 2, borderRadius: 4 },
-  typeText: { fontSize: 11, fontWeight: '800', color: '#1a2b24' },
+  typeText: { fontSize: 11, fontWeight: '800', color: palette.ink },
   hp: {
     height: 7,
-    backgroundColor: '#172e28',
+    backgroundColor: palette.panel2,
     borderRadius: 4,
     overflow: 'hidden',
     marginVertical: 5,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  title: { fontSize: 26, lineHeight: 34, fontWeight: '800', color: palette.text, letterSpacing: 1 },
+  title: {
+    fontSize: 23,
+    lineHeight: 31,
+    fontWeight: '800',
+    color: palette.text,
+    letterSpacing: 0.5,
+  },
 });

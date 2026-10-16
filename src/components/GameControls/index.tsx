@@ -192,11 +192,11 @@ export function GameControls({
             disabled={!editing && blocked}
             style={({ pressed }) => [
               s.menuButton,
-              { borderColor: palette.gold },
+              { borderColor: palette.amber },
               pressed && s.pressed,
             ]}
           >
-            <Text style={[s.menuText, { color: palette.gold, fontSize: 14 * growth.scale }]}>
+            <Text style={[s.menuText, { color: palette.amber, fontSize: 14 * growth.scale }]}>
               培养 +{growthPoints || 8}
             </Text>
           </Pressable>
@@ -208,48 +208,53 @@ export function GameControls({
 const s = StyleSheet.create({
   arrow: {
     position: 'absolute',
-    backgroundColor: '#163d2e80',
+    backgroundColor: `${palette.ink}a8`,
     borderWidth: 1,
-    borderColor: '#edf2d378',
+    borderColor: `${palette.onDark}78`,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrowText: { color: '#f3f3db', textShadowColor: '#173c2b', textShadowRadius: 3 },
+  arrowText: { color: palette.onDark, textShadowColor: palette.ink, textShadowRadius: 3 },
   aButton: {
     flex: 1,
     borderRadius: 100,
-    backgroundColor: '#e4cd8b88',
+    backgroundColor: `${palette.amber}99`,
     borderWidth: 2,
-    borderColor: '#fff0bc99',
+    borderColor: `${palette.amber}cc`,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  aText: { color: '#fff6d7', fontWeight: '800', textShadowColor: '#3a573c', textShadowRadius: 3 },
+  aText: {
+    color: palette.onDark,
+    fontWeight: '800',
+    textShadowColor: palette.ink,
+    textShadowRadius: 3,
+  },
   menuButton: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#f6e8be66',
-    backgroundColor: '#17392d80',
+    borderColor: `${palette.onDark}66`,
+    backgroundColor: `${palette.ink}a8`,
   },
-  menuText: { color: '#fff5d6', fontWeight: '700' },
-  pressed: { backgroundColor: '#517b52c7', transform: [{ scale: 0.97 }] },
+  menuText: { color: palette.onDark, fontWeight: '700' },
+  pressed: { backgroundColor: `${palette.ink}e0`, transform: [{ scale: 0.97 }] },
   hint: {
     position: 'absolute',
-    color: '#fff3d0',
+    color: palette.onDark,
     fontSize: 11,
     textAlign: 'center',
-    textShadowColor: '#173c2b',
+    textShadowColor: palette.ink,
     textShadowRadius: 3,
   },
   editable: {
     outlineWidth: 1,
-    outlineColor: '#f6e8be88',
+    outlineColor: `${palette.onDark}88`,
     outlineStyle: 'dashed',
     borderRadius: 12,
-    backgroundColor: '#10272044',
+    backgroundColor: `${palette.ink}44`,
   },
-  selected: { outlineWidth: 2, outlineColor: palette.gold, backgroundColor: '#efcf8122' },
+  selected: { outlineWidth: 2, outlineColor: palette.amber, backgroundColor: `${palette.amber}22` },
 });

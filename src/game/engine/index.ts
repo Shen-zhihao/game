@@ -30,6 +30,7 @@ import {
   resetLeague,
   presentCompleteJourney,
 } from '../league';
+import { journalQuests, recordQuestContact } from '../../content/quests';
 import { buyItem, exchangeItem, transactQuest } from '../cityServices';
 import {
   allocatePoints,
@@ -42,8 +43,15 @@ import {
 } from '../growth';
 import { isSupply, applySupply } from '../items';
 import { copyMove, recallOptions } from '../skills';
-import { advanceWeather, createEnvironment, weatherAt, weightedEcology } from '../environment';
+import {
+  advanceWeather,
+  createEnvironment,
+  syncWeather,
+  weatherAt,
+  weightedEcology,
+} from '../environment';
 import { redeemCheat } from '../cheats';
+import { advanceCalendar, calendarFor, createCalendar } from '../calendar';
 import { effectiveAccessFlags, hasFieldAccess } from '../../content/keyItems';
 import {
   atCenter,
@@ -88,6 +96,7 @@ export function newGame(
   if (starterId !== null && !STARTERS.includes(starterId)) throw new Error('请选择一个初始伙伴');
   const opening = starterId === null;
   const state: GameState = {
+    calendar: createCalendar(),
     environment: createEnvironment(seed),
     masterBalls: { claimed: [], used: 0 },
     cityServices: { merit: 0, quests: {}, exchanges: {} },
@@ -297,6 +306,7 @@ function interact(state: GameState): void {
     return;
   }
   faceTraveler(state, npc);
+  recordQuestContact(state, npc.id);
   if (
     (GYM_TRAINERS.has(npc.event!) || (npc.role === 'switch' && GYM_BARRIERS[player.map])) &&
     (!flags.rival || !flags.catchTutorial)
@@ -486,7 +496,7 @@ function interact(state: GameState): void {
     case 'shop':
       talk(state, npc.name, [
         '完成捕捉入门后，打开「背包与商店」可购买星纹球和补给品，也能用调查印记兑换特殊道具。',
-        '菜单的「任务日志」有本地居民委托。药物交付和奖励只在确认领取时结算，每份委托领取一次。',
+        '菜单的「任务管理」有本地居民委托。药物交付和奖励只在确认领取时结算，每份委托领取一次。',
       ]);
       flags.shop = true;
       break;
@@ -582,7 +592,7 @@ function interact(state: GameState): void {
         npc.id === 'clueOne'
           ? '新折断的枝条上留着金色鳞粉。萤灯蛾确实往森林深处去了。'
           : '脚印旁的晶矿在微微发热。有人曾把它摆成奇怪的阵列。',
-        '线索已记录到任务日志。',
+        '线索已记录到任务管理。',
       ]);
       break;
     case 'log':
@@ -783,7 +793,8 @@ function reduceCommand(current: GameState, command: Command): GameState {
   const state: GameState = JSON.parse(JSON.stringify(current));
   rememberRecoveryTowns(state);
   ensureExploration(state);
-  state.environment ??= createEnvironment(state.rng);
+  state.calendar ??= calendarFor(state);
+  syncWeather(state);
   state.masterBalls ??= { claimed: [], used: 0 };
   Object.values(state.creatures).forEach(ensureTraining);
   state.battle?.enemies.forEach(ensureTraining);
@@ -793,9 +804,23 @@ function reduceCommand(current: GameState, command: Command): GameState {
   }
   if (command.kind === 'tick') {
     for (let i = 0; i < Math.max(0, Math.min(10, Math.floor(command.seconds))); i++) {
+      advanceCalendar(state);
       state.playTimeSeconds++;
       advanceExploration(state);
       advanceWeather(state);
+    }
+    return state;
+  }
+  if (command.kind === 'trackQuest') {
+    if (command.questId === null) {
+      state.trackedQuestId = null;
+      state.notice = '已取消任务追踪。';
+    } else {
+      const quest = journalQuests(state).find((q) => q.id === command.questId);
+      if (quest && quest.status !== 'completed') {
+        state.trackedQuestId = quest.id;
+        state.notice = `正在追踪「${quest.name}」，地图上会显示当前目标和进度。`;
+      } else state.notice = '请选择已接取且尚未完成的任务进行追踪。';
     }
     return state;
   }
@@ -1158,6 +1183,7 @@ export function safePosition(
 export function reduceGame(current: GameState, command: Command): GameState {
   const next = reduceCommand(current, command);
   if (next !== current) {
+    syncWeather(next);
     rememberRecoveryTowns(next);
     const full = Object.keys(next.inventory).filter(
       (id) => id !== 'master_ball' && next.inventory[id]! > 999,

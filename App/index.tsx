@@ -38,7 +38,6 @@ import { SaveMenu, Slots, timeLabel } from '../src/screens/SaveMenu';
 import { TransferMenu } from '../src/screens/TransferMenu';
 import { useGameSession } from '../src/useGameSession';
 import { CenterMenu } from '../src/screens/CenterMenu';
-import { EnvironmentMenu } from '../src/screens/EnvironmentMenu';
 import { APP_DESCRIPTION, APP_ENGLISH_NAME, APP_NAME, APP_TAGLINE } from '../src/content/brand';
 import { SettingsMenu } from '../src/screens/SettingsMenu';
 import { ControlLayoutEditor } from '../src/screens/ControlLayoutEditor';
@@ -48,7 +47,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar hidden />
-      <View style={{ flex: 1, backgroundColor: '#071c16' }}>
+      <View style={{ flex: 1, backgroundColor: palette.canvas }}>
         <GameApp />
       </View>
     </SafeAreaProvider>
@@ -174,7 +173,7 @@ function GameApp() {
         <>
           <View style={StyleSheet.absoluteFill}>
             <MapCanvas state={titleScene} width={width} height={height} />
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: '#0a281be6' }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: `${palette.canvas}ef` }]} />
           </View>
           {screen === 'title' ? (
             <View
@@ -259,7 +258,9 @@ function GameApp() {
                     <CreatureSprite key={id} speciesId={id} size={compact ? 70 : 105} animate />
                   ))}
                 </View>
-                <Label style={{ fontSize: 12, letterSpacing: 2, color: '#b5c8a5' }}>你的旅程</Label>
+                <Label style={{ fontSize: 12, letterSpacing: 2, color: palette.muted }}>
+                  你的旅程
+                </Label>
                 <ScrollView
                   style={{ flexShrink: 1 }}
                   contentContainerStyle={{ gap: compact ? 7 : 12 }}
@@ -441,13 +442,12 @@ function GameApp() {
             width={width}
             height={height}
             paused={!!menu || editingControls || !session.active || busy}
-            saveStatus={session.saveStatus}
             onMenu={() => changeMenu('party')}
           />
         </>
       )}
       {menu && (
-        <MenuFrame menu={menu} onMenu={changeMenu} onClose={closeMenu}>
+        <MenuFrame menu={menu} onMenu={changeMenu} onClose={closeMenu} hasGame={!!game}>
           {menu === 'transfer' ? (
             <TransferMenu
               repository={repository}
@@ -483,7 +483,6 @@ function GameApp() {
             <>
               {menu === 'party' && <PartyMenu game={game} dispatch={session.dispatch} />}
               {menu === 'center' && <CenterMenu game={game} dispatch={session.dispatch} />}
-              {menu === 'environment' && <EnvironmentMenu game={game} />}
               {menu === 'bag' && <BagMenu game={game} dispatch={session.dispatch} />}
               {menu === 'dex' &&
                 (game.progress.flags.opening && !game.progress.flags.fieldKitReceived ? (
@@ -515,7 +514,7 @@ function GameApp() {
       {!!error && (
         <View style={s.error}>
           <ScrollView style={{ flex: 1, maxHeight: 90 }}>
-            <Label style={{ color: '#f1d2a9' }}>{error}</Label>
+            <Label style={{ color: palette.red }}>{error}</Label>
           </ScrollView>
           <Button small onPress={() => setError('')}>
             知道了
@@ -526,20 +525,20 @@ function GameApp() {
         <View
           style={[
             StyleSheet.absoluteFill,
-            { backgroundColor: '#0d271d66', justifyContent: 'center', alignItems: 'center' },
+            { backgroundColor: `${palette.ink}66`, justifyContent: 'center', alignItems: 'center' },
           ]}
         >
           <ActivityIndicator size="large" color={palette.gold} />
         </View>
       )}
-      {width < height && !editingControls && (
+      {width < height && !editingControls && !menu && (
         <View
           pointerEvents="none"
           style={{
             position: 'absolute',
             top: 8,
             alignSelf: 'center',
-            backgroundColor: '#123125',
+            backgroundColor: palette.panel,
             padding: 8,
             borderRadius: 8,
           }}
@@ -553,14 +552,14 @@ function GameApp() {
 const s = StyleSheet.create({
   center: {
     flex: 1,
-    backgroundColor: palette.ink,
+    backgroundColor: palette.canvas,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
     gap: 14,
   },
-  eyebrow: { color: '#b4c7a2', fontSize: 12, letterSpacing: 4 },
-  logo: { fontSize: 64, lineHeight: 82, color: '#f0e5b9', fontWeight: '900', letterSpacing: 5 },
+  eyebrow: { color: palette.muted, fontSize: 12, letterSpacing: 4 },
+  logo: { fontSize: 64, lineHeight: 82, color: palette.ink, fontWeight: '900', letterSpacing: 5 },
   error: {
     position: 'absolute',
     bottom: 16,
@@ -573,6 +572,6 @@ const s = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#bc9e65',
-    backgroundColor: '#3b3e29fa',
+    backgroundColor: `${palette.panel}fa`,
   },
 });

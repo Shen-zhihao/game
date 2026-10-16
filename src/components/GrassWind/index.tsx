@@ -2,23 +2,33 @@ import { useEffect, useMemo, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { MAPS, mapSize } from '../../content/world';
-import { MapId } from '../../game/model';
+import { MapId, WeatherId } from '../../game/model';
 
 export function GrassWind({
   mapId,
   scale,
   paused,
+  weather,
 }: {
   mapId: MapId;
   scale: number;
   paused: boolean;
+  weather: WeatherId;
 }) {
+  const gust =
+    weather === 'storm'
+      ? 3
+      : weather === 'rain' || weather === 'sand'
+        ? 1.8
+        : weather === 'snow'
+          ? 1.3
+          : 1;
   const [winds] = useState(() => Array.from({ length: 4 }, () => new Animated.Value(0)));
   const paths = useMemo(() => {
     const groups = ['', '', '', ''];
     MAPS[mapId].rows.forEach((row, y) =>
       [...row].forEach((tile, x) => {
-        if (tile !== 'g' || (x + y) % 2) return;
+        if ((tile !== 'g' && tile !== '^') || (x + y) % 2) return;
         const phase = (x * 3 + y) % 4;
         for (let j = 0; j < 4; j++) {
           const xx = x * 32 + 3 + j * 7;
@@ -34,14 +44,22 @@ export function GrassWind({
     const loops = winds.map((wind, i) =>
       Animated.loop(
         Animated.sequence([
-          Animated.timing(wind, { toValue: 1, duration: 1100 + i * 160, useNativeDriver: true }),
-          Animated.timing(wind, { toValue: 0, duration: 1300 + i * 180, useNativeDriver: true }),
+          Animated.timing(wind, {
+            toValue: 1,
+            duration: (1100 + i * 160) / gust,
+            useNativeDriver: true,
+          }),
+          Animated.timing(wind, {
+            toValue: 0,
+            duration: (1300 + i * 180) / gust,
+            useNativeDriver: true,
+          }),
         ]),
       ),
     );
     loops.forEach((loop) => loop.start());
     return () => loops.forEach((loop) => loop.stop());
-  }, [mapId, paused, winds]);
+  }, [gust, mapId, paused, winds]);
   const { width, height } = mapSize(mapId);
   return (
     <>
@@ -50,7 +68,7 @@ export function GrassWind({
           <Animated.View
             key={i}
             pointerEvents="none"
-            testID={`grass-wind-${i}`}
+            testID={`grass-wind-${weather}-${i}`}
             style={[
               StyleSheet.absoluteFill,
               {
@@ -62,7 +80,7 @@ export function GrassWind({
                   {
                     translateX: winds[i]!.interpolate({
                       inputRange: [0, 1],
-                      outputRange: [-1.4 * scale, 1.4 * scale],
+                      outputRange: [-1.4 * scale * gust, 1.4 * scale * gust],
                     }),
                   },
                 ],
@@ -70,7 +88,20 @@ export function GrassWind({
             ]}
           >
             <Svg width={width * scale} height={height * scale} viewBox={`0 0 ${width} ${height}`}>
-              <Path d={d} fill={i % 2 ? '#c0d17b' : '#78b65d'} />
+              <Path
+                d={d}
+                fill={
+                  weather === 'snow'
+                    ? '#dce9e5'
+                    : weather === 'rain' || weather === 'storm'
+                      ? i % 2
+                        ? '#8ba781'
+                        : '#527d68'
+                      : i % 2
+                        ? '#c0d17b'
+                        : '#78b65d'
+                }
+              />
             </Svg>
           </Animated.View>
         ) : null,

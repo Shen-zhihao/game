@@ -164,9 +164,10 @@ export function TransferMenu({
         </Panel>
       )}
       {mode === 'choose' ? (
-        <View style={styles.wrap}>
+        <View style={[styles.wrap, { gap: 12 }]}>
           <Button
             accent
+            style={{ minHeight: 84, flexGrow: 1, flexBasis: '45%' }}
             disabled={!LAN_AVAILABLE}
             onPress={() => {
               setMode('send');
@@ -176,6 +177,7 @@ export function TransferMenu({
             发送存档 · 搜索附近手机
           </Button>
           <Button
+            style={{ minHeight: 84, flexGrow: 1, flexBasis: '45%' }}
             disabled={!LAN_AVAILABLE}
             onPress={() => {
               setMode('receive');
@@ -359,7 +361,7 @@ export function TransferMenu({
                 style={{
                   height: 9,
                   borderRadius: 5,
-                  backgroundColor: '#284637',
+                  backgroundColor: palette.panel2,
                   overflow: 'hidden',
                 }}
               >

@@ -1,7 +1,16 @@
 import { SPECIES } from '../../content/catalog';
 import { MAPS } from '../../content/world';
 import { ADVENTURE_STORY_CONTENT } from '../../content/adventure';
-import { Creature, EnvironmentState, GameState, MapId, Stat, TypeId, WeatherId } from '../model';
+import {
+  Creature,
+  EnvironmentState,
+  GameState,
+  LocalWeather,
+  MapId,
+  Stat,
+  TypeId,
+  WeatherId,
+} from '../model';
 import { climateFor, naturalWeatherChoices } from '../../content/climates';
 import { citySurfaceFor } from '../../content/surfaces';
 
@@ -60,19 +69,49 @@ export const INDOOR_MAPS: MapId[] = [
     .map((m) => m.id),
 ];
 export const isIndoor = (map: MapId) => INDOOR_MAPS.includes(map);
-export function createEnvironment(seed: number): EnvironmentState {
-  return { seed: (seed ^ 0x85ebca6b) >>> 0 || 1, weather: 'clear', remaining: 240 };
+export function createEnvironment(seed: number, map: MapId = 'dawn'): EnvironmentState {
+  const env = { seed: (seed ^ 0x85ebca6b) >>> 0 || 1 };
+  const local = rollWeather(env, map);
+  return { ...env, ...local, climates: { [climateFor(map).id]: local } };
 }
+export const localWeather = (game: GameState, map = game.player.map): LocalWeather | undefined =>
+  game.environment?.climates?.[climateFor(map).id] ?? game.environment;
 export const weatherAt = (game: GameState, map = game.player.map): WeatherId => {
-  const weather = game.environment?.weather ?? 'clear';
+  const weather = localWeather(game, map)?.weather ?? 'clear';
   return isIndoor(map) || climateFor(map).weights[weather] === 0 ? 'clear' : weather;
 };
-function environmentRandom(env: EnvironmentState) {
+function environmentRandom(env: Pick<EnvironmentState, 'seed'>) {
   env.seed = (Math.imul(env.seed, 1664525) + 1013904223) >>> 0;
   return env.seed / 0x100000000;
 }
+function rollWeather(
+  env: Pick<EnvironmentState, 'seed'>,
+  map: MapId,
+  current?: WeatherId,
+): LocalWeather {
+  const choices = naturalWeatherChoices(map, current);
+  let roll = environmentRandom(env) * choices.reduce((n, [, weight]) => n + weight, 0);
+  return {
+    weather: (choices.find(([, weight]) => (roll -= weight) < 0) ?? choices[0]!)[0],
+    remaining: 180 + Math.floor(environmentRandom(env) * 181),
+  };
+}
+export function syncWeather(game: GameState): void {
+  const env = (game.environment ??= createEnvironment(game.rng, game.player.map));
+  if (isIndoor(game.player.map)) return;
+  const climate = climateFor(game.player.map);
+  const legacy = !env.climates;
+  env.climates ??= {};
+  const local = (env.climates[climate.id] ??=
+    legacy && climate.weights[env.weather] > 0
+      ? { weather: env.weather, remaining: env.remaining }
+      : rollWeather(env, game.player.map));
+  // Retain the current-weather fields for existing save consumers.
+  Object.assign(env, local);
+}
 export function advanceWeather(game: GameState): void {
-  const env = (game.environment ??= createEnvironment(game.rng));
+  syncWeather(game);
+  const env = game.environment!;
   if (
     isIndoor(game.player.map) ||
     game.battle ||
@@ -81,12 +120,12 @@ export function advanceWeather(game: GameState): void {
     game.progress.flags.starterChoice
   )
     return;
-  if (--env.remaining > 0) return;
-  const choices = naturalWeatherChoices(game.player.map, env.weather);
-  let roll = environmentRandom(env) * choices.reduce((n, [, weight]) => n + weight, 0);
-  env.weather = (choices.find(([, weight]) => (roll -= weight) < 0) ?? choices[0]!)[0];
-  env.remaining = 180 + Math.floor(environmentRandom(env) * 181);
-  game.notice = `天气转为${WEATHER[env.weather].name}。${WEATHER[env.weather].field}`;
+  const local = env.climates![climateFor(game.player.map).id]!;
+  if (--local.remaining <= 0) {
+    Object.assign(local, rollWeather(env, game.player.map, local.weather));
+    game.notice = `天气转为${WEATHER[local.weather].name}。${WEATHER[local.weather].field}`;
+  }
+  Object.assign(env, local);
 }
 const favorites: Partial<Record<WeatherId, TypeId[]>> = {
   sun: ['fire', 'grass'],

@@ -1,13 +1,14 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, AppState, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { trackedQuest } from '../../content/quests';
 import { MAPS, objective } from '../../content/world';
-import { Command, Direction, GameState } from '../../game/model';
+import { Command, Direction, GameState, MapId } from '../../game/model';
 import { WorldViewport } from '../../components/WorldViewport';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Label, palette } from '../../components/ui';
 import { availablePoints } from '../../game/growth';
-import { TERRAIN_SPEEDS, travelProfile, WEATHER, weatherAt } from '../../game/environment';
+import { isIndoor, localWeather, travelProfile, WEATHER, weatherAt } from '../../game/environment';
 import { useBuildingPassage } from '../../useBuildingPassage';
 import { GameControls } from '../../components/GameControls';
 import { useControlPreferences } from '../../platform/controlLayout';
@@ -17,6 +18,9 @@ import {
   resolveDialogueFrame,
 } from '../../platform/controlLayout/controller';
 import { SCENE_TRANSITION } from '../../sceneTransition';
+import { calendarDetails } from '../../game/calendar';
+import { useDayNightEnabled } from '../../platform/dayNight';
+import { useNightLighting } from '../../useNightLighting';
 
 export function Explore({
   game: currentGame,
@@ -24,18 +28,23 @@ export function Explore({
   width,
   height,
   paused: screenPaused,
-  saveStatus,
   onMenu,
+  coveredTransition = false,
+  onReady,
 }: {
   game: GameState;
   dispatch: (c: Command) => void;
   width: number;
   height: number;
   paused: boolean;
-  saveStatus: string;
   onMenu: () => void;
+  coveredTransition?: boolean;
+  onReady?: (map: MapId) => void;
 }) {
   const { game, door, transition } = useBuildingPassage(currentGame);
+  const night = useNightLighting(game, coveredTransition || !!transition);
+  const dayNightEnabled = useDayNightEnabled();
+  const calendar = calendarDetails(game);
   const paused = screenPaused || !!transition;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const held = useRef<Direction | null>(null);
@@ -138,6 +147,8 @@ export function Explore({
   const actionFrame = resolveControlFrame('interact', layout, area);
   const dpadFrame = resolveControlFrame('dpad', layout, area);
   const tiny = height < 300;
+  const compactTracker = height < 400;
+  const tracked = trackedQuest(game);
   const [faceX, faceY] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[
     game.player.facing
   ]!;
@@ -147,12 +158,15 @@ export function Explore({
     (sum, id) => sum + availablePoints(game.creatures[id]!),
     0,
   );
-  const travel = travelProfile(game);
+  const weather = WEATHER[weatherAt(game)];
+  const remaining = Math.max(0, Math.ceil(localWeather(game)?.remaining ?? 180));
+  const nextWeather = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
   const [hiddenNotice, setHiddenNotice] = useState<string | null>(null);
   useEffect(() => {
     const timeout = setTimeout(() => setHiddenNotice(game.notice), 4000);
     return () => clearTimeout(timeout);
   }, [game.notice]);
+  const weatherChanged = hiddenNotice !== game.notice && game.notice.startsWith('天气转为');
   return (
     <View testID="explore-fullscreen" style={{ width, height }}>
       <WorldViewport
@@ -161,7 +175,9 @@ export function Explore({
         height={height}
         paused={blocked}
         door={door}
-        coveredTransition={!!transition}
+        coveredTransition={coveredTransition || !!transition}
+        onReady={onReady}
+        night={night}
       />
       <View
         pointerEvents="box-none"
@@ -171,33 +187,30 @@ export function Explore({
         ]}
       >
         <View pointerEvents="none" style={[s.locationCard, { maxWidth: width * 0.48 }]}>
-          <Text numberOfLines={1} style={s.location}>
-            {MAPS[game.player.map].name}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Text numberOfLines={1} style={[s.location, { flexShrink: 1 }]}>
+              {MAPS[game.player.map].name}
+            </Text>
+            {!tiny && <Text style={s.smallText}>◈ {game.progress.badges}/8</Text>}
+          </View>
+          <Text testID="calendar-status" numberOfLines={1} style={s.smallText}>
+            星苔历 {calendar.date} · {calendar.clock}{' '}
+            {dayNightEnabled ? (calendar.night ? '夜晚' : '白天') : '常昼'}
           </Text>
-          {!tiny && (
-            <Text style={s.smallText}>
-              ◈ {game.progress.badges}/8　{WEATHER[weatherAt(game)].mark}{' '}
-              {WEATHER[weatherAt(game)].name} · {TERRAIN_SPEEDS[travel.terrain].name}{' '}
-              {Math.round(travel.speed * 100)}%
+          {!isIndoor(game.player.map) && (
+            <Text testID="weather-status" numberOfLines={1} style={s.smallText}>
+              {weatherChanged ? `天气转为${weather.name}` : `${weather.mark} ${weather.name}`}
+              {' · '}下次变化 {nextWeather}
             </Text>
           )}
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          {!tiny && (
-            <View pointerEvents="none" style={s.statusCard}>
-              <Text style={s.smallText}>
-                ◎ {game.player.money}　·　{saveStatus}
-              </Text>
-            </View>
-          )}
-        </View>
       </View>
-      {!tiny && !game.dialogue && (
+      {!tiny && !game.dialogue && !tracked && (
         <View
           pointerEvents="none"
           style={[
             s.objective,
-            { top: insets.top + 75, left: insets.left + 14, maxWidth: Math.min(290, width * 0.4) },
+            { top: insets.top + 96, left: insets.left + 14, maxWidth: Math.min(290, width * 0.4) },
           ]}
         >
           <Text numberOfLines={2} style={s.goalText}>
@@ -205,7 +218,66 @@ export function Explore({
           </Text>
         </View>
       )}
-      {hiddenNotice !== game.notice && !!game.notice && !game.dialogue && (
+      {tracked && !game.dialogue && (
+        <View
+          testID="tracked-quest-hud"
+          pointerEvents="none"
+          style={[
+            s.objective,
+            {
+              top: insets.top + (tiny ? 74 : isIndoor(game.player.map) ? 78 : 96),
+              left: insets.left + 14,
+              maxWidth: Math.min(340, width * 0.45),
+              paddingVertical: compactTracker ? 6 : 8,
+              gap: compactTracker ? 2 : 4,
+            },
+          ]}
+        >
+          <Text
+            testID="tracked-quest-name"
+            numberOfLines={1}
+            style={[s.goalText, { fontWeight: '800', color: '#ffe09c' }]}
+          >
+            追踪 · {tracked.name}
+          </Text>
+          <Text
+            testID="tracked-quest-goal"
+            numberOfLines={compactTracker ? 1 : 2}
+            style={s.goalText}
+          >
+            {tracked.next}
+          </Text>
+          <Text
+            testID="tracked-quest-progress"
+            style={[s.smallText, { fontSize: 10, lineHeight: 14 }]}
+          >
+            {tracked.status === 'completed'
+              ? '已完成'
+              : tracked.status === 'ready'
+                ? '待交付'
+                : '进行中'}{' '}
+            · {tracked.current}/{tracked.target}
+          </Text>
+          <View
+            style={{
+              height: 3,
+              borderRadius: 2,
+              overflow: 'hidden',
+              backgroundColor: `${palette.onDark}40`,
+            }}
+          >
+            <View
+              testID="tracked-quest-progress-bar"
+              style={{
+                height: '100%',
+                width: `${Math.min(1, tracked.current / Math.max(1, tracked.target)) * 100}%`,
+                backgroundColor: '#efbc48',
+              }}
+            />
+          </View>
+        </View>
+      )}
+      {hiddenNotice !== game.notice && !!game.notice && !weatherChanged && !game.dialogue && (
         <View
           pointerEvents="none"
           style={[
@@ -237,7 +309,7 @@ export function Explore({
               onPress={() => dispatch({ kind: 'nextDialogue' })}
               style={({ pressed }) => [s.dialogueNext, pressed && { opacity: 0.6 }]}
             >
-              <Text style={s.smallText}>
+              <Text style={[s.smallText, { color: palette.muted, textShadowRadius: 0 }]}>
                 {game.dialogue.index + 1}/{game.dialogue.lines.length}　继续 ▸
               </Text>
             </Pressable>
@@ -266,6 +338,17 @@ export function Explore({
         }
         onMenu={onMenu}
       />
+      <Animated.View
+        testID="night-screen-shade"
+        pointerEvents="none"
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            backgroundColor: '#0a1530',
+            opacity: night.interpolate({ inputRange: [0, 1], outputRange: [0, 0.12] }),
+          },
+        ]}
+      />
       {transition && (
         <Animated.View
           testID="building-door-transition"
@@ -288,64 +371,58 @@ const s = StyleSheet.create({
     alignItems: 'flex-start',
   },
   locationCard: {
-    backgroundColor: '#102d247a',
+    backgroundColor: `${palette.ink}b0`,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 9,
     gap: 3,
   },
   location: {
-    color: palette.text,
+    color: palette.onDark,
     fontSize: 18,
     fontWeight: '800',
     letterSpacing: 1,
-    textShadowColor: '#10251dc0',
+    textShadowColor: `${palette.ink}c0`,
     textShadowRadius: 3,
   },
   smallText: {
-    color: '#f1e9ce',
+    color: palette.onDark,
     fontSize: 11,
     lineHeight: 16,
-    textShadowColor: '#112c23',
+    textShadowColor: palette.ink,
     textShadowRadius: 2,
-  },
-  statusCard: {
-    backgroundColor: '#102d2470',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
   },
   objective: {
     position: 'absolute',
     borderRadius: 10,
-    backgroundColor: '#102d246b',
+    backgroundColor: `${palette.ink}a0`,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   goalText: {
-    color: '#fff0c6',
+    color: palette.onDark,
     fontSize: 12,
     lineHeight: 18,
-    textShadowColor: '#193b2c',
+    textShadowColor: palette.ink,
     textShadowRadius: 2,
   },
-  pressed: { backgroundColor: '#517b52c7', transform: [{ scale: 0.97 }] },
+  pressed: { backgroundColor: `${palette.ink}c7`, transform: [{ scale: 0.97 }] },
   notice: {
     position: 'absolute',
     alignSelf: 'center',
     borderRadius: 9,
-    backgroundColor: '#102d247d',
+    backgroundColor: `${palette.ink}b0`,
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
   dialogue: {
     position: 'absolute',
-    backgroundColor: '#123227d9',
+    backgroundColor: `${palette.panel}f2`,
     borderWidth: 1,
-    borderColor: '#e2d49aab',
+    borderColor: palette.line,
     borderRadius: 14,
   },
-  speaker: { color: '#f2d78f', fontSize: 13, fontWeight: '800', letterSpacing: 1 },
+  speaker: { color: palette.gold, fontSize: 13, fontWeight: '800', letterSpacing: 1 },
   dialogueNext: {
     alignSelf: 'flex-end',
     minHeight: 32,

@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { MOVES } from '../../content/catalog';
 import { MAPS } from '../../content/world';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
@@ -18,6 +18,9 @@ export function CenterMenu({
   const [selected, setSelected] = useState(game.party[0] ?? '');
   const [learning, setLearning] = useState('');
   const [forgetting, setForgetting] = useState('');
+  const [contentWidth, setContentWidth] = useState(600);
+  const { width, height } = useWindowDimensions();
+  const stacked = contentWidth < 450 && height > width;
   const contentRef = useRef<ScrollView>(null);
   const beginLearning = (moveId: string) => {
     setLearning(moveId);
@@ -27,7 +30,10 @@ export function CenterMenu({
   const c = game.creatures[selected] ?? game.creatures[game.party[0] ?? ''];
   const available = atCenter(game) && !!c;
   return (
-    <View style={{ flex: 1, gap: 10 }}>
+    <View
+      onLayout={({ nativeEvent }) => setContentWidth(nativeEvent.layout.width)}
+      style={{ flex: 1, minHeight: 0, gap: 10 }}
+    >
       <Label style={styles.title}>精灵中心 · {MAPS[game.player.map].name}</Label>
       <Label muted style={{ fontSize: 12 }}>
         {available
@@ -37,8 +43,13 @@ export function CenterMenu({
       <View accessibilityLiveRegion="polite" testID="center-notice">
         <Label style={{ color: palette.gold }}>{game.notice}</Label>
       </View>
-      <View style={{ flex: 1, flexDirection: 'row', gap: 14 }}>
-        <ScrollView style={{ width: '31%', flexGrow: 0 }} contentContainerStyle={{ gap: 7 }}>
+      <View style={{ flex: 1, minHeight: 0, flexDirection: stacked ? 'column' : 'row', gap: 12 }}>
+        <ScrollView
+          key={stacked ? 'horizontal' : 'vertical'}
+          horizontal={stacked}
+          style={stacked ? { flexGrow: 0, maxHeight: 70 } : { width: '31%', flexGrow: 0 }}
+          contentContainerStyle={{ gap: 7 }}
+        >
           <Button
             accent
             disabled={!available}
@@ -65,10 +76,10 @@ export function CenterMenu({
         </ScrollView>
         <ScrollView
           ref={contentRef}
-          style={{ flex: 1 }}
+          style={{ flex: 1, minHeight: 0 }}
           contentContainerStyle={{ gap: 10, paddingBottom: 20 }}
         >
-          {learning && c && available && (
+          {!!learning && c && available && (
             <MoveLearningPanel
               key={`${c.id}:${learning}`}
               c={c}
@@ -85,7 +96,7 @@ export function CenterMenu({
             <Panel key={s.id} style={{ padding: 10, gap: 5 }}>
               <Label
                 style={{
-                  color: game.progress.flags[s.flag] ? palette.mint : palette.gold,
+                  color: game.progress.flags[s.flag] ? palette.accent : palette.gold,
                   fontWeight: '800',
                 }}
               >
@@ -127,7 +138,7 @@ export function CenterMenu({
                   </Button>
                 </View>
               ))}
-              {forgetting && c.moves.some((m) => m.id === forgetting) && (
+              {!!forgetting && c.moves.some((m) => m.id === forgetting) && (
                 <View style={styles.wrap}>
                   <Button
                     small

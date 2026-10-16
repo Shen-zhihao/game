@@ -1,15 +1,19 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  BackHandler,
   FlatList,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle, Path } from 'react-native-svg';
+import { MenuIcon } from '../../components/MenuIcon';
 import {
   ALL_SPECIES,
   learnset,
@@ -19,7 +23,7 @@ import {
   TYPE_IDS,
   TYPES,
 } from '../../content/catalog';
-import { isTownLocation, objective } from '../../content/world';
+import { isTownLocation } from '../../content/world';
 import { CreatureSprite } from '../../components/CreatureSprite';
 import { MoveDetails, MoveLearningPanel } from '../../components/MoveDetails';
 import { Button, HpBar, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
@@ -33,7 +37,6 @@ import {
   xpAt,
 } from '../../game/rules';
 import { statusName } from '../BattleScreen';
-import { CityQuestBoard } from '../CityMenus';
 import { TrainingPanel, TrainingPlanView } from '../TrainingPanel';
 import { availablePoints, trainingFor } from '../../game/growth';
 import { STAT_NAMES } from '../../content/training';
@@ -41,55 +44,89 @@ import { recallOptions } from '../../game/skills';
 import { SkillCopyMenu } from '../SkillCopyMenu';
 import { HabitatDetails } from '../../components/HabitatDetails';
 import { atCenter, fieldSkill, fieldSkillUnlocked } from '../../game/fieldSkills';
-import { ADVENTURE_CHAPTERS } from '../../content/adventure';
-import { LEAGUE_MILESTONES } from '../../content/league';
-import { CONSERVATION_CONTENT } from '../../content/conservation';
 export { RegionMenu } from '../RegionMenu';
 export { BagMenu } from '../CityMenus';
 
 export type MenuName =
-  | 'party'
-  | 'center'
-  | 'environment'
-  | 'bag'
-  | 'dex'
-  | 'quests'
-  | 'map'
-  | 'save'
-  | 'transfer'
-  | 'settings';
+  'party' | 'center' | 'bag' | 'dex' | 'quests' | 'map' | 'save' | 'transfer' | 'settings';
 export const MENU_NAMES: Record<MenuName, string> = {
   party: '伙伴',
   center: '精灵中心',
-  environment: '天气与生态',
   bag: '背包与商店',
   dex: '精灵图鉴',
-  quests: '任务日志',
+  quests: '任务管理',
   map: '地区地图',
   save: '本地存档',
   transfer: '存档互传',
   settings: '设置',
 };
+const MENU_SECTIONS = [
+  'party',
+  'center',
+  'bag',
+  'dex',
+  'quests',
+  'map',
+  'save',
+  'transfer',
+  'settings',
+] as const;
 export function MenuFrame({
   menu,
   onMenu,
   onClose,
+  hasGame = true,
   children,
 }: {
   menu: MenuName;
   onMenu: (m: MenuName) => void;
   onClose: () => void;
+  hasGame?: boolean;
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
-  const compact = useWindowDimensions().height < 450;
+  const { width, height } = useWindowDimensions();
+  const compact = height < 450 || width < 600;
+  const navRef = useRef<ScrollView>(null);
+  const navLayouts = useRef<Record<string, { x: number; width: number }>>({});
   const [enter] = useState(() => new Animated.Value(0));
+  const centerTab = useCallback(() => {
+    const layout = navLayouts.current[menu];
+    if (layout)
+      navRef.current?.scrollTo({
+        x: Math.max(0, layout.x + layout.width / 2 - (width - insets.left - insets.right - 56) / 2),
+        animated: false,
+      });
+  }, [menu, width, insets.left, insets.right]);
+  useEffect(centerTab, [centerTab]);
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      onClose();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [onClose]);
   useEffect(() => {
     enter.setValue(0);
     const animation = Animated.timing(enter, { toValue: 1, duration: 170, useNativeDriver: true });
     animation.start();
     return () => animation.stop();
   }, [menu, enter]);
+  const available = (name: MenuName) => hasGame || ['save', 'transfer', 'settings'].includes(name);
+  const close = (
+    <Pressable
+      testID="menu-close"
+      accessibilityRole="button"
+      accessibilityLabel="返回冒险"
+      hitSlop={4}
+      onPress={onClose}
+      style={({ pressed }) => [s.frameIcon, pressed && styles.pressed]}
+    >
+      <Svg width={22} height={22} viewBox="0 0 24 24" aria-hidden>
+        <Path d="M6 6l12 12M18 6L6 18" stroke={palette.ink} strokeWidth={2} strokeLinecap="round" />
+      </Svg>
+    </Pressable>
+  );
   return (
     <View
       style={[
@@ -102,78 +139,73 @@ export function MenuFrame({
         },
       ]}
     >
-      <View style={[s.menuHead, compact && { height: 48 }]}>
-        <Label style={{ fontSize: 21, fontWeight: '800', letterSpacing: 1 }}>
-          旅行手册{' '}
-          <Label muted style={{ fontSize: 12 }}>
-            {' '}
-            / {MENU_NAMES[menu]}
-          </Label>
-        </Label>
-        <Button small testID="menu-close" onPress={onClose}>
-          返回冒险 ×
-        </Button>
-      </View>
-      <View style={{ flex: 1, flexDirection: 'row' }}>
+      <View style={s.secondaryHeader}>
         <ScrollView
-          style={[s.menuNav, compact && { width: 112 }]}
-          contentContainerStyle={{ gap: compact ? 4 : 6, padding: 8 }}
+          ref={navRef}
+          horizontal
+          testID="menu-navigation"
+          style={{ flex: 1, minWidth: 0 }}
+          contentContainerStyle={{ alignItems: 'center', gap: 5, paddingHorizontal: 4 }}
+          onContentSizeChange={centerTab}
+          showsHorizontalScrollIndicator={false}
         >
-          {(Object.keys(MENU_NAMES) as MenuName[]).map((m, index) => (
+          {MENU_SECTIONS.map((name) => (
             <Pressable
-              key={m}
-              testID={`menu-${m}`}
+              key={name}
+              testID={`menu-${name}`}
               accessibilityRole="button"
-              accessibilityLabel={MENU_NAMES[m]}
-              accessibilityState={{ selected: menu === m }}
-              onPress={() => onMenu(m)}
+              accessibilityLabel={MENU_NAMES[name]}
+              accessibilityState={{ selected: menu === name, disabled: !available(name) }}
+              aria-pressed={menu === name}
+              disabled={!available(name)}
+              onLayout={({ nativeEvent }) => {
+                navLayouts.current[name] = nativeEvent.layout;
+                if (menu === name) centerTab();
+              }}
+              onPress={() => onMenu(name)}
               style={({ pressed }) => [
-                s.navItem,
-                compact && { minHeight: 36, paddingVertical: 6 },
-                menu === m && s.navSelected,
-                pressed && { opacity: 0.72, transform: [{ scale: 0.96 }] },
+                s.secondaryTab,
+                menu === name && { backgroundColor: palette.amber },
+                !available(name) && styles.disabled,
+                pressed && { opacity: 0.65 },
               ]}
             >
-              {!compact && (
-                <Label style={{ fontSize: 11, color: menu === m ? palette.ink : '#789887' }}>
-                  {String(index + 1).padStart(2, '0')}
-                </Label>
-              )}
-              <Label
-                style={{
-                  flex: 1,
-                  fontSize: 12,
-                  fontWeight: '700',
-                  color: menu === m ? palette.ink : palette.text,
-                }}
-              >
-                {MENU_NAMES[m]}
+              <MenuIcon name={name} size={22} />
+              <Label style={{ fontSize: 14, lineHeight: 22, fontWeight: '800' }}>
+                {MENU_NAMES[name]}
               </Label>
-              {menu === m && !compact && (
-                <Label style={{ color: palette.ink, fontSize: 11 }}>▸</Label>
-              )}
             </Pressable>
           ))}
         </ScrollView>
-        <Animated.View
-          testID={`menu-content-${menu}`}
-          style={{
-            flex: 1,
-            padding: compact ? 12 : 16,
-            opacity: enter,
-            transform: [
-              { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [7, 0] }) },
-            ],
-          }}
-        >
-          {children}
-        </Animated.View>
+        {close}
       </View>
+      <Animated.View
+        testID={`menu-content-${menu}`}
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          paddingHorizontal: compact ? 10 : 18,
+          paddingTop: 4,
+          paddingBottom: compact ? 10 : 18,
+          opacity: enter,
+          transform: [
+            { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [7, 0] }) },
+          ],
+        }}
+      >
+        {children}
+      </Animated.View>
     </View>
   );
 }
+
 const statNames = STAT_NAMES;
 export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
+  const [contentWidth, setContentWidth] = useState(600);
+  const { width, height } = useWindowDimensions();
+  const stacked = contentWidth < 450 && height > width;
+  const small = contentWidth < 550;
   const [detailTab, setDetailTab] = useState<'overview' | 'training'>(() =>
     game.party[0] && availablePoints(game.creatures[game.party[0]]!) > 0 ? 'training' : 'overview',
   );
@@ -215,13 +247,24 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   const move =
     moveDetail && c.moves.some((known) => known.id === moveDetail) ? MOVES[moveDetail] : null;
   return (
-    <View style={{ flex: 1, flexDirection: 'row', gap: 16 }}>
-      <View style={{ width: '32%' }}>
+    <View
+      testID="party-screen"
+      onLayout={({ nativeEvent }) => setContentWidth(nativeEvent.layout.width)}
+      style={{ flex: 1, minHeight: 0, flexDirection: stacked ? 'column' : 'row', gap: 12 }}
+    >
+      <View
+        style={
+          stacked
+            ? { height: 126, gap: 8 }
+            : { width: small ? 145 : '32%', minWidth: small ? 145 : 170, minHeight: 0 }
+        }
+      >
         <View style={[styles.row, { gap: 6, marginBottom: 10 }]}>
           <Button
             small
             accent={!showBox}
             selected={!showBox}
+            style={{ flex: 1, paddingHorizontal: 6 }}
             onPress={() => {
               setShowBox(false);
               if (!game.party.includes(selected)) setSelected(game.party[0]!);
@@ -229,12 +272,14 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
               setMoveDetail(null);
             }}
           >
-            队伍 {game.party.length}/6
+            队伍 {game.party.length}
+            {small && !stacked ? '' : '/6'}
           </Button>
           <Button
             small
             accent={showBox}
             selected={showBox}
+            style={{ flex: 1, paddingHorizontal: 6 }}
             onPress={() => {
               setShowBox(true);
               if (game.box[0]) setSelected(game.box[0]);
@@ -245,27 +290,63 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
             仓库 {game.box.length}
           </Button>
         </View>
-        <ScrollView contentContainerStyle={{ gap: 8 }}>
+        <ScrollView
+          key={stacked ? 'horizontal' : 'vertical'}
+          horizontal={stacked}
+          style={{ flex: 1, minHeight: 0 }}
+          contentContainerStyle={{ gap: 8, paddingBottom: 3 }}
+        >
           {!ids.length && <Label muted>仓库里暂时没有伙伴。</Label>}
           {ids.map((id) => {
             const member = game.creatures[id]!;
             return (
-              <Button
+              <Pressable
                 key={id}
-                small
-                accent={c.id === id}
-                selected={c.id === id}
+                testID={`party-member-${id}`}
+                accessibilityRole="button"
+                accessibilityLabel={`${creatureName(member)}，等级${member.level}，HP ${member.hp}/${statsFor(member).hp}`}
+                accessibilityState={{ selected: c.id === id }}
+                style={({ pressed }) => [
+                  s.partnerCard,
+                  stacked && { width: 180 },
+                  c.id === id && s.partnerSelected,
+                  pressed && styles.pressed,
+                ]}
                 onPress={() => {
                   setSelected(id);
                   setRecall(null);
                   setMoveDetail(null);
                 }}
-              >{`${creatureName(member)} · Lv.${member.level}\nHP ${member.hp}/${statsFor(member).hp}${availablePoints(member) ? ` · 待加 ${availablePoints(member)} 点` : ''}`}</Button>
+              >
+                <CreatureSprite speciesId={member.speciesId} size={small ? 32 : 40} />
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text
+                    numberOfLines={1}
+                    style={{ color: palette.ink, fontWeight: '800', fontSize: 13 }}
+                  >
+                    {creatureName(member)}
+                  </Text>
+                  <Label muted style={{ fontSize: 10, lineHeight: 16 }}>
+                    Lv.{member.level} · HP {member.hp}/{statsFor(member).hp}
+                  </Label>
+                  <HpBar value={member.hp} max={statsFor(member).hp} width="100%" />
+                  {!!availablePoints(member) && !stacked && (
+                    <Label style={{ fontSize: 10, lineHeight: 14, color: palette.gold }}>
+                      待培养 {availablePoints(member)} 点
+                    </Label>
+                  )}
+                </View>
+                {c.id === id && <View style={s.partnerDot} />}
+              </Pressable>
             );
           })}
         </ScrollView>
       </View>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
+      <ScrollView
+        testID="party-details"
+        style={{ flex: 1, minHeight: 0 }}
+        contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
+      >
         {showBox && !ids.length ? (
           <Panel>
             <Label style={styles.title}>仓库空空的</Label>
@@ -278,8 +359,16 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
           </Panel>
         ) : (
           <>
-            <View style={[styles.row, { alignItems: 'flex-start' }]}>
-              <CreatureSprite speciesId={c.speciesId} size={detailTab === 'training' ? 48 : 108} />
+            <Panel
+              style={[
+                styles.row,
+                { alignItems: 'center', padding: 14, backgroundColor: palette.tint },
+              ]}
+            >
+              <CreatureSprite
+                speciesId={c.speciesId}
+                size={detailTab === 'training' ? 48 : small ? 64 : 108}
+              />
               <View style={{ flex: 1 }}>
                 <Label style={{ fontSize: detailTab === 'training' ? 18 : 22, fontWeight: '800' }}>
                   {creatureName(c)}
@@ -306,7 +395,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                   </>
                 )}
               </View>
-            </View>
+            </Panel>
             <View style={styles.wrap}>
               <Button
                 small
@@ -442,7 +531,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                 )}
                 {!!game.notice && (
                   <View testID="party-operation-notice" accessibilityLiveRegion="polite">
-                    <Label style={{ color: palette.mint, fontSize: 12 }}>{game.notice}</Label>
+                    <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
                   </View>
                 )}
                 <Label style={{ fontWeight: '700' }}>
@@ -527,10 +616,16 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   );
 }
 export function DexMenu({ game }: { game: GameState }) {
+  const { height } = useWindowDimensions();
+  const short = height < 450;
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<TypeId | null>(null);
-  const [selected, setSelected] = useState(game.dex.caught[0]!);
+  const [selected, setSelected] = useState(game.dex.caught[0] ?? ALL_SPECIES[0]!.id);
   const [ownedOnly, setOwnedOnly] = useState(false);
+  const [contentWidth, setContentWidth] = useState(0);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const search = query.trim().replace(/^#/, '');
+  const columns = contentWidth >= 700 ? 2 : 1;
   const data = useMemo(
     () =>
       ALL_SPECIES.filter((s) => {
@@ -538,238 +633,271 @@ export function DexMenu({ game }: { game: GameState }) {
         return (
           (!ownedOnly || game.dex.caught.includes(s.id)) &&
           (!filter || (seen && s.types.includes(filter))) &&
-          (!query || String(s.dexNumber).includes(query) || (seen && s.name.includes(query)))
+          (!search ||
+            String(s.dexNumber).padStart(3, '0').includes(search) ||
+            (seen && s.name.includes(search)))
         );
       }),
-    [filter, game.dex.caught, game.dex.seen, ownedOnly, query],
+    [filter, game.dex.caught, game.dex.seen, ownedOnly, search],
   );
-  const species = SPECIES[selected]!;
-  const seen = game.dex.seen.includes(selected);
-  const caught = game.dex.caught.includes(selected);
+  const selectedId = data.find((s) => s.id === selected)?.id ?? data[0]?.id;
+  const resetFilters = () => {
+    setQuery('');
+    setFilter(null);
+    setOwnedOnly(false);
+  };
   return (
-    <View style={{ flex: 1, flexDirection: 'row', gap: 16 }}>
-      <View style={{ flex: 1 }}>
+    <View
+      testID="dex-screen"
+      style={s.dex}
+      onLayout={({ nativeEvent }) => setContentWidth(nativeEvent.layout.width)}
+    >
+      {!short && (
+        <View style={s.dexHeading}>
+          <Label style={{ fontSize: 20, lineHeight: 26, fontWeight: '800' }}>精灵图鉴</Label>
+          <Label muted style={{ fontSize: 11 }}>
+            已见 {game.dex.seen.length} · 已得 {game.dex.caught.length} / 250
+          </Label>
+        </View>
+      )}
+      <View style={[s.searchBar, searchFocused && { borderColor: palette.accent }]}>
+        <Svg width={18} height={18} viewBox="0 0 24 24" aria-hidden>
+          <Circle
+            cx={10.5}
+            cy={10.5}
+            r={6.5}
+            stroke={palette.muted}
+            strokeWidth={1.8}
+            fill="none"
+          />
+          <Path d="M16 16l4 4" stroke={palette.muted} strokeWidth={1.8} strokeLinecap="round" />
+        </Svg>
         <TextInput
-          style={s.input}
-          placeholder="搜索编号 / 已见精灵名字"
+          testID="dex-search"
+          accessibilityLabel="搜索精灵编号或已见名字"
+          style={s.searchInput}
+          placeholder="编号 / 已见精灵名字"
           placeholderTextColor={palette.muted}
           value={query}
           onChangeText={setQuery}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
         />
+        {!!query && (
+          <Pressable
+            testID="dex-search-clear"
+            accessibilityRole="button"
+            accessibilityLabel="清空搜索"
+            onPress={() => setQuery('')}
+            style={({ pressed }) => [s.searchClear, pressed && styles.pressed]}
+          >
+            <Label style={{ fontSize: 21, lineHeight: 24 }}>×</Label>
+          </Pressable>
+        )}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <ScrollView
+          testID="dex-type-filters"
           horizontal
-          style={{ maxHeight: 43, marginVertical: 8 }}
-          contentContainerStyle={{ gap: 5 }}
+          style={{ flex: 1, minWidth: 0, height: 36 }}
+          contentContainerStyle={{ gap: 6, alignItems: 'center' }}
+          showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Button small accent={!filter} onPress={() => setFilter(null)}>
+          <Button small selected={!filter} onPress={() => setFilter(null)}>
             全部
           </Button>
           {TYPE_IDS.map((t) => (
             <Button
               key={t}
               small
-              accent={filter === t}
+              selected={filter === t}
               onPress={() => setFilter(filter === t ? null : t)}
             >
               {TYPES[t]}
             </Button>
           ))}
         </ScrollView>
-        <View style={[styles.row, { justifyContent: 'space-between', marginBottom: 8 }]}>
-          <Label muted style={{ fontSize: 11 }}>
-            已见 {game.dex.seen.length} · 已得 {game.dex.caught.length} / 250
-          </Label>
-          <Button small accent={ownedOnly} onPress={() => setOwnedOnly(!ownedOnly)}>
-            已获得
-          </Button>
-        </View>
-        <FlatList
-          data={data}
-          ListEmptyComponent={
-            <Label muted style={{ padding: 12 }}>
-              没有符合条件的精灵，试试其他属性或搜索词。
-            </Label>
-          }
-          numColumns={2}
-          keyExtractor={(item) => item.id}
-          extraData={selected}
-          columnWrapperStyle={{ gap: 6 }}
-          contentContainerStyle={{ gap: 6, paddingBottom: 15 }}
-          renderItem={({ item }) => {
-            const visible = game.dex.seen.includes(item.id);
-            return (
-              <Button
-                small
-                accent={selected === item.id}
-                style={{ flex: 1, paddingHorizontal: 5 }}
-                onPress={() => setSelected(item.id)}
-              >{`#${String(item.dexNumber).padStart(3, '0')} ${visible ? item.name : '？？？'} ${game.dex.caught.includes(item.id) ? '●' : ''}`}</Button>
-            );
-          }}
-        />
+        <Button
+          small
+          testID="dex-owned"
+          selected={ownedOnly}
+          onPress={() => setOwnedOnly(!ownedOnly)}
+        >
+          已获得
+        </Button>
       </View>
-      <ScrollView
-        style={{ width: '43%' }}
-        contentContainerStyle={{ gap: 10, alignItems: 'flex-start' }}
-      >
-        <CreatureSprite speciesId={selected} size={135} unknown={!seen} />
-        <Label style={{ fontSize: 23, fontWeight: '800' }}>
-          {seen ? species.name : '尚未发现'}
-        </Label>
-        <Label muted>
-          #{String(species.dexNumber).padStart(3, '0')}　
-          {caught ? '已获得' : seen ? '已见过' : '等待与你相遇'}
-        </Label>
-        {seen && (
-          <>
-            <TypeBadges types={species.types} />
-            <HabitatDetails speciesId={species.id} />
-            <Label style={{ fontSize: 12 }}>弱点与免疫</Label>
-            <View style={styles.wrap}>
-              {TYPE_IDS.filter((t) => typeMultiplier(t, species.types) !== 1).map((t) => (
-                <Label
-                  key={t}
-                  style={{
-                    fontSize: 11,
-                    color: typeMultiplier(t, species.types) === 0 ? palette.gold : palette.muted,
-                  }}
+      <View style={[s.dexBody, contentWidth < 360 && { flexDirection: 'column' }]}>
+        <View
+          style={[
+            { flex: 1, minWidth: 0, minHeight: 0, gap: 6 },
+            contentWidth < 360 && { flex: 0, height: Math.min(180, height * 0.24) },
+          ]}
+        >
+          <Label testID="dex-result-count" muted style={{ fontSize: 11 }}>
+            {data.length} 条记录{short ? ` · 已得 ${game.dex.caught.length}/250` : ''}
+          </Label>
+          <FlatList
+            testID="dex-results"
+            key={columns}
+            style={{ flex: 1 }}
+            data={data}
+            ListEmptyComponent={
+              <View style={{ gap: 10, padding: 12 }}>
+                <Label muted>暂无匹配记录</Label>
+                <Button small onPress={resetFilters}>
+                  重置筛选
+                </Button>
+              </View>
+            }
+            numColumns={columns}
+            keyExtractor={(item) => item.id}
+            extraData={selectedId}
+            columnWrapperStyle={columns > 1 ? { gap: 6 } : undefined}
+            contentContainerStyle={{ gap: 6, paddingBottom: 15 }}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }) => {
+              const visible = game.dex.seen.includes(item.id);
+              return (
+                <Pressable
+                  testID={`dex-entry-${item.dexNumber}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`编号${item.dexNumber} ${visible ? item.name : '尚未发现'}`}
+                  accessibilityState={{ selected: selectedId === item.id }}
+                  style={({ pressed }) => [
+                    s.dexEntry,
+                    columns > 1 && { maxWidth: '50%' },
+                    selectedId === item.id && s.dexEntrySelected,
+                    pressed && styles.pressed,
+                  ]}
+                  onPress={() => setSelected(item.id)}
                 >
-                  {TYPES[t]} ×{typeMultiplier(t, species.types)}
-                </Label>
-              ))}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+                    <View style={s.dexThumb}>
+                      <CreatureSprite speciesId={item.id} size={38} unknown={!visible} />
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Label muted style={{ fontSize: 10, lineHeight: 14 }}>
+                          #{String(item.dexNumber).padStart(3, '0')}
+                        </Label>
+                        {game.dex.caught.includes(item.id) && (
+                          <Label style={{ color: palette.accent, fontSize: 10, lineHeight: 14 }}>
+                            ●
+                          </Label>
+                        )}
+                      </View>
+                      <Text numberOfLines={1} style={s.dexEntryName}>
+                        {visible ? item.name : '？？？'}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+        <ScrollView
+          key={selectedId ?? 'empty'}
+          testID="dex-details"
+          style={s.dexDetails}
+          contentContainerStyle={{ gap: 10, padding: contentWidth < 560 ? 10 : 16 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {selectedId ? (
+            <DexDetails game={game} speciesId={selectedId} compact={short || contentWidth < 560} />
+          ) : (
+            <View style={{ gap: 12, alignItems: 'flex-start' }}>
+              <Label style={{ fontSize: 17, fontWeight: '700' }}>没有匹配的精灵</Label>
+              <Label muted>试试其他编号、已见名字或属性。</Label>
+              <Button small onPress={resetFilters}>
+                重置筛选
+              </Button>
             </View>
-            {caught ? (
-              <>
-                <Label style={{ color: palette.gold, fontSize: 12 }}>
-                  {evolutionLabel(species)}
-                </Label>
-                <Label muted style={{ fontSize: 12 }}>
-                  基础能力总和 {species.baseStatTotal} · {species.experienceCurve}
-                </Label>
-                <View style={styles.wrap}>
-                  {STAT_KEYS.map((k) => (
-                    <Label key={k} muted style={{ fontSize: 12 }}>
-                      {statNames[k]} {species.baseStats[k]}
-                    </Label>
-                  ))}
-                </View>
-                <Label muted style={{ fontSize: 12 }}>
-                  在「伙伴」查看当前能力、自由加点与成长记录。
-                </Label>
-                <TrainingPlanView speciesId={species.id} />
-                <Label style={{ fontSize: 12 }}>可学技能</Label>
-                {learnset(species.id).map((m) => (
-                  <Label muted key={m.moveId} style={{ fontSize: 12 }}>
-                    Lv.{m.level}　{MOVES[m.moveId]!.name}
-                    {MOVES[m.moveId]!.exclusiveSpeciesId ? '〔专属 · 不可复刻〕' : ''}
-                  </Label>
-                ))}
-              </>
-            ) : (
-              <Label muted>获得后开放进化、能力和技能资料。</Label>
-            )}
-          </>
-        )}
-        {!seen && (
-          <Label muted>探索草丛、与训练师对战来发现新的伙伴。后续章节的物种会逐步开放。</Label>
-        )}
-      </ScrollView>
+          )}
+        </ScrollView>
+      </View>
     </View>
   );
 }
-export function QuestMenu({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
-  const f = game.progress.flags;
-  const milestones: [string, boolean][] = [
-    ...CONSERVATION_CONTENT.milestones.map(([label, flag]): [string, boolean] => [
-      label,
-      !!f[flag],
-    ]),
-    ...LEAGUE_MILESTONES.map(([label, flag]): [string, boolean] => [label, !!f[flag]]),
-    ...(f.opening
-      ? ([
-          ['搬家 · 认识邻居阿澈', !!f.neighborMet],
-          ['呼救 · 在一号路救出岚博士', !!f.professorRescued],
-          ['同行 · 正式获得第一位伙伴', !!f.partnerReceived],
-        ] as [string, boolean][])
-      : []),
-    ['启程 · 与阿澈练习对战', !!f.rival],
-    ...(f.opening
-      ? ([['登记 · 回研究所领取图鉴与捕捉补给', !!f.fieldKitReceived]] as [string, boolean][])
-      : []),
-    ['相遇 · 学会捕捉精灵', !!f.catchTutorial],
-    ['求助 · 接受穗禾的委托', !!f.quest],
-    ['追踪 · 调查两处森林线索', !!f.clueOne && !!f.clueTwo],
-    ['开路 · 采集员协助，推动倒木', !!f.logMoved],
-    ['微芒 · 击退定序社，救回萤灯蛾', !!f.rescued],
-    ['归来 · 回镇报告并领取奖励', !!f.questReward],
-    ['枝叶 · 通过草系馆练习并赢得徽章', !!f.leader],
-    ['砾岩 · 通过岩石馆练习并赢得徽章', !!f.rockLeader],
-    ['石壳虫的新家 · 清理山道栖地', !!f.habitatClean],
-    ['矿车旁的旧牌 · 找回并归还工牌', !!f.plaqueReturned],
-    ['钟石旧约 · 剧情相遇并获得鸣钟石', !!f.bellCaught],
-    ['矿山异常 · 接受砚叔的调查委托', !!f.mineQuest],
-    ['共鸣 · 调查两处矿脉并关闭装置', !!f.mineStabilized],
-    ['回访 · 向砚叔报告调查结果', !!f.mineReport],
-    ['潮汐 · 通过水系馆练习并赢得徽章', !!f.waterLeader],
-    ['货运 · 向沐舟核对矿山运单', !!f.harborQuest],
-    ['潮闸 · 取得两份证据并恢复自然水流', !!f.sluiceRepaired],
-    ['归航 · 回港报告并封存 E-04 运单', !!f.harborReport],
-    ['漂流瓶的收件人 · 核对航季并送达家书', !!f.bottleDelivered],
-    ['潮池观察 · 记录河口与浅礁并清走旧网', !!f.reefRestored],
-    ['旧灯塔维修 · 找到备用镜片并更换', !!f.lighthouseRepaired],
-    ['浅礁的回应 · 获得珊枝鹿', !!f.coralCaught],
-    ['归航的灯光 · 获得浮岛龟', !!f.islandCaught],
-    ['迟来的旧约 · 获得回潮贝', !!f.tideCaught],
-    ['旧铃回声 · 调查溪岸和林冠', !!f.mistClueOne && !!f.mistClueTwo],
-    ['旧约 · 剧情相遇并获得雾铃灵', !!f.mistCaught],
-    ...ADVENTURE_CHAPTERS.flatMap((c) =>
-      c.milestones.map(([label, flag]): [string, boolean] => [label, !!f[flag]]),
-    ),
-  ];
+function DexDetails({
+  game,
+  speciesId,
+  compact,
+}: {
+  game: GameState;
+  speciesId: string;
+  compact: boolean;
+}) {
+  const species = SPECIES[speciesId]!;
+  const seen = game.dex.seen.includes(speciesId);
+  const caught = game.dex.caught.includes(speciesId);
   return (
-    <ScrollView contentContainerStyle={{ gap: 14 }}>
-      <Label style={styles.title}>冒险日志 · 已获 {game.progress.badges}/8 枚徽章</Label>
-      <Label style={{ color: palette.gold }}>
-        主线：自由选择道馆顺序，集齐八枚不同徽章，再挑战联盟。
+    <>
+      <CreatureSprite speciesId={speciesId} size={compact ? 88 : 120} unknown={!seen} />
+      <Label style={{ fontSize: 23, fontWeight: '800' }}>{seen ? species.name : '尚未发现'}</Label>
+      <Label muted>
+        #{String(species.dexNumber).padStart(3, '0')}　
+        {caught ? '已获得' : seen ? '已见过' : '等待与你相遇'}
       </Label>
-      <Panel>
-        <Label style={{ color: palette.gold, fontWeight: '700' }}>当前目标</Label>
-        <Label style={{ marginTop: 8 }}>
-          {objective(f, game.progress.badges, game.player.map)}
-        </Label>
-      </Panel>
-      <CityQuestBoard game={game} dispatch={dispatch} />
-      {!!game.league && (
-        <Panel>
-          <Label style={{ color: palette.gold }}>
-            联盟名录 · {game.league.wins} 次夺冠／{game.league.runs} 轮登记
-          </Label>
-          <Label muted>
-            {game.league.active
-              ? `本轮连战 ${game.league.stage + 1}/5`
-              : '当前未在连战中，首次与最近冠军队伍独立保留。'}
-          </Label>
-          {game.league.firstTeam?.map((c, i) => (
-            <Label key={i}>
-              {i + 1}. {c.nickname || SPECIES[c.speciesId]!.name} · Lv.{c.level}
-            </Label>
-          ))}
-        </Panel>
+      {seen && (
+        <>
+          <TypeBadges types={species.types} />
+          <HabitatDetails speciesId={species.id} />
+          <Label style={{ fontSize: 12 }}>弱点与免疫</Label>
+          <View style={styles.wrap}>
+            {TYPE_IDS.filter((t) => typeMultiplier(t, species.types) !== 1).map((t) => (
+              <Label
+                key={t}
+                style={{
+                  fontSize: 11,
+                  color: typeMultiplier(t, species.types) === 0 ? palette.gold : palette.muted,
+                }}
+              >
+                {TYPES[t]} ×{typeMultiplier(t, species.types)}
+              </Label>
+            ))}
+          </View>
+          {caught ? (
+            <>
+              <Label style={{ color: palette.gold, fontSize: 12 }}>{evolutionLabel(species)}</Label>
+              <Label muted style={{ fontSize: 12 }}>
+                基础能力总和 {species.baseStatTotal} · {species.experienceCurve}
+              </Label>
+              <View style={styles.wrap}>
+                {STAT_KEYS.map((k) => (
+                  <Label key={k} muted style={{ fontSize: 12 }}>
+                    {statNames[k]} {species.baseStats[k]}
+                  </Label>
+                ))}
+              </View>
+              <Label muted style={{ fontSize: 12 }}>
+                在「伙伴」查看当前能力、自由加点与成长记录。
+              </Label>
+              <TrainingPlanView speciesId={species.id} />
+              <Label style={{ fontSize: 12 }}>可学技能</Label>
+              {learnset(species.id).map((m) => (
+                <Label muted key={m.moveId} style={{ fontSize: 12 }}>
+                  Lv.{m.level}　{MOVES[m.moveId]!.name}
+                  {MOVES[m.moveId]!.exclusiveSpeciesId ? '〔专属 · 不可复刻〕' : ''}
+                </Label>
+              ))}
+            </>
+          ) : (
+            <Label muted>获得后开放进化、能力和技能资料。</Label>
+          )}
+        </>
       )}
-      <Label style={{ fontSize: 21, fontWeight: '800' }}>主线与探索足迹</Label>
-      {milestones.map(([label, done]) => (
-        <Label key={label} style={{ color: done ? palette.mint : palette.muted }}>
-          {done ? '●' : '○'}　{label}
-        </Label>
-      ))}
-      <Label muted style={{ fontSize: 12 }}>
-        {3 + ADVENTURE_CHAPTERS.length}{' '}
-        座已开放道馆可自由选择顺序，馆主与学徒按已有徽章调整等级。区域调查与稀有捕获不作为入馆条件。不同区域有不同遭遇与随机发现；训练师获胜后只交谈，战败可重试，草丛可继续练习。石壳虫
-        Lv.10、初始伙伴 Lv.16 可进化。
-      </Label>
-    </ScrollView>
+      {!seen && (
+        <Label muted>探索草丛、与训练师对战来发现新的伙伴。后续章节的物种会逐步开放。</Label>
+      )}
+    </>
   );
 }
+export { QuestMenu } from '../QuestMenu';
 export function StarterChoice({ dispatch }: { dispatch: (c: Command) => void }) {
   const [selected, setSelected] = useState(STARTERS[0]!);
   const insets = useSafeAreaInsets();
@@ -857,10 +985,13 @@ export function HelpMenu() {
         '重大进度立即保存，探索每 10 秒自动保存。菜单中的本地存档可手动保存或恢复历史。',
         '同网传档：接收手机先等待，发送手机搜索并扫描接收手机的二维码。接收端选择槽位并确认后才导入。',
         'Android 与 iPhone 安装版支持原生局域网；网页预览用于试玩，存档使用该浏览器的本地空间。',
-      ].map((t) => (
-        <Label key={t} muted>
-          {t}
-        </Label>
+      ].map((t, index) => (
+        <Panel key={t} style={{ padding: 14, flexDirection: 'row', gap: 12 }}>
+          <Label style={{ color: palette.gold, fontSize: 12, fontWeight: '800' }}>
+            {String(index + 1).padStart(2, '0')}
+          </Label>
+          <Label style={{ flex: 1 }}>{t}</Label>
+        </Panel>
       ))}
     </ScrollView>
   );
@@ -956,38 +1087,111 @@ export const menuStyles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: palette.line,
-    borderRadius: 7,
+    borderRadius: 12,
     padding: 10,
     color: palette.text,
-    backgroundColor: '#102820',
+    backgroundColor: palette.panel,
     fontSize: 14,
     minHeight: 43,
   },
 });
 const s = StyleSheet.create({
-  overlay: { ...StyleSheet.absoluteFill, backgroundColor: '#102b23fa' },
-  menuHead: {
-    height: 60,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderColor: palette.line,
+  dex: { flex: 1, minHeight: 0, minWidth: 0, gap: 10 },
+  dexHeading: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    columnGap: 12,
+    rowGap: 2,
   },
-  menuNav: { width: 136, flexGrow: 0, borderRightWidth: 1, borderColor: '#334e3d' },
-  navItem: {
-    minHeight: 39,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    borderRadius: 7,
+    minHeight: 44,
     borderWidth: 1,
-    borderColor: '#35584a',
-    backgroundColor: '#1d3b31',
+    borderColor: palette.line,
+    borderRadius: 10,
+    backgroundColor: palette.panel,
+    paddingLeft: 12,
+    paddingRight: 4,
+    gap: 8,
   },
-  navSelected: { backgroundColor: palette.gold, borderColor: '#bda066' },
+  searchInput: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 42,
+    paddingVertical: 8,
+    color: palette.text,
+    fontSize: 14,
+    outlineWidth: 0,
+    outlineStyle: 'solid',
+  },
+  searchClear: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  dexBody: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 12 },
+  dexEntry: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 58,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: palette.line,
+    borderRadius: 9,
+    backgroundColor: palette.panel,
+    gap: 3,
+  },
+  dexEntrySelected: { borderColor: palette.amber, backgroundColor: palette.tint },
+  dexThumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: palette.canvas,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dexEntryName: { color: palette.text, fontSize: 14, lineHeight: 20, fontWeight: '700' },
+  dexDetails: {
+    flex: 1,
+    minWidth: 0,
+    borderWidth: 1,
+    borderColor: palette.line,
+    borderRadius: 12,
+    backgroundColor: palette.panel,
+  },
+  partnerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 10,
+    minHeight: 76,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: palette.line,
+    backgroundColor: palette.panel,
+  },
+  partnerSelected: { backgroundColor: palette.tint, borderColor: palette.amber },
+  partnerDot: { width: 5, height: 22, borderRadius: 3, backgroundColor: palette.amber },
+  overlay: { ...StyleSheet.absoluteFill, backgroundColor: palette.canvas },
+
+  frameIcon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  secondaryHeader: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 5,
+    gap: 2,
+  },
+  secondaryTab: {
+    minWidth: 44,
+    minHeight: 40,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    flexDirection: 'row',
+    gap: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   input: menuStyles.input,
 });

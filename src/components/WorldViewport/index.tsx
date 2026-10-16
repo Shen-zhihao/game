@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { MAPS, GYM_BARRIERS, mapSize, npcVisible } from '../../content/world';
-import { GameState } from '../../game/model';
+import { GameState, MapId } from '../../game/model';
 import { TravelerSprite, PropSprite, FieldBagSprite } from '../CharacterSprite';
 import { CreatureSprite } from '../CreatureSprite';
 import { MapCanvas } from '../MapCanvas';
@@ -16,6 +16,7 @@ import { WeatherOverlay } from '../WeatherOverlay';
 import { BuildingDoors } from '../BuildingDoor';
 import type { DoorPresentation } from '../../useBuildingPassage';
 import { DOOR_TIMINGS } from '../../game/buildingPassage';
+import { NightBuildingLights } from '../NightBuildingLights';
 import {
   ADVENTURE_GYMS,
   ADVENTURE_INTERACTIONS,
@@ -55,6 +56,8 @@ export function WorldViewport({
   paused,
   door,
   coveredTransition = false,
+  onReady,
+  night,
 }: {
   game: GameState;
   width: number;
@@ -62,6 +65,8 @@ export function WorldViewport({
   paused: boolean;
   door?: DoorPresentation | null;
   coveredTransition?: boolean;
+  onReady?: (map: MapId) => void;
+  night?: Animated.Value;
 }) {
   const world = mapSize(game.player.map);
   const scale = MAPS[game.player.map].interior
@@ -73,7 +78,7 @@ export function WorldViewport({
   const [opacity] = useState(() => new Animated.Value(1));
   const last = useRef({ map: game.player.map, x: game.player.x, y: game.player.y });
   const stepDuration = travelProfile(game).duration;
-  useEffect(() => {
+  useLayoutEffect(() => {
     const previous = last.current;
     const changedMap = previous.map !== game.player.map;
     const distance = Math.abs(previous.x - game.player.x) + Math.abs(previous.y - game.player.y);
@@ -153,11 +158,21 @@ export function WorldViewport({
           transform: [{ translateX: camera.x }, { translateY: camera.y }],
         }}
       >
-        <MapCanvas state={game} width={world.width * scale} height={world.height * scale} />
-        <BuildingDoors map={game.player.map} scale={scale} passage={door} />
+        <MapCanvas
+          state={game}
+          width={world.width * scale}
+          height={world.height * scale}
+          onReady={onReady}
+        />
+        <BuildingDoors map={game.player.map} scale={scale} passage={door} night={night} />
         <CoastAmbient game={game} scale={scale} paused={paused} />
         {!isIndoor(game.player.map) && (
-          <GrassWind mapId={game.player.map} scale={scale} paused={paused} />
+          <GrassWind
+            mapId={game.player.map}
+            scale={scale}
+            paused={paused}
+            weather={weatherAt(game)}
+          />
         )}
         {npcs
           .filter(
@@ -308,23 +323,36 @@ export function WorldViewport({
             <WorldNpc key={n.id} npc={n} scale={scale} paused={paused} />
           ))}
         <Animated.View
+          key={game.player.map}
           pointerEvents="none"
           testID="traveler"
           style={{
             position: 'absolute',
             left: -12 * scale,
             top: -19 * scale,
+            width: 56 * scale,
+            height: 56 * scale,
             zIndex: game.player.y * 10 + 1,
-            opacity: door
-              ? door.travel.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: door.entering ? [1, 0] : [0, 1],
-                })
-              : 1,
             transform: [
               { translateX: Animated.multiply(position.x, scale) },
               { translateY: Animated.multiply(position.y, scale) },
-              ...(door
+            ],
+          }}
+        >
+          {/* A faded native door view must never be reused for the standing traveler. */}
+          <Animated.View
+            key={door ? (door.entering ? 'entering' : 'leaving') : 'standing'}
+            testID="traveler-visibility"
+            style={{
+              width: 56 * scale,
+              height: 56 * scale,
+              opacity: door
+                ? door.travel.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: door.entering ? [1, 0] : [0, 1],
+                  })
+                : 1,
+              transform: door
                 ? [
                     {
                       translateX: door.travel.interpolate({
@@ -343,42 +371,72 @@ export function WorldViewport({
                       }),
                     },
                   ]
-                : []),
-            ],
-          }}
-        >
-          <View
-            style={{
-              position: 'absolute',
-              width: 21 * scale,
-              height: 6 * scale,
-              borderRadius: 16 * scale,
-              backgroundColor: '#183f3470',
-              bottom: 7 * scale,
-              left: 18 * scale,
+                : [],
             }}
-          />
-          {['~', 'W'].includes(
-            MAPS[game.player.map].rows[game.player.y]?.[game.player.x] ?? '',
-          ) && (
-            <View style={{ position: 'absolute', left: 4 * scale, top: 24 * scale }}>
-              <CoastPropSprite kind="raft" size={48 * scale} />
-            </View>
-          )}
-          <TravelerSprite
-            avatar={game.player.avatar}
-            testID="traveler-sprite"
-            facing={game.player.facing}
-            steps={game.steps + (door ? 1 : 0)}
-            paused={paused && !door}
-            stepDuration={
-              door ? DOOR_TIMINGS.open + DOOR_TIMINGS.pass + DOOR_TIMINGS.close : stepDuration + 35
-            }
-            size={56 * scale}
-          />
+          >
+            <View
+              style={{
+                position: 'absolute',
+                width: 21 * scale,
+                height: 6 * scale,
+                borderRadius: 16 * scale,
+                backgroundColor: '#183f3470',
+                bottom: 7 * scale,
+                left: 18 * scale,
+              }}
+            />
+            {['~', 'W'].includes(
+              MAPS[game.player.map].rows[game.player.y]?.[game.player.x] ?? '',
+            ) && (
+              <View style={{ position: 'absolute', left: 4 * scale, top: 24 * scale }}>
+                <CoastPropSprite kind="raft" size={48 * scale} />
+              </View>
+            )}
+            <TravelerSprite
+              avatar={game.player.avatar}
+              testID="traveler-sprite"
+              facing={game.player.facing}
+              steps={game.steps + (door ? 1 : 0)}
+              paused={paused && !door}
+              stepDuration={
+                door
+                  ? DOOR_TIMINGS.open + DOOR_TIMINGS.pass + DOOR_TIMINGS.close
+                  : stepDuration + 35
+              }
+              size={56 * scale}
+            />
+          </Animated.View>
         </Animated.View>
       </Animated.View>
       <WeatherOverlay weather={weatherAt(game)} paused={paused} />
+      {night && (
+        <>
+          <Animated.View
+            testID="night-map-shade"
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                backgroundColor: '#09152d',
+                opacity: night.interpolate({ inputRange: [0, 1], outputRange: [0, 0.26] }),
+              },
+            ]}
+          />
+          <Animated.View
+            testID="night-building-lights"
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              width: world.width * scale,
+              height: world.height * scale,
+              opacity: Animated.multiply(opacity, night),
+              transform: [{ translateX: camera.x }, { translateY: camera.y }],
+            }}
+          >
+            <NightBuildingLights map={game.player.map} scale={scale} />
+          </Animated.View>
+        </>
+      )}
       <View pointerEvents="none" style={s.vignette} />
       {nearby && !game.dialogue && (
         <View pointerEvents="none" style={s.hint}>

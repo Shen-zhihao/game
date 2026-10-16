@@ -1,5 +1,5 @@
 import React, { useId } from 'react';
-import Svg, { Defs, G, Image, Path, Pattern, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Defs, G, Image, Path, Pattern, Rect } from 'react-native-svg';
 import { MAPS } from '../../content/world';
 import { ADVENTURE_CHAPTERS, ADVENTURE_STORY_CONTENT } from '../../content/adventure';
 import { MapId } from '../../game/model';
@@ -245,16 +245,6 @@ export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: M
                     <Rect x={px + i * 32 + 9} y={py + 17} width={2} height={6} fill="#84c9d1" />
                   </G>
                 ))}
-                <Rect
-                  x={px + w / 2 - 8}
-                  y={py + 16}
-                  width={16}
-                  height={16}
-                  fill="#214d47"
-                  stroke="#745e42"
-                  strokeWidth={2}
-                />
-                <Rect x={px + w / 2 - 10} y={py + 30} width={20} height={2} fill="#b9ae88" />
                 {tile === 'C' && (
                   <Path
                     d={`M${px + w / 2 - 3} ${py - 3} h6 v4 h4 v6 h-4 v4 h-6 v-4 h-4 v-6 h4 Z`}
@@ -304,25 +294,6 @@ export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: M
                 : [],
             ),
           )}
-          <Rect
-            x={6 * 32}
-            y={8 * 32}
-            width={3 * 32}
-            height={3 * 32}
-            rx={6}
-            fill={
-              data.interior.kind === 'center'
-                ? '#86b5a0'
-                : data.interior.kind === 'shop'
-                  ? '#be9b60'
-                  : '#a47661'
-            }
-            opacity={0.6}
-          />
-          <Path d="M240 314 v24 m-8 -8 8 8 8 -8" stroke="#fff3ce" strokeWidth={3} fill="none" />
-          <SvgText x={240} y={307} fontSize={10} textAnchor="middle" fill="#fff3ce">
-            出口
-          </SvgText>
         </G>
       )}
       <BuildingEntranceLayers map={map} />
@@ -399,7 +370,6 @@ export function MapPatchLayers({ map }: { map: MapId }) {
             fill={`url(#${prefix})`}
           />
         ))}
-      <BuildingEntranceLayers map={map} />
     </G>
   );
 }
@@ -426,81 +396,25 @@ export const MapPatch = React.memo(function MapPatch({
   );
 });
 
-/** Door overlays also apply to pre-rendered maps; visible doors and collision share coordinates. */
+/** Code-drawn buildings share their doorway geometry with collision and animation. */
 function BuildingEntranceLayers({ map }: { map: MapId }) {
-  const data = MAPS[map];
-  const entrances = data.entrances ?? [];
-  const passages = isIndoor(map)
-    ? []
-    : data.portals.filter(
-        (p) => isIndoor(p.map) && !entrances.some((e) => e.x === p.x && e.y === p.y),
-      );
   return (
     <G>
-      {entrances.map((e) => (
-        <G key={`door-${e.x}-${e.y}`}>
+      {MAPS[map].entrances?.map((e) => {
+        const d = e.doorway;
+        return (
           <Rect
-            x={e.x * 32 + 3}
-            y={e.y * 32 + 3}
-            width={26}
-            height={29}
-            rx={3}
-            fill="#695037"
-            stroke="#f3d69b"
+            key={`door-${e.x}-${e.y}`}
+            x={d.x}
+            y={d.y}
+            width={d.width}
+            height={d.height}
+            fill="#214d47"
+            stroke="#745e42"
             strokeWidth={2}
           />
-          <Rect x={e.x * 32 + 7} y={e.y * 32 + 6} width={18} height={25} fill="#173d3d" />
-          <Path
-            d={`M${e.x * 32 + 16} ${e.y * 32 + 35} v12 m-4 -5 4 5 4 -5`}
-            stroke="#fff0b8"
-            strokeWidth={2}
-            fill="none"
-          />
-          <Rect
-            x={e.x * 32 - 40}
-            y={e.y * 32 - 12}
-            width={112}
-            height={13}
-            rx={3}
-            fill="#203c38"
-            opacity={0.9}
-          />
-          <SvgText
-            x={e.x * 32 + 16}
-            y={e.y * 32 - 2}
-            fontSize={9}
-            textAnchor="middle"
-            fill="#fff4d4"
-          >
-            {e.name}
-          </SvgText>
-        </G>
-      ))}
-      {passages.map((p) => (
-        <G key={`passage-${p.x}-${p.y}`}>
-          <Rect
-            x={p.x * 32}
-            y={p.y * 32}
-            width={32}
-            height={32}
-            rx={8}
-            fill="#182d31"
-            stroke="#c2b891"
-            strokeWidth={3}
-          />
-          <SvgText
-            x={p.x * 32 + (p.x === 0 ? 36 : p.x === data.rows[0]!.length - 1 ? -4 : 16)}
-            y={p.y * 32 - 6}
-            textAnchor={p.x === 0 ? 'start' : p.x === data.rows[0]!.length - 1 ? 'end' : 'middle'}
-            fontSize={10}
-            fill="#fff4d4"
-            stroke="#263b37"
-            strokeWidth={0.3}
-          >
-            {MAPS[p.map].name}入口
-          </SvgText>
-        </G>
-      ))}
+        );
+      })}
     </G>
   );
 }

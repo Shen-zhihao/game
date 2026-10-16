@@ -30,8 +30,9 @@ import {
 } from '../../content/adventure';
 import { worldNpcs, FIND_SITES, ORIGINAL_MAPS } from '../../game/exploration';
 import { safePosition } from '../../game/engine';
-import { GameState, STAT_KEYS } from '../../game/model';
+import { CLIMATE_IDS, GameState, STAT_KEYS } from '../../game/model';
 import { statsFor, xpAt } from '../../game/rules';
+import { journalQuests, STORY_QUESTS } from '../../content/quests';
 import { CITY_EXCHANGES, CITY_QUESTS, CITIES } from '../../content/cities';
 import { growthRoll, sumStats } from '../../game/growth';
 import { COAST_STORY_ENCOUNTERS } from '../../game/coastStory';
@@ -41,6 +42,8 @@ import { canSurf, fieldSkillUnlocked } from '../../game/fieldSkills';
 import { LEAGUE_STAGES, LEAGUE_BADGES } from '../../content/league';
 import { KEY_ITEMS, effectiveAccessFlags, hasFieldAccess } from '../../content/keyItems';
 import { RECOVERY_TOWNS, townVisitFlag } from '../../game/recovery';
+import { CLIMATES } from '../../content/climates';
+import { CALENDAR_DAY_SECONDS, MAX_CALENDAR_DAY } from '../../game/calendar';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -241,8 +244,27 @@ const gameSchema = z.strictObject({
         .nullable(),
     })
     .optional(),
+  calendar: z
+    .strictObject({
+      day: integer(MAX_CALENDAR_DAY, 1),
+      time: integer(CALENDAR_DAY_SECONDS - 1),
+    })
+    .optional(),
   environment: z
-    .strictObject({ seed: integer(4294967295), weather: weatherId, remaining: integer(360, 1) })
+    .strictObject({
+      seed: integer(4294967295),
+      weather: weatherId,
+      remaining: integer(360, 1),
+      climates: z
+        .partialRecord(
+          z.enum(CLIMATE_IDS),
+          z.strictObject({
+            weather: weatherId,
+            remaining: integer(360, 1),
+          }),
+        )
+        .optional(),
+    })
     .optional(),
   masterBalls: z.strictObject({ claimed: z.array(idSchema).max(3), used: integer(3) }).optional(),
   cityServices: z
@@ -252,6 +274,8 @@ const gameSchema = z.strictObject({
       exchanges: z.record(idSchema, integer(999)),
     })
     .optional(),
+  questJournal: z.array(idSchema).max(STORY_QUESTS.length).optional(),
+  trackedQuestId: idSchema.nullable().optional(),
   world: worldSchema.optional(),
   player: z.strictObject({
     name: z.string().min(1).max(12),
@@ -446,6 +470,20 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  const journal = game.questJournal ?? [];
+  invariant(
+    new Set(journal).size === journal.length &&
+      journal.every((id) => STORY_QUESTS.some((q) => q.id === id)),
+    '任务记录无效',
+  );
+  invariant(
+    !game.trackedQuestId || journalQuests(game).some((q) => q.id === game.trackedQuestId),
+    '追踪任务尚未接取或不存在',
+  );
+  for (const id of CLIMATE_IDS) {
+    const local = game.environment?.climates?.[id];
+    if (local) invariant(CLIMATES[id].weights[local.weather] > 0, '气候区天气不适用');
+  }
   invariant(Object.keys(game.creatures).length <= 366, '精灵数量超限');
   const references = [...game.party, ...game.box];
   invariant(

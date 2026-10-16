@@ -7,16 +7,28 @@ import { MAPS } from '../src/content/world';
 import { climateFor } from '../src/content/climates';
 import { CITY_SURFACES } from '../src/content/surfaces';
 import { FIELD_SKILLS } from '../src/game/fieldSkills';
+import { CALENDAR_RATE, DAY_NIGHT_HALF_SECONDS } from '../src/game/calendar';
 
 async function main() {
   const path = 'docs/世界系统/世界规则.json';
   const data = {
     contentVersion: CONTENT_VERSION,
     weather: WEATHER,
+    calendar: {
+      initial: '星苔历 1 年 1 月 1 日 06:00；旧存档按已有游玩时长初始化。',
+      gameSecondsPerRealSecond: CALENDAR_RATE,
+      halfCycleSeconds: DAY_NIGHT_HALF_SECONDS,
+      daytime: '06:00–18:00',
+      nighttime: '18:00–次日06:00',
+      date: '午夜推进日期，按公历月份与闰年规则计算；日期和时间随存档、传档保留。',
+      progression: '游玩时自动推进，室内、对话与战斗中继续；暂停菜单、后台和未运行时停止。',
+      lighting:
+        '夜间整个露天游戏画面适度变暗，建筑门窗和门前暖灯点亮，昼夜交替平滑过渡；战斗界面、室内不叠加夜色。',
+      setting: '默认开启；本机设置可关闭昼夜循环，露天保持白天亮度，日期继续推进。',
+    },
     citySurfaces: CITY_SURFACES,
     naturalWeather: {
-      initial: 'clear',
-      initialSeconds: 240,
+      initial: '按所在气候区权重随机生成，不固定晴天；旧存档保留当地有效天气和剩余时间。',
       durationSeconds: [180, 360],
       regions: Object.fromEntries(
         Object.values(MAPS)
@@ -24,7 +36,11 @@ async function main() {
           .map((map) => [map.id, climateFor(map.id)]),
       ),
       persistence:
-        '独立种子；仅户外自由探索计时，菜单、对话、战斗、成长选择与室内暂停。存档、传档保留天气及剩余秒数。',
+        '独立种子；每个气候区分别保存天气和剩余秒数，同气候区地图共享，跨区首次随机生成、重返不重抽；仅当前气候区户外自由探索计时，菜单、对话、战斗、成长选择与室内暂停。存档、传档保留各区天气和剩余秒数。',
+      selection:
+        '初次生成按基础权重抽签；每轮切换排除当前天气，按其余正权重重新归一化抽签，任何露天地图都有多种天气。',
+      scene:
+        '雨雪、雾气、光照叠加场景；草木颜色和摇动、露天水面波纹随天气变化，室内不显示自然天气。',
       ecology: '偏好属性相对权重 ×1.8，受抑制属性 ×0.6，不相乘叠加；不增添原栖地之外或剧情限定种。',
       battle:
         '入场冻结自然天气；天气招式覆盖五轮含施放轮，到期恢复入场天气。速度额度每轮锁定，天气不改十八属性克制表和免疫。',

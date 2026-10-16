@@ -1,11 +1,22 @@
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Text, TextInput, View } from 'react-native';
-import { Button, Label, palette, styles } from '../../components/ui';
+import { useState, type ReactNode } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { Button, Label, palette, Panel, styles } from '../../components/ui';
+import { HapticPressable as Pressable } from '../../components/HapticPressable';
+import { MenuIcon } from '../../components/MenuIcon';
 import type { Command, GameState } from '../../game/model';
 import { cheatReason } from '../../game/cheats';
 import { HelpMenu, menuStyles } from '../GameMenus';
 import { setHapticsEnabled, useHapticsEnabled, haptic } from '../../platform/haptics';
 import { setMusicPreferences, useMusicPreferences } from '../../platform/music';
+import { setDayNightEnabled, useDayNightEnabled } from '../../platform/dayNight';
 import {
   BATTLE_MESSAGE_DELAYS,
   setBattleMessageDelay,
@@ -23,99 +34,229 @@ export function SettingsMenu({
   dispatch: (command: Command) => void;
   onEditControls: () => void;
 }) {
+  const [contentWidth, setContentWidth] = useState(0);
   const [page, setPage] = useState<'root' | 'help' | 'cheats'>('root');
   const hapticsEnabled = useHapticsEnabled();
   const musicSettings = useMusicPreferences();
   const battleMessageDelay = useBattleMessageDelay();
-  if (page === 'help') return <HelpMenu />;
-  if (page === 'cheats') return <CheatMenu game={game} dispatch={dispatch} />;
+  const dayNightEnabled = useDayNightEnabled();
+  if (page !== 'root')
+    return (
+      <View style={{ flex: 1, minHeight: 0, gap: 12 }}>
+        <Button small style={{ alignSelf: 'flex-start' }} onPress={() => setPage('root')}>
+          ‹ 设置
+        </Button>
+        {page === 'help' ? <HelpMenu /> : <CheatMenu game={game} dispatch={dispatch} />}
+      </View>
+    );
   return (
-    <View style={{ gap: 12 }}>
-      <Label style={styles.title}>设置</Label>
-      <Button
-        testID="settings-music"
-        selected={musicSettings.enabled}
-        onPress={() =>
-          setMusicPreferences({
-            enabled: !musicSettings.enabled,
-            volume: musicSettings.volume || 0.55,
-          })
-        }
-      >
-        背景音乐：{musicSettings.enabled ? '开启' : '关闭'}
-      </Button>
-      <Label testID="music-current-track">
-        场景配乐：{music.title} · 音量 {Math.round(musicSettings.volume * 100)}%
-      </Label>
-      <View style={styles.wrap}>
-        {[0, 0.25, 0.55, 0.8, 1].map((volume) => (
-          <Button
-            small
-            key={volume}
-            testID={`music-volume-${Math.round(volume * 100)}`}
-            selected={musicSettings.volume === volume}
-            onPress={() => setMusicPreferences({ volume, enabled: volume > 0 })}
-          >
-            {volume === 0 ? '静音' : `${Math.round(volume * 100)}%`}
-          </Button>
-        ))}
+    <ScrollView
+      testID="settings-scroll"
+      style={{ flex: 1, minHeight: 0 }}
+      onLayout={({ nativeEvent }) => setContentWidth(nativeEvent.layout.width)}
+      contentContainerStyle={{ gap: 14, paddingBottom: 28 }}
+      keyboardShouldPersistTaps="handled"
+      nestedScrollEnabled
+    >
+      <View style={settingsStyles.heading}>
+        <View>
+          <Label style={styles.title}>偏好设置</Label>
+          <Label muted style={{ fontSize: 12 }}>
+            让冒险按你的节奏进行
+          </Label>
+        </View>
+        <View style={settingsStyles.localBadge}>
+          <Label style={{ fontSize: 10, color: palette.gold }}>本机保存</Label>
+        </View>
       </View>
-      <Label muted style={{ fontSize: 12 }}>
-        探索、特殊区域、重要人物对话与战斗自动切换配乐；切到后台暂停，设置保存在本机。
-      </Label>
-      {!!music.issue && musicSettings.enabled && musicSettings.volume > 0 && (
-        <Label testID="music-playback-issue" muted>
-          {music.issue}
-        </Label>
-      )}
-      <Button testID="settings-control-layout" onPress={onEditControls}>
-        按钮布局
-      </Button>
-      <Label muted style={{ fontSize: 12 }}>
-        拖动方向键、A 键、菜单与培养按钮，分别调整大小；布局保存在本机。
-      </Label>
-      <Label testID="battle-playback-setting">
-        战斗自动播放间隔：{battleMessageDelay / 1000} 秒
-      </Label>
-      <View style={styles.wrap}>
-        {BATTLE_MESSAGE_DELAYS.map((delay) => (
-          <Button
-            small
-            key={delay}
-            testID={`battle-playback-${delay}`}
-            selected={battleMessageDelay === delay}
-            onPress={() => setBattleMessageDelay(delay)}
-          >
-            {delay / 1000} 秒
-          </Button>
-        ))}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+        <SettingSection title="声音与触感" icon="settings" wide={contentWidth >= 650}>
+          <SettingToggle
+            testID="settings-music"
+            title="背景音乐"
+            enabled={musicSettings.enabled}
+            onPress={() =>
+              setMusicPreferences({
+                enabled: !musicSettings.enabled,
+                volume: musicSettings.volume || 0.55,
+              })
+            }
+          />
+          <Label testID="music-current-track" muted style={{ fontSize: 12 }}>
+            场景配乐 · {music.title}
+          </Label>
+          <View style={[styles.wrap, { gap: 6 }]}>
+            {[0, 0.25, 0.55, 0.8, 1].map((volume) => (
+              <Button
+                small
+                key={volume}
+                testID={`music-volume-${Math.round(volume * 100)}`}
+                selected={musicSettings.volume === volume}
+                onPress={() => setMusicPreferences({ volume, enabled: volume > 0 })}
+              >
+                {volume === 0 ? '静音' : `${Math.round(volume * 100)}%`}
+              </Button>
+            ))}
+          </View>
+          <Label muted style={settingsStyles.description}>
+            探索、特殊区域、重要人物对话与战斗自动切换配乐；切到后台暂停。
+          </Label>
+          {!!music.issue && musicSettings.enabled && musicSettings.volume > 0 && (
+            <Label testID="music-playback-issue" style={{ color: palette.red, fontSize: 12 }}>
+              {music.issue}
+            </Label>
+          )}
+          <View style={settingsStyles.divider} />
+          <SettingToggle
+            testID="settings-haptics"
+            title="触感震动"
+            enabled={hapticsEnabled}
+            onPress={() => {
+              setHapticsEnabled(!hapticsEnabled);
+              if (!hapticsEnabled) haptic('confirm');
+            }}
+          />
+          <Label muted style={settingsStyles.description}>
+            按钮、方向键与战斗命中提供轻触反馈。
+          </Label>
+        </SettingSection>
+        <SettingSection title="旅途与节奏" icon="map" wide={contentWidth >= 650}>
+          <SettingToggle
+            testID="settings-day-night"
+            title="白天黑夜循环"
+            enabled={dayNightEnabled}
+            onPress={() => setDayNightEnabled(!dayNightEnabled)}
+          />
+          <Label testID="day-night-setting-description" muted style={settingsStyles.description}>
+            白天、夜晚各约 30
+            分钟，午夜日期自动前进。夜晚露天场景变暗、建筑亮灯，战斗和室内保持正常亮度。关闭后保持白天亮度，日期仍会推进。
+          </Label>
+          <View style={settingsStyles.divider} />
+          <Label testID="battle-playback-setting" style={{ fontWeight: '700', fontSize: 13 }}>
+            战斗自动播放间隔 · {battleMessageDelay / 1000} 秒
+          </Label>
+          <View style={[styles.wrap, { gap: 6 }]}>
+            {BATTLE_MESSAGE_DELAYS.map((delay) => (
+              <Button
+                small
+                key={delay}
+                testID={`battle-playback-${delay}`}
+                selected={battleMessageDelay === delay}
+                onPress={() => setBattleMessageDelay(delay)}
+              >
+                {delay / 1000} 秒
+              </Button>
+            ))}
+          </View>
+          <Label muted style={settingsStyles.description}>
+            默认每条停留 2 秒，技能动画完整播放；技能、道具和换人由你选择。
+          </Label>
+        </SettingSection>
+        <SettingSection title="操作与帮助" icon="party" wide={false}>
+          <View style={[styles.wrap, { gap: 8 }]}>
+            <Button testID="settings-control-layout" onPress={onEditControls}>
+              按钮布局 ↗
+            </Button>
+            <Button testID="settings-help" onPress={() => setPage('help')}>
+              操作说明 ↗
+            </Button>
+            <Button testID="settings-cheats" disabled={!game} onPress={() => setPage('cheats')}>
+              金手指 ↗
+            </Button>
+          </View>
+          <Label muted style={settingsStyles.description}>
+            拖动方向键、A 键、菜单与培养按钮，分别调整大小；横竖屏分别保存。
+          </Label>
+          {!game && <Label muted>开始或继续一段冒险后，可以使用金手指。</Label>}
+        </SettingSection>
       </View>
-      <Label muted style={{ fontSize: 12 }}>
-        战斗信息默认每条停留 2 秒，技能动画完整播放；技能、道具和换人由你选择。
-      </Label>
-      <Button
-        testID="settings-haptics"
-        selected={hapticsEnabled}
-        onPress={() => {
-          setHapticsEnabled(!hapticsEnabled);
-          if (!hapticsEnabled) haptic('confirm');
-        }}
-      >
-        触感震动：{hapticsEnabled ? '开启' : '关闭'}
-      </Button>
-      <Label muted style={{ fontSize: 12 }}>
-        按钮、方向键与战斗命中提供轻触反馈；此设置保存在本机。
-      </Label>
-      <Button testID="settings-help" onPress={() => setPage('help')}>
-        操作说明
-      </Button>
-      <Button testID="settings-cheats" disabled={!game} onPress={() => setPage('cheats')}>
-        金手指
-      </Button>
-      {!game && <Label muted>开始或继续一段冒险后，可以使用金手指。</Label>}
-    </View>
+    </ScrollView>
   );
 }
+function SettingSection({
+  title,
+  icon,
+  wide,
+  children,
+}: {
+  title: string;
+  icon: 'settings' | 'map' | 'party';
+  wide: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Panel style={{ padding: 16, gap: 12, width: wide ? '48%' : '100%', flexGrow: 1 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <View style={settingsStyles.sectionIcon}>
+          <MenuIcon name={icon} size={17} />
+        </View>
+        <Label style={{ fontWeight: '800', fontSize: 15 }}>{title}</Label>
+      </View>
+      {children}
+    </Panel>
+  );
+}
+function SettingToggle({
+  title,
+  enabled,
+  onPress,
+  testID,
+}: {
+  title: string;
+  enabled: boolean;
+  onPress: () => void;
+  testID: string;
+}) {
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="switch"
+      accessibilityLabel={title}
+      accessibilityState={{ checked: enabled }}
+      aria-checked={enabled}
+      onPress={onPress}
+      style={({ pressed }) => [settingsStyles.toggle, pressed && { opacity: 0.7 }]}
+    >
+      <View style={{ flex: 1 }}>
+        <Label style={{ fontSize: 13, fontWeight: '700' }}>{title}</Label>
+        <Label muted style={{ fontSize: 10, lineHeight: 15 }}>
+          {enabled ? '已开启' : '已关闭'}
+        </Label>
+      </View>
+      <View style={[settingsStyles.track, enabled && { backgroundColor: palette.ink }]}>
+        <View
+          style={[
+            settingsStyles.thumb,
+            enabled && { alignSelf: 'flex-end', backgroundColor: palette.amber },
+          ]}
+        />
+      </View>
+    </Pressable>
+  );
+}
+const settingsStyles = StyleSheet.create({
+  heading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  localBadge: {
+    backgroundColor: palette.tint,
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+  },
+  description: { fontSize: 12, lineHeight: 20 },
+  sectionIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: palette.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  divider: { height: 1, backgroundColor: palette.line, marginVertical: 2 },
+  toggle: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  track: { width: 44, height: 26, borderRadius: 15, padding: 3, backgroundColor: palette.panel2 },
+  thumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: palette.panel },
+});
+
 function CheatMenu({
   game,
   dispatch,
@@ -172,7 +313,7 @@ function CheatMenu({
         <Text
           testID="cheat-result"
           accessibilityLiveRegion="polite"
-          style={[styles.text, { color: error ? palette.red : palette.mint }]}
+          style={[styles.text, { color: error ? palette.red : palette.accent }]}
         >
           {error || game?.notice}
         </Text>

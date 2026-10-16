@@ -33,13 +33,18 @@ export function buildingPassage(from: GameState, to: GameState): BuildingPassage
   if (!entrance) return null;
   const entering = !!entry;
   const outside = entering ? from : to;
-  const offset = { x: entrance.x - outside.player.x, y: entrance.y - outside.player.y };
+  const d = entrance.doorway;
+  const offset = {
+    x: (d.x + d.width / 2 - 16) / 32 - outside.player.x,
+    y: (d.y + d.height - 32) / 32 - outside.player.y,
+  };
+  const direction = { x: entrance.x - outside.player.x, y: entrance.y - outside.player.y };
   const facing: Direction = entering
-    ? offset.x > 0
+    ? direction.x > 0
       ? 'right'
-      : offset.x < 0
+      : direction.x < 0
         ? 'left'
-        : offset.y > 0
+        : direction.y > 0
           ? 'down'
           : 'up'
     : 'down';

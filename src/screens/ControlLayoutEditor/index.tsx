@@ -85,7 +85,7 @@ export function ControlLayoutEditor({
       <WorldViewport game={game} width={width} height={height} paused />
       <View
         pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { backgroundColor: '#071c1644' }]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: `${palette.ink}44` }]}
       />
       <GameControls
         area={area}
@@ -231,7 +231,7 @@ const s = StyleSheet.create({
   tools: {
     position: 'absolute',
     borderRadius: 14,
-    backgroundColor: '#102720f2',
+    backgroundColor: `${palette.panel}fa`,
     borderColor: palette.line,
     borderWidth: 1,
   },
