@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
 import { SaveRepository } from '../../persistence/repository';

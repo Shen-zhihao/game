@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { MOVES } from '../../content/catalog';
 import { MAPS } from '../../content/world';

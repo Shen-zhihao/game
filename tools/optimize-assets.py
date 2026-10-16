@@ -2,6 +2,7 @@
 
 Requires oxipng on PATH and Pillow (also used by export-sprite-frames.py).
 Run with --apply to replace smaller files; the default only previews results.
+Use --level 6 for a higher-effort lossless search.
 """
 
 import argparse
@@ -37,7 +38,7 @@ def fingerprint(path):
         }
 
 
-def optimize(root, apply=False):
+def optimize(root, apply=False, level=4):
     optimizer = shutil.which("oxipng")
     if not optimizer:
         raise RuntimeError("Install oxipng first (macOS: brew install oxipng)")
@@ -56,7 +57,7 @@ def optimize(root, apply=False):
             before, display_before = fingerprint(path)
             # Do not use --alpha, quantization, resizing or 16-bit scaling.
             subprocess.run(
-                [optimizer, "-o", "4", "--threads", "2", "--out", str(output), str(path)],
+                [optimizer, "-o", str(level), "--threads", "2", "--out", str(output), str(path)],
                 check=True,
                 capture_output=True,
                 text=True,
@@ -96,6 +97,7 @@ def optimize(root, apply=False):
     after_bytes = sum(item["after"]["bytes"] for item in results)
     return {
         "optimizer": version,
+        "level": level,
         "applied": apply,
         "verification": "Exact dimensions, decoded RGBA including transparent RGB, and color metadata",
         "pngCount": len(results),
@@ -110,5 +112,9 @@ def optimize(root, apply=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apply", action="store_true", help="Replace only smaller, verified PNGs")
+    parser.add_argument(
+        "--level", type=int, choices=range(7), default=4,
+        help="oxipng effort (0-6; default 4)",
+    )
     args = parser.parse_args()
-    print(json.dumps(optimize(Path(__file__).resolve().parents[1], args.apply), indent=2))
+    print(json.dumps(optimize(Path(__file__).resolve().parents[1], args.apply, args.level), indent=2))

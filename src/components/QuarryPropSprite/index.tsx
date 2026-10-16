@@ -1,4 +1,3 @@
-import React from 'react';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 /** Small interactive quarry objects stay separate from the map and its collision. */

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Image, View } from 'react-native';
 import { GameState } from '../../game/model';
 import { MAP_IMAGES } from '../sceneAssets';

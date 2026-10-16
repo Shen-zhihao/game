@@ -1,4 +1,3 @@
-import React from 'react';
 import { View } from 'react-native';
 import { Canvas, Image, useImage, FilterMode, MipmapMode } from '@shopify/react-native-skia';
 import { GameState } from '../../game/model';

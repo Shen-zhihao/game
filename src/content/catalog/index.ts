@@ -71,25 +71,6 @@ export function isOrdinarySpecies(speciesId: string): boolean {
 }
 export const TYPE_CHART = design.typeChart as Record<TypeId, Record<TypeId, number>>;
 export const STARTERS = ['creature_001', 'creature_004', 'creature_007'];
-export const CHAPTER_SPECIES = [
-  'creature_001',
-  'creature_002',
-  'creature_004',
-  'creature_005',
-  'creature_007',
-  'creature_008',
-  'creature_010',
-  'creature_013',
-  'creature_014',
-  'creature_015',
-  'creature_016',
-  'creature_017',
-  'creature_025',
-  'creature_027',
-  'creature_037',
-  'creature_038',
-  'creature_040',
-];
 export const SPRITE_CELL: Record<string, number> = {
   creature_001: 0,
   creature_004: 1,
@@ -130,10 +111,6 @@ export const ELECTRIC_SPRITE_CELL: Record<string, number> = Object.fromEntries(
     i,
   ]),
 );
-CHAPTER_SPECIES.push(...Object.keys(ELECTRIC_SPRITE_CELL));
-CHAPTER_SPECIES.push(...Object.keys(EXPANSION_SPRITES));
-CHAPTER_SPECIES.push(...Object.keys(COAST_SPRITE_CELL), ...Object.keys(TIDAL_SPRITE_CELL));
-CHAPTER_SPECIES.push(...Object.keys(HIGHLAND_SPRITE_CELL));
 export function spriteFor(speciesId: string): { atlas: string; cell: number } | null {
   if (speciesId === 'creature_017') return { atlas: 'moth', cell: 0 };
   const extra = EXPANSION_SPRITES[speciesId];

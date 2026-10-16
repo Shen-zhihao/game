@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { ITEMS, ITEM_POCKETS, ItemPocket } from '../../content/catalog';
 import { bagInventory } from '../../content/keyItems';

@@ -26,7 +26,6 @@ export const LEAGUE_STAGE_NAMES = [
   '澜脊 · 龙',
   '冠军 · 望野',
 ];
-export const LEAGUE_TITLE = '八徽章与归途 · 星苔完整旅程';
 const road = terrain(48, 40, ',');
 road.fill(0, 36, 48, 1, ':');
 road.fill(7, 5, 1, 32, ':');

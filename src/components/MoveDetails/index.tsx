@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { MOVES, SPECIES, TYPES } from '../../content/catalog';
 import { Creature } from '../../game/model';

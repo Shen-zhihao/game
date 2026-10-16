@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../HapticPressable';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ITEMS, SPECIES } from '../../content/catalog';

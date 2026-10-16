@@ -770,13 +770,7 @@ export function QuestMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
     </ScrollView>
   );
 }
-export function StarterChoice({
-  game,
-  dispatch,
-}: {
-  game: GameState;
-  dispatch: (c: Command) => void;
-}) {
+export function StarterChoice({ dispatch }: { dispatch: (c: Command) => void }) {
   const [selected, setSelected] = useState(STARTERS[0]!);
   const insets = useSafeAreaInsets();
   return (

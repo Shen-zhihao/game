@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, TextInput, View } from 'react-native';
 import { Button, Label, palette, styles } from '../../components/ui';
 import type { Command, GameState } from '../../game/model';
 import { cheatReason } from '../../game/cheats';
 import { HelpMenu, menuStyles } from '../GameMenus';
 import { setHapticsEnabled, useHapticsEnabled, haptic } from '../../platform/haptics';
+import { setMusicPreferences, useMusicPreferences } from '../../platform/music';
 import {
   BATTLE_MESSAGE_DELAYS,
   setBattleMessageDelay,
@@ -13,21 +14,60 @@ import {
 
 export function SettingsMenu({
   game,
+  music,
   dispatch,
   onEditControls,
 }: {
   game: GameState | null;
+  music: { title: string; issue: string };
   dispatch: (command: Command) => void;
   onEditControls: () => void;
 }) {
   const [page, setPage] = useState<'root' | 'help' | 'cheats'>('root');
   const hapticsEnabled = useHapticsEnabled();
+  const musicSettings = useMusicPreferences();
   const battleMessageDelay = useBattleMessageDelay();
   if (page === 'help') return <HelpMenu />;
   if (page === 'cheats') return <CheatMenu game={game} dispatch={dispatch} />;
   return (
     <View style={{ gap: 12 }}>
       <Label style={styles.title}>设置</Label>
+      <Button
+        testID="settings-music"
+        selected={musicSettings.enabled}
+        onPress={() =>
+          setMusicPreferences({
+            enabled: !musicSettings.enabled,
+            volume: musicSettings.volume || 0.55,
+          })
+        }
+      >
+        背景音乐：{musicSettings.enabled ? '开启' : '关闭'}
+      </Button>
+      <Label testID="music-current-track">
+        场景配乐：{music.title} · 音量 {Math.round(musicSettings.volume * 100)}%
+      </Label>
+      <View style={styles.wrap}>
+        {[0, 0.25, 0.55, 0.8, 1].map((volume) => (
+          <Button
+            small
+            key={volume}
+            testID={`music-volume-${Math.round(volume * 100)}`}
+            selected={musicSettings.volume === volume}
+            onPress={() => setMusicPreferences({ volume, enabled: volume > 0 })}
+          >
+            {volume === 0 ? '静音' : `${Math.round(volume * 100)}%`}
+          </Button>
+        ))}
+      </View>
+      <Label muted style={{ fontSize: 12 }}>
+        探索、特殊区域、重要人物对话与战斗自动切换配乐；切到后台暂停，设置保存在本机。
+      </Label>
+      {!!music.issue && musicSettings.enabled && musicSettings.volume > 0 && (
+        <Label testID="music-playback-issue" muted>
+          {music.issue}
+        </Label>
+      )}
       <Button testID="settings-control-layout" onPress={onEditControls}>
         按钮布局
       </Button>

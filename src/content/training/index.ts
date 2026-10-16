@@ -1,5 +1,5 @@
 import { ALL_SPECIES, ITEMS, learnset, MOVES, SPECIES, TYPE_CHART, TYPES } from '../catalog';
-import { Species, Stat, STAT_KEYS, Stats } from '../../game/model';
+import { Species, Stat, Stats } from '../../game/model';
 
 export const STAT_NAMES: Record<Stat, string> = {
   hp: '体力',
@@ -151,5 +151,3 @@ export const POTENTIAL_NAMES = {
   balanced: '均衡成长',
   highBase: '高强度成长',
 };
-export const prioritizedStats = (plan: TrainingPlan) =>
-  [...STAT_KEYS].sort((a, b) => plan.weights[b] - plan.weights[a]);

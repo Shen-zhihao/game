@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
 import Svg, { Rect } from 'react-native-svg';
 import { Direction } from '../../game/model';

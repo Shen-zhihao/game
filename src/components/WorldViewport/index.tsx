@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { MAPS, GYM_BARRIERS, mapSize, npcVisible } from '../../content/world';
 import { GameState } from '../../game/model';
@@ -22,7 +22,6 @@ import {
   adventureEncounter,
 } from '../../content/adventure';
 
-export const STEP_DURATION_MS = 140;
 const HUMAN_ROLES = new Set([
   'professor',
   'rival',

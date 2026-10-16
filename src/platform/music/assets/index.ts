@@ -1,0 +1,25 @@
+import type { MusicTrack } from '../../../content/music';
+
+export const MUSIC_ASSETS: Record<MusicTrack, number> = {
+  title: require('../../../../assets/music/title.m4a'),
+  travel: require('../../../../assets/music/travel.m4a'),
+  town: require('../../../../assets/music/town.m4a'),
+  forest: require('../../../../assets/music/forest.m4a'),
+  cave: require('../../../../assets/music/cave.m4a'),
+  coast: require('../../../../assets/music/coast.m4a'),
+  power: require('../../../../assets/music/power.m4a'),
+  wind: require('../../../../assets/music/wind.m4a'),
+  furnace: require('../../../../assets/music/furnace.m4a'),
+  mirror: require('../../../../assets/music/mirror.m4a'),
+  ruins: require('../../../../assets/music/ruins.m4a'),
+  league: require('../../../../assets/music/league.m4a'),
+  gentle: require('../../../../assets/music/gentle.m4a'),
+  rival: require('../../../../assets/music/rival.m4a'),
+  tension: require('../../../../assets/music/tension.m4a'),
+  'wild-battle': require('../../../../assets/music/wild-battle.m4a'),
+  'trainer-battle': require('../../../../assets/music/trainer-battle.m4a'),
+  'boss-battle': require('../../../../assets/music/boss-battle.m4a'),
+  victory: require('../../../../assets/music/victory.m4a'),
+  defeat: require('../../../../assets/music/defeat.m4a'),
+  encounter: require('../../../../assets/music/encounter.m4a'),
+};

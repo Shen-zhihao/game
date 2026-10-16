@@ -65,7 +65,6 @@ export const KEY_ITEMS = [
     description: '主线设备的重要部件，永久保留。使用对应设备仍需完成其调查前置。',
   },
 ] as const;
-export const keyItemFor = (id: string) => KEY_ITEMS.find((item) => item.id === id);
 /** Tool access can come from its earned story flag or a physical key item. No story flags are forged. */
 export function hasFieldAccess(game: GameState, flag: string): boolean {
   return (

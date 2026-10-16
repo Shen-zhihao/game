@@ -1,0 +1,218 @@
+{
+  "来源": "为星苔远征编写的原创程序合成配乐；无第三方录音、采样或现有游戏旋律。",
+  "使用范围": "随本项目分发、修改和商用，无第三方署名要求。",
+  "生成工具": "tools/generate-music.py（Python 3、numpy；AAC 编码使用 macOS afconvert 或 ffmpeg）",
+  "音频格式": "AAC-LC / M4A，44.1 kHz，立体声，目标 64 kbit/s；运行时离线播放本地文件。",
+  "曲目": [
+    {
+      "id": "title",
+      "曲名": "星苔的邀约",
+      "文件": "assets/music/title.m4a",
+      "BPM": 92,
+      "时长秒": 41.739,
+      "循环": true,
+      "字节数": 329921,
+      "SHA256": "c13a9768c67ffb3d0a3aa109d067f3f5cb425c33876cea2e555f78b62af180f7"
+    },
+    {
+      "id": "travel",
+      "曲名": "新叶步道",
+      "文件": "assets/music/travel.m4a",
+      "BPM": 108,
+      "时长秒": 35.556,
+      "循环": true,
+      "字节数": 290731,
+      "SHA256": "2378df6e92b86124410bd4e64931b498f092c30e8090a1fcc6544bd7450447df"
+    },
+    {
+      "id": "town",
+      "曲名": "窗灯与归途",
+      "文件": "assets/music/town.m4a",
+      "BPM": 96,
+      "时长秒": 40.0,
+      "循环": true,
+      "字节数": 325761,
+      "SHA256": "d87d81bdcd6517514d4b53fd5853c37d7c2796d89056d68995181162ac288ed4"
+    },
+    {
+      "id": "forest",
+      "曲名": "林间萤语",
+      "文件": "assets/music/forest.m4a",
+      "BPM": 84,
+      "时长秒": 45.714,
+      "循环": true,
+      "字节数": 371890,
+      "SHA256": "382b2a93c47acdb145f47661e866064854bbd410bd0a25efe393afffb80292b7"
+    },
+    {
+      "id": "cave",
+      "曲名": "矿脉回声",
+      "文件": "assets/music/cave.m4a",
+      "BPM": 76,
+      "时长秒": 50.526,
+      "循环": true,
+      "字节数": 411856,
+      "SHA256": "faf961cea3a6d8e0325df77871981a8f5133dd666872d13d20a9bfd87189f0bf"
+    },
+    {
+      "id": "coast",
+      "曲名": "青帆逐浪",
+      "文件": "assets/music/coast.m4a",
+      "BPM": 100,
+      "时长秒": 38.4,
+      "循环": true,
+      "字节数": 313669,
+      "SHA256": "c05c10264d9ed37f8dba3f6ff36d5e318c5a7f5f69ca00f5273116e547db7969"
+    },
+    {
+      "id": "power",
+      "曲名": "铜光脉冲",
+      "文件": "assets/music/power.m4a",
+      "BPM": 116,
+      "时长秒": 33.103,
+      "循环": true,
+      "字节数": 268105,
+      "SHA256": "e9192486146605a50d67faa97b64960a2fc087f6d78cd688ae76955cd982cc96"
+    },
+    {
+      "id": "wind",
+      "曲名": "雪岭来信",
+      "文件": "assets/music/wind.m4a",
+      "BPM": 80,
+      "时长秒": 48.0,
+      "循环": true,
+      "字节数": 393613,
+      "SHA256": "b0c6a4a1cb3f4149b9654d367cd2a512546adf4ae811ddb5ff99cce653bf7a55"
+    },
+    {
+      "id": "furnace",
+      "曲名": "炉心火种",
+      "文件": "assets/music/furnace.m4a",
+      "BPM": 110,
+      "时长秒": 34.909,
+      "循环": true,
+      "字节数": 284303,
+      "SHA256": "bfc9ac4893ccdeb34551fa83e1eb1c48d1bf2f1ab1cb362f01565df570bb6a9b"
+    },
+    {
+      "id": "mirror",
+      "曲名": "镜湖微光",
+      "文件": "assets/music/mirror.m4a",
+      "BPM": 78,
+      "时长秒": 49.231,
+      "循环": true,
+      "字节数": 402819,
+      "SHA256": "ec096e09c778f49936bbf11db7dc01b32a8b3ef4bcb14e948ec4e1962b828eaf"
+    },
+    {
+      "id": "ruins",
+      "曲名": "群星低语",
+      "文件": "assets/music/ruins.m4a",
+      "BPM": 72,
+      "时长秒": 53.333,
+      "循环": true,
+      "字节数": 434111,
+      "SHA256": "77e7cb2b25ca4d712c47fc587e7fd3b40f13fc7786ea0b5b76118485f3480dd4"
+    },
+    {
+      "id": "league",
+      "曲名": "金辉之约",
+      "文件": "assets/music/league.m4a",
+      "BPM": 112,
+      "时长秒": 34.286,
+      "循环": true,
+      "字节数": 276652,
+      "SHA256": "a9bc038e70e70b79847d9f43fc01bc7b1492089505a384abd329314cfc20c0a4"
+    },
+    {
+      "id": "gentle",
+      "曲名": "同行的叮咛",
+      "文件": "assets/music/gentle.m4a",
+      "BPM": 88,
+      "时长秒": 43.636,
+      "循环": true,
+      "字节数": 328531,
+      "SHA256": "7722d5054034629da9c75fd2cbb00000501b105355edfb983b93858c423fff30"
+    },
+    {
+      "id": "rival",
+      "曲名": "阿澈的约定",
+      "文件": "assets/music/rival.m4a",
+      "BPM": 120,
+      "时长秒": 32.0,
+      "循环": true,
+      "字节数": 258530,
+      "SHA256": "dfaa65c6f97f7fbdb04047aaf638d285b9aaf67b4f883a6b528e1530a624c658"
+    },
+    {
+      "id": "tension",
+      "曲名": "定序暗流",
+      "文件": "assets/music/tension.m4a",
+      "BPM": 104,
+      "时长秒": 36.923,
+      "循环": true,
+      "字节数": 302748,
+      "SHA256": "04cc7598edd74f0f408b74fd2b1a77243fd872a1d2c3cb314b09b523d75dba87"
+    },
+    {
+      "id": "wild-battle",
+      "曲名": "草丛里的挑战",
+      "文件": "assets/music/wild-battle.m4a",
+      "BPM": 144,
+      "时长秒": 26.667,
+      "循环": true,
+      "字节数": 217933,
+      "SHA256": "be04e5ca04b6fce4643e806425eabe122c7f9d61c40aca7fc3e84315d6accac6"
+    },
+    {
+      "id": "trainer-battle",
+      "曲名": "伙伴的交锋",
+      "文件": "assets/music/trainer-battle.m4a",
+      "BPM": 152,
+      "时长秒": 25.263,
+      "循环": true,
+      "字节数": 205317,
+      "SHA256": "a35e27720da0a03fa8b9701df6ca93386609f98461542f73bec0f1e8787374e1"
+    },
+    {
+      "id": "boss-battle",
+      "曲名": "徽章与星冠",
+      "文件": "assets/music/boss-battle.m4a",
+      "BPM": 160,
+      "时长秒": 24.0,
+      "循环": true,
+      "字节数": 197206,
+      "SHA256": "b7c756a526aa867003ae1b6cf317411763b436420b535a1da781ed4e2ba22219"
+    },
+    {
+      "id": "victory",
+      "曲名": "胜利的新芽",
+      "文件": "assets/music/victory.m4a",
+      "BPM": 124,
+      "时长秒": 15.484,
+      "循环": true,
+      "字节数": 130516,
+      "SHA256": "cf9181dfe8c1f6d9a93ceb8e261277f99257696834cbffa466f90e83d990dd4d"
+    },
+    {
+      "id": "defeat",
+      "曲名": "休息后再出发",
+      "文件": "assets/music/defeat.m4a",
+      "BPM": 76,
+      "时长秒": 25.263,
+      "循环": true,
+      "字节数": 182851,
+      "SHA256": "26568048eaf1861468d3ce9759ac89bb4c9745cc643b2ff539a2182118afa81e"
+    },
+    {
+      "id": "encounter",
+      "曲名": "遭遇闪光",
+      "文件": "assets/music/encounter.m4a",
+      "BPM": null,
+      "时长秒": 0.72,
+      "循环": false,
+      "字节数": 6267,
+      "SHA256": "778378cad24d122cddac70a12a7671527d97a0d6d8db5cf14e0f77062e76b316"
+    }
+  ]
+}

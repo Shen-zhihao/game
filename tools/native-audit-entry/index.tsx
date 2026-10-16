@@ -1,5 +1,5 @@
 // Separate bundle entry: this file is never imported by the shipping game.
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, Text, View, useWindowDimensions } from 'react-native';
 import { registerRootComponent } from 'expo';
 import { File, Paths } from 'expo-file-system';

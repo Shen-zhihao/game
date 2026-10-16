@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { spriteFor } from '../../content/catalog';
 import { spriteLayout } from '../../content/spriteFrames';

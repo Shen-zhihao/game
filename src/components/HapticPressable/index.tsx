@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { Pressable, PressableProps, View } from 'react-native';
 import { Feedback, haptic } from '../../platform/haptics';
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View } from 'react-native';
 import { Label, palette } from '../../components/ui';
 import { Command, GameState } from '../../game/model';
@@ -20,6 +20,7 @@ export function AdventureScreen({
   paused,
   saveStatus,
   onMenu,
+  onBattlePlayback,
 }: {
   game: GameState;
   dispatch: (command: Command) => void;
@@ -28,6 +29,7 @@ export function AdventureScreen({
   paused: boolean;
   saveStatus: string;
   onMenu: () => void;
+  onBattlePlayback: (id: string, playing: boolean) => void;
 }) {
   const battleId = game.battle?.id ?? null;
   const [view, setView] = useState<{
@@ -119,6 +121,7 @@ export function AdventureScreen({
       >
         {presentedGame.battle ? (
           <BattleScreen
+            onPlaybackChange={onBattlePlayback}
             key={presentedGame.battle.id}
             game={presentedGame}
             dispatch={dispatch}
@@ -141,7 +144,7 @@ export function AdventureScreen({
         )}
         {presentedGame.progress.flags.starterChoice &&
           !presentedGame.dialogue &&
-          !presentedGame.battle && <StarterChoice game={presentedGame} dispatch={dispatch} />}
+          !presentedGame.battle && <StarterChoice dispatch={dispatch} />}
       </View>
       {transitioning && (
         <View

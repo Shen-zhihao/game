@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { MAPS, mapSize } from '../../content/world';

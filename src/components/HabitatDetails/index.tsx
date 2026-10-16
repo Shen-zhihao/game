@@ -1,4 +1,3 @@
-import React from 'react';
 import { View } from 'react-native';
 import { ITEMS, SPECIES } from '../../content/catalog';
 import { habitatSite, SPECIES_HABITATS } from '../../content/habitats';

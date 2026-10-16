@@ -962,5 +962,273 @@
       }
     ]
   },
-  "gitHistory": "The 11 local commits after caa6c295c49fe03f77d78be1632b1e17cca7b24d and all current code and asset cleanup changes were consolidated into one local commit. Existing remote history is unchanged; added history contains only the final optimized PNGs. Original local history and staging/working state were backed up outside the repository."
+  "gitHistory": "The 11 local commits after caa6c295c49fe03f77d78be1632b1e17cca7b24d and all current code and asset cleanup changes were consolidated into one local commit. Existing remote history is unchanged; added history contains only the final optimized PNGs. Original local history and staging/working state were backed up outside the repository.",
+  "followupRuns": [
+    {
+      "date": "2026-10-16",
+      "scope": "背景音乐接入后的资源引用复查、遗留代码清理与更高等级无损压缩；未打包，未更改已有 exports。",
+      "references": {
+        "codeFiles": 141,
+        "runtimeReachableCodeFiles": 127,
+        "toolOnlyCodeFiles": 14,
+        "unreachableCodeFiles": 0,
+        "assetFiles": 69,
+        "unreferencedAssets": 0,
+        "missingReferences": 0,
+        "platformVariantsChecked": ["native", "web"]
+      },
+      "removedUnusedCode": [
+        "CHAPTER_SPECIES 及只写不读的追加逻辑",
+        "keyItemFor",
+        "LEAGUE_TITLE",
+        "prioritizedStats",
+        "STEP_DURATION_MS",
+        "createCollection（保留旧合集的读取与导入）",
+        "MemoryDriver（未被应用或工具引用的内存存档驱动）",
+        "StarterChoice 未使用的 game 参数"
+      ],
+      "removedUnusedReactImports": 31,
+      "removedLocalGeneratedFiles": [
+        {
+          "path": "dist",
+          "bytes": 142142575,
+          "files": 54
+        },
+        {
+          "path": ".DS_Store",
+          "bytes": 8196,
+          "files": 1
+        },
+        {
+          "path": "assets/.DS_Store",
+          "bytes": 6148,
+          "files": 1
+        },
+        {
+          "path": "docs/.DS_Store",
+          "bytes": 6148,
+          "files": 1
+        }
+      ],
+      "compression": {
+        "optimizer": "oxipng 10.2.1",
+        "level": 6,
+        "pngCount": 48,
+        "smallerCount": 27,
+        "beforeBytes": 115634584,
+        "afterBytes": 115559555,
+        "savedBytes": 75029,
+        "allImagesPixelIdentical": true,
+        "colorMetadataIdentical": true,
+        "files": [
+          {
+            "file": "assets/brand/adaptive-icon.png",
+            "beforeBytes": 1517031,
+            "afterBytes": 1515737,
+            "sha256": "de1e56004969c1c47c369a99ed68395c894d347dc6b1a156ebba5211c92576db",
+            "rgbaSha256": "644877a2ef83336038f011bbd9fd66daa6b3daa3ccc040e10ef33bbde036d082"
+          },
+          {
+            "file": "assets/characters/traveler-walk.png",
+            "beforeBytes": 746450,
+            "afterBytes": 744751,
+            "sha256": "9ed8e0dceb55601f306dbbd3bcb42e18699051924b0f032cd326facaa6a1ecd6",
+            "rgbaSha256": "d71458397b58316ba81cf2bc8674cf165f67bd5dfec38f55a4de87ffff11a794"
+          },
+          {
+            "file": "assets/creatures-ch1.png",
+            "beforeBytes": 2112678,
+            "afterBytes": 2111761,
+            "sha256": "0895ea513a2330ff8d8f61207d7d240593fcfbb0893bd4936d14338a70320582",
+            "rgbaSha256": "7d8a2ded3c337e252b56f41ccf6c2239e82a0c83a1f9a0ceb6a7a605db006833"
+          },
+          {
+            "file": "assets/creatures-field_b.png",
+            "beforeBytes": 2118875,
+            "afterBytes": 2118089,
+            "sha256": "8147a78682ab392100492226eb5703361cdceebce33d3d5d7a6659a514e289da",
+            "rgbaSha256": "6d57edaecaaa67128c6a753f97f2f05e75e9472bf037bd201ecea7a53fcd74f1"
+          },
+          {
+            "file": "assets/creatures-fire_b.png",
+            "beforeBytes": 1844597,
+            "afterBytes": 1844549,
+            "sha256": "a55c5637341a4f2382d15b50f108d3f461b8620efb51b367d8b536b46b2d4183",
+            "rgbaSha256": "08c43fd592b4f12226bd2ace26b62829322b637213a5b5a44a4841ea346fd6b1"
+          },
+          {
+            "file": "assets/creatures-forest_b.png",
+            "beforeBytes": 2055538,
+            "afterBytes": 2054457,
+            "sha256": "ec7203213f11672a9b9518f7c40691d9585cb5025283c79503a4c308d187eb0c",
+            "rgbaSha256": "4c352c798bdeb9b9e05159dc431ad493124c11bd333af5de6d262077a5938ade"
+          },
+          {
+            "file": "assets/creatures-highlands.png",
+            "beforeBytes": 2037013,
+            "afterBytes": 2036058,
+            "sha256": "02ebe48313ce58eb81d20bab8b886b872fc16fd58b956bb50f174ef9a1bc1f3e",
+            "rgbaSha256": "464a738a5073d9a4c2158543bd24a163727d06436e8a8dc5a0661ab033d65f88"
+          },
+          {
+            "file": "assets/creatures-mirror_b.png",
+            "beforeBytes": 2104523,
+            "afterBytes": 2104185,
+            "sha256": "f468ca571036ce8eee62d867687f25b5dbf7be9b9db381366e2947f547a16624",
+            "rgbaSha256": "99e68b15e218d2da8e6bb1900bb04af75104575839ef3b2f5685f33affe6c14f"
+          },
+          {
+            "file": "assets/creatures-moth.png",
+            "beforeBytes": 1437331,
+            "afterBytes": 1436940,
+            "sha256": "3d94fea4c4bc244d682188f334737761744ef0f3fe0a90d12e6a6df45c80540e",
+            "rgbaSha256": "abb0f385de5bd9fdb7b0f72e4f6c5ea3a7cc42f89e41372579e0800b8851b47d"
+          },
+          {
+            "file": "assets/creatures-tidal.png",
+            "beforeBytes": 2031762,
+            "afterBytes": 2030654,
+            "sha256": "cef7d6d9d58099b00f9cfa4ed277ef18e2dfa9e6ae559c6824a634897a572d85",
+            "rgbaSha256": "deacd1f825e7c6b08cab48cab0b9abef42baf96c232bb32515115251fd42780a"
+          },
+          {
+            "file": "assets/maps/battle-electric.png",
+            "beforeBytes": 2992716,
+            "afterBytes": 2989406,
+            "sha256": "9d414e83d38883d40e47af42d9328aa340e2b86dc14475a9e50d5931fb5ae76d",
+            "rgbaSha256": "9d95570d43c31933db46f8523fdf04ecc988f8583cf3a0c1147b221e999cab34"
+          },
+          {
+            "file": "assets/maps/battle-highlands.png",
+            "beforeBytes": 2277202,
+            "afterBytes": 2275153,
+            "sha256": "67d91a11122b850a849871e324a7ba8c3f2288a0b785e72ac8c19e6f6593c7f2",
+            "rgbaSha256": "45dfd8d9290db37722ca89a1e0c7179a62b7465db179b154975670114c03f873"
+          },
+          {
+            "file": "assets/maps/battle-lake.png",
+            "beforeBytes": 3111033,
+            "afterBytes": 3110979,
+            "sha256": "b9d85f8f2adc5c301f8276b1f717074ca1535f9cbc3c9a718f853fe389d157c2",
+            "rgbaSha256": "680b7cfbfcc4a73017d549fc3ecdad94c914a416122053b668ec38c12201dc15"
+          },
+          {
+            "file": "assets/maps/battle-league.png",
+            "beforeBytes": 2819229,
+            "afterBytes": 2816438,
+            "sha256": "667009592371a19a1de9c140ecce83b7a27623129906d5edf8f4c92552852ab5",
+            "rgbaSha256": "8b66ea5c8d8bb9f12abe583f031124d3fc0831ccc6135736b4f03e5a98329f84"
+          },
+          {
+            "file": "assets/maps/battle-meadow.png",
+            "beforeBytes": 2855186,
+            "afterBytes": 2852194,
+            "sha256": "7da9c6d48f745a4a6a6cd4f0d9918e48fc8efc7bc70232e521e990ed69109a51",
+            "rgbaSha256": "dee5837de651ca89961feaac2aae61d354cee92e0c628dd5b8cf697224ec7878"
+          },
+          {
+            "file": "assets/maps/battle-star.png",
+            "beforeBytes": 3119622,
+            "afterBytes": 3111333,
+            "sha256": "608f7c80014638eec485ad4af404c73c590d06e57de371478b68ed4fb186a08e",
+            "rgbaSha256": "1b186601b5442fe27505882686c80b564465c0af4e77cd600b06968fcad80285"
+          },
+          {
+            "file": "assets/maps/battle-wind.png",
+            "beforeBytes": 3145609,
+            "afterBytes": 3141991,
+            "sha256": "a6005231f139935c56551f53ec730ce25263592dd1e775f4cb244ea22cbcf81a",
+            "rgbaSha256": "a1a48359c552ce17142538c1b1d02b9a2011be0aea78de0eae0ecafdf35f3cf6"
+          },
+          {
+            "file": "assets/maps/biome-tiles.png",
+            "beforeBytes": 3496164,
+            "afterBytes": 3490367,
+            "sha256": "fa65196d54641f829fad74a0329e2fd3982e0574b6712687e5812cf56c7a9437",
+            "rgbaSha256": "7ccfa5fde47446df9d5d9204514d07ef9bf98b76f96982b670ca881f72a6f3bf"
+          },
+          {
+            "file": "assets/maps/city-ground-tiles.png",
+            "beforeBytes": 3180444,
+            "afterBytes": 3178767,
+            "sha256": "ec9b12f36bfa9f18b4b9666fda6d26192c86b50f1a5ea0d7889a3d5d4cb3d866",
+            "rgbaSha256": "a9c2aa6315a446f4df330c23dd91b823ff80c8923417451d9320b407dadc0fa7"
+          },
+          {
+            "file": "assets/maps/dawn-expanded.png",
+            "beforeBytes": 3235865,
+            "afterBytes": 3230652,
+            "sha256": "997a18b1c1cd7fcbebb339486a9eb17a753fde452d096fac93b13f8e178feeff",
+            "rgbaSha256": "895d2746f5d9b1104f624f0b63de671d9550ce377274f630e3f3ae91d1e4ba71"
+          },
+          {
+            "file": "assets/maps/expedition-tiles.png",
+            "beforeBytes": 2756253,
+            "afterBytes": 2755991,
+            "sha256": "ecf93ef98e52dcfabbad14348a4dc5c5dba872bdd58c1b8a31316d299dd79bee",
+            "rgbaSha256": "e2d773b869fdb75fab5dda1f000107bfa1de1a7686ac320a4213bd09aad11d87"
+          },
+          {
+            "file": "assets/maps/forest-expanded.png",
+            "beforeBytes": 3284635,
+            "afterBytes": 3280993,
+            "sha256": "9f411d515351ef619d2526b5238e1dc110146f558ec10a735fb1b4af928b7572",
+            "rgbaSha256": "b5fc9186df6a5d281e8601f8564d7f54a8dd924fd157eb43da86e3fc77a7fbcd"
+          },
+          {
+            "file": "assets/maps/gym.png",
+            "beforeBytes": 3336486,
+            "afterBytes": 3327059,
+            "sha256": "ecbdfda66552685011c594d34bfa6ff9fb9fd1817b19c7bc8969cf8796b26fd9",
+            "rgbaSha256": "2311c18668362c65d15f52c04397181c64289e8bd5b669dd846cd8f88134d775"
+          },
+          {
+            "file": "assets/maps/moss-expanded.png",
+            "beforeBytes": 3483252,
+            "afterBytes": 3479004,
+            "sha256": "17a39090b31f3ab790df2bdc990fd7b172a5254be111419112e731208c2749e7",
+            "rgbaSha256": "eb80031ed4b7827b2266de09d21a4f37806915fba65fcc5febfcdb0dcf052841"
+          },
+          {
+            "file": "assets/maps/route-expanded.png",
+            "beforeBytes": 3358959,
+            "afterBytes": 3353333,
+            "sha256": "105abc844c414a6b79a56101cfb2037c09d2a4ce370c77414dcb988e63a63499",
+            "rgbaSha256": "69b844e2848ae47ffaaf8fb6bd59e60123f60b199f51e2843ed10a36dccc4d73"
+          },
+          {
+            "file": "assets/maps/stone-city-coast-v2.png",
+            "beforeBytes": 3100090,
+            "afterBytes": 3098879,
+            "sha256": "7c62e2b2d3dfa6782ebe8a52c548ec15fa06fd17d9edc7acc6b3001abb4d9da4",
+            "rgbaSha256": "1fe897fdb54c5f6921beab716f059fddf838fe4a4d0c1623bc36570c64207150"
+          },
+          {
+            "file": "assets/maps/stone-route.png",
+            "beforeBytes": 3155013,
+            "afterBytes": 3148807,
+            "sha256": "6b05230d34abe5fcbdcbd2bd7884c7e36cd8473f138ff146575434c49a623bf0",
+            "rgbaSha256": "08549a941036ec749957dda80965d33f0af037c38788db1ef14a499cbfa784a4"
+          }
+        ]
+      },
+      "audio": {
+        "files": 21,
+        "bytes": 5933330,
+        "changed": false,
+        "reason": "已有约 64 kbit/s AAC 配乐，本次不做二次有损转码。"
+      },
+      "validation": {
+        "typeScript": true,
+        "eslint": true,
+        "unusedLocalsAndParameters": true,
+        "nativeAndWebJsxTransforms": 93,
+        "beforeAfterRuleAndSaveComparisons": 4315,
+        "musicRegressionAssertions": 371,
+        "existingExportFilesPreserved": 171,
+        "nativeBuild": false,
+        "applicationPackaging": false
+      }
+    }
+  ]
 }

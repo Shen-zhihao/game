@@ -208,22 +208,3 @@ export class SaveRepository {
     store.slots[slot] = snapshot;
   }
 }
-export class MemoryDriver implements StoreDriver {
-  data: StoreData = emptyStore();
-  failCommit = false;
-  private queue: Promise<unknown> = Promise.resolve();
-  async read() {
-    return JSON.parse(JSON.stringify(this.data)) as StoreData;
-  }
-  async transaction<T>(operation: (store: StoreData) => T): Promise<T> {
-    const result = this.queue.then(async () => {
-      const draft = await this.read();
-      const value = operation(draft);
-      if (this.failCommit) throw new Error('模拟磁盘写入失败');
-      this.data = draft;
-      return value;
-    });
-    this.queue = result.catch(() => undefined);
-    return result;
-  }
-}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -42,6 +42,7 @@ import { EnvironmentMenu } from '../src/screens/EnvironmentMenu';
 import { APP_DESCRIPTION, APP_ENGLISH_NAME, APP_NAME, APP_TAGLINE } from '../src/content/brand';
 import { SettingsMenu } from '../src/screens/SettingsMenu';
 import { ControlLayoutEditor } from '../src/screens/ControlLayoutEditor';
+import { useGameMusic } from '../src/platform/music';
 
 export default function App() {
   return (
@@ -70,6 +71,11 @@ function GameApp() {
   const [confirmNew, setConfirmNew] = useState(false);
   const session = useGameSession(repository);
   const game = session.game;
+  const [playingBattleId, setPlayingBattleId] = useState<string | null>(null);
+  const onBattlePlayback = useCallback((id: string, playing: boolean) => {
+    setPlayingBattleId((current) => (playing ? id : current === id ? null : current));
+  }, []);
+  const music = useGameMusic(game, screen === 'play', playingBattleId);
   const { load: loadSession, pause: pauseSession, save: saveSession, slot: activeSlot } = session;
   const titleScene = useMemo(() => {
     const g = newGame('旅人', 0, STARTERS[0]!, 12345);
@@ -428,6 +434,7 @@ function GameApp() {
       {screen === 'play' && game && (
         <>
           <AdventureScreen
+            onBattlePlayback={onBattlePlayback}
             key={session.slot}
             game={game}
             dispatch={session.dispatch}
@@ -468,6 +475,7 @@ function GameApp() {
           ) : menu === 'settings' ? (
             <SettingsMenu
               game={game}
+              music={music}
               dispatch={session.dispatch}
               onEditControls={() => setEditingControls(true)}
             />

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { Label, palette, Panel, styles } from '../../components/ui';
 import { GameState, WeatherId } from '../../game/model';

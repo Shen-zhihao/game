@@ -37,6 +37,16 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-sqlite',
+    'expo-asset',
+    [
+      'expo-audio',
+      {
+        microphonePermission: false,
+        recordAudioAndroid: false,
+        enableBackgroundPlayback: false,
+        enableBackgroundRecording: false,
+      },
+    ],
     [
       'expo-camera',
       {

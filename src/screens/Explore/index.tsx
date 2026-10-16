@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, AppState, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MAPS, objective } from '../../content/world';
 import { Command, Direction, GameState } from '../../game/model';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Animated, View } from 'react-native';
 import { MAPS } from '../../content/world';
 import type { MapId } from '../../game/model';

@@ -23,17 +23,6 @@ const collectionSchema = z.strictObject({
     .min(1),
   checksum: z.string().regex(/^[0-9a-f]{64}$/),
 });
-export function createCollection(entries: SaveEntry[]): SaveCollection {
-  const collection: SaveCollection = {
-    format: 'stargrove-collection',
-    version: 1,
-    createdAt: new Date().toISOString(),
-    entries: [...entries].sort((a, b) => a.slot - b.slot),
-    checksum: '',
-  };
-  collection.checksum = digest(JSON.stringify(collection.entries));
-  return decodeSaveFile(JSON.stringify(collection)).file as SaveCollection;
-}
 export function decodeSaveFile(text: string): {
   file: PortableSave;
   entries: { slot: number | null; snapshot: Snapshot }[];

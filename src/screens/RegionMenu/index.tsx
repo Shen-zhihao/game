@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Image, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { MAP_IMAGES } from '../../components/sceneAssets';

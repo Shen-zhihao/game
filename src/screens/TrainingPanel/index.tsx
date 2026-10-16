@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { learnset, MOVES } from '../../content/catalog';
 import { POTENTIAL_NAMES, STAT_NAMES, TRAINING_PLANS } from '../../content/training';

@@ -1,5 +1,5 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   BackHandler,
@@ -76,11 +76,13 @@ export function BattleScreen({
   dispatch,
   height,
   paused = false,
+  onPlaybackChange,
 }: {
   game: GameState;
   dispatch: (c: Command) => void;
   height: number;
   paused?: boolean;
+  onPlaybackChange: (id: string, playing: boolean) => void;
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -120,6 +122,10 @@ export function BattleScreen({
   );
   const onEffectImpact = useCallback((key: string) => setImpactedEffect(key), []);
   const presenting = presentation.length > 0;
+  useEffect(() => {
+    onPlaybackChange(b.id, presenting || busy || pendingTurn.current);
+  }, [b.id, presenting, busy, onPlaybackChange]);
+  useEffect(() => () => onPlaybackChange(b.id, false), [b.id, onPlaybackChange]);
   const playback = presentationScene(
     initialScene,
     visualEvents,
@@ -178,6 +184,8 @@ export function BattleScreen({
       if (paused || busy || presenting || Date.now() - actionAt.current < 350) return;
       actionAt.current = Date.now();
       setInitialScene(battleScene(game));
+      // Hold the battle score until the last move and message have actually played.
+      onPlaybackChange(b.id, true);
       pendingTurn.current = true;
       setBusy(true);
       setShowLog(false);
@@ -185,7 +193,19 @@ export function BattleScreen({
       setPage('commands');
       dispatch({ kind: 'battle', action });
     },
-    [paused, busy, presenting, dispatch, setPage, setBusy, setShowLog, setPlaybackPaused, game],
+    [
+      paused,
+      busy,
+      presenting,
+      dispatch,
+      setPage,
+      setBusy,
+      setShowLog,
+      setPlaybackPaused,
+      game,
+      b.id,
+      onPlaybackChange,
+    ],
   );
   useEffect(() => {
     const back = () => {
