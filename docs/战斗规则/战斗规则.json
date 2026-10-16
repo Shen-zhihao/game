@@ -7,13 +7,13 @@
       { "ratio": 2, "actions": 2 },
       { "ratio": 3, "actions": 3 }
     ],
-    "order": "先比较招式优先度，再比较有效速度；相同时按存档 RNG 决定。先手方连续完成自己的技能额度，再由另一方行动。",
+    "order": "本轮首次技能先比较优先度，再比较有效速度；相同时按存档 RNG 决定。先手方完成自己的行动额度后由另一方行动。",
     "effectiveSpeed": "六维速度 × 速度能力等级倍率 × 天气速度倍率，麻痹再减半；天气规则见 world-rules.json。",
-    "quota": "在换人或用药之后、技能执行之前锁定本轮双方额度；本轮技能的速度变化从下一轮生效。",
-    "repeatedSkill": "重复本回合选定的技能，每次独立扣 PP、判命中、要害和附加效果。PP 不足停止，不改用其他招式。",
+    "quota": "本轮第一次操作前锁定双方额度；换人不补充次数，速度变化从下一轮生效。",
+    "independentActions": "每条玩家指令只执行一次；高速额外行动结算后返回菜单，重新选择技能、道具、换人、投球或逃跑。对手额外行动各自重新选招。",
     "stop": "任一原出战精灵倒下便终止双方未执行的攻击；新上场精灵不承接旧目标的剩余攻击。",
-    "otherActions": "用药、换人、投球和逃跑不重复；未结束战斗时，对手按自身速度额度回应。倒下补位免费。",
-    "status": "睡眠倒计时和麻痹失去行动判定每轮一次，毒与灼伤在轮末各结算一次。"
+    "otherActions": "用药、主动换人、投球和逃跑各占一次行动，物品各消耗一份；倒下补位免费。捕捉成功或逃脱立即结束。",
+    "status": "睡眠倒计时和麻痹失去行动判定每轮一次，失败只消耗当前一次操作；剩余次数仍可用药或换人。毒与灼伤在轮末各结算一次。"
   },
   "hiddenStages": [
     { "id": "accuracy", "name": "命中", "initial": 0, "min": -6, "max": 6 },
@@ -34,7 +34,7 @@
     "damageMultiplier": 2,
     "rounding": "按原技能、属性、能力与浮动结算普通伤害并取整，再精确翻倍；免疫仍为 0，治疗和异常扣血不翻倍。"
   },
-  "persistence": "新隐藏阶段为兼容可选字段，旧档缺省为零；换人和新战斗重置，战斗中存档保留。新招式可自然学习、免费回忆及通用复刻。",
+  "persistence": "隐藏阶段旧档缺省为零；换人和新战斗重置阶段。战斗中存档保留本轮剩余额度与异常判定，恢复后继续选择，不能读档补充行动。",
   "newSkills": [
     {
       "id": "focus",
@@ -133,7 +133,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -155,7 +155,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -166,7 +166,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -265,7 +265,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -287,7 +287,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -298,7 +298,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -331,7 +331,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -430,7 +430,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -474,7 +474,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -595,7 +595,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -936,7 +936,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -947,7 +947,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1035,7 +1035,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1046,7 +1046,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1123,7 +1123,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1134,7 +1134,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1277,7 +1277,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1288,7 +1288,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1299,7 +1299,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1376,7 +1376,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1475,7 +1475,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1541,7 +1541,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1585,7 +1585,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1596,7 +1596,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1607,7 +1607,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1662,7 +1662,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1684,7 +1684,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1750,7 +1750,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1805,7 +1805,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1816,7 +1816,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -1893,7 +1893,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2003,7 +2003,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2014,7 +2014,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2102,7 +2102,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2113,7 +2113,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2190,7 +2190,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2201,7 +2201,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2432,7 +2432,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },
@@ -2443,7 +2443,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },

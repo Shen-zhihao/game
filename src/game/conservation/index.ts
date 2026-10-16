@@ -1,5 +1,6 @@
 import { CONSERVATION_CLOSURES } from '../../content/conservation';
 import { SPECIES, STARTERS } from '../../content/catalog';
+import { APP_NAME } from '../../content/brand';
 import type { Npc } from '../../content/world';
 import type { GameState, StoryEvent } from '../model';
 import { makeCreature } from '../rules';
@@ -58,7 +59,7 @@ export function interactConservation(g: GameState, n: Npc, talk: Talk): boolean 
     f.postgameComplete = true;
     say([
       '观察册、山道回声、深矿工牌、旧航匣，以及九城居民、古庙和终宵厅的故事都已完整结案。',
-      '你为每一条记录留下了可核对的答案，也为每位精灵留下了自由选择的机会。星苔远征的主线、联盟与通关后故事全部完成。',
+      `你为每一条记录留下了可核对的答案，也为每位精灵留下了自由选择的机会。${APP_NAME}的主线、联盟与通关后故事全部完成。`,
       '旅程会继续：挑战联盟重战、培养新伙伴、尝试不同队伍、补全 250 种形态的图鉴。剧情不再关闭任何普通路线。',
     ]);
     return true;

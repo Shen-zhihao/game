@@ -4,6 +4,7 @@ import design from '../docs/精灵属性/精灵设计数据.json';
 import acquisition from '../docs/精灵获取/稀有精灵获取.json';
 import { ALL_SPECIES, CONTENT_VERSION, TYPES, TYPE_CHART, TYPE_IDS } from '../src/content/catalog';
 import { analyzeTyping } from '../src/content/typeBalance';
+import { APP_NAME } from '../src/content/brand';
 
 const rarityNames = { ordinary: '普通', starter: '初始伙伴', rare: '稀有', legendary: '神兽' };
 type Rarity = keyof typeof rarityNames;
@@ -59,7 +60,7 @@ if (invalid.length)
 
 async function main() {
   const path = 'docs/精灵属性/精灵属性.md';
-  const body = `# 星苔远征精灵属性分配
+  const body = `# ${APP_NAME}精灵属性分配
 
 内容版本：\`${CONTENT_VERSION}\`。设计版本：v${design.designVersion}。250 种形态、115 个家族。
 

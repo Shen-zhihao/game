@@ -1,7 +1,7 @@
 {
-  "version": 11,
+  "version": 12,
   "date": "2026-10-16",
-  "notes": "位图由内置 image_gen 生成并保存到 assets。新增六种地区战斗场景，重绘神兽图集与萤羽蛾；所有250形态按透明轮廓取图区显示并留边。尚未制作全部独立背面与逐帧攻击动画，战斗动作／技能粒子由RN和SVG呈现。 2026-10-16 清理9张已被替代且无运行引用的旧地图；原始生成提示与替代关系保留在 retiredAssets，assets 仅列当前资源。",
+  "notes": "位图由内置 image_gen 生成并保存到 assets。新增六种地区战斗场景，重绘神兽图集与萤羽蛾；所有250形态按透明轮廓取图区显示并留边。尚未制作全部独立背面与逐帧攻击动画，战斗动作／技能粒子由RN和SVG呈现。 2026-10-16 清理9张已被替代且无运行引用的旧地图；原始生成提示与替代关系保留在 retiredAssets，assets 仅列当前资源。 2026-10-16 名称更新为精灵训练家，替换应用主图标并新增透明自适应前景；旧主图标的生成来源与提示词保留在previousGenerations。",
   "assets": [
     {
       "file": "assets/creatures-ch1.png",
@@ -15,11 +15,22 @@
     {
       "file": "assets/icon.png",
       "sourceGenerator": "built-in image_gen",
-      "sourceFile": "exec-cd458f76-4c37-4fc3-b264-31d867486dc4.png",
+      "sourceFile": "exec-28621cfb-f9c9-4949-bbae-f7144839c1b7.png",
       "transparentBackgroundRequested": false,
-      "usage": "应用图标。",
-      "finalPrompt": "Use case: logo-brand. Asset type: square mobile app icon for an original fine pixel art creature RPG called Stargrove Expedition. A charming small green fawn with tiny sprout antlers and a luminous amber star between the antlers, portrait head and upper chest, bold readable silhouette at small icon sizes. Fine crisp pixel art, chunky intentional square pixels, rich emerald forest and jade foliage background, warm ivory face and amber highlights, gentle adventurous expression. Full bleed square icon with no rounded corners baked in. Centered composition, generous 15 percent safe area around the antlers. No text, no letters, no watermark. Original creature, not an existing game character.",
-      "dimensions": [1254, 1254]
+      "usage": "精灵训练家主图标及标题页标志：原创火系伙伴怀抱星纹捕捉球，蓝橙配色，突出捕捉和培养。",
+      "finalPrompt": "Use case: logo-brand.\nAsset type: finished mobile app launcher icon, one opaque full-bleed square PNG.\nPrimary request: instantly communicate an original creature-catching, training and evolution adventure RPG called 精灵训练家. The icon itself has NO TEXT.\nInput image: the provided sprite atlas is a character reference only. Use the ORIGINAL charcoal-and-orange fire-tailed ferret in the FIRST ROW, SECOND COLUMN as the mascot. Keep its cream muzzle and chest, round dark ears, amber eyes, orange flame-shaped markings and flame tail. Do not copy other creatures in the sheet.\nSubject: one close-up, confident and adorable fire ferret facing the viewer in a three-quarter pose, large expressive amber eyes, two clearly drawn forepaws proudly holding one large polished capture capsule at bottom center. Capsule is an original spherical teal-blue and warm ivory device with an antique-gold rim and a glowing gold star-shaped clasp. Make the capture device readable at thumbnail size.\nStyle: premium Japanese handheld creature RPG key art, bold clean dark contours, polished vibrant 2D cel shading with restrained painted highlights. Strong simple silhouette and excellent legibility at 48 px. This is an illustrated game icon, not pixel art and not a toy or 3D render.\nBackdrop: simple vivid cobalt-to-cyan blue burst with a subtle warm golden halo; orange mascot clearly contrasts with blue. No forest scenery, no landscape, no tiny decorative clutter.\nComposition: square 1024x1024, face and capsule dominate; keep eyes, mouth and capsule clasp inside the central 66% safe area so circular launcher masks preserve recognition. Tail and ear tips may extend beyond. No baked-in rounded corners, no inset tile, no border, no badge, no words, no letters, no numbers, no watermark. Exactly one mascot and one capture capsule. Original design, no existing franchise characters or logos.",
+      "dimensions": [1254, 1254],
+      "previousGenerations": [
+        {
+          "file": "assets/icon.png",
+          "sourceGenerator": "built-in image_gen",
+          "sourceFile": "exec-cd458f76-4c37-4fc3-b264-31d867486dc4.png",
+          "transparentBackgroundRequested": false,
+          "usage": "应用图标。",
+          "finalPrompt": "Use case: logo-brand. Asset type: square mobile app icon for an original fine pixel art creature RPG called Stargrove Expedition. A charming small green fawn with tiny sprout antlers and a luminous amber star between the antlers, portrait head and upper chest, bold readable silhouette at small icon sizes. Fine crisp pixel art, chunky intentional square pixels, rich emerald forest and jade foliage background, warm ivory face and amber highlights, gentle adventurous expression. Full bleed square icon with no rounded corners baked in. Centered composition, generous 15 percent safe area around the antlers. No text, no letters, no watermark. Original creature, not an existing game character.",
+          "dimensions": [1254, 1254]
+        }
+      ]
     },
     {
       "file": "assets/characters/traveler-walk.png",
@@ -605,6 +616,15 @@
       "transparentBackgroundRequested": true,
       "usage": "萤羽蛾单体透明正面图，补全旧图集原始画布裁断的右侧翅缘。",
       "finalPrompt": "Use case: precise-object-edit. Asset type: one transparent full-body pixel-art RPG creature sprite, NOT a sheet. Edit target is ONLY the moth in the BOTTOM RIGHT cell (row 4 column 4) of attached reference atlas, all other creatures are reference context and MUST NOT appear. This original creature is named 萤羽蛾: tiny fluffy golden white body, enormous elegant symmetrical teal-and-gold moth wings with luminous cyan translucent veins, bright golden filigree edges and long curling pale-gold wing tails, small dark eyes and feathery antennae. Preserve its identity, pose, colors and intricate fine pixel-art look. Repair and redraw the clipped outer right wing and luminous fringe so both wings, every curled tip and every flame-like light wisp have complete natural flowing edges. Show the entire isolated moth centered and facing viewer, all appendages complete. Creature including all glow occupies only central 70 percent of a 1024 by 1024 square, at least 15 percent FULLY TRANSPARENT border on ALL four sides. True alpha transparency, no backdrop, no text, no grid, no extra creatures, no crop, no contact shadow, no huge flat glow rectangle. Fine refined pixel clusters matching reference, no hard rectangular cuts.",
+      "dimensions": [1254, 1254]
+    },
+    {
+      "file": "assets/brand/adaptive-icon.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-28f981fb-e018-423c-8aa9-4e6fe70f0dd3.png",
+      "transparentBackgroundRequested": true,
+      "usage": "Android自适应图标透明前景；与蓝色背景层合成，面部和球扣保留在中央安全区域。",
+      "finalPrompt": "Use case: background-extraction.\nAsset type: Android adaptive launcher icon FOREGROUND layer, square 1024x1024 PNG with genuine transparent alpha.\nInput image is the exact icon artwork to adapt. Preserve the same original charcoal-and-orange fire ferret identity, cream muzzle, amber eyes, two forepaws, turquoise-and-ivory capture capsule with gold star clasp, expressive face, bold contours and premium 2D shading.\nRemove ALL blue background, radial rays and detached sparkles. Isolate only the ferret, its attached flame tail, paws and capsule on real transparency. No shadow, no new backdrop, no frame.\nRecompose the group slightly smaller and entirely inside the central safe area: leave at least 18% truly transparent padding on every edge; the eyes, muzzle, capsule and clasp must be fully inside the centered circle of diameter 66% of canvas. Show a clean finished silhouette, close the cropped lower body naturally behind the capsule. Keep the face and capture sphere large enough to read at 48 px. Tail may curl behind shoulder within the safe boundary.\nNo text, no logos, no extra creatures, no white matte, no rounded tile. Match the supplied character and capture capsule precisely.",
       "dimensions": [1254, 1254]
     }
   ],

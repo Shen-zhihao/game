@@ -4,6 +4,7 @@ import Svg, { Rect } from 'react-native-svg';
 import { Direction } from '../../game/model';
 import { Npc } from '../../content/world';
 import { NPC_ATLAS, RANGER_ATLAS, TRAVELER_ATLAS } from '../sceneAssets';
+import { playerAppearance } from '../../content/appearances';
 
 const DIRECTION_ROW: Record<Direction, number> = { down: 0, left: 1, right: 2, up: 3 };
 export function TravelerSprite({
@@ -11,10 +12,14 @@ export function TravelerSprite({
   steps,
   paused,
   size,
-  atlas = TRAVELER_ATLAS,
+  atlas,
+  avatar = 0,
+  testID,
   stepDuration = 190,
 }: {
   atlas?: ImageSourcePropType;
+  avatar?: number;
+  testID?: string;
   stepDuration?: number;
   facing: Direction;
   steps: number;
@@ -41,10 +46,14 @@ export function TravelerSprite({
     }, 45);
     return () => clearInterval(timer);
   }, [paused, stepDuration]);
+  const appearance = playerAppearance(avatar);
+  const source = atlas ?? (appearance.atlas === 'ranger' ? RANGER_ATLAS : TRAVELER_ATLAS);
   return (
-    <View style={{ width: size, height: size, overflow: 'hidden' }}>
+    <View testID={testID} style={{ width: size, height: size, overflow: 'hidden' }}>
       <Image
-        source={atlas}
+        source={source}
+        testID={testID ? `${testID}-image` : undefined}
+        accessibilityLabel={atlas ? undefined : `旅行者：${appearance.name}`}
         resizeMode="stretch"
         style={{
           position: 'absolute',

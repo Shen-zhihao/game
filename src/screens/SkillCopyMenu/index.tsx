@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { FlatList, Modal, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MOVES, SPECIES, TYPES } from '../../content/catalog';
-import { chanceLabel, COMBAT_STAGE_NAMES, criticalChance } from '../../game/combat';
+import { MoveComparison, MoveDetails } from '../../components/MoveDetails';
 import { CreatureSprite } from '../../components/CreatureSprite';
 import { Button, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
 import { Command, GameState } from '../../game/model';
 import { creatureName } from '../../game/rules';
 import { copyableMove, copyMoveReason } from '../../game/skills';
-import { statusName } from '../BattleScreen';
 
 export function SkillCopyMenu({
   game,
@@ -239,50 +238,16 @@ export function SkillCopyMenu({
                     </>
                   )
                 )}
-                {move && (
-                  <Panel style={{ padding: 10, gap: 4 }}>
-                    <Label style={{ color: palette.gold, fontWeight: '700' }}>
-                      {move.name} ·{' '}
-                      {move.category === 'physical'
-                        ? '物理'
-                        : move.category === 'special'
-                          ? '特殊'
-                          : '变化'}
-                    </Label>
-                    <Label muted style={{ fontSize: 12 }}>
-                      威力 {move.power || '—'} · 命中 {move.accuracy}% · 学会后 PP {move.pp}/
-                      {move.pp}
-                    </Label>
-                    {move.effect?.heal && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        恢复自己最大体力的 {Math.round(move.effect.heal * 100)}%。
-                      </Label>
-                    )}
-                    {move.effect?.status && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        {Math.round((move.effect.chance ?? 1) * 100)}% 概率使对手
-                        {statusName(move.effect.status)}。
-                      </Label>
-                    )}
-                    {move.effect?.stage && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        {move.effect.target === 'self' ? '自己' : '对手'}的
-                        {COMBAT_STAGE_NAMES[move.effect.stage]}
-                        {(move.effect.amount ?? 0) > 0 ? '提升' : '降低'}
-                        {Math.abs(move.effect.amount ?? 0)}级。
-                      </Label>
-                    )}
-                    {!!move.criticalStage && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        高要害技能 · 基础要害率 {chanceLabel(criticalChance(move.id))}，要害伤害
-                        ×2。
-                      </Label>
-                    )}
-                    <Label muted style={{ fontSize: 11 }}>
-                      保留原技能的属性和效果；跨属性学习不会额外获得本系加成。
-                    </Label>
-                  </Panel>
-                )}
+                {move &&
+                  (step === 'target' ? (
+                    <MoveComparison
+                      moveId={move.id}
+                      original={replace === null ? undefined : target?.moves[replace]}
+                      testID="copy-comparison"
+                    />
+                  ) : (
+                    <MoveDetails moveId={move.id} title="待复刻技能" />
+                  ))}
                 {step === 'source' && (
                   <Button
                     small

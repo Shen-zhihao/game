@@ -26,6 +26,39 @@ export function battleScene(game: GameState): BattleScene {
     enemy: battleFigure(b.enemies[b.enemyIndex]!),
   };
 }
+
+export interface MoveFeedback {
+  side: 'player' | 'enemy';
+  kind: 'damage' | 'heal' | 'miss' | 'immune' | 'recoil';
+  label: string;
+}
+/** Uses the resolved HP delta, including capped damage and healing, without rolling again. */
+export function moveFeedback(event: BattleMoveEvent): MoveFeedback[] {
+  const target = event.side === 'player' ? 'enemy' : 'player';
+  if (event.outcome !== 'hit')
+    return [
+      {
+        side: target,
+        kind: event.outcome,
+        label: event.outcome === 'miss' ? '未命中' : '属性免疫',
+      },
+    ];
+  const result: MoveFeedback[] = [];
+  const damage = event.before[target].hp - event.after[target].hp;
+  if (damage > 0)
+    result.push({
+      side: target,
+      kind: 'damage',
+      label: `${event.critical ? '要害 ' : ''}−${damage} HP`,
+    });
+  const selfChange = event.after[event.side].hp - event.before[event.side].hp;
+  if (selfChange > 0) result.push({ side: event.side, kind: 'heal', label: `+${selfChange} HP` });
+  if (selfChange < 0)
+    result.push({ side: event.side, kind: 'recoil', label: `反伤 −${-selfChange} HP` });
+  if (MOVES[event.moveId]!.effect?.heal && selfChange === 0)
+    result.push({ side: event.side, kind: 'heal', label: '体力已满 +0 HP' });
+  return result;
+}
 export type VisualPattern =
   | 'slash'
   | 'leaf'

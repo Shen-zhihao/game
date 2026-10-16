@@ -99,6 +99,15 @@ export class SaveSession {
     if (!current || this.transitions) return;
     const next = reduceGame(current, command);
     if (next === current) return;
+    // Guidance and rejected actions can update the notice without changing any progress.
+    // Keep that feedback visible without creating a revision or flashing the save status.
+    if (
+      command.kind !== 'tick' &&
+      JSON.stringify({ ...next, notice: current.notice }) === JSON.stringify(current)
+    ) {
+      this.publish({ game: next });
+      return;
+    }
     this.dirty++;
     this.publish({ game: next, saveStatus: '有新进度' });
     if (!['walk', 'tick'].includes(command.kind)) void this.save().catch(() => undefined);

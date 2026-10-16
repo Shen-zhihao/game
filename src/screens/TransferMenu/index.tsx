@@ -11,6 +11,7 @@ import { Offer, TransferEvents } from '../../transfer/protocol';
 import { entropy } from '../../runtime';
 import { menuStyles } from '../GameMenus';
 import { Slots, timeLabel } from '../SaveMenu';
+import { APP_NAME } from '../../content/brand';
 
 export function TransferMenu({
   repository,
@@ -394,7 +395,9 @@ export function TransferMenu({
           small
           onPress={() =>
             void Linking.openSettings().catch(() =>
-              setStatus('无法打开系统设置，请在手机设置中找到星苔远征，检查相机和本地网络权限。'),
+              setStatus(
+                `无法打开系统设置，请在手机设置中找到${APP_NAME}，检查相机和本地网络权限。`,
+              ),
             )
           }
         >

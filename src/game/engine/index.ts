@@ -7,7 +7,18 @@ import {
   STARTERS,
 } from '../../content/catalog';
 import { SIGNATURE_BY_SPECIES } from '../../content/signatures';
-import { isTown, MAPS, npcVisible, terrainPassable } from '../../content/world';
+import {
+  isTownLocation,
+  GYM_BARRIERS,
+  GYM_TRAINERS,
+  townForMap,
+  MAPS,
+  npcVisible,
+  npcDefeated,
+  npcLocation,
+  terrainPassable,
+} from '../../content/world';
+import { worldMapFor } from '../../content/buildings';
 import { interactHighlands } from '../highlandStory';
 import { coastEncounter, interactCoast } from '../coastStory';
 import { adventureEncounter, PHOTO_TOWNS } from '../../content/adventure';
@@ -43,6 +54,7 @@ import {
   wouldLoseSurf,
 } from '../fieldSkills';
 import { battleAction, healParty, startBattle } from '../battle';
+import { rememberRecoveryTowns, townVisitFlag } from '../recovery';
 import {
   advanceExploration,
   createExploration,
@@ -89,7 +101,11 @@ export function newGame(
       facing: opening ? 'left' : 'up',
       healMap: 'dawn',
     },
-    progress: { chapter: 1, badges: 0, flags: opening ? { opening: true } : {} },
+    progress: {
+      chapter: 1,
+      badges: 0,
+      flags: { [townVisitFlag('dawn')]: true, ...(opening ? { opening: true } : {}) },
+    },
     creatures: {},
     party: [],
     box: [],
@@ -110,12 +126,16 @@ export function newGame(
     dialogue: null,
     notice: '冒险已准备就绪。',
   };
+  if (opening) {
+    const home = npcLocation('home')!;
+    Object.assign(state.player, { map: home.map, x: 7, y: 9, facing: 'up' });
+  }
   state.world = createExploration(seed, state.player);
   if (opening) {
     talk(state, '妈妈', [
       `${state.player.name}，终于搬到晨芽镇了！行李已经放好，先去认识一下新邻居吧。`,
-      '阿澈住在镇子东侧。他常帮岚博士做野外调查，可以带你熟悉这里。',
-      '你还没有自己的精灵，先别独自走进草丛。用方向键行走，靠近人后按 A 交谈。',
+      '阿澈在镇子东侧的研究所。他常帮岚博士做野外调查，可以带你熟悉这里。',
+      '你还没有自己的精灵，先别独自走进草丛。沿南侧出口走出家门，朝建筑的门口走就能进入，靠近人后按 A 交谈。',
     ]);
     return state;
   }
@@ -127,7 +147,7 @@ export function newGame(
   talk(state, '岚博士', [
     `${state.player.name}，欢迎来到星苔地区。${creatureName(starter)}已经选择与你同行。`,
     '用左侧方向键行走，靠近人物后按 A 交谈。也可以轻点相邻地格移动。',
-    '阿澈在镇子东侧等你，先来一场友好的练习吧。菜单里可以查看任务、保存和传档。',
+    '阿澈在镇子东侧的研究所等你，先来一场友好的练习吧。菜单里可以查看任务、保存和传档。',
   ]);
   return state;
 }
@@ -278,6 +298,25 @@ function interact(state: GameState): void {
   }
   faceTraveler(state, npc);
   if (
+    (GYM_TRAINERS.has(npc.event!) || (npc.role === 'switch' && GYM_BARRIERS[player.map])) &&
+    (!flags.rival || !flags.catchTutorial)
+  ) {
+    talk(state, npc.name, ['欢迎参观道馆。先完成基础对战与捕捉练习，再来参加本馆的考验。']);
+    return;
+  }
+  if (npc.role === 'trainer' && npcDefeated(flags, npc)) {
+    talk(state, npc.name, [
+      npc.id === 'forestScout'
+        ? '你和伙伴的配合让我很放心。记下两处线索后，从南面推动倒木就能继续调查。'
+        : GYM_TRAINERS.has(npc.event!) && npc.event?.endsWith('Keeper')
+          ? '那场对战让我看到了你们的默契。继续往前走，馆主在等你。'
+          : GYM_TRAINERS.has(npc.event!) && npc.event?.endsWith('Scout')
+            ? '还记得上次的切磋吗？接下来去看看道馆里的机关吧，祝你挑战顺利。'
+            : '上次的对战很精彩，我还记得你和伙伴的配合。今天就聊聊旅途见闻吧，祝你一路顺风！',
+    ]);
+    return;
+  }
+  if (
     interactConservation(state, npc, (speaker, lines, after) => talk(state, speaker, lines, after))
   )
     return;
@@ -354,7 +393,7 @@ function interact(state: GameState): void {
       talk(state, npc.name, [
         state.party.length ? '先休息一下吧。伙伴的体力已经恢复了。' : '新家随时欢迎你回来休息。',
         !flags.neighborMet
-          ? '阿澈在镇子东侧，去和他打个招呼吧。'
+          ? '阿澈在镇子东侧的研究所，去和他打个招呼吧。'
           : '博士经常在镇外调查，出门记得留意他的消息。',
       ]);
       break;
@@ -406,7 +445,7 @@ function interact(state: GameState): void {
         flags.opening && !flags.rival
           ? '阿澈正在一号路东部等你。完成切磋后，回来领取图鉴和捕捉补给。'
           : '沿着东侧道路前往苔丘镇吧。不同属性会互相克制，伙伴们的力量需要一起发挥。',
-        '捕捉球、治疗所和训练场都能反复补给，不必担心失败。',
+        '城镇商店可以购买补给，精灵中心免费治疗。训练师获胜后会和你聊聊旅途，沿途草丛也适合练习。',
       ]);
       break;
     case 'rival':
@@ -433,9 +472,12 @@ function interact(state: GameState): void {
       break;
     case 'healer':
       healParty(state);
-      if (flags.catchTutorial && PHOTO_TOWNS.includes(player.map as (typeof PHOTO_TOWNS)[number]))
-        flags[`photoStamp_${player.map}`] = true;
-      if (isTown(player.map)) player.healMap = player.map;
+      if (
+        flags.catchTutorial &&
+        PHOTO_TOWNS.includes(worldMapFor(player.map) as (typeof PHOTO_TOWNS)[number])
+      )
+        flags[`photoStamp_${worldMapFor(player.map)}`] = true;
+      if (townForMap(player.map)) player.healMap = townForMap(player.map)!;
       talk(state, npc.name, [
         '伙伴们的 HP、PP 和异常状态已全部恢复。旅途顺利！',
         '在我身旁打开菜单「精灵中心」，可免费恢复、遗忘和重学技能。剧情通用技能要先完成对应故事，解锁后可教给任意伙伴。',
@@ -491,6 +533,7 @@ function interact(state: GameState): void {
             : '森林里有两处线索。调查后请采集员帮忙，再从南面推动倒木。',
         ]);
       break;
+    case 'resident':
     case 'sign':
       if (npc.lines) {
         talk(state, npc.name, npc.lines);
@@ -512,7 +555,7 @@ function interact(state: GameState): void {
         npc.name,
         [
           npc.event === 'training'
-            ? '训练场随时欢迎你。伙伴的等级越高，我也会派出更强的对手！'
+            ? '来一次练习吧！用这场对战熟悉你和伙伴的配合。'
             : npc.event === 'forestScout'
               ? '我来帮你！先让我看看你和伙伴是否足以面对森林深处的危险。'
               : '让我们用精灵的力量来对话吧！',
@@ -689,6 +732,8 @@ function walk(state: GameState, direction: GameState['player']['facing']): void 
     p.map = portal.map;
     p.x = portal.toX;
     p.y = portal.toY;
+    if (MAPS[p.map].interior || map.entrances?.some((e) => e.x === x && e.y === y)) p.facing = 'up';
+    else if (map.interior) p.facing = 'down';
     state.notice = `到达${MAPS[p.map].name}`;
     state.encounterCooldown = 5;
     if (p.map === 'route' && f.opening && !f.professorCall) {
@@ -736,6 +781,7 @@ function walk(state: GameState, direction: GameState['player']['facing']): void 
 // A command always produces a complete stable checkpoint before presentation.
 function reduceCommand(current: GameState, command: Command): GameState {
   const state: GameState = JSON.parse(JSON.stringify(current));
+  rememberRecoveryTowns(state);
   ensureExploration(state);
   state.environment ??= createEnvironment(state.rng);
   state.masterBalls ??= { claimed: [], used: 0 };
@@ -778,11 +824,12 @@ function reduceCommand(current: GameState, command: Command): GameState {
         (b.event === 'openingRescue' ||
           (b.event === 'rival' && !state.progress.flags.fieldKitReceived))
       ) {
-        state.player.map = 'dawn';
-        state.player.x = 8;
-        state.player.y = 7;
+        const laboratory = npcLocation('professor')!;
+        state.player.map = laboratory.map;
+        state.player.x = laboratory.npc.x;
+        state.player.y = laboratory.npc.y + 1;
         state.player.facing = 'up';
-        state.notice = '回到晨芽镇研究所。';
+        state.notice = '回到晨芽镇研究所室内。';
         talk(
           state,
           '岚博士',
@@ -899,7 +946,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       if (!atCenter(state)) state.notice = '请到城市精灵中心治疗员身旁恢复伙伴。';
       else {
         healParty(state);
-        if (isTown(state.player.map)) state.player.healMap = state.player.map;
+        if (isTownLocation(state.player.map)) state.player.healMap = townForMap(state.player.map)!;
         state.notice = '全队 HP、PP、异常状态已免费恢复。';
       }
       break;
@@ -954,7 +1001,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       }
       if (
         command.itemId === 'respec' &&
-        isTown(state.player.map) &&
+        isTownLocation(state.player.map) &&
         c.hp === statsFor(c).hp &&
         !c.status &&
         sumStats(ensureTraining(c).allocated) > 0
@@ -1020,7 +1067,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
     }
     case 'release': {
       if (
-        !isTown(state.player.map) ||
+        !isTownLocation(state.player.map) ||
         state.pending.length ||
         !state.box.includes(command.creatureId)
       )
@@ -1032,7 +1079,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       break;
     }
     case 'box': {
-      if (!isTown(state.player.map)) {
+      if (!isTownLocation(state.player.map)) {
         state.notice = '仓库只能在城镇使用。';
         break;
       }
@@ -1068,7 +1115,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       const c = state.creatures[command.creatureId];
       if (
         c &&
-        isTown(state.player.map) &&
+        isTownLocation(state.player.map) &&
         (!fieldSkill(command.moveId) || atCenter(state)) &&
         fieldSkillUnlocked(state, command.moveId) &&
         !wouldLoseSurf(state, c.id, command.replace, command.moveId) &&
@@ -1111,6 +1158,7 @@ export function safePosition(
 export function reduceGame(current: GameState, command: Command): GameState {
   const next = reduceCommand(current, command);
   if (next !== current) {
+    rememberRecoveryTowns(next);
     const full = Object.keys(next.inventory).filter(
       (id) => id !== 'master_ball' && next.inventory[id]! > 999,
     );

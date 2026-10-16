@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,14 +15,14 @@ import { StatusBar } from 'expo-status-bar';
 import { STARTERS } from '../src/content/catalog';
 import { CreatureSprite } from '../src/components/CreatureSprite';
 import { TravelerSprite } from '../src/components/CharacterSprite';
+import { playerAppearance } from '../src/content/appearances';
 import { MapCanvas } from '../src/components/MapCanvas';
 import { Button, Label, palette, Panel, styles } from '../src/components/ui';
 import { newGame, safeForTransfer } from '../src/game/engine';
 import { SaveRepository } from '../src/persistence/repository';
 import { createSnapshot } from '../src/persistence/snapshot';
 import { entropy, getRepository } from '../src/runtime';
-import { Explore } from '../src/screens/Explore';
-import { BattleScreen } from '../src/screens/BattleScreen';
+import { AdventureScreen } from '../src/screens/AdventureScreen';
 import {
   BagMenu,
   DexMenu,
@@ -30,18 +31,17 @@ import {
   MenuName,
   menuStyles,
   PartyMenu,
-  PendingScreen,
   QuestMenu,
   RegionMenu,
-  StarterChoice,
 } from '../src/screens/GameMenus';
 import { SaveMenu, Slots, timeLabel } from '../src/screens/SaveMenu';
 import { TransferMenu } from '../src/screens/TransferMenu';
 import { useGameSession } from '../src/useGameSession';
 import { CenterMenu } from '../src/screens/CenterMenu';
 import { EnvironmentMenu } from '../src/screens/EnvironmentMenu';
-import { LEAGUE_TITLE } from '../src/content/league';
+import { APP_DESCRIPTION, APP_ENGLISH_NAME, APP_NAME, APP_TAGLINE } from '../src/content/brand';
 import { SettingsMenu } from '../src/screens/SettingsMenu';
+import { ControlLayoutEditor } from '../src/screens/ControlLayoutEditor';
 
 export default function App() {
   return (
@@ -60,6 +60,7 @@ function GameApp() {
   const [bootError, setBootError] = useState('');
   const [screen, setScreen] = useState<'title' | 'create' | 'play'>('title');
   const [menu, setMenu] = useState<MenuName | null>(null);
+  const [editingControls, setEditingControls] = useState(false);
   const [slots, setSlots] = useState<Slots>([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -108,8 +109,8 @@ function GameApp() {
     };
   }, []);
   useEffect(() => {
-    pauseSession(!!menu || screen !== 'play');
-  }, [menu, screen, pauseSession]);
+    pauseSession(!!menu || editingControls || screen !== 'play');
+  }, [menu, editingControls, screen, pauseSession]);
   const run = useCallback(async (work: () => Promise<void>) => {
     setBusy(true);
     setError('');
@@ -182,8 +183,27 @@ function GameApp() {
               }}
             >
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
-                <Text style={s.eyebrow}>STARGROVE EXPEDITION</Text>
-                <Text style={[s.logo, compact && { fontSize: 42, lineHeight: 54 }]}>星苔远征</Text>
+                <Text style={s.eyebrow}>{APP_ENGLISH_NAME}</Text>
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: compact ? 10 : 16 }}
+                >
+                  <Image
+                    source={require('../assets/icon.png')}
+                    accessibilityLabel={`${APP_NAME}图标：火系伙伴与星纹捕捉球`}
+                    style={{
+                      width: compact ? 56 : 72,
+                      height: compact ? 56 : 72,
+                      borderRadius: 16,
+                    }}
+                  />
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={[s.logo, { flexShrink: 1 }, compact && { fontSize: 42, lineHeight: 54 }]}
+                  >
+                    {APP_NAME}
+                  </Text>
+                </View>
                 <View
                   style={{
                     width: 62,
@@ -192,11 +212,11 @@ function GameApp() {
                     marginVertical: 14,
                   }}
                 />
-                <Label style={{ color: '#dece96', fontSize: compact ? 16 : 20, letterSpacing: 3 }}>
-                  {LEAGUE_TITLE}
+                <Label style={{ color: '#dece96', fontSize: compact ? 14 : 20, letterSpacing: 1 }}>
+                  {APP_TAGLINE}
                 </Label>
                 <Label muted style={{ maxWidth: 330, marginTop: 12, fontSize: compact ? 12 : 14 }}>
-                  在微光之中，遇见第一位伙伴。{'\n'}探索、捕捉，让每一段同行留下痕迹。
+                  {APP_DESCRIPTION}
                 </Label>
                 <View style={[styles.wrap, { marginTop: compact ? 18 : 30 }]}>
                   <Button
@@ -307,7 +327,14 @@ function GameApp() {
                   gap: 22,
                 }}
               >
-                <TravelerSprite facing="down" steps={0} paused size={compact ? 96 : 150} />
+                <TravelerSprite
+                  avatar={avatar}
+                  testID="traveler-preview"
+                  facing="down"
+                  steps={0}
+                  paused
+                  size={compact ? 96 : 150}
+                />
                 <View style={{ flex: 1, maxWidth: 470, gap: 10 }}>
                   <Label
                     style={{
@@ -320,6 +347,9 @@ function GameApp() {
                     刚搬到晨芽镇
                   </Label>
                   <Label>写下名字，整理好行李，再去认识新邻居。</Label>
+                  <Label muted testID="traveler-appearance-description">
+                    {playerAppearance(avatar).description}
+                  </Label>
                   <Label muted>你现在还没有精灵。第一位伙伴会在旅途中的一次意外相遇里登场。</Label>
                   <Label muted style={{ fontSize: 12 }}>
                     旅程目标：挑战八座道馆，集齐八枚徽章，向联盟出发。
@@ -336,8 +366,13 @@ function GameApp() {
                   placeholderTextColor={palette.muted}
                   style={[menuStyles.input, { width: 130 }]}
                 />
-                <Button small onPress={() => setAvatar(avatar ? 0 : 1)}>
-                  外观 {avatar + 1}
+                <Button
+                  small
+                  testID="avatar-cycle"
+                  accessibilityLabel="切换旅行者外观"
+                  onPress={() => setAvatar(avatar ? 0 : 1)}
+                >
+                  外观 {avatar + 1} · {playerAppearance(avatar).name}
                 </Button>
                 <ScrollView
                   horizontal
@@ -392,19 +427,16 @@ function GameApp() {
       )}
       {screen === 'play' && game && (
         <>
-          {game.battle ? (
-            <BattleScreen game={game} dispatch={session.dispatch} height={height} />
-          ) : (
-            <Explore
-              game={game}
-              dispatch={session.dispatch}
-              width={width}
-              height={height}
-              paused={!!menu || !session.active || busy}
-              saveStatus={session.saveStatus}
-              onMenu={() => changeMenu('party')}
-            />
-          )}
+          <AdventureScreen
+            key={session.slot}
+            game={game}
+            dispatch={session.dispatch}
+            width={width}
+            height={height}
+            paused={!!menu || editingControls || !session.active || busy}
+            saveStatus={session.saveStatus}
+            onMenu={() => changeMenu('party')}
+          />
         </>
       )}
       {menu && (
@@ -434,7 +466,11 @@ function GameApp() {
               }}
             />
           ) : menu === 'settings' ? (
-            <SettingsMenu game={game} dispatch={session.dispatch} />
+            <SettingsMenu
+              game={game}
+              dispatch={session.dispatch}
+              onEditControls={() => setEditingControls(true)}
+            />
           ) : game ? (
             <>
               {menu === 'party' && <PartyMenu game={game} dispatch={session.dispatch} />}
@@ -460,13 +496,14 @@ function GameApp() {
           )}
         </MenuFrame>
       )}
-      {game && !game.battle && !game.dialogue && game.pending.length > 0 && screen === 'play' && (
-        <PendingScreen game={game} dispatch={session.dispatch} />
+      {editingControls && (
+        <ControlLayoutEditor
+          game={game ?? titleScene}
+          width={width}
+          height={height}
+          onClose={() => setEditingControls(false)}
+        />
       )}
-      {game?.progress.flags.starterChoice &&
-        !game.dialogue &&
-        !game.battle &&
-        screen === 'play' && <StarterChoice game={game} dispatch={session.dispatch} />}
       {!!error && (
         <View style={s.error}>
           <ScrollView style={{ flex: 1, maxHeight: 90 }}>
@@ -487,7 +524,7 @@ function GameApp() {
           <ActivityIndicator size="large" color={palette.gold} />
         </View>
       )}
-      {width < height && (
+      {width < height && !editingControls && (
         <View
           pointerEvents="none"
           style={{

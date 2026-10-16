@@ -55,6 +55,9 @@ export const INDOOR_MAPS: MapId[] = [
   'leagueHall',
   'hallOfFame',
   ...ADVENTURE_STORY_CONTENT.flatMap((c) => c.indoor),
+  ...Object.values(MAPS)
+    .filter((m) => m.interior)
+    .map((m) => m.id),
 ];
 export const isIndoor = (map: MapId) => INDOOR_MAPS.includes(map);
 export function createEnvironment(seed: number): EnvironmentState {

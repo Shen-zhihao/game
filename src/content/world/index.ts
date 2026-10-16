@@ -1,7 +1,8 @@
 import { habitatZones, landEncounters } from '../habitats';
-import { Direction, MapId, StoryEvent, TownId } from '../../game/model';
+import { Direction, MapId, StoryEvent, TownId, WorldMapId } from '../../game/model';
 import { HIGHLAND_MAPS } from '../highlands';
 import { COAST_MAPS } from '../coast';
+import { BuildingEntrance, installBuildingInteriors, RoomKind, worldMapFor } from '../buildings';
 import {
   ADVENTURE_CHAPTERS,
   ADVENTURE_STORY_CONTENT,
@@ -32,6 +33,7 @@ export interface Npc {
     | 'trainer'
     | 'leader'
     | 'sign'
+    | 'resident'
     | 'clue'
     | 'log'
     | 'switch'
@@ -45,6 +47,7 @@ export interface Npc {
   patrol?: [number, number][];
   facing?: Direction;
   steps?: number;
+  defeatedPosition?: [number, number];
   lines?: string[];
   event?: StoryEvent;
   color?: string;
@@ -61,6 +64,8 @@ export interface GameMap {
   subtitle: string;
   rows: string[];
   npcs: Npc[];
+  entrances?: BuildingEntrance[];
+  interior?: { exterior: MapId; kind: RoomKind };
   portals: {
     x: number;
     y: number;
@@ -75,7 +80,7 @@ export interface GameMap {
 }
 // # trees/walls, . lawn, : path, g tall grass, ~ water, H home, C healing centre,
 // S shop, G gym, = bridge, ^ flowers. NPCs are stable interactive tiles.
-export const MAPS: Record<MapId, GameMap> = {
+const WORLD_MAPS: Record<WorldMapId, GameMap> = {
   dawn: {
     id: 'dawn',
     name: '晨芽镇',
@@ -332,6 +337,7 @@ export const MAPS: Record<MapId, GameMap> = {
   ...COAST_MAPS,
   ...ADVENTURE_MAPS,
 };
+export const MAPS = WORLD_MAPS as Record<MapId, GameMap>;
 // Every physical extension and its painted road use the same definition.
 // Keep public interaction clearings safe to stand in; tall grass begins beyond the posts.
 for (const chapter of ADVENTURE_STORY_CONTENT)
@@ -390,6 +396,24 @@ for (const map of Object.values(MAPS)) {
   const width = Math.max(...map.rows.map((row) => row.length));
   map.rows = map.rows.map((row) => row.padEnd(width, '#'));
 }
+installBuildingInteriors(MAPS, [
+  { town: 'moss', map: 'gym', gate: 'gymGate', entrance: { x: 11, y: 14 } },
+  { town: 'stone', map: 'rockGym', gate: 'rockGymGate', entrance: { x: 13, y: 18 } },
+  { town: 'harbor', map: 'waterGym', gate: 'waterGymGate', entrance: { x: 13, y: 20 } },
+  ...ADVENTURE_GYMS,
+]);
+export function townForMap(map: MapId): TownId | undefined {
+  const outside = worldMapFor(map);
+  return isTown(outside) ? outside : undefined;
+}
+export const isTownLocation = (map: MapId) => !!townForMap(map);
+export function npcLocation(id: string) {
+  for (const map of Object.values(MAPS)) {
+    const npc = map.npcs.find((n) => n.id === id);
+    if (npc) return { map: map.id, npc };
+  }
+  return undefined;
+}
 export function mapSize(id: MapId) {
   return { width: MAPS[id].rows[0]!.length * 32, height: MAPS[id].rows.length * 32 };
 }
@@ -405,20 +429,11 @@ export function npcVisible(
     return !!f.opening && (npc.role === 'home' || !f.professorRescued);
   if (npc.id === 'professor' && f.opening && !f.professorRescued) return false;
   if (npc.id === 'rival' && f.opening && f.neighborMet) return false;
-  if (npc.id === 'routeRival') return !!f.opening && !!f.partnerReceived && !f.rival;
+  if (npc.id === 'routeRival') return !!f.opening && !!f.partnerReceived;
   if (npc.id === 'catchGuide' && f.opening && !f.fieldKitReceived) return false;
   if (npc.id === 'routeChest' && f.opening && !f.catchTutorial) return false;
   if (npc.id === 'forestLog' && state.progress.flags.logMoved) return false;
   if (npc.id === 'lostCreature' && state.progress.flags.rescued) return false;
-  if (
-    npc.role === 'trainer' &&
-    npc.event !== 'training' &&
-    npc.event !== 'highlandTraining' &&
-    npc.event !== 'coastTraining' &&
-    !PRACTICE_TRAINERS.has(npc.event!) &&
-    state.progress.flags[npc.event!]
-  )
-    return false;
   return true;
 }
 export function terrainPassable(
@@ -428,7 +443,8 @@ export function terrainPassable(
   flags: Record<string, boolean>,
 ): boolean {
   const tile = MAPS[mapId]?.rows[y]?.[x];
-  if (!tile || '#HCSGL'.includes(tile)) return false;
+  if (MAPS[mapId]?.entrances?.some((e) => e.x === x && e.y === y)) return true;
+  if (!tile || '#HCSGLF'.includes(tile)) return false;
   if ((tile === '~' || tile === 'W') && !flags.waterRig && !flags.lighthouseRepaired) return false;
   if (tile === 'R' && !flags[mapId === 'stoneRoute' ? 'foothillRock' : 'mineRock']) return false;
   if (GYM_BARRIERS[mapId]?.some(([xx, yy, flag]) => x === xx && y === yy && !flags[flag]))
@@ -529,6 +545,19 @@ export const GYM_TRAINERS = new Set([
   'waterLeader',
   ...ADVENTURE_GYMS.flatMap((g) => [g.scout, g.keeper, g.leader]),
 ]);
+// Apprentices step aside after a victory so the single-tile approach stays open.
+for (const map of Object.values(MAPS))
+  for (const npc of map.npcs)
+    if (npc.role === 'trainer' && GYM_TRAINERS.has(npc.event!)) {
+      const point = [
+        [npc.x + 1, npc.y],
+        [npc.x - 1, npc.y],
+      ].find(
+        ([x, y]) =>
+          terrainPassable(map.id, x!, y!, {}) && !map.npcs.some((n) => n.x === x && n.y === y),
+      );
+      if (point) npc.defeatedPosition = point as [number, number];
+    }
 export const GYM_REWARDS = [
   { leader: 'leader', tool: 'vineCut', badge: '枝叶徽章', toolName: '剪藤工具' },
   { leader: 'rockLeader', tool: 'rockBreaker', badge: '砾岩徽章', toolName: '碎岩工具' },
@@ -543,19 +572,27 @@ export const PRACTICE_TRAINERS = new Set<string>([
     .filter(([, t]) => t!.practice)
     .map(([id]) => id),
 ]);
+export const npcVictoryFlag = (id: string) => `defeatedNpc_${id}`;
+export function npcDefeated(flags: Record<string, boolean>, npc: Npc): boolean {
+  return (
+    !!npc.event &&
+    npc.event in TRAINERS &&
+    (!!flags[npcVictoryFlag(npc.id)] || (!PRACTICE_TRAINERS.has(npc.event) && !!flags[npc.event]))
+  );
+}
 export function badgeCount(flags: Record<string, boolean>) {
   return GYM_REWARDS.filter((gym) => flags[gym.leader]).length;
 }
 export function objective(flags: Record<string, boolean>, badges: number, mapId?: MapId): string {
   if (flags.opening) {
-    if (!flags.neighborMet) return '刚搬来晨芽镇：去镇子东侧拜访邻居阿澈。';
+    if (!flags.neighborMet) return '刚搬来晨芽镇：去镇子东侧研究所拜访邻居阿澈。';
     if (!flags.professorCall) return '博士正在镇外调查。沿东侧出口前往一号路。';
     if (!flags.professorRescued) return '岚博士正被追赶！调查他落在路边的背包，借用精灵救人。';
     if (!flags.partnerReceived) return '回晨芽镇研究所，和岚博士交谈，正式获得伙伴。';
     if (!flags.rival) return '在一号路东部找到阿澈，完成第一场训练师对战。';
     if (!flags.fieldKitReceived) return '回研究所向岚博士报告，领取图鉴与捕捉补给。';
   }
-  if (!flags.rival) return '与晨芽镇东侧的阿澈进行第一次练习战。';
+  if (!flags.rival) return '与晨芽镇东侧研究所的阿澈进行第一次练习战。';
   if (!flags.catchTutorial) return '前往一号路，和阿澈学习捕捉。';
   if (mapId === 'leagueHall')
     return !flags.leagueIce

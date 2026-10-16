@@ -2,11 +2,12 @@ import { writeFileSync } from 'node:fs';
 import { format, resolveConfig } from 'prettier';
 import { CONTENT_VERSION, ITEMS, ITEM_POCKETS, SPECIES } from '../src/content/catalog';
 import { CHEAT_CODES, CREATURE_CHEAT_CODES, ITEM_CHEAT_CODES } from '../src/game/cheats';
+import { APP_NAME } from '../src/content/brand';
 
 async function main() {
   const groups = Object.keys(ITEM_POCKETS) as (keyof typeof ITEM_POCKETS)[];
   const text = [
-    '# 星苔远征金手指代码',
+    `# ${APP_NAME}金手指代码`,
     '',
     `适用内容版本：\`${CONTENT_VERSION}\`。从游戏运行配置生成；更新命令为 \`pnpm exec tsx tools/export-cheats.ts\`。`,
     '',

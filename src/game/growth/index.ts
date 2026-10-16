@@ -52,7 +52,23 @@ export function ensureTraining(c: Creature): Training {
   const training = (c.training ??= trainingFor(c));
   // Preserve every existing roll. New levels use the strength policy from this boundary on.
   training.strengthFromLevel ??= training.rolls.length + 2;
+  training.naturalGrowthFromLevel ??= c.level;
   return training;
+}
+
+/** Keeps species-based growth, with at least +1 per level for every untrained ability. */
+export function naturalGrowthBonus(
+  creature: Pick<Creature, 'speciesId' | 'level' | 'training'>,
+  key: (typeof STAT_KEYS)[number],
+): number {
+  const from = creature.training?.naturalGrowthFromLevel;
+  const base = SPECIES[creature.speciesId]!.baseStats[key];
+  if (from === undefined || key === 'hp' || base >= 50 || creature.level <= from) return 0;
+  return (
+    creature.level -
+    from -
+    (Math.floor((2 * base * creature.level) / 100) - Math.floor((2 * base * from) / 100))
+  );
 }
 export const earnedPoints = (c: Creature) => trainingFor(c).rolls.reduce((sum, n) => sum + n, 0);
 export const availablePoints = (c: Creature) =>

@@ -11,7 +11,16 @@ import {
   STARTERS,
   supportsContentVersion,
 } from '../../content/catalog';
-import { badgeCount, MAPS, Npc, npcVisible, TOWN_REST } from '../../content/world';
+import {
+  badgeCount,
+  MAPS,
+  Npc,
+  npcVisible,
+  npcDefeated,
+  npcVictoryFlag,
+  PRACTICE_TRAINERS,
+  TOWN_REST,
+} from '../../content/world';
 import {
   ADVENTURE_EVENTS,
   ADVENTURE_FLAGS,
@@ -31,6 +40,7 @@ import { MASTER_BALL_SOURCES } from '../../game/capture';
 import { canSurf, fieldSkillUnlocked } from '../../game/fieldSkills';
 import { LEAGUE_STAGES, LEAGUE_BADGES } from '../../content/league';
 import { KEY_ITEMS, effectiveAccessFlags, hasFieldAccess } from '../../content/keyItems';
+import { RECOVERY_TOWNS, townVisitFlag } from '../../game/recovery';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -64,6 +74,7 @@ const trainingSchema = z.strictObject({
   seed: integer(4294967295, 1),
   rolls: z.array(integer(10, 1)).max(99),
   strengthFromLevel: integer(101, 2).optional(),
+  naturalGrowthFromLevel: integer(100, 1).optional(),
   allocated: abilitySchema,
   legacyBonus: statsSchema,
 });
@@ -167,7 +178,7 @@ const mapId = z.enum(
 );
 const worldSchema = z.strictObject({
   seed: integer(4294967295),
-  generatedMaps: z.array(mapId).max(64).optional(),
+  generatedMaps: z.array(mapId).max(Object.keys(MAPS).length).optional(),
   patrols: z.record(
     z.string().max(100),
     z.strictObject({
@@ -276,6 +287,7 @@ const gameSchema = z.strictObject({
     .strictObject({
       id: idSchema,
       kind: z.enum(['wild', 'trainer']),
+      npcId: idSchema.optional(),
       event: event.nullable(),
       name: z.string().max(40),
       enemies: z.array(creatureSchema).min(1).max(6),
@@ -285,6 +297,22 @@ const gameSchema = z.strictObject({
       phase: z.enum(['choose', 'forcedSwitch', 'ended']),
       turn: integer(100000, 1),
       aiMove: integer(3, -1),
+      actionRound: z
+        .strictObject({
+          playerTotal: integer(3, 1),
+          enemyTotal: integer(3, 1),
+          playerRemaining: integer(3),
+          enemyRemaining: integer(3),
+          enemyFirst: z.boolean(),
+          immobility: z.record(
+            idSchema,
+            z.strictObject({
+              status: z.enum(['poison', 'burn', 'paralysis', 'sleep']).nullable(),
+              blocked: z.boolean(),
+            }),
+          ),
+        })
+        .optional(),
       playerStages: stages,
       enemyStages: stages,
       logs: z.array(z.string().max(200)).max(100),
@@ -324,6 +352,12 @@ const gameSchema = z.strictObject({
   notice: z.string().max(500),
 });
 const FLAGS = new Set([
+  ...RECOVERY_TOWNS.map(townVisitFlag),
+  ...Object.values(MAPS).flatMap((m) =>
+    m.npcs
+      .filter((n) => n.event && PRACTICE_TRAINERS.has(n.event))
+      .map((n) => npcVictoryFlag(n.id)),
+  ),
   ...ADVENTURE_FLAGS,
   'opening',
   'mistClueOne',
@@ -442,6 +476,10 @@ export function validateGame(input: unknown): GameState {
       );
     if (c.training) {
       const t = c.training;
+      invariant(
+        t.naturalGrowthFromLevel === undefined || t.naturalGrowthFromLevel <= c.level,
+        '自然成长起始等级无效',
+      );
       invariant(
         t.rolls.length === c.level - 1 &&
           (t.strengthFromLevel === undefined || t.strengthFromLevel <= c.level + 1) &&
@@ -766,6 +804,34 @@ export function validateGame(input: unknown): GameState {
   );
   if (['~', 'W'].includes(MAPS[game.player.map].rows[game.player.y]?.[game.player.x] ?? ''))
     invariant(canSurf(game), '水面位置缺少渡水能力');
+  // Older saves could stand on a defeated trainer's former, hidden tile.
+  // Move only that legacy case to an adjacent empty floor when residents become visible.
+  if (
+    !game.world?.generatedMaps?.some((id) => MAPS[id].interior) &&
+    worldNpcs(game).some(
+      (n) =>
+        n.x === game.player.x &&
+        n.y === game.player.y &&
+        npcVisible(game, n) &&
+        npcDefeated(flags, n),
+    )
+  ) {
+    const landing = [
+      [0, 1],
+      [1, 0],
+      [-1, 0],
+      [0, -1],
+    ]
+      .map(([dx, dy]) => ({ x: game.player.x + dx!, y: game.player.y + dy! }))
+      .find(
+        ({ x, y }) =>
+          safePosition(game.player.map, x, y, effectiveAccessFlags(game)) &&
+          !['~', 'W'].includes(MAPS[game.player.map].rows[y]?.[x] ?? '') &&
+          !MAPS[game.player.map].portals.some((p) => p.x === x && p.y === y) &&
+          !worldNpcs(game).some((n) => n.x === x && n.y === y && npcVisible(game, n)),
+      );
+    if (landing) Object.assign(game.player, landing);
+  }
   invariant(
     !worldNpcs(game).some(
       (n) => n.x === game.player.x && n.y === game.player.y && npcVisible(game, n),
@@ -799,6 +865,14 @@ export function validateGame(input: unknown): GameState {
   if (game.dialogue) invariant(game.dialogue.index < game.dialogue.lines.length, '对话位置越界');
   if (game.battle) {
     const b = game.battle;
+    if (b.npcId)
+      invariant(
+        b.kind === 'trainer' &&
+          Object.values(MAPS).some((m) =>
+            m.npcs.some((n) => n.id === b.npcId && n.event === b.event),
+          ),
+        '训练师对战来源无效',
+      );
     const regional = adventureEncounter(b.event);
     if (regional)
       invariant(
@@ -851,6 +925,20 @@ export function validateGame(input: unknown): GameState {
       '战斗引用无效',
     );
     invariant((b.phase === 'ended') === (b.result !== null), '战斗结算状态冲突');
+    if (b.actionRound) {
+      const round = b.actionRound;
+      invariant(
+        b.phase === 'choose' &&
+          round.playerRemaining > 0 &&
+          round.playerRemaining < round.playerTotal &&
+          round.enemyRemaining <= round.enemyTotal &&
+          (round.playerTotal === 1 || round.enemyTotal === 1) &&
+          Object.keys(round.immobility).every(
+            (id) => game.party.includes(id) || b.enemies.some((e) => e.id === id),
+          ),
+        '本回合剩余行动额度无效',
+      );
+    }
     if (b.weather)
       invariant(
         b.weather.turns !== null || b.weather.kind === b.weather.ambient,

@@ -24,6 +24,9 @@ import { chanceLabel, criticalChance, hitChance, roundPace } from '../../game/co
 import { WEATHER } from '../../game/environment';
 import { WeatherOverlay } from '../../components/WeatherOverlay';
 import { BALLS } from '../../game/capture';
+import { createBattlePlaybackClock } from '../../game/battlePlayback';
+import { useBattleMessageDelay } from '../../platform/battlePlayback';
+import { useAppActivity } from '../../platform/appActivity';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
 function BattleTile({
@@ -72,10 +75,12 @@ export function BattleScreen({
   game,
   dispatch,
   height,
+  paused = false,
 }: {
   game: GameState;
   dispatch: (c: Command) => void;
   height: number;
+  paused?: boolean;
 }) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -83,6 +88,9 @@ export function BattleScreen({
   const player = game.creatures[b.playerId]!;
   const enemy = b.enemies[b.enemyIndex]!;
   const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
+  const actionTotal = b.actionRound?.playerTotal ?? pace.playerActions;
+  const actionsRemaining = b.actionRound?.playerRemaining ?? actionTotal;
+  const enemyActionTotal = b.actionRound?.enemyTotal ?? pace.enemyActions;
   const compact = height < 450;
   const footerHeight = compact ? 114 : Math.min(180, Math.round(height * 0.25));
   const [field, setField] = useState({ width, height: height - footerHeight });
@@ -95,57 +103,95 @@ export function BattleScreen({
   const pendingTurn = useRef(false);
   const actionAt = useRef(0);
   const [presentation, setPresentation] = useState<string[]>([]);
+  const [presentationId, setPresentationId] = useState(0);
   const [line, setLine] = useState(0);
   const [initialScene, setInitialScene] = useState(() => battleScene(game));
   const [visualEvents, setVisualEvents] = useState<BattleVisualEvent[]>([]);
   const [completedEffect, setCompletedEffect] = useState('');
-  const effectKey = `${b.id}:${b.turn}:${line}`;
+  const [impactedEffect, setImpactedEffect] = useState('');
+  const [playbackClock] = useState(createBattlePlaybackClock);
+  const [playbackPaused, setPlaybackPaused] = useState(false);
+  const messageDelay = useBattleMessageDelay();
+  const active = useAppActivity();
+  const effectKey = `${b.id}:${b.turn}:${b.actionRound?.playerRemaining ?? 0}:${presentationId}:${line}`;
   const onEffectFinished = useCallback(
     (key: string) => setCompletedEffect(key),
     [setCompletedEffect],
   );
+  const onEffectImpact = useCallback((key: string) => setImpactedEffect(key), []);
   const presenting = presentation.length > 0;
   const playback = presentationScene(
     initialScene,
     visualEvents,
     line,
-    completedEffect === effectKey,
+    completedEffect === effectKey || impactedEffect === effectKey,
   );
   const scene = presenting ? playback.scene : battleScene(game);
   const activeMove = presenting ? playback.move : null;
   const animating = !!activeMove && completedEffect !== effectKey;
+  const feedbackEvent =
+    presenting && !animating
+      ? (visualEvents.find(
+          (event): event is import('../../game/model').BattleMoveEvent =>
+            event.kind === 'move' && event.logIndex <= line && line <= event.endLogIndex,
+        ) ?? null)
+      : null;
   useEffect(() => {
     if (!pendingTurn.current) return;
     pendingTurn.current = false;
     setPresentation(b.logs);
+    setPresentationId((value) => value + 1);
     setVisualEvents(b.visualEvents ?? []);
     setCompletedEffect('');
     setLine(0);
     setBusy(false);
   }, [b]);
-  const advance = () => {
-    if (animating) return;
-    if (line + 1 < presentation.length) setLine(line + 1);
-    else setPresentation([]);
-  };
+  const advance = useCallback(() => {
+    if (paused || animating) return;
+    if (presenting) {
+      if (line + 1 < presentation.length) setLine(line + 1);
+      else setPresentation([]);
+    } else if (b.phase === 'ended') dispatch({ kind: 'closeBattle' });
+  }, [paused, animating, presenting, line, presentation.length, b.phase, dispatch]);
+  const playbackKey = presenting
+    ? effectKey
+    : b.phase === 'ended' && !busy
+      ? `${effectKey}:result`
+      : null;
+  const playbackStopped = paused || playbackPaused || showLog || !active;
+  useEffect(() => {
+    playbackClock.update(
+      playbackKey
+        ? {
+            key: playbackKey,
+            delayMs: messageDelay,
+            ready: !animating,
+            paused: playbackStopped,
+            onAdvance: advance,
+          }
+        : null,
+    );
+  }, [playbackClock, playbackKey, messageDelay, animating, playbackStopped, advance]);
+  useEffect(() => () => playbackClock.dispose(), [playbackClock]);
   const act = useCallback(
     (action: BattleAction) => {
-      if (busy || presenting || Date.now() - actionAt.current < 350) return;
+      if (paused || busy || presenting || Date.now() - actionAt.current < 350) return;
       actionAt.current = Date.now();
       setInitialScene(battleScene(game));
       pendingTurn.current = true;
       setBusy(true);
       setShowLog(false);
+      setPlaybackPaused(false);
       setPage('commands');
       dispatch({ kind: 'battle', action });
     },
-    [busy, presenting, dispatch, setPage, setBusy, setShowLog, game],
+    [paused, busy, presenting, dispatch, setPage, setBusy, setShowLog, setPlaybackPaused, game],
   );
   useEffect(() => {
     const back = () => {
-      if (busy || animating) return true;
+      if (paused || busy || animating) return true;
       if (showLog) setShowLog(false);
-      else if (presenting) advance();
+      else if (presenting) playbackClock.skip();
       else if (b.phase !== 'forcedSwitch') setPage(page === 'targets' ? 'bag' : 'commands');
       return true;
     };
@@ -243,8 +289,10 @@ export function BattleScreen({
           enemyAnchor={enemyAnchor}
           size={size}
           event={activeMove}
+          feedbackEvent={feedbackEvent}
           eventKey={effectKey}
-          playing={animating}
+          playing={animating && !playbackStopped}
+          onImpact={onEffectImpact}
           onFinished={onEffectFinished}
           ended={ended}
         />
@@ -271,10 +319,13 @@ export function BattleScreen({
             <View style={{ flex: 1 }}>
               <HpBar value={scene.enemy.hp} max={maxEnemy} width="100%" />
             </View>
+            <Text style={s.hpNumber}>
+              {scene.enemy.hp}/{maxEnemy}
+            </Text>
           </View>
           {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
           <Text testID="enemy-pace" style={{ color: '#36513d', fontSize: compact ? 10 : 12 }}>
-            速度 {Number(pace.enemySpeed.toFixed(1))} · 技能 {pace.enemyActions} 次 / 回合
+            速度 {Number(pace.enemySpeed.toFixed(1))} · 行动 {enemyActionTotal} 次 / 回合
           </Text>
         </View>
         <View
@@ -326,8 +377,16 @@ export function BattleScreen({
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
           <Text testID="player-pace" style={{ color: '#36513d', fontSize: compact ? 10 : 12 }}>
-            速度 {Number(pace.playerSpeed.toFixed(1))} · 技能 {pace.playerActions} 次 / 回合
+            速度 {Number(pace.playerSpeed.toFixed(1))} · 行动 {actionTotal} 次 / 回合
           </Text>
+          {!ended && (
+            <Text
+              testID="battle-actions-remaining"
+              style={{ color: '#36513d', fontSize: compact ? 10 : 12, fontWeight: '700' }}
+            >
+              本回合剩余 {actionsRemaining}/{actionTotal} 次操作 · 每次重新选择
+            </Text>
+          )}
         </View>
         <View style={[s.battleTag, { top: 7 + insets.top }]}>
           <Text style={{ color: '#f3e7bb', fontSize: 11 }}>
@@ -379,8 +438,8 @@ export function BattleScreen({
                   </Label>
                   <Label style={{ color: palette.gold, fontSize: 12 }}>
                     当前速度 {Number(pace.playerSpeed.toFixed(1))} /{' '}
-                    {Number(pace.enemySpeed.toFixed(1))} · 每轮技能额度 {pace.playerActions} /{' '}
-                    {pace.enemyActions} 次
+                    {Number(pace.enemySpeed.toFixed(1))} · 本轮行动额度 {actionTotal} /{' '}
+                    {enemyActionTotal} 次，剩余操作可重新选择
                   </Label>
                   <Label muted style={{ fontSize: 12 }}>
                     普通攻击要害率：我方{' '}
@@ -414,7 +473,7 @@ export function BattleScreen({
             </Button>
           </Panel>
         )}
-        {ended && !presenting && !showLog && (
+        {ended && !presenting && !busy && !showLog && (
           <Panel style={[s.result, { maxHeight: field.height - 20, padding: compact ? 14 : 22 }]}>
             <Label style={{ fontSize: compact ? 20 : 27, fontWeight: '900', color: palette.gold }}>
               {b.result === 'win'
@@ -472,7 +531,7 @@ export function BattleScreen({
                   : choosingParty
                     ? '伙伴的选择'
                     : page === 'moves'
-                      ? `选择技能 · 最多 ${pace.playerActions} 次，逐次扣 PP`
+                      ? `选择技能 · 本次使用 1 次，剩余 ${actionsRemaining}/${actionTotal} 次操作`
                       : page === 'bag'
                         ? '选择道具'
                         : `${creatureName(player)}，你打算怎么做？`}
@@ -490,17 +549,21 @@ export function BattleScreen({
           {presenting ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="继续战斗对话"
+              accessibilityLabel="战斗信息，自动播放"
               testID="battle-dialogue"
               disabled={animating}
-              onPress={advance}
+              onPress={playbackClock.skip}
               style={{ flex: 1, justifyContent: 'center' }}
             >
               <Label style={{ fontSize: compact ? 15 : 19, lineHeight: compact ? 23 : 29 }}>
                 {presentation[line]}
               </Label>
               <Text style={{ alignSelf: 'flex-end', color: palette.gold, fontSize: 11 }}>
-                {animating ? '技能演出中…' : '点击继续 ▾'}
+                {playbackStopped
+                  ? '播放已暂停'
+                  : animating
+                    ? '技能演出中 · 自动播放'
+                    : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
               </Text>
             </Pressable>
           ) : (
@@ -535,24 +598,52 @@ export function BattleScreen({
           ]}
         >
           {presenting ? (
-            <Button
-              accent
-              testID="battle-next-line"
-              disabled={animating}
-              style={{ flex: 1 }}
-              onPress={advance}
-            >
-              {animating ? '技能演出中…' : '继续 ▾'}
-            </Button>
+            <View style={{ flex: 1, justifyContent: 'center', gap: compact ? 4 : 10 }}>
+              <Label
+                testID="battle-autoplay-status"
+                style={{ color: '#36513d', fontSize: compact ? 11 : 13 }}
+              >
+                {playbackStopped ? '播放已暂停' : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
+              </Label>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button
+                  small
+                  testID="battle-playback-pause"
+                  onPress={() => setPlaybackPaused(!playbackPaused)}
+                >
+                  {playbackPaused ? '继续播放' : '暂停'}
+                </Button>
+                <Button
+                  small
+                  testID="battle-next-line"
+                  disabled={animating}
+                  onPress={playbackClock.skip}
+                >
+                  下一条
+                </Button>
+              </View>
+            </View>
           ) : ended ? (
-            <Button
-              accent
-              testID="close-battle"
-              style={{ flex: 1 }}
-              onPress={() => dispatch({ kind: 'closeBattle' })}
-            >
-              继续旅程 ▸
-            </Button>
+            <View style={{ flex: 1, justifyContent: 'center', gap: 8 }}>
+              <Label
+                testID="battle-auto-return"
+                style={{ color: '#36513d', fontSize: compact ? 11 : 13 }}
+              >
+                {playbackStopped ? '播放已暂停' : `${messageDelay / 1000} 秒后自动返回旅程`}
+              </Label>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Button
+                  small
+                  testID="battle-playback-pause"
+                  onPress={() => setPlaybackPaused(!playbackPaused)}
+                >
+                  {playbackPaused ? '继续播放' : '暂停'}
+                </Button>
+                <Button accent small testID="close-battle" onPress={playbackClock.skip}>
+                  立即返回旅程
+                </Button>
+              </View>
+            </View>
           ) : b.phase === 'forcedSwitch' ? (
             <Label style={{ color: palette.gold, textAlign: 'center' }}>伙伴在等待你的选择</Label>
           ) : page === 'moves' ? (

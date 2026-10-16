@@ -11,6 +11,9 @@ writeFileSync(
       maxLevel: 100,
       pointsPerLevel: [1, 10],
       abilityPerPoint: 1,
+      naturalGrowth:
+        '每次升级六项至少 +1，高种族能力按种族公式成长；培养点另加。旧档从迁移后的下一次升级生效。',
+      autoPreview: '选择自动方案只生成预览，确认后才分配并启用；取消不消耗点数。',
       defaultMode: 'manual',
       strengthBasis:
         'maximum base stat total within the evolutionary family; stable across evolution',

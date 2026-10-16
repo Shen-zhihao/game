@@ -1,5 +1,6 @@
 import { LEAGUE_BADGES, LEAGUE_STAGES, LEAGUE_STAGE_NAMES } from '../../content/league';
 import { SPECIES } from '../../content/catalog';
+import { APP_NAME } from '../../content/brand';
 import type { Npc } from '../../content/world';
 import type { GameState, StoryEvent } from '../model';
 type Talk = (speaker: string, lines: string[], after?: StoryEvent | null) => void;
@@ -26,11 +27,7 @@ export function finishLeagueBattle(g: GameState, result: string | null, event: S
   const l = ensureLeague(g);
   if (result === 'lose') {
     resetLeague(g);
-    g.player.map = 'league';
-    g.player.x = 6;
-    g.player.y = 6;
-    g.player.healMap = 'league';
-    g.notice = '本轮连战结束。伙伴已恢复，经验与金币保留，可从第一位精英重新登记。';
+    g.notice += ' 本轮连战结束，经验与金币保留，可从第一位精英重新登记。';
     return;
   }
   if (result !== 'win') return;
@@ -143,7 +140,7 @@ export function leagueVictoryPresentation(g: GameState, talk: Talk) {
         ? '各城重新连通了星流，所有公开记录都留给了后来者。森林、矿山、潮汐与迁徙终于各有归途。'
         : '联盟巡礼已经完成。星流调查仍可独立继续，地区居民和公开档案会等你回来。',
       '岚博士：冠军不是旅程的终点。保育园、古庙与终宵厅还有可以理解的新故事。',
-      '星苔远征 · 联盟篇结束。存档、伙伴、培养和全部居民任务保留，离开名录后可继续冒险。',
+      `${APP_NAME} · 联盟篇结束。存档、伙伴、培养和全部居民任务保留，离开名录后可继续冒险。`,
     ],
     'leagueCredits',
   );

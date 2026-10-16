@@ -52,15 +52,18 @@ export function TrainingPanel({
 }) {
   const t = trainingFor(c);
   const available = availablePoints(c);
-  const fingerprint = `${c.id}:${c.level}:${t.mode}:${STAT_KEYS.map((k) => t.allocated[k]).join(',')}`;
-  const [staged, setStaged] = useState({ fingerprint: '', points: emptyStats() });
+  const fingerprint = `${c.id}:${c.speciesId}:${c.level}:${available}:${t.mode}:${STAT_KEYS.map((k) => t.allocated[k]).join(',')}`;
+  const [staged, setStaged] = useState({ fingerprint: '', points: emptyStats(), mode: t.mode });
   const draft = staged.fingerprint === fingerprint ? staged.points : emptyStats();
+  const previewAuto = staged.fingerprint === fingerprint && staged.mode === 'auto';
+  const mode = staged.fingerprint === fingerprint ? staged.mode : t.mode;
   const total = sumStats(draft);
   const stats = statsFor(c);
   const plan = TRAINING_PLANS[c.speciesId]!;
   const update = (key: (typeof STAT_KEYS)[number], amount: number) =>
     setStaged({
       fingerprint,
+      mode: 'manual',
       points: {
         ...draft,
         [key]: Math.max(0, Math.min(draft[key] + amount, draft[key] + available - total)),
@@ -79,33 +82,40 @@ export function TrainingPanel({
         </View>
       </View>
       <Label muted style={{ fontSize: 12 }}>
-        每次升级随机获得 1–10 点，强度越高越容易获得高点数。1 点 = 对应能力 +1。已分配{' '}
-        {sumStats(t.allocated)} / 累计 {earnedPoints(c)} 点。
+        每次升级六项能力按种族定位自然成长，每项至少 +1，与培养无关。另获 1–10
+        培养点，强度越高越容易获得高点数。1 点 = 对应能力额外 +1。已分配 {sumStats(t.allocated)} /
+        累计 {earnedPoints(c)} 点。
       </Label>
       <View style={[styles.wrap, { gap: 7 }]}>
         <Button
           small
-          selected={t.mode === 'manual'}
-          accent={t.mode === 'manual'}
+          selected={mode === 'manual'}
+          accent={mode === 'manual'}
           testID="training-manual"
-          onPress={() => dispatch({ kind: 'trainingMode', creatureId: c.id, mode: 'manual' })}
+          onPress={() => {
+            setStaged({ fingerprint: '', points: emptyStats(), mode: 'manual' });
+            if (t.mode !== 'manual')
+              dispatch({ kind: 'trainingMode', creatureId: c.id, mode: 'manual' });
+          }}
         >
           手动培养
         </Button>
         <Button
           small
-          selected={t.mode === 'auto'}
-          accent={t.mode === 'auto'}
+          selected={mode === 'auto'}
+          accent={mode === 'auto'}
           testID="training-auto"
-          onPress={() => dispatch({ kind: 'trainingMode', creatureId: c.id, mode: 'auto' })}
+          onPress={() => setStaged({ fingerprint, points: recommendedAllocation(c), mode: 'auto' })}
         >
           自动按方案
         </Button>
       </View>
       <Label muted style={{ fontSize: 11 }}>
-        {t.mode === 'auto'
-          ? '升级后自动按当前形态的方案加点。切换回手动可保留以后的点数。'
-          : '点击 +1、+5 或全加，仅未确认的预览可以撤回。自动培养会立即分配现有点数。'}
+        {previewAuto
+          ? `自动方案预览 · ${plan.role}：本次分配 ${total} 点。下方展示确认前后的六项能力，确认后才生效，并在后续升级自动培养。`
+          : t.mode === 'auto'
+            ? '升级后自动按当前形态的方案加点。切换回手动可保留以后的点数。'
+            : '点击 +1、+5 或全加预览，确认后生效。选择自动方案也会先预览，取消不消耗点数。'}
       </Label>
       {STAT_KEYS.map((key) => (
         <View
@@ -118,14 +128,14 @@ export function TrainingPanel({
               {draft[key] ? ` → ${stats[key] + draft[key]}` : ''}
               <Label muted style={{ fontSize: 10 }}>
                 {' '}
-                · 已加 {t.allocated[key]}
+                · 等级基础 {stats[key] - t.allocated[key]} · 培养 +{t.allocated[key]}
               </Label>
             </Label>
           </View>
           <Button
             small
             testID={`training-minus-${key}`}
-            disabled={!draft[key]}
+            disabled={previewAuto || !draft[key]}
             onPress={() => update(key, -1)}
             style={{ paddingHorizontal: 8 }}
           >
@@ -134,7 +144,7 @@ export function TrainingPanel({
           <Button
             small
             testID={`training-plus-${key}`}
-            disabled={total >= available}
+            disabled={previewAuto || total >= available}
             onPress={() => update(key, 1)}
             style={{ paddingHorizontal: 8 }}
           >
@@ -143,7 +153,7 @@ export function TrainingPanel({
           <Button
             small
             testID={`training-five-${key}`}
-            disabled={total >= available}
+            disabled={previewAuto || total >= available}
             onPress={() => update(key, 5)}
             style={{ paddingHorizontal: 8 }}
           >
@@ -152,7 +162,7 @@ export function TrainingPanel({
           <Button
             small
             testID={`training-all-${key}`}
-            disabled={total >= available}
+            disabled={previewAuto || total >= available}
             onPress={() => update(key, available - total)}
             style={{ paddingHorizontal: 8 }}
           >
@@ -165,15 +175,17 @@ export function TrainingPanel({
           small
           testID="training-recommend"
           disabled={!available}
-          onPress={() => setStaged({ fingerprint, points: recommendedAllocation(c) })}
+          onPress={() =>
+            setStaged({ fingerprint, points: recommendedAllocation(c), mode: 'manual' })
+          }
         >
           套用推荐 · {plan.role}
         </Button>
         <Button
           small
           testID="training-clear"
-          disabled={!total}
-          onPress={() => setStaged({ fingerprint, points: emptyStats() })}
+          disabled={!total && !previewAuto}
+          onPress={() => setStaged({ fingerprint: '', points: emptyStats(), mode: t.mode })}
         >
           撤销未确认预览
         </Button>
@@ -181,10 +193,14 @@ export function TrainingPanel({
           small
           accent
           testID="training-apply"
-          disabled={!total || total > available}
-          onPress={() => dispatch({ kind: 'allocate', creatureId: c.id, points: draft })}
+          disabled={(!total && !previewAuto) || total > available}
+          onPress={() => {
+            if (previewAuto) dispatch({ kind: 'trainingMode', creatureId: c.id, mode: 'auto' });
+            else dispatch({ kind: 'allocate', creatureId: c.id, points: draft });
+            setStaged({ fingerprint: '', points: emptyStats(), mode: t.mode });
+          }}
         >
-          确认加点 · {total} 点
+          {previewAuto ? '确认自动方案' : '确认加点'} · {total} 点
         </Button>
       </View>
       <View testID="training-operation-notice" accessibilityLiveRegion="polite">

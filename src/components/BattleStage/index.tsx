@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Rect } from 'react-native-svg';
 import { MOVES } from '../../content/catalog';
 import { BattleMoveEvent, BattleScene } from '../../game/model';
-import { MOVE_VISUALS, MoveVisual, VisualPattern } from '../../game/battleVisuals';
+import { moveFeedback, MOVE_VISUALS, MoveVisual, VisualPattern } from '../../game/battleVisuals';
 import { haptic } from '../../platform/haptics';
 import { CreatureSprite } from '../CreatureSprite';
 
@@ -242,8 +242,10 @@ export function BattleStage({
   enemyAnchor,
   size,
   event,
+  feedbackEvent,
   eventKey,
   playing,
+  onImpact,
   onFinished,
   ended,
 }: {
@@ -252,12 +254,15 @@ export function BattleStage({
   enemyAnchor: Point;
   size: number;
   event: BattleMoveEvent | null;
+  feedbackEvent: BattleMoveEvent | null;
   eventKey: string;
   playing: boolean;
+  onImpact: (key: string) => void;
   onFinished: (key: string) => void;
   ended: boolean;
 }) {
   const [progress] = useState(() => new Animated.Value(0));
+  const impactKey = useRef('');
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
     let mounted = true;
@@ -284,8 +289,11 @@ export function BattleStage({
       useNativeDriver: true,
     });
     const hitTimer = setTimeout(() => {
-      if (event.outcome === 'hit' && MOVES[event.moveId]!.power)
+      onImpact(eventKey);
+      if (event.outcome === 'hit' && MOVES[event.moveId]!.power && impactKey.current !== eventKey) {
+        impactKey.current = eventKey;
         haptic(event.critical ? 'success' : 'impact');
+      }
     }, duration * 0.62);
     animation.start(({ finished }) => {
       if (finished) {
@@ -296,7 +304,7 @@ export function BattleStage({
       clearTimeout(hitTimer);
       animation.stop();
     };
-  }, [event, eventKey, visual, progress, reduced, onFinished, playing]);
+  }, [event, eventKey, visual, progress, reduced, onFinished, onImpact, playing]);
   const centers = {
     player: { x: playerAnchor.x, y: playerAnchor.y - size * 0.58 },
     enemy: { x: enemyAnchor.x, y: enemyAnchor.y - size * 0.47 },
@@ -361,6 +369,7 @@ export function BattleStage({
     };
   };
   const radius = Math.max(72, size * (visual?.signature ? 0.84 : 0.65));
+  const feedback = playing ? event : feedbackEvent;
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <Animated.View
@@ -503,6 +512,49 @@ export function BattleStage({
           </Animated.View>
         </View>
       )}
+      {feedback &&
+        moveFeedback(feedback).map((entry) => (
+          <Animated.View
+            key={`${eventKey}:${entry.side}:${entry.kind}`}
+            testID={`battle-feedback-${entry.side}-${entry.kind}`}
+            style={{
+              position: 'absolute',
+              left: centers[entry.side].x - 100,
+              top: centers[entry.side].y - size * 0.15,
+              width: 200,
+              alignItems: 'center',
+              opacity: playing ? interp([0, 0.6, 0.68, 1], [0, 0, 1, 1]) : 1,
+              transform: [
+                { translateY: reduced ? 0 : playing ? interp([0, 0.6, 1], [0, 0, -24]) : -24 },
+              ],
+            }}
+          >
+            <Text
+              accessibilityLiveRegion="polite"
+              style={{
+                color:
+                  entry.kind === 'heal'
+                    ? '#b4ffb0'
+                    : entry.kind === 'damage' && feedback.critical
+                      ? '#ffe17c'
+                      : entry.kind === 'damage' || entry.kind === 'recoil'
+                        ? '#fff0db'
+                        : '#e2e9ed',
+                fontSize: entry.kind === 'damage' ? 27 : 21,
+                fontWeight: '900',
+                textShadowColor: '#10241f',
+                textShadowOffset: { width: 1, height: 2 },
+                textShadowRadius: 4,
+                backgroundColor: '#102820d9',
+                paddingHorizontal: 10,
+                paddingVertical: 3,
+                borderRadius: 8,
+              }}
+            >
+              {entry.label}
+            </Text>
+          </Animated.View>
+        ))}
     </View>
   );
 }

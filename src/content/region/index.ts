@@ -244,6 +244,7 @@ export const REGION_ROADS: (readonly [string, string])[] = [
 ];
 
 export function regionPlaceForMap(map: MapId): RegionPlace {
+  if (MAPS[map].interior) return regionPlaceForMap(MAPS[map].interior!.exterior);
   return REGION_PLACES.find(
     (place) =>
       place.map ===

@@ -3,6 +3,7 @@ import { ITEMS, isOrdinarySpecies, SPECIES } from '../catalog';
 import { GameState, MapId, TownId, TypeId } from '../../game/model';
 import { sumStats, trainingFor } from '../../game/growth';
 import { ADVENTURE_CHAPTERS } from '../adventure';
+import { worldMapFor } from '../buildings';
 
 export interface CityQuest {
   id: string;
@@ -232,7 +233,7 @@ export const CITY_EXCHANGES = Object.fromEntries(
   CITIES.flatMap((c) => c.exchanges.map((o) => [o.id, o])),
 );
 export const cityFor = (map: MapId) =>
-  CITIES.find((c) => c.map === (map === 'league' ? 'star' : map));
+  CITIES.find((c) => c.map === (worldMapFor(map) === 'league' ? 'star' : worldMapFor(map)));
 export const servicesUnlocked = (game: GameState) => !!game.progress.flags.catchTutorial;
 export function shopStock(game: GameState): string[] {
   const c = cityFor(game.player.map);

@@ -18,6 +18,7 @@ import {
   allocatePoints,
   emptyStats,
   ensureTraining,
+  naturalGrowthBonus,
   recommendedAllocation,
 } from '../growth';
 
@@ -60,6 +61,7 @@ export function statsFor(
           100,
       ) +
         (key === 'hp' ? creature.level + 10 : 5) +
+        naturalGrowthBonus(creature, key) +
         (creature.training
           ? creature.training.allocated[key] + creature.training.legacyBonus[key]
           : 0),
@@ -109,6 +111,7 @@ export function makeCreature(
     history: [{ kind: 'caught', label: '成为了冒险伙伴', level }],
   };
   const training = ensureTraining(creature);
+  training.naturalGrowthFromLevel = 1;
   if (auto) {
     allocatePoints(creature, recommendedAllocation(creature));
     training.mode = 'auto';

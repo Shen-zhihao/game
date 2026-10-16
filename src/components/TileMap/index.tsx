@@ -1,9 +1,10 @@
 import React, { useId } from 'react';
-import Svg, { Defs, G, Image, Path, Pattern, Rect } from 'react-native-svg';
+import Svg, { Defs, G, Image, Path, Pattern, Rect, Text as SvgText } from 'react-native-svg';
 import { MAPS } from '../../content/world';
 import { ADVENTURE_CHAPTERS, ADVENTURE_STORY_CONTENT } from '../../content/adventure';
 import { MapId } from '../../game/model';
 import { cityGroundMaterial, citySurfaceFor } from '../../content/surfaces';
+import { isIndoor } from '../../game/environment';
 
 const atlas = require('../../../assets/maps/expedition-tiles.png');
 const biomes = require('../../../assets/maps/biome-tiles.png');
@@ -13,9 +14,18 @@ const building = new Set(['H', 'C', 'S', 'G']);
 export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: MapId }) {
   const prefix = `terrain${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const data = MAPS[map];
-  const indoor = ADVENTURE_STORY_CONTENT.some((c) => c.indoor.includes(map));
+  const indoor = isIndoor(map);
+  const roomColors =
+    data.interior &&
+    {
+      home: { floor: '#c7a67a', seam: '#a1835c', wall: '#6f5845' },
+      center: { floor: '#e6e6d7', seam: '#c3cfbe', wall: '#607b71' },
+      shop: { floor: '#d4c5a6', seam: '#b8a784', wall: '#71634d' },
+      lobby: { floor: '#b8c6cf', seam: '#8eabb8', wall: '#455f71' },
+    }[data.interior.kind];
   const urban = ADVENTURE_CHAPTERS.some((c) => c.town === map);
   const theme = (tile: string, y = 0): number | undefined => {
+    if (data.interior) return undefined;
     if (map === 'leagueHall' && tile === ':')
       return y >= 52 ? 0 : y >= 39 ? 11 : y >= 26 ? 11 : y >= 13 ? 7 : 9;
     if (tile === 'L') return 5;
@@ -101,6 +111,21 @@ export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: M
   return (
     <G>
       <Defs>
+        {roomColors && (
+          <Pattern id={`${prefix}-room`} width={32} height={32} patternUnits="userSpaceOnUse">
+            <Rect width={32} height={32} fill={roomColors.floor} />
+            <Path
+              d={
+                data.interior!.kind === 'home'
+                  ? 'M0 0 h32 M0 16 h32 M16 0 v16 M6 16 v16'
+                  : 'M0 0 h32 v32'
+              }
+              stroke={roomColors.seam}
+              strokeWidth={0.7}
+              fill="none"
+            />
+          </Pattern>
+        )}
         {Array.from({ length: 16 }, (_, i) => (
           <Pattern
             key={i}
@@ -184,7 +209,13 @@ export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: M
               y={py}
               width={w}
               height={32}
-              fill={`url(#${prefix}-${texture})`}
+              fill={
+                roomColors
+                  ? tile === '#'
+                    ? roomColors.wall
+                    : `url(#${prefix}-room)`
+                  : `url(#${prefix}-${texture})`
+              }
             />,
           );
           if (building.has(tile) && data.rows[y + 1]?.[start] !== tile) {
@@ -238,6 +269,63 @@ export const TileMapLayers = React.memo(function TileMapLayers({ map }: { map: M
         }
         return runs;
       })}
+      {data.interior && (
+        <G>
+          {data.rows.flatMap((row, y) =>
+            [...row].flatMap((tile, x) =>
+              tile === 'F'
+                ? [
+                    <G key={`furniture-${x}-${y}`}>
+                      <Rect
+                        x={x * 32 + 2}
+                        y={y * 32 + 3}
+                        width={28}
+                        height={27}
+                        rx={3}
+                        fill={data.interior!.kind === 'center' ? '#dbe9df' : '#936546'}
+                        stroke="#4f453b"
+                        strokeWidth={2}
+                      />
+                      <Rect
+                        x={x * 32 + 5}
+                        y={y * 32 + 7}
+                        width={22}
+                        height={7}
+                        rx={1}
+                        fill={data.interior!.kind === 'center' ? '#9bbec4' : '#dab981'}
+                      />
+                      <Path
+                        d={`M${x * 32 + 5} ${y * 32 + 19} h22`}
+                        stroke="#5c4937"
+                        strokeWidth={2}
+                      />
+                    </G>,
+                  ]
+                : [],
+            ),
+          )}
+          <Rect
+            x={6 * 32}
+            y={8 * 32}
+            width={3 * 32}
+            height={3 * 32}
+            rx={6}
+            fill={
+              data.interior.kind === 'center'
+                ? '#86b5a0'
+                : data.interior.kind === 'shop'
+                  ? '#be9b60'
+                  : '#a47661'
+            }
+            opacity={0.6}
+          />
+          <Path d="M240 314 v24 m-8 -8 8 8 8 -8" stroke="#fff3ce" strokeWidth={3} fill="none" />
+          <SvgText x={240} y={307} fontSize={10} textAnchor="middle" fill="#fff3ce">
+            出口
+          </SvgText>
+        </G>
+      )}
+      <BuildingEntranceLayers map={map} />
     </G>
   );
 });
@@ -261,7 +349,6 @@ export function MapPatchLayers({ map }: { map: MapId }) {
   const prefix = `patch${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const links = ADVENTURE_STORY_CONTENT.flatMap((c) => c.links).filter((l) => l.from === map);
   const surface = citySurfaceFor(map);
-  if (!links.length && !surface) return null;
   const cell = surface?.street ?? 2;
   return (
     <G>
@@ -312,6 +399,7 @@ export function MapPatchLayers({ map }: { map: MapId }) {
             fill={`url(#${prefix})`}
           />
         ))}
+      <BuildingEntranceLayers map={map} />
     </G>
   );
 }
@@ -337,3 +425,82 @@ export const MapPatch = React.memo(function MapPatch({
     </Svg>
   );
 });
+
+/** Door overlays also apply to pre-rendered maps; visible doors and collision share coordinates. */
+function BuildingEntranceLayers({ map }: { map: MapId }) {
+  const data = MAPS[map];
+  const entrances = data.entrances ?? [];
+  const passages = isIndoor(map)
+    ? []
+    : data.portals.filter(
+        (p) => isIndoor(p.map) && !entrances.some((e) => e.x === p.x && e.y === p.y),
+      );
+  return (
+    <G>
+      {entrances.map((e) => (
+        <G key={`door-${e.x}-${e.y}`}>
+          <Rect
+            x={e.x * 32 + 3}
+            y={e.y * 32 + 3}
+            width={26}
+            height={29}
+            rx={3}
+            fill="#695037"
+            stroke="#f3d69b"
+            strokeWidth={2}
+          />
+          <Rect x={e.x * 32 + 7} y={e.y * 32 + 6} width={18} height={25} fill="#173d3d" />
+          <Path
+            d={`M${e.x * 32 + 16} ${e.y * 32 + 35} v12 m-4 -5 4 5 4 -5`}
+            stroke="#fff0b8"
+            strokeWidth={2}
+            fill="none"
+          />
+          <Rect
+            x={e.x * 32 - 40}
+            y={e.y * 32 - 12}
+            width={112}
+            height={13}
+            rx={3}
+            fill="#203c38"
+            opacity={0.9}
+          />
+          <SvgText
+            x={e.x * 32 + 16}
+            y={e.y * 32 - 2}
+            fontSize={9}
+            textAnchor="middle"
+            fill="#fff4d4"
+          >
+            {e.name}
+          </SvgText>
+        </G>
+      ))}
+      {passages.map((p) => (
+        <G key={`passage-${p.x}-${p.y}`}>
+          <Rect
+            x={p.x * 32}
+            y={p.y * 32}
+            width={32}
+            height={32}
+            rx={8}
+            fill="#182d31"
+            stroke="#c2b891"
+            strokeWidth={3}
+          />
+          <SvgText
+            x={p.x * 32 + (p.x === 0 ? 36 : p.x === data.rows[0]!.length - 1 ? -4 : 16)}
+            y={p.y * 32 - 6}
+            textAnchor={p.x === 0 ? 'start' : p.x === data.rows[0]!.length - 1 ? 'end' : 'middle'}
+            fontSize={10}
+            fill="#fff4d4"
+            stroke="#263b37"
+            strokeWidth={0.3}
+          >
+            {MAPS[p.map].name}入口
+          </SvgText>
+        </G>
+      ))}
+    </G>
+  );
+}

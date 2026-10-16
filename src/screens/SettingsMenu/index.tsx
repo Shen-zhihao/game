@@ -5,21 +5,54 @@ import type { Command, GameState } from '../../game/model';
 import { cheatReason } from '../../game/cheats';
 import { HelpMenu, menuStyles } from '../GameMenus';
 import { setHapticsEnabled, useHapticsEnabled, haptic } from '../../platform/haptics';
+import {
+  BATTLE_MESSAGE_DELAYS,
+  setBattleMessageDelay,
+  useBattleMessageDelay,
+} from '../../platform/battlePlayback';
 
 export function SettingsMenu({
   game,
   dispatch,
+  onEditControls,
 }: {
   game: GameState | null;
   dispatch: (command: Command) => void;
+  onEditControls: () => void;
 }) {
   const [page, setPage] = useState<'root' | 'help' | 'cheats'>('root');
   const hapticsEnabled = useHapticsEnabled();
+  const battleMessageDelay = useBattleMessageDelay();
   if (page === 'help') return <HelpMenu />;
   if (page === 'cheats') return <CheatMenu game={game} dispatch={dispatch} />;
   return (
     <View style={{ gap: 12 }}>
       <Label style={styles.title}>设置</Label>
+      <Button testID="settings-control-layout" onPress={onEditControls}>
+        按钮布局
+      </Button>
+      <Label muted style={{ fontSize: 12 }}>
+        拖动方向键、A 键、菜单与培养按钮，分别调整大小；布局保存在本机。
+      </Label>
+      <Label testID="battle-playback-setting">
+        战斗自动播放间隔：{battleMessageDelay / 1000} 秒
+      </Label>
+      <View style={styles.wrap}>
+        {BATTLE_MESSAGE_DELAYS.map((delay) => (
+          <Button
+            small
+            key={delay}
+            testID={`battle-playback-${delay}`}
+            selected={battleMessageDelay === delay}
+            onPress={() => setBattleMessageDelay(delay)}
+          >
+            {delay / 1000} 秒
+          </Button>
+        ))}
+      </View>
+      <Label muted style={{ fontSize: 12 }}>
+        战斗信息默认每条停留 2 秒，技能动画完整播放；技能、道具和换人由你选择。
+      </Label>
       <Button
         testID="settings-haptics"
         selected={hapticsEnabled}

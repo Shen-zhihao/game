@@ -69,6 +69,8 @@ export interface Training {
   rolls: number[];
   /** Earlier levels retain the legacy policy; omitted means an untouched legacy record. */
   strengthFromLevel?: number;
+  /** Natural growth starts here; legacy saves keep their current abilities on migration. */
+  naturalGrowthFromLevel?: number;
   allocated: Stats;
   /** Frozen ability bonus preserves existing saves without continuing IV growth. */
   legacyBonus: Stats;
@@ -91,7 +93,10 @@ export interface Creature {
 export type Direction = 'up' | 'down' | 'left' | 'right';
 export type TownId =
   'dawn' | 'moss' | 'stone' | 'harbor' | 'volt' | 'wind' | 'furnace' | 'lake' | 'star' | 'league';
-export type MapId =
+export type MapId = WorldMapId | InteriorMapId;
+export type InteriorMapId =
+  `interior_${(typeof import('../../content/buildings').ROOM_SITES)[number]}`;
+export type WorldMapId =
   | TownId
   | 'route'
   | 'forest'
@@ -235,6 +240,7 @@ export type BattleVisualEvent =
   BattleMoveEvent | { kind: 'scene'; logIndex: number; scene: BattleScene };
 export interface Battle {
   id: string;
+  npcId?: string;
   kind: 'wild' | 'trainer';
   event: StoryEvent | null;
   name: string;
@@ -245,6 +251,15 @@ export interface Battle {
   phase: 'choose' | 'forcedSwitch' | 'ended';
   turn: number;
   aiMove: number;
+  /** Locked for a round; each player command consumes one independently chosen action. */
+  actionRound?: {
+    playerTotal: number;
+    enemyTotal: number;
+    playerRemaining: number;
+    enemyRemaining: number;
+    enemyFirst: boolean;
+    immobility: Record<string, { status: Status | null; blocked: boolean }>;
+  };
   playerStages: Stages;
   enemyStages: Stages;
   logs: string[];

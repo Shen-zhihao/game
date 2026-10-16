@@ -1,7 +1,10 @@
 import { ExpoConfig } from 'expo/config';
+import brand from './src/content/brand/brand.json';
+
+const APP_NAME = brand.name;
 
 const config: ExpoConfig = {
-  name: '星苔远征',
+  name: APP_NAME,
   slug: 'stargrove-expedition',
   version: '0.1.0',
   icon: './assets/icon.png',
@@ -20,6 +23,10 @@ const config: ExpoConfig = {
   android: {
     package: 'com.stargrove.expedition',
     versionCode: 1,
+    adaptiveIcon: {
+      foregroundImage: './assets/brand/adaptive-icon.png',
+      backgroundColor: '#087dc1',
+    },
     permissions: [
       'android.permission.INTERNET',
       'android.permission.ACCESS_NETWORK_STATE',
@@ -52,6 +59,6 @@ const config: ExpoConfig = {
       },
     ],
   ],
-  web: { bundler: 'metro', name: '星苔远征 · 完整旅程' },
+  web: { bundler: 'metro', name: `${APP_NAME} · 捕捉与进化冒险`, favicon: './assets/icon.png' },
 };
 export default config;

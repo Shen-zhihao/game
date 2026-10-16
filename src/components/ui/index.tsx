@@ -19,12 +19,18 @@ export function Label({
   children,
   muted = false,
   style,
+  testID,
 }: {
   children: React.ReactNode;
   muted?: boolean;
   style?: StyleProp<import('react-native').TextStyle>;
+  testID?: string;
 }) {
-  return <Text style={[styles.text, muted && styles.muted, style]}>{children}</Text>;
+  return (
+    <Text testID={testID} style={[styles.text, muted && styles.muted, style]}>
+      {children}
+    </Text>
+  );
 }
 export function Button({
   children,
@@ -34,6 +40,7 @@ export function Button({
   small = false,
   selected,
   testID,
+  accessibilityLabel,
   style,
 }: {
   children: React.ReactNode;
@@ -43,12 +50,15 @@ export function Button({
   small?: boolean;
   selected?: boolean;
   testID?: string;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={typeof children === 'string' ? children : undefined}
+      accessibilityLabel={
+        accessibilityLabel ?? (typeof children === 'string' ? children : undefined)
+      }
       accessibilityState={{ disabled, ...(selected === undefined ? {} : { selected }) }}
       testID={testID}
       disabled={disabled}
@@ -103,11 +113,17 @@ export function HpBar({
 export function Panel({
   children,
   style,
+  testID,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }) {
-  return <View style={[styles.panel, style]}>{children}</View>;
+  return (
+    <View testID={testID} style={[styles.panel, style]}>
+      {children}
+    </View>
+  );
 }
 export const styles = StyleSheet.create({
   text: { color: palette.text, fontSize: 14, lineHeight: 21, fontFamily: 'System' },

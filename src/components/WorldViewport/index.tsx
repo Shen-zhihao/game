@@ -13,6 +13,9 @@ import { CoastPropKind, CoastPropSprite } from '../CoastPropSprite';
 import { QuarryPropSprite } from '../QuarryPropSprite';
 import { travelProfile, weatherAt, isIndoor } from '../../game/environment';
 import { WeatherOverlay } from '../WeatherOverlay';
+import { BuildingDoors } from '../BuildingDoor';
+import type { DoorPresentation } from '../../useBuildingPassage';
+import { DOOR_TIMINGS } from '../../game/buildingPassage';
 import {
   ADVENTURE_GYMS,
   ADVENTURE_INTERACTIONS,
@@ -29,6 +32,7 @@ const HUMAN_ROLES = new Set([
   'trainer',
   'leader',
   'home',
+  'resident',
   'distressedProfessor',
 ]);
 const COAST_FRIENDS: Record<string, [string, string]> = {
@@ -50,14 +54,20 @@ export function WorldViewport({
   width,
   height,
   paused,
+  door,
+  coveredTransition = false,
 }: {
   game: GameState;
   width: number;
   height: number;
   paused: boolean;
+  door?: DoorPresentation | null;
+  coveredTransition?: boolean;
 }) {
   const world = mapSize(game.player.map);
-  const scale = Math.max(height / 360, width / world.width);
+  const scale = MAPS[game.player.map].interior
+    ? Math.max(height / world.height, Math.min(width / world.width, height / 320))
+    : Math.max(height / 360, width / world.width);
   const [position] = useState(
     () => new Animated.ValueXY({ x: game.player.x * 32, y: game.player.y * 32 }),
   );
@@ -74,8 +84,12 @@ export function WorldViewport({
     if (changedMap || distance !== 1 || paused) {
       if (distance || changedMap || paused) position.setValue(target);
       if (changedMap) {
-        opacity.setValue(0.35);
-        Animated.timing(opacity, { toValue: 1, duration: 240, useNativeDriver: true }).start();
+        opacity.stopAnimation();
+        if (coveredTransition) opacity.setValue(1);
+        else {
+          opacity.setValue(0.35);
+          Animated.timing(opacity, { toValue: 1, duration: 240, useNativeDriver: true }).start();
+        }
       }
       return;
     }
@@ -86,13 +100,22 @@ export function WorldViewport({
       useNativeDriver: true,
     }).start();
     return () => position.stopAnimation();
-  }, [game.player.map, game.player.x, game.player.y, opacity, paused, position, stepDuration]);
+  }, [
+    game.player.map,
+    game.player.x,
+    game.player.y,
+    opacity,
+    paused,
+    position,
+    stepDuration,
+    coveredTransition,
+  ]);
   const camera = useMemo(() => {
     const xHalf = width / scale / 2;
     const yHalf = height / scale / 2;
     const x =
       world.width * scale <= width
-        ? 0
+        ? (width - world.width * scale) / 2
         : position.x.interpolate({
             inputRange: [xHalf - 16, world.width - xHalf - 16],
             outputRange: [0, width - world.width * scale],
@@ -116,7 +139,12 @@ export function WorldViewport({
   return (
     <View
       testID="world-viewport"
-      style={{ width, height, overflow: 'hidden', backgroundColor: '#4e7950' }}
+      style={{
+        width,
+        height,
+        overflow: 'hidden',
+        backgroundColor: MAPS[game.player.map].interior ? '#283c36' : '#4e7950',
+      }}
     >
       <Animated.View
         style={{
@@ -127,6 +155,7 @@ export function WorldViewport({
         }}
       >
         <MapCanvas state={game} width={world.width * scale} height={world.height * scale} />
+        <BuildingDoors map={game.player.map} scale={scale} passage={door} />
         <CoastAmbient game={game} scale={scale} paused={paused} />
         {!isIndoor(game.player.map) && (
           <GrassWind mapId={game.player.map} scale={scale} paused={paused} />
@@ -287,9 +316,35 @@ export function WorldViewport({
             left: -12 * scale,
             top: -19 * scale,
             zIndex: game.player.y * 10 + 1,
+            opacity: door
+              ? door.travel.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: door.entering ? [1, 0] : [0, 1],
+                })
+              : 1,
             transform: [
               { translateX: Animated.multiply(position.x, scale) },
               { translateY: Animated.multiply(position.y, scale) },
+              ...(door
+                ? [
+                    {
+                      translateX: door.travel.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: door.entering
+                          ? [0, door.offset.x * 32 * scale]
+                          : [door.offset.x * 32 * scale, 0],
+                      }),
+                    },
+                    {
+                      translateY: door.travel.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: door.entering
+                          ? [0, door.offset.y * 32 * scale]
+                          : [door.offset.y * 32 * scale, 0],
+                      }),
+                    },
+                  ]
+                : []),
             ],
           }}
         >
@@ -312,10 +367,14 @@ export function WorldViewport({
             </View>
           )}
           <TravelerSprite
+            avatar={game.player.avatar}
+            testID="traveler-sprite"
             facing={game.player.facing}
-            steps={game.steps}
-            paused={paused}
-            stepDuration={stepDuration + 35}
+            steps={game.steps + (door ? 1 : 0)}
+            paused={paused && !door}
+            stepDuration={
+              door ? DOOR_TIMINGS.open + DOOR_TIMINGS.pass + DOOR_TIMINGS.close : stepDuration + 35
+            }
             size={56 * scale}
           />
         </Animated.View>

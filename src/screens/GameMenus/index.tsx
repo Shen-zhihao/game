@@ -19,8 +19,9 @@ import {
   TYPE_IDS,
   TYPES,
 } from '../../content/catalog';
-import { isTown, objective } from '../../content/world';
+import { isTownLocation, objective } from '../../content/world';
 import { CreatureSprite } from '../../components/CreatureSprite';
+import { MoveDetails, MoveLearningPanel } from '../../components/MoveDetails';
 import { Button, HpBar, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
 import { Command, GameState, STAT_KEYS, TypeId } from '../../game/model';
 import {
@@ -39,7 +40,6 @@ import { STAT_NAMES } from '../../content/training';
 import { recallOptions } from '../../game/skills';
 import { SkillCopyMenu } from '../SkillCopyMenu';
 import { HabitatDetails } from '../../components/HabitatDetails';
-import { chanceLabel, criticalChance, stageEffectLabel } from '../../game/combat';
 import { atCenter, fieldSkill, fieldSkillUnlocked } from '../../game/fieldSkills';
 import { ADVENTURE_CHAPTERS } from '../../content/adventure';
 import { LEAGUE_MILESTONES } from '../../content/league';
@@ -203,7 +203,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   const xpStart = xpAt(c.level, species.experienceCurve);
   const xpNext = xpAt(Math.min(100, c.level + 1), species.experienceCurve);
   const inParty = game.party.includes(c.id);
-  const boxReason = !isTown(game.player.map)
+  const boxReason = !isTownLocation(game.player.map)
     ? '在城镇可使用仓库与技能回忆。'
     : inParty && !game.party.some((id) => id !== c.id && game.creatures[id]!.hp > 0)
       ? '队伍需要保留至少一位可以战斗的伙伴。'
@@ -361,8 +361,8 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                       级，由技能临时改变；自身强化必定生效。隐藏属性不消耗能力点，换人和战斗结束后重置。
                     </Label>
                     <Label muted style={{ fontSize: 12 }}>
-                      速度达到对手 2 倍时技能出手 2 次，3 倍及以上 3 次。每次单独扣 PP，昏厥或 PP
-                      不足会停止；用药、换人、投球不连用。
+                      速度达到对手 2 倍时每回合可操作 2 次，3 倍及以上 3
+                      次。每次结算后重新选择技能、道具或换人，单次技能只使用一次。
                     </Label>
                   </Panel>
                 )}
@@ -410,7 +410,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                     {boxReason}
                   </Label>
                 )}
-                {!inParty && isTown(game.player.map) && (
+                {!inParty && isTownLocation(game.player.map) && (
                   <Panel>
                     {releaseConfirm === c.id ? (
                       <>
@@ -450,91 +450,40 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                     ? `回忆${MOVES[recall]!.name} · 选择要替换的技能`
                     : '已学技能 · 点击查看详情'}
                 </Label>
-                {c.moves.map((m, i) => (
-                  <Button
-                    key={m.id}
-                    small
-                    testID={`party-move-${m.id}`}
-                    accent={moveDetail === m.id}
-                    onPress={() => {
-                      if (recall) {
-                        dispatch({ kind: 'recall', creatureId: c.id, moveId: recall, replace: i });
-                        setRecall(null);
-                        setMoveDetail(recall);
-                      } else setMoveDetail(moveDetail === m.id ? null : m.id);
-                    }}
-                  >{`${MOVES[m.id]!.name}${MOVES[m.id]!.exclusiveSpeciesId ? '〔专属〕' : ''}　${MOVES[m.id]!.type ? TYPES[MOVES[m.id]!.type!] : '无属性'}　PP ${m.pp}/${MOVES[m.id]!.pp}${recall ? '　← 替换' : ''}`}</Button>
-                ))}
-                {move && (
-                  <Panel style={{ padding: 12, gap: 5 }}>
-                    <Label style={{ color: palette.gold, fontWeight: '700' }}>{move.name}</Label>
-                    {move.exclusiveSpeciesId && (
-                      <Label style={{ color: palette.gold, fontSize: 12 }}>
-                        仅{SPECIES[move.exclusiveSpeciesId]!.name}可以习得，无法复刻。
-                      </Label>
-                    )}
-                    <Label muted style={{ fontSize: 12 }}>
-                      {move.category === 'physical'
-                        ? '物理'
-                        : move.category === 'special'
-                          ? '特殊'
-                          : '变化'}{' '}
-                      · 威力 {move.power || '—'} · 命中 {move.accuracy}% · PP {move.pp}
-                    </Label>
-                    {move.effect?.status && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        {Math.round((move.effect.chance ?? 1) * 100)}% 概率使对方
-                        {statusName(move.effect.status)}。
-                      </Label>
-                    )}
-                    {move.effect?.heal && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        恢复自己最大体力的 {move.effect.heal * 100}%。
-                      </Label>
-                    )}
-                    {move.effect?.stage && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        {stageEffectLabel(move.id)}
-                      </Label>
-                    )}
-                    {!!move.criticalStage && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        高要害技能 · 无增益时要害率 {chanceLabel(criticalChance(move.id))}
-                        ，命中要害伤害 ×2。
-                      </Label>
-                    )}
-                    {move.priority !== 0 && (
-                      <Label muted style={{ fontSize: 12 }}>
-                        行动优先度 {move.priority > 0 ? '+' : ''}
-                        {move.priority}
-                      </Label>
-                    )}
-                  </Panel>
-                )}
-                {recall && c.moves.length < 4 && (
-                  <Button
-                    small
-                    testID="recall-empty-slot"
-                    onPress={() => {
-                      dispatch({ kind: 'recall', creatureId: c.id, moveId: recall, replace: null });
+                {recall && (
+                  <MoveLearningPanel
+                    key={`${c.id}:${recall}`}
+                    c={c}
+                    moveId={recall}
+                    testID="recall"
+                    onLearn={(replace) => {
+                      dispatch({ kind: 'recall', creatureId: c.id, moveId: recall, replace });
+                      setMoveDetail(recall);
                       setRecall(null);
                     }}
-                  >
-                    回忆并加入空技能位
-                  </Button>
+                    onCancel={() => setRecall(null)}
+                  />
                 )}
+                {!recall &&
+                  c.moves.map((m) => (
+                    <Button
+                      key={m.id}
+                      small
+                      testID={`party-move-${m.id}`}
+                      accent={moveDetail === m.id}
+                      onPress={() => {
+                        setMoveDetail(moveDetail === m.id ? null : m.id);
+                      }}
+                    >{`${MOVES[m.id]!.name}${MOVES[m.id]!.exclusiveSpeciesId ? '〔专属〕' : ''}　${MOVES[m.id]!.type ? TYPES[MOVES[m.id]!.type!] : '无属性'}　PP ${m.pp}/${MOVES[m.id]!.pp}${recall ? '　← 替换' : ''}`}</Button>
+                  ))}
+                {!recall && move && <MoveDetails moveId={move.id} />}
                 {!!c.taughtMoves?.length && (
                   <Label muted style={{ fontSize: 12 }}>
                     通用技能册：{c.taughtMoves.map((id) => MOVES[id]!.name).join('、')}
                     。进化后保留，城镇可免费回忆。
                   </Label>
                 )}
-                {recall && (
-                  <Button small onPress={() => setRecall(null)}>
-                    取消技能回忆
-                  </Button>
-                )}
-                {isTown(game.player.map) && (
+                {isTownLocation(game.player.map) && (
                   <View style={styles.wrap}>
                     {recallOptions(c)
                       .filter(
@@ -815,7 +764,7 @@ export function QuestMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
       ))}
       <Label muted style={{ fontSize: 12 }}>
         {3 + ADVENTURE_CHAPTERS.length}{' '}
-        座已开放道馆可自由选择顺序，馆主与学徒按已有徽章调整等级。区域调查与稀有捕获不作为入馆条件。不同区域有不同遭遇与随机发现；训练场可反复挑战。石壳虫
+        座已开放道馆可自由选择顺序，馆主与学徒按已有徽章调整等级。区域调查与稀有捕获不作为入馆条件。不同区域有不同遭遇与随机发现；训练师获胜后只交谈，战败可重试，草丛可继续练习。石壳虫
         Lv.10、初始伙伴 Lv.16 可进化。
       </Label>
     </ScrollView>
@@ -903,8 +852,8 @@ export function HelpMenu() {
         '队伍最多 6 只，多出的精灵进入仓库。在城镇打开伙伴页面管理仓库、免费回忆技能。',
         '进化可以暂缓，在伙伴详情里再次进化。成长果可升一级；石壳虫 Lv.10、初始伙伴 Lv.16 有进化机会。',
         '满级 100 级，每次升级随机获得 1–10 能力点，精灵成长强度越高越容易获得高点数；伙伴详情可手动加点或自动培养，1 点直接增加对应能力 1 点。',
-        '默认有效速度快者先出手，先制技能仍优先。速度达到对手 2 倍出手 2 次，3 倍及以上出手 3 次；重复本回合选择的技能，每次扣 PP，目标倒下或 PP 不足立即停止。',
-        '双方的出手次数在回合开始时固定，轻身、减速和麻痹会影响下一回合。用药、换人、投球和逃跑只执行一次；对手仍按自身速度出手。异常扣血与睡眠倒计时每回合只结算一次。',
+        '默认有效速度快者先出手，首次技能仍比较优先度。速度达到对手 2 倍可操作 2 次，3 倍及以上 3 次；每条指令只执行一次，结算后重新选择技能、道具或换人。',
+        '双方行动额度在第一次操作前固定，速度变化影响下一回合，换人不补次数。用药、主动换人、投球和逃跑各占一次操作；昏厥取消本轮剩余行动，强制补位免费。异常与天气每轮结算一次，读档保留剩余额度。',
         '隐藏战斗属性有命中、闪避、要害率与抗要害。凝神提高要害率，鹰眼提高命中，影步提升闪避，守心降低受到要害攻击的概率，轻身提升速度；破绽突刺自带更高要害率。',
         '普通技能基础要害率 6.25%，要害等级 1 / 2 / 3 为 12.5% / 25% / 50%；守心每级使概率减半。要害造成普通伤害 ×2，不翻倍治疗或异常伤害；换人会重置战斗强化。',
         '城市任务日志可以接受居民委托，领奖获得调查印记。背包里的商店可购买星纹球和补给，印记可兑换特殊道具。',
@@ -945,70 +894,66 @@ export function PendingScreen({
         },
       ]}
     >
-      <Panel style={{ maxWidth: 760, width: '100%', alignSelf: 'center', gap: 12 }}>
-        {choice.kind === 'evolution' ? (
-          <>
-            <Label style={styles.title}>伙伴正在发生变化</Label>
-            <View style={[styles.row, { justifyContent: 'center' }]}>
-              <View style={{ alignItems: 'center' }}>
-                <CreatureSprite speciesId={c.speciesId} size={110} />
-                <Label>{creatureName(c)}</Label>
-                <TypeBadges types={SPECIES[c.speciesId]!.types} />
+      <Panel style={{ maxWidth: 900, width: '100%', maxHeight: '100%', alignSelf: 'center' }}>
+        <ScrollView contentContainerStyle={{ gap: 12 }}>
+          {choice.kind === 'evolution' ? (
+            <>
+              <Label style={styles.title}>伙伴正在发生变化</Label>
+              <View style={[styles.row, { justifyContent: 'center' }]}>
+                <View style={{ alignItems: 'center' }}>
+                  <CreatureSprite speciesId={c.speciesId} size={110} />
+                  <Label>{creatureName(c)}</Label>
+                  <TypeBadges types={SPECIES[c.speciesId]!.types} />
+                </View>
+                <Label style={{ fontSize: 26, color: palette.gold }}>→</Label>
+                <View style={{ alignItems: 'center' }}>
+                  <CreatureSprite speciesId={choice.toId} size={110} />
+                  <Label>{SPECIES[choice.toId]!.name}</Label>
+                  <TypeBadges types={SPECIES[choice.toId]!.types} />
+                </View>
               </View>
-              <Label style={{ fontSize: 26, color: palette.gold }}>→</Label>
-              <View style={{ alignItems: 'center' }}>
-                <CreatureSprite speciesId={choice.toId} size={110} />
-                <Label>{SPECIES[choice.toId]!.name}</Label>
-                <TypeBadges types={SPECIES[choice.toId]!.types} />
-              </View>
-            </View>
-            <Label muted>等级、经验、能力点与成长记录会保留。也可以稍后在伙伴详情中进化。</Label>
-            <View style={styles.row}>
-              <Button
-                accent
-                onPress={() =>
-                  dispatch({ kind: 'evolve', creatureId: c.id, toId: choice.toId, accept: true })
-                }
-              >
-                见证进化
-              </Button>
-              <Button
-                onPress={() =>
-                  dispatch({ kind: 'evolve', creatureId: c.id, toId: choice.toId, accept: false })
-                }
-              >
-                暂缓进化
-              </Button>
-            </View>
-          </>
-        ) : (
-          <>
-            <Label style={styles.title}>{creatureName(c)}想学新技能</Label>
-            <Label style={{ color: palette.gold, fontSize: 18 }}>
-              {MOVES[choice.moveId]!.name}
-            </Label>
-            <Label muted>已掌握四个技能。选择一个替换，或留待城镇回忆。</Label>
-            <View style={styles.wrap}>
-              {c.moves.map((m, i) => (
+              <Label muted>等级、经验、能力点与成长记录会保留。也可以稍后在伙伴详情中进化。</Label>
+              <View style={styles.row}>
                 <Button
-                  key={m.id}
+                  accent
                   onPress={() =>
-                    dispatch({ kind: 'learn', creatureId: c.id, moveId: choice.moveId, replace: i })
+                    dispatch({ kind: 'evolve', creatureId: c.id, toId: choice.toId, accept: true })
                   }
                 >
-                  替换 {MOVES[m.id]!.name}
+                  见证进化
                 </Button>
-              ))}
-            </View>
-            <Button
-              onPress={() =>
-                dispatch({ kind: 'learn', creatureId: c.id, moveId: choice.moveId, replace: null })
-              }
-            >
-              这次不学
-            </Button>
-          </>
-        )}
+                <Button
+                  onPress={() =>
+                    dispatch({ kind: 'evolve', creatureId: c.id, toId: choice.toId, accept: false })
+                  }
+                >
+                  暂缓进化
+                </Button>
+              </View>
+            </>
+          ) : (
+            <>
+              <Label style={styles.title}>{creatureName(c)}想学新技能</Label>
+              <MoveLearningPanel
+                key={`${c.id}:${choice.moveId}`}
+                c={c}
+                moveId={choice.moveId}
+                testID="learn"
+                onLearn={(replace) =>
+                  dispatch({ kind: 'learn', creatureId: c.id, moveId: choice.moveId, replace })
+                }
+                onCancel={() =>
+                  dispatch({
+                    kind: 'learn',
+                    creatureId: c.id,
+                    moveId: choice.moveId,
+                    replace: null,
+                  })
+                }
+              />
+            </>
+          )}
+        </ScrollView>
       </Panel>
     </View>
   );

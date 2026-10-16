@@ -1,4 +1,4 @@
-import { MAPS, Npc, npcVisible, terrainPassable } from '../../content/world';
+import { MAPS, Npc, npcVisible, npcDefeated, terrainPassable } from '../../content/world';
 import { Direction, ExplorationState, GameState, MapId } from '../model';
 import { encounterSiteAt, landEncounters } from '../../content/habitats';
 import { weightedEcology } from '../environment';
@@ -124,6 +124,8 @@ export function ensureExploration(game: GameState): ExplorationState {
 }
 export function worldNpcs(game: GameState, mapId = game.player.map): Npc[] {
   const npcs = MAPS[mapId].npcs.map((npc) => {
+    if (npc.defeatedPosition && npcDefeated(game.progress.flags, npc))
+      return { ...npc, x: npc.defeatedPosition[0], y: npc.defeatedPosition[1] };
     const patrol = game.world?.patrols[`${mapId}:${npc.id}`];
     const point = npc.patrol?.[patrol?.index ?? 0];
     return point && patrol

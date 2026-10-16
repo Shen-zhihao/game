@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { MOVES } from '../../content/catalog';
 import { MAPS } from '../../content/world';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
+import { MoveLearningPanel } from '../../components/MoveDetails';
 import { Command, GameState } from '../../game/model';
 import { atCenter, centerOptions, FIELD_SKILLS, fieldSkill } from '../../game/fieldSkills';
 import { creatureName } from '../../game/rules';
@@ -17,6 +18,12 @@ export function CenterMenu({
   const [selected, setSelected] = useState(game.party[0] ?? '');
   const [learning, setLearning] = useState('');
   const [forgetting, setForgetting] = useState('');
+  const contentRef = useRef<ScrollView>(null);
+  const beginLearning = (moveId: string) => {
+    setLearning(moveId);
+    setForgetting('');
+    contentRef.current?.scrollTo({ y: 0, animated: true });
+  };
   const c = game.creatures[selected] ?? game.creatures[game.party[0] ?? ''];
   const available = atCenter(game) && !!c;
   return (
@@ -56,7 +63,24 @@ export function CenterMenu({
             </Button>
           ))}
         </ScrollView>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 10, paddingBottom: 20 }}>
+        <ScrollView
+          ref={contentRef}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ gap: 10, paddingBottom: 20 }}
+        >
+          {learning && c && available && (
+            <MoveLearningPanel
+              key={`${c.id}:${learning}`}
+              c={c}
+              moveId={learning}
+              testID="center-learn"
+              onLearn={(replace) => {
+                dispatch({ kind: 'centerLearn', creatureId: c.id, moveId: learning, replace });
+                setLearning('');
+              }}
+              onCancel={() => setLearning('')}
+            />
+          )}
           {FIELD_SKILLS.map((s) => (
             <Panel key={s.id} style={{ padding: 10, gap: 5 }}>
               <Label
@@ -77,10 +101,7 @@ export function CenterMenu({
                   !game.progress.flags[s.flag] ||
                   !!c?.moves.some((m) => m.id === s.id)
                 }
-                onPress={() => {
-                  setLearning(s.id);
-                  setForgetting('');
-                }}
+                onPress={() => beginLearning(s.id)}
               >
                 学习／重学{s.name}
               </Button>
@@ -89,30 +110,11 @@ export function CenterMenu({
           {c && (
             <>
               <Label style={{ fontWeight: '800' }}>{creatureName(c)} · 当前技能</Label>
-              {c.moves.map((m, i) => (
+              {c.moves.map((m) => (
                 <View key={m.id} style={[styles.wrap, { gap: 6 }]}>
                   <Label style={{ flex: 1 }}>
                     {MOVES[m.id]!.name}　PP {m.pp}/{MOVES[m.id]!.pp}
                   </Label>
-                  {learning && (
-                    <Button
-                      small
-                      accent
-                      testID={`center-replace-${i}`}
-                      disabled={!available || c.moves.some((v) => v.id === learning)}
-                      onPress={() => {
-                        dispatch({
-                          kind: 'centerLearn',
-                          creatureId: c.id,
-                          moveId: learning,
-                          replace: i,
-                        });
-                        setLearning('');
-                      }}
-                    >
-                      替换为{MOVES[learning]!.name}
-                    </Button>
-                  )}
                   <Button
                     small
                     disabled={!available || c.moves.length <= 1}
@@ -142,32 +144,6 @@ export function CenterMenu({
                   </Button>
                 </View>
               )}
-              {learning && (
-                <View style={styles.wrap}>
-                  {c.moves.length < 4 && (
-                    <Button
-                      small
-                      accent
-                      testID="center-learn-empty"
-                      disabled={!available || c.moves.some((m) => m.id === learning)}
-                      onPress={() => {
-                        dispatch({
-                          kind: 'centerLearn',
-                          creatureId: c.id,
-                          moveId: learning,
-                          replace: null,
-                        });
-                        setLearning('');
-                      }}
-                    >
-                      加入空位 · {MOVES[learning]!.name}
-                    </Button>
-                  )}
-                  <Button small onPress={() => setLearning('')}>
-                    取消学习
-                  </Button>
-                </View>
-              )}
               <Label style={{ fontWeight: '800' }}>其他可回忆技能 · 免费</Label>
               <View style={styles.wrap}>
                 {centerOptions(game, c)
@@ -178,10 +154,7 @@ export function CenterMenu({
                       disabled={!available}
                       key={id}
                       selected={learning === id}
-                      onPress={() => {
-                        setLearning(id);
-                        setForgetting('');
-                      }}
+                      onPress={() => beginLearning(id)}
                     >
                       {MOVES[id]!.name}
                     </Button>

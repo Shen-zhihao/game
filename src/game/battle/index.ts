@@ -1,6 +1,7 @@
 import { coastEncounter } from '../coastStory';
 import { adventureEncounter } from '../../content/adventure';
 import { finishLeagueBattle } from '../league';
+import { rememberRecoveryTowns, returnToNearestCenter } from '../recovery';
 import { canLearnMove, ITEMS, MOVES, SPECIES, STARTERS } from '../../content/catalog';
 import { battleScene } from '../battleVisuals';
 import { emptyStats, ensureTraining } from '../growth';
@@ -13,8 +14,10 @@ import {
   GYM_TRAINERS,
   GYM_REWARDS,
   PRACTICE_TRAINERS,
-  TOWN_REST,
   TRAINERS,
+  MAPS,
+  npcDefeated,
+  npcVictoryFlag,
 } from '../../content/world';
 import {
   Battle,
@@ -112,6 +115,18 @@ export function startBattle(
   event: StoryEvent | null,
   wild?: { speciesId: string; level: number; tutorial?: boolean },
 ): void {
+  rememberRecoveryTowns(state);
+  const npc = event ? MAPS[state.player.map].npcs.find((n) => n.event === event) : undefined;
+  if (
+    !wild &&
+    event &&
+    (npc
+      ? npcDefeated(state.progress.flags, npc)
+      : !PRACTICE_TRAINERS.has(event) && state.progress.flags[event])
+  ) {
+    state.notice = '这场对战已经获胜，再去和对方聊聊旅途见闻吧。';
+    return;
+  }
   const playerId = state.party.find((id) => state.creatures[id]!.hp > 0);
   if (!playerId) {
     healParty(state);
@@ -153,6 +168,7 @@ export function startBattle(
     if (!state.dex.seen.includes(c.speciesId)) state.dex.seen.push(c.speciesId);
   state.battle = {
     id: nextId(state, 'battle'),
+    ...(npc && !wild ? { npcId: npc.id } : {}),
     kind: wild ? 'wild' : 'trainer',
     event,
     name: wild ? '野生精灵' : trainer!.name,
@@ -184,6 +200,7 @@ export function startBattle(
 function finish(state: GameState, result: Battle['result']): void {
   const b = state.battle!;
   if (b.phase === 'ended') return;
+  delete b.actionRound;
   ensureRewards(b);
   b.phase = 'ended';
   b.result = result;
@@ -195,6 +212,16 @@ function finish(state: GameState, result: Battle['result']): void {
     b.logs.push('绒团鼠安静下来，跑回草丛。岚博士终于脱险了！', '岚博士：谢谢你！和我回研究所吧。');
   }
   if (result === 'win' && b.event && b.event in TRAINERS) {
+    const npc = MAPS[state.player.map].npcs.find((n) =>
+      b.npcId ? n.id === b.npcId : n.event === b.event,
+    );
+    if (npc && PRACTICE_TRAINERS.has(b.event)) state.progress.flags[npcVictoryFlag(npc.id)] = true;
+    if (
+      npc?.defeatedPosition &&
+      npc.defeatedPosition[0] === state.player.x &&
+      npc.defeatedPosition[1] === state.player.y
+    )
+      Object.assign(state.player, { x: npc.x, y: npc.y });
     const key = b.event as keyof typeof TRAINERS;
     if (PRACTICE_TRAINERS.has(key) || !state.progress.flags[key]) {
       addBattleMoney(state, TRAINERS[key].reward, '训练师胜利奖励');
@@ -229,17 +256,15 @@ function finish(state: GameState, result: Battle['result']): void {
     if (b.event === 'openingRescue') {
       b.logs.push('岚博士躲到篱笆后暂避。先回镇子让伙伴休整，再去入口的背包旁帮他。');
     } else if (b.event === 'rival' && !state.progress.flags.opening) {
-      state.progress.flags.rival = true;
-      b.logs.push('阿澈：很好的练习！我会在一号路等你。');
+      b.logs.push('阿澈：先让伙伴休息一下，准备好后再来练习吧。');
     } else {
       const loss = Math.floor(state.player.money * 0.05);
       state.player.money -= loss;
       b.logs.push(`伙伴们疲惫了。回治疗所休息，支付旅费 ${loss}。`);
     }
     healParty(state);
-    state.player.map = state.player.healMap;
-    Object.assign(state.player, TOWN_REST[state.player.healMap]);
-    state.player.facing = 'left';
+    const center = returnToNearestCenter(state);
+    b.logs.push(`已在${MAPS[center.town].name}精灵中心复活，全队 HP、PP 与异常状态已恢复。`);
   }
   if (b.event === 'mistEncounter') {
     if (result === 'caught') {
@@ -288,7 +313,7 @@ function immobilized(state: GameState, creature: Creature): boolean {
   }
   return false;
 }
-type RoundImmobility = Map<string, { status: Creature['status']; blocked: boolean }>;
+type RoundImmobility = NonNullable<Battle['actionRound']>['immobility'];
 function attack(
   state: GameState,
   player: boolean,
@@ -305,11 +330,11 @@ function attack(
     b.logs.push(`${creatureName(attacker)}所选技能的 PP 已耗尽，后续出手取消。`);
     return false;
   }
-  let condition = blocked.get(attacker.id);
+  let condition = blocked[attacker.id];
   if (!condition || condition.status !== attacker.status) {
     const unable = immobilized(state, attacker);
     condition = { status: attacker.status, blocked: unable };
-    blocked.set(attacker.id, condition);
+    blocked[attacker.id] = condition;
   }
   if (condition.blocked) return false;
   const move = MOVES[slot?.id ?? 'struggle']!;
@@ -358,9 +383,10 @@ function attack(
         critical,
         b.weather?.kind,
       );
-      defender.hp = Math.max(0, defender.hp - damage);
+      const dealt = Math.min(defender.hp, damage);
+      defender.hp -= dealt;
       b.logs.push(
-        `造成 ${damage} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
+        `造成 ${dealt} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
       );
       if (move.id === 'struggle')
         attacker.hp = Math.max(0, attacker.hp - Math.max(1, Math.floor(statsFor(attacker).hp / 4)));
@@ -528,6 +554,32 @@ export function battleAction(state: GameState, action: BattleAction): void {
       b.logs = [reason];
       return;
     }
+    // Lock the team's action budget before switching or applying items. Switching cannot refill it.
+    if (b.phase !== 'forcedSwitch' && !b.actionRound) {
+      const player = state.creatures[b.playerId]!;
+      const enemy = b.enemies[b.enemyIndex]!;
+      const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
+      const playerMove =
+        action.kind === 'move'
+          ? MOVES[player.moves.some((m) => m.pp > 0) ? player.moves[action.index]!.id : 'struggle']!
+          : null;
+      const enemyMove = MOVES[enemy.moves[b.aiMove]?.id ?? 'struggle']!;
+      const enemyFirst =
+        !!playerMove &&
+        (playerMove.priority !== enemyMove.priority
+          ? enemyMove.priority > playerMove.priority
+          : pace.playerSpeed !== pace.enemySpeed
+            ? pace.enemySpeed > pace.playerSpeed
+            : random(state) >= 0.5);
+      b.actionRound = {
+        playerTotal: pace.playerActions,
+        enemyTotal: pace.enemyActions,
+        playerRemaining: pace.playerActions,
+        enemyRemaining: pace.enemyActions,
+        enemyFirst,
+        immobility: {},
+      };
+    }
     if (action.kind === 'switch') {
       const c = state.creatures[action.creatureId]!;
       const forced = b.phase === 'forcedSwitch';
@@ -544,6 +596,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
       b.playerStages = emptyStages();
       if (!b.participants.includes(c.id)) b.participants.push(c.id);
       if (forced) {
+        delete b.actionRound;
         b.phase = 'choose';
         b.aiMove = aiMove(state);
         return;
@@ -611,46 +664,33 @@ export function battleAction(state: GameState, action: BattleAction): void {
       );
       state.inventory[action.kind]! -= 1;
     }
-    const plannedEnemy = b.aiMove;
-    // Quotas are locked for this exchange; speed changes apply on the next round.
-    const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
-    const blocked: RoundImmobility = new Map();
-    const enemyStruggle = !enemy.moves.some((m) => m.pp > 0);
-    const playerStruggle = !player.moves.some((m) => m.pp > 0);
-    if ((action.kind === 'move' && pace.playerActions > 1) || pace.enemyActions > 1)
-      b.logs.push(
-        `速度对比：我方 ${Number(pace.playerSpeed.toFixed(1))}／对方 ${Number(pace.enemySpeed.toFixed(1))}，本回合技能额度 ${action.kind === 'move' ? pace.playerActions : 0}／${pace.enemyActions} 次。`,
-      );
-    const perform = (isPlayer: boolean) => {
-      const count = isPlayer ? pace.playerActions : pace.enemyActions;
-      const actor = isPlayer ? player : enemy;
-      const index = isPlayer && action.kind === 'move' ? action.index : plannedEnemy;
-      const struggle = isPlayer ? playerStruggle : enemyStruggle;
-      for (let i = 0; i < count && player.hp > 0 && enemy.hp > 0; i++) {
-        if (i > 0 && !struggle && !(actor.moves[index]?.pp! > 0)) {
-          b.logs.push(`${creatureName(actor)}所选技能的 PP 已耗尽，后续出手取消。`);
+    const round = b.actionRound!;
+    const performEnemy = () => {
+      while (round.enemyRemaining > 0 && player.hp > 0 && enemy.hp > 0) {
+        const struggle = !enemy.moves.some((m) => m.pp > 0);
+        round.enemyRemaining--;
+        if (!attack(state, false, b.aiMove, round.immobility, struggle)) {
+          round.enemyRemaining = 0;
           break;
         }
-        if (i > 0) b.logs.push(`${creatureName(actor)}凭速度连续出手（${i + 1}/${count}）！`);
-        if (!attack(state, isPlayer, index, blocked, struggle)) break;
+        if (round.enemyRemaining > 0 && player.hp > 0 && enemy.hp > 0) b.aiMove = aiMove(state);
       }
     };
-    if (action.kind === 'move') {
-      const playerMove =
-        MOVES[player.moves.some((m) => m.pp > 0) ? player.moves[action.index]!.id : 'struggle']!;
-      const enemyMove = MOVES[enemy.moves[plannedEnemy]?.id ?? 'struggle']!;
-      const ps = pace.playerSpeed;
-      const es = pace.enemySpeed;
-      const first =
-        playerMove.priority !== enemyMove.priority
-          ? playerMove.priority > enemyMove.priority
-          : ps !== es
-            ? ps > es
-            : random(state) < 0.5;
-      perform(first);
-      // A faint always cancels the opposing queued action, including simultaneous recoil.
-      if (player.hp > 0 && enemy.hp > 0) perform(!first);
-    } else perform(false);
+    if (round.enemyFirst) performEnemy();
+    if (player.hp > 0 && enemy.hp > 0) {
+      round.playerRemaining--;
+      if (action.kind === 'move')
+        attack(state, true, action.index, round.immobility, !player.moves.some((m) => m.pp > 0));
+    }
+    if (round.playerRemaining <= 0) performEnemy();
+    if (player.hp > 0 && enemy.hp > 0 && round.playerRemaining > 0) {
+      b.logs.push(
+        `本回合还可操作 ${round.playerRemaining}/${round.playerTotal} 次，请重新选择技能、道具或换人。`,
+      );
+      b.phase = 'choose';
+      return;
+    }
+    delete b.actionRound;
     for (const c of [player, enemy]) {
       if (c.hp > 0 && (c.status === 'poison' || c.status === 'burn')) {
         const loss = Math.max(1, Math.floor(statsFor(c).hp / (c.status === 'poison' ? 8 : 16)));

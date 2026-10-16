@@ -1,4 +1,5 @@
 import type { MapId, StoryEvent } from '../../game/model';
+import { MAPS } from '../world';
 
 export const BATTLE_SCENES = {
   meadow: { name: '晨芽林地', file: 'battle-meadow.png', width: 1536, height: 1024 },
@@ -13,7 +14,7 @@ export const BATTLE_SCENES = {
 };
 export type BattleTheme = keyof typeof BATTLE_SCENES;
 /** Explicit map coverage prevents later regions silently inheriting the opening forest. */
-export const MAP_BATTLE_THEMES: Record<MapId, BattleTheme> = {
+export const MAP_BATTLE_THEMES = {
   dawn: 'meadow',
   route: 'meadow',
   moss: 'meadow',
@@ -60,7 +61,9 @@ export const MAP_BATTLE_THEMES: Record<MapId, BattleTheme> = {
   echoMeadow: 'meadow',
   mineDepths: 'highlands',
   kelpCove: 'coast',
-};
+} as Record<MapId, BattleTheme>;
+for (const map of Object.values(MAPS))
+  if (map.interior) MAP_BATTLE_THEMES[map.id] = MAP_BATTLE_THEMES[map.interior.exterior];
 export function battleTheme(map: MapId, event?: StoryEvent | null): BattleTheme {
   if (map === 'leagueHall') {
     if (event === 'leagueIce') return 'wind';
