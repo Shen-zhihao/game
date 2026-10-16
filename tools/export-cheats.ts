@@ -1,0 +1,38 @@
+import { writeFileSync } from 'node:fs';
+import { format, resolveConfig } from 'prettier';
+import { CONTENT_VERSION, ITEMS, ITEM_POCKETS } from '../src/content/catalog';
+import { CHEAT_CODES } from '../src/game/cheats';
+
+async function main() {
+  const groups = Object.keys(ITEM_POCKETS) as (keyof typeof ITEM_POCKETS)[];
+  const text = [
+    '# 星苔远征金手指代码',
+    '',
+    `适用内容版本：\`${CONTENT_VERSION}\`。从游戏运行配置生成；更新命令为 \`pnpm exec tsx tools/export-cheats.ts\`。`,
+    '',
+    '在一段已载入的冒险中打开「菜单 → 设置 → 金手指」，输入三位纯数字指令并按「确认」。仅有一个输入框和确认按钮，不在界面公开指令列表。首位1为精灵球、2为回复、3为培养、4为进化、5为重要物品。旧字母代码不再接受。可以重复领取普通道具；重要物品永久携带、每件一份。',
+    '',
+    '战斗、对话、初始伙伴选择和待处理的升级／进化中不能领取。无效代码、已有重要物品或完整奖励放不下时不发放，也不扣旅费。每种普通道具最多携带999个。大师球另外为尚未领取的三个正常剧情奖励预留空间；例如尚无剧情球时最多携带996枚金手指球。',
+    '',
+    '正常剧情仍最多获得三枚大师球，商店和兑换不出售。金手指额外获得与额外使用独立记账；当前持有 = 剧情领取 - 剧情使用 + 金手指领取 - 金手指使用。投球先消耗金手指来源；大师球不能捕获训练师伙伴或尚未开启的剧情相遇。',
+    '',
+    '物品、重要物品和金手指账本均随本地存档与整档传输保留。代码不授予徽章、不伪造调查标记，不会自动解锁未完成的故事。渡水装备、碎岩和各地工具捷径会识别实际持有的重要物品；剧情通用技能仍需其原本解锁条件。',
+    '',
+    ...groups.flatMap((pocket) => [
+      `## ${ITEM_POCKETS[pocket]}`,
+      '',
+      '| 数字指令 | 道具 | 数量 |',
+      '| --- | --- | --- |',
+      ...CHEAT_CODES.filter((entry) => ITEMS[entry.itemId]!.pocket === pocket).map(
+        (entry) => `| \`${entry.code}\` | ${ITEMS[entry.itemId]!.name} | ${entry.quantity} |`,
+      ),
+      '',
+    ]),
+    '重要物品不消耗，不参与普通商店与兑换；正常通过剧情获得的同一工具也会显示在「重要物品」袋中。剪藤和碎岩工具不替代各城馆内练习。归流校准件虽然可以提前持有，但相关设备仍检查调查与证据前置。',
+    '',
+  ].join('\n');
+  const path = 'docs/cheat-codes.md';
+  writeFileSync(path, await format(text, { ...(await resolveConfig(path)), filepath: path }));
+  console.log(`导出 ${CHEAT_CODES.length} 条金手指代码到 ${path}`);
+}
+void main();

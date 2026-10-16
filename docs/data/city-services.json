@@ -1,0 +1,1080 @@
+{
+  "contentVersion": "ch10.3",
+  "currency": "调查印记",
+  "services": [
+    {
+      "id": "dawn",
+      "name": "晨芽镇",
+      "map": "dawn",
+      "merchant": "花园旅行商",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "growth_seed"
+      ],
+      "quests": [
+        {
+          "id": "dawn_field",
+          "name": "初次野外笔记",
+          "client": "岚博士",
+          "story": "记录两种普通野生精灵。只查阅图鉴，不带走你的伙伴；以前的捕获也算数。",
+          "condition": {
+            "kind": "collection",
+            "types": [],
+            "target": 2
+          },
+          "reward": {
+            "money": 180,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_care",
+          "name": "花园的急救箱",
+          "client": "花园管理员",
+          "story": "给公共急救箱补上两份草露药。领取奖励时一次性交付。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2
+            }
+          },
+          "reward": {
+            "money": 100,
+            "merit": 2,
+            "items": {
+              "antidote": 2
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_training",
+          "name": "伙伴的第一份计划",
+          "client": "培养教练",
+          "story": "为任意一只伙伴分配至少 10 点能力点，尝试自己的培养方向。奖励的重塑药剂可以帮助你重新选择。",
+          "condition": {
+            "kind": "training",
+            "target": 10
+          },
+          "reward": {
+            "money": 150,
+            "merit": 2,
+            "items": {
+              "respec": 1,
+              "skill_copy": 1
+            }
+          },
+          "cityId": "dawn"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "dawn_respec",
+          "cityId": "dawn",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "dawn_growth_seed",
+          "cityId": "dawn",
+          "itemId": "growth_seed",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "dawn_candy",
+          "cityId": "dawn",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "dawn_skill_copy",
+          "cityId": "dawn",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "moss",
+      "name": "苔丘镇",
+      "map": "moss",
+      "merchant": "林间补给商",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "growth_seed",
+        "echo_bell",
+        "amber_drop"
+      ],
+      "quests": [
+        {
+          "id": "moss_ecology",
+          "name": "叶间的小住客",
+          "client": "研究员穗禾",
+          "story": "记录两种草系或虫系的普通野生精灵，帮助补全森林栖地手册。",
+          "condition": {
+            "kind": "collection",
+            "types": ["grass", "bug"],
+            "target": 2
+          },
+          "reward": {
+            "money": 250,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_rescue",
+          "name": "回到灯火下",
+          "client": "护林站",
+          "story": "帮助穗禾找到森林里的萤灯蛾。森林调查可随时开展，不限制道馆挑战顺序。",
+          "condition": {
+            "kind": "flag",
+            "flag": "rescued",
+            "label": "完成森林救援"
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "growth_seed": 1
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_aid",
+          "name": "护林员的药袋",
+          "client": "巡林员",
+          "story": "准备三份清醒露，让巡林员不用为草丛中的异常状态担心。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "antidote": 3
+            }
+          },
+          "reward": {
+            "money": 160,
+            "merit": 2,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "moss"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "moss_respec",
+          "cityId": "moss",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "moss_growth_seed",
+          "cityId": "moss",
+          "itemId": "growth_seed",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "moss_echo_bell",
+          "cityId": "moss",
+          "itemId": "echo_bell",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "moss_amber_drop",
+          "cityId": "moss",
+          "itemId": "amber_drop",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "moss_candy",
+          "cityId": "moss",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "moss_skill_copy",
+          "cityId": "moss",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "stone",
+      "name": "石脊城",
+      "map": "stone",
+      "merchant": "山城补给商",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "old_inscription",
+        "dragon_scale",
+        "moon_shard"
+      ],
+      "quests": [
+        {
+          "id": "stone_ecology",
+          "name": "岩层里的邻居",
+          "client": "山地调查员",
+          "story": "记录三种岩石系或地面系的普通野生精灵。不需要交付或放生伙伴。",
+          "condition": {
+            "kind": "collection",
+            "types": ["rock", "ground"],
+            "target": 3
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "ball": 5
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_mine",
+          "name": "矿灯重新亮起",
+          "client": "矿长砚叔",
+          "story": "查清旧矿山的异常并关闭共鸣装置。矿山调查线沿用原有线索与报告进度。",
+          "condition": {
+            "kind": "flag",
+            "flag": "mineStabilized",
+            "label": "关闭旧矿山异常装置"
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "candy": 2
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_aid",
+          "name": "矿队的归途",
+          "client": "矿队医护员",
+          "story": "向矿队交付草露药三份、清醒露一份，给返程工人留好补给。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 3,
+              "antidote": 1
+            }
+          },
+          "reward": {
+            "money": 250,
+            "merit": 3,
+            "items": {
+              "respec": 1,
+              "ether": 1
+            }
+          },
+          "cityId": "stone"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "stone_respec",
+          "cityId": "stone",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "stone_old_inscription",
+          "cityId": "stone",
+          "itemId": "old_inscription",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "stone_dragon_scale",
+          "cityId": "stone",
+          "itemId": "dragon_scale",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "stone_moon_shard",
+          "cityId": "stone",
+          "itemId": "moon_shard",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "stone_candy",
+          "cityId": "stone",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "stone_skill_copy",
+          "cityId": "stone",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_3",
+      "name": "潮汐港",
+      "map": "harbor",
+      "merchant": "潮汐港补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "tide_pearl",
+        "frost_crystal"
+      ],
+      "quests": [
+        {
+          "id": "city_3_ecology",
+          "name": "潮汐港生态手册",
+          "client": "潮汐港调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["water", "ice"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "city_3_aid",
+          "name": "潮汐港旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "tide_pearl": 1
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "city_3_training",
+          "name": "汐遥的培养建议",
+          "client": "汐遥",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 50
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_3"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_3_respec",
+          "cityId": "city_3",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_3_tide_pearl",
+          "cityId": "city_3",
+          "itemId": "tide_pearl",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_3_frost_crystal",
+          "cityId": "city_3",
+          "itemId": "frost_crystal",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_3_candy",
+          "cityId": "city_3",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_3_skill_copy",
+          "cityId": "city_3",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_4",
+      "name": "雷鸣市",
+      "map": "volt",
+      "merchant": "雷鸣市补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "thunder_core"
+      ],
+      "quests": [
+        {
+          "id": "city_4_ecology",
+          "name": "雷鸣市生态手册",
+          "client": "雷鸣市调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["electric", "steel"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "city_4_aid",
+          "name": "雷鸣市旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "thunder_core": 1
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "city_4_training",
+          "name": "衡电的培养建议",
+          "client": "衡电",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 70
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_4"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_4_respec",
+          "cityId": "city_4",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_4_thunder_core",
+          "cityId": "city_4",
+          "itemId": "thunder_core",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_4_candy",
+          "cityId": "city_4",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_4_skill_copy",
+          "cityId": "city_4",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_5",
+      "name": "风栖镇",
+      "map": "wind",
+      "merchant": "风栖镇补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "wind_plume",
+        "frost_crystal"
+      ],
+      "quests": [
+        {
+          "id": "city_5_ecology",
+          "name": "风栖镇生态手册",
+          "client": "风栖镇调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["flying"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "city_5_aid",
+          "name": "风栖镇旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "wind_plume": 1
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "city_5_training",
+          "name": "岑羽的培养建议",
+          "client": "岑羽",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 90
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_5"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_5_respec",
+          "cityId": "city_5",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_5_wind_plume",
+          "cityId": "city_5",
+          "itemId": "wind_plume",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_5_frost_crystal",
+          "cityId": "city_5",
+          "itemId": "frost_crystal",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_5_candy",
+          "cityId": "city_5",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_5_skill_copy",
+          "cityId": "city_5",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_6",
+      "name": "炉心城",
+      "map": "furnace",
+      "merchant": "炉心城补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "forged_heart"
+      ],
+      "quests": [
+        {
+          "id": "city_6_ecology",
+          "name": "炉心城生态手册",
+          "client": "炉心城调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["fire", "steel"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "city_6_aid",
+          "name": "炉心城旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "forged_heart": 1
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "city_6_training",
+          "name": "烁岑的培养建议",
+          "client": "烁岑",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 110
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_6"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_6_respec",
+          "cityId": "city_6",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_6_forged_heart",
+          "cityId": "city_6",
+          "itemId": "forged_heart",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_6_candy",
+          "cityId": "city_6",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_6_skill_copy",
+          "cityId": "city_6",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_7",
+      "name": "镜湖镇",
+      "map": "lake",
+      "merchant": "镜湖镇补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "moon_shard",
+        "dusk_veil"
+      ],
+      "quests": [
+        {
+          "id": "city_7_ecology",
+          "name": "镜湖镇生态手册",
+          "client": "镜湖镇调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["psychic", "ghost"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "city_7_aid",
+          "name": "镜湖镇旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "moon_shard": 1
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "city_7_training",
+          "name": "澄镜的培养建议",
+          "client": "澄镜",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 130
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_7"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_7_respec",
+          "cityId": "city_7",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_7_moon_shard",
+          "cityId": "city_7",
+          "itemId": "moon_shard",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_7_dusk_veil",
+          "cityId": "city_7",
+          "itemId": "dusk_veil",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_7_candy",
+          "cityId": "city_7",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_7_skill_copy",
+          "cityId": "city_7",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    },
+    {
+      "id": "city_8",
+      "name": "星岚城",
+      "map": "star",
+      "merchant": "星岚城补给行",
+      "implemented": true,
+      "stock": [
+        "ball",
+        "great_ball",
+        "ultra_ball",
+        "potion",
+        "super_potion",
+        "hyper_potion",
+        "revive",
+        "antidote",
+        "ether",
+        "candy",
+        "respec",
+        "skill_copy",
+        "old_inscription",
+        "dragon_scale"
+      ],
+      "quests": [
+        {
+          "id": "city_8_ecology",
+          "name": "星岚城生态手册",
+          "client": "星岚城调查站",
+          "story": "记录本地普通精灵，丰富地区图鉴。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "collection",
+            "types": ["dragon", "fairy"],
+            "target": 3
+          },
+          "reward": {
+            "money": 400,
+            "merit": 3,
+            "items": {
+              "candy": 1
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "city_8_aid",
+          "name": "星岚城旅人补给",
+          "client": "旅人协会",
+          "story": "为当地旅行者准备恢复品。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "super_potion": 2,
+              "ether": 1
+            }
+          },
+          "reward": {
+            "money": 350,
+            "merit": 3,
+            "items": {
+              "old_inscription": 1
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "city_8_training",
+          "name": "闻衡的培养建议",
+          "client": "闻衡",
+          "story": "培养一位伙伴并交流加点经验；只作可选委托，不作为入馆条件。在开放的城镇可接受并领取。",
+          "condition": {
+            "kind": "training",
+            "target": 150
+          },
+          "reward": {
+            "money": 450,
+            "merit": 4,
+            "items": {
+              "respec": 1
+            }
+          },
+          "cityId": "city_8"
+        }
+      ],
+      "exchanges": [
+        {
+          "id": "city_8_respec",
+          "cityId": "city_8",
+          "itemId": "respec",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_8_old_inscription",
+          "cityId": "city_8",
+          "itemId": "old_inscription",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_8_dragon_scale",
+          "cityId": "city_8",
+          "itemId": "dragon_scale",
+          "quantity": 1,
+          "cost": 3
+        },
+        {
+          "id": "city_8_candy",
+          "cityId": "city_8",
+          "itemId": "candy",
+          "quantity": 1,
+          "cost": 2
+        },
+        {
+          "id": "city_8_skill_copy",
+          "cityId": "city_8",
+          "itemId": "skill_copy",
+          "quantity": 1,
+          "cost": 3
+        }
+      ]
+    }
+  ]
+}

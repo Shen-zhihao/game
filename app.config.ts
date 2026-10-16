@@ -52,6 +52,6 @@ const config: ExpoConfig = {
       },
     ],
   ],
-  web: { bundler: 'metro', name: '星苔远征 · 第一章' },
+  web: { bundler: 'metro', name: '星苔远征 · 完整旅程' },
 };
 export default config;

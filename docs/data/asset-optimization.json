@@ -1,0 +1,966 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-16",
+  "summary": {
+    "beforePngCount": 56,
+    "afterPngCount": 47,
+    "beforeBytes": 153696988,
+    "afterBytes": 113494359,
+    "removedBytes": 31096789,
+    "losslessCompressionSavedBytes": 9105840,
+    "totalSavedBytes": 40202629,
+    "all47ImagesPixelIdentical": true,
+    "missingRuntimeAssets": 0
+  },
+  "removedAssets": [
+    {
+      "file": "assets/maps/dawn.png",
+      "replacement": "assets/maps/dawn-expanded.png",
+      "bytes": 3416895,
+      "sha256": "6201bf7e352dc06f44fdb4d59952ead02c1222d2a2b085dff266535b5b9b17f4",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB",
+      "rgbaSha256": "a7fc55b6adbb428b401e79f17ee487ca59979e007dab9a4cab9040ff8bcbeec4"
+    },
+    {
+      "file": "assets/maps/route.png",
+      "replacement": "assets/maps/route-expanded.png",
+      "bytes": 3690880,
+      "sha256": "ba1ce803e0033ee8e7fedfe2de6682d9f1d95c8f85a6a5496f04ee9211754b8d",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB",
+      "rgbaSha256": "2d15c3bdf2689863a00ddbd5c3a1078aadaf04bd6924f35485249220b9ae3667"
+    },
+    {
+      "file": "assets/maps/moss.png",
+      "replacement": "assets/maps/moss-expanded.png",
+      "bytes": 3724389,
+      "sha256": "015eacc649f62b757d3a100d6f01375846d8423074dc858e92f8e18df63a818c",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB",
+      "rgbaSha256": "0db2b1ee1d8dcd4357f05bfea223a7ac69465d223b56a3d9fde96dbdedbee066"
+    },
+    {
+      "file": "assets/maps/forest.png",
+      "replacement": "assets/maps/forest-expanded.png",
+      "bytes": 3664540,
+      "sha256": "b2ea9ee848c20aafbaa86e3a2aaf1bb7251bf9b95f5d11fc7deb68a936155b68",
+      "width": 1536,
+      "height": 1024,
+      "mode": "RGB",
+      "rgbaSha256": "0842455f11ceece1d2cac5b40b78113cd6ac13b62d1af9443cfdfa1028845d96"
+    },
+    {
+      "file": "assets/maps/stone-city.png",
+      "replacement": "assets/maps/stone-city-coast-v2.png",
+      "bytes": 3405600,
+      "sha256": "f4b31f8615488af8f7a75365a3086149552b7aaaaffa3c1af2fce4c0b53ea8d9",
+      "width": 1465,
+      "height": 1073,
+      "mode": "RGB",
+      "rgbaSha256": "af6e453d4b61b8d749372ab66ae359f9c081fee4f463476349add940fb3f9e50"
+    },
+    {
+      "file": "assets/maps/harbor-city.png",
+      "replacement": "assets/maps/harbor-city-v2.png",
+      "bytes": 3525750,
+      "sha256": "9a8d599b5dad40f48891493ee4a34b35c55c79fb01c285a3dbe73ceb5fd31a1f",
+      "width": 1476,
+      "height": 1066,
+      "mode": "RGB",
+      "rgbaSha256": "30f6993248a9111cbf8a4f21fa5c22a39ec236a015e2bd9349dc4b3c598736b2"
+    },
+    {
+      "file": "assets/maps/tideworks.png",
+      "replacement": "assets/maps/tideworks-v2.png",
+      "bytes": 3688060,
+      "sha256": "8f10593cc702cd812a85ef31f9f0b0db0b0be782d5ec2b2c7fc8c89d26b1d800",
+      "width": 1499,
+      "height": 1049,
+      "mode": "RGB",
+      "rgbaSha256": "f25367b471cfaca1a00db249db6754c6a5e6ea63acf58fa2e8690bcf47b6c3c0"
+    },
+    {
+      "file": "assets/maps/water-gym.png",
+      "replacement": "assets/maps/water-gym-v2.png",
+      "bytes": 2515700,
+      "sha256": "f84dfba9e0fc11423d23eb1a2ae78b734a76018e38d0ccccaa120f26644f119c",
+      "width": 1364,
+      "height": 1153,
+      "mode": "RGB",
+      "rgbaSha256": "ecb31851d49f13acf4d7bccfccf3b5737ce8bd0aa90dd4a53a8c88dbceea9532"
+    },
+    {
+      "file": "assets/maps/stone-city-coast.png",
+      "replacement": "assets/maps/stone-city-coast-v2.png",
+      "bytes": 3464975,
+      "sha256": "798d9d9a88036e4bce1fd9d763079d313eba1e92675cffd7cef0cd8dd23ce38c",
+      "width": 1464,
+      "height": 1074,
+      "mode": "RGB",
+      "rgbaSha256": "72f74090a0fa2b351ab5bc0a8d7c9f39633ab111beaac9f71dc66c8a30b4576b"
+    }
+  ],
+  "losslessOptimization": {
+    "optimizer": "oxipng 10.2.1",
+    "applied": true,
+    "verification": "Exact dimensions, decoded RGBA including transparent RGB, and color metadata",
+    "pngCount": 47,
+    "smallerCount": 47,
+    "beforeBytes": 122600199,
+    "afterBytes": 113494359,
+    "savedBytes": 9105840,
+    "files": [
+      {
+        "file": "assets/characters/npcs.png",
+        "before": {
+          "bytes": 1302947,
+          "sha256": "1af86230c20331997aa6a1d6e3c13df2c3e57f257eae93da7e5e39a708bac3b8",
+          "width": 1774,
+          "height": 887,
+          "rgbaSha256": "9dbc337ef8d51028e822cc57dbd9d30d8ab4b29239da10eae3cb7da414c091f6"
+        },
+        "after": {
+          "bytes": 1245019,
+          "sha256": "badba2dd07aa0a6a1a9c811fe9139053ec97a2451b3b0b6868f3f445c48a1dd2",
+          "width": 1774,
+          "height": 887,
+          "rgbaSha256": "9dbc337ef8d51028e822cc57dbd9d30d8ab4b29239da10eae3cb7da414c091f6"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/characters/props.png",
+        "before": {
+          "bytes": 1716379,
+          "sha256": "8e924bc9378cb93c8024471e067c64ae3c5b5b02889fae8822db053e307108fd",
+          "width": 1774,
+          "height": 887,
+          "rgbaSha256": "449f6ea8f62a8bc0928089bd4cd995116ea154a2a2d9f5e982b1a625b0feae0e"
+        },
+        "after": {
+          "bytes": 1616339,
+          "sha256": "4f25e94bb79a3013384afea06d664d24eab4b72532932fc454a009b2ed795a14",
+          "width": 1774,
+          "height": 887,
+          "rgbaSha256": "449f6ea8f62a8bc0928089bd4cd995116ea154a2a2d9f5e982b1a625b0feae0e"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/characters/ranger-walk.png",
+        "before": {
+          "bytes": 1043661,
+          "sha256": "f6c68dbf885837215d576f239da0302c29c98de14082df08f3c9a826d4b3c6f8",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "b60d5e573c9b9f143300ee060ae2741ff861c5ac51d7790527001c82170c3632"
+        },
+        "after": {
+          "bytes": 963437,
+          "sha256": "c45bc3deee5d2056b9009d438d6108ad4275d1216213585708710bea6f97a3eb",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "b60d5e573c9b9f143300ee060ae2741ff861c5ac51d7790527001c82170c3632"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/characters/traveler-walk.png",
+        "before": {
+          "bytes": 803936,
+          "sha256": "a11f56e222f3fc9b908604b766de3051dcdb9eda5592e1714115f45fd4998247",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "d71458397b58316ba81cf2bc8674cf165f67bd5dfec38f55a4de87ffff11a794"
+        },
+        "after": {
+          "bytes": 746450,
+          "sha256": "00b88828ad8b9bedeffa6af7025d08e6576bb114b05a70d711a69f35613ef11a",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "d71458397b58316ba81cf2bc8674cf165f67bd5dfec38f55a4de87ffff11a794"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-ch1.png",
+        "before": {
+          "bytes": 2262412,
+          "sha256": "76e3da1a8f250e1fd1f70ba764b829faeb01e8034964a590454f8806530ae3f1",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "7d8a2ded3c337e252b56f41ccf6c2239e82a0c83a1f9a0ceb6a7a605db006833"
+        },
+        "after": {
+          "bytes": 2112678,
+          "sha256": "989f29c28627e1938d33377c5f25fd014b1e3e6bb09595ad87da4cc5927cc825",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "7d8a2ded3c337e252b56f41ccf6c2239e82a0c83a1f9a0ceb6a7a605db006833"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-coast.png",
+        "before": {
+          "bytes": 2264297,
+          "sha256": "dfefb184734fa52fe54dc707a347c4eda7dddda83c34b35164a90967ab1eb875",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "ca1b88ff586107f8a98aa338892c3cd44033c242dd98e49ba2166c29d70c1d59"
+        },
+        "after": {
+          "bytes": 2089018,
+          "sha256": "3d497489ce1475250f5d926bf775e725043ba3deb8e856bc491cddbe834f9924",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "ca1b88ff586107f8a98aa338892c3cd44033c242dd98e49ba2166c29d70c1d59"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-electric.png",
+        "before": {
+          "bytes": 1490515,
+          "sha256": "e4b3cc16d4fcf6305789eb75f94c1242b326f3e6162477f3757372fdf076d718",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "9589cbc5e07c6350faddb57d39dd70238c9817167fef4b3c2cc3299414bcf55a"
+        },
+        "after": {
+          "bytes": 1339051,
+          "sha256": "56bc2e71d6eac63a3eec19801fbd9d90ca6c4a2b742f3c21227c60e023ecd6e7",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "9589cbc5e07c6350faddb57d39dd70238c9817167fef4b3c2cc3299414bcf55a"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-field_a.png",
+        "before": {
+          "bytes": 1986057,
+          "sha256": "e20a3b22ba7adcc041fae3915f59e1e4fe1bbb093b8d77d135be1a2f28cf1918",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4b07f77faeffd9b74ea1cdc18434c017565a0c1ec15c793a34e7d9dc254c338c"
+        },
+        "after": {
+          "bytes": 1836434,
+          "sha256": "e062f0b9bc6130a52def7ea3dc689ddc75df4fa33bf059b73deade9fbfa4848c",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4b07f77faeffd9b74ea1cdc18434c017565a0c1ec15c793a34e7d9dc254c338c"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-field_b.png",
+        "before": {
+          "bytes": 2281643,
+          "sha256": "d75991298a359fd92256c869c89787d524ab32b398bf59f31041191c118655bd",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "6d57edaecaaa67128c6a753f97f2f05e75e9472bf037bd201ecea7a53fcd74f1"
+        },
+        "after": {
+          "bytes": 2118875,
+          "sha256": "a008699493e4dab04322f856d98ca6ffcf5b40f6daf803e722884e40980106c6",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "6d57edaecaaa67128c6a753f97f2f05e75e9472bf037bd201ecea7a53fcd74f1"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-fire_a.png",
+        "before": {
+          "bytes": 1960382,
+          "sha256": "88724c1cdc6a5e32e31f9383e22a4c66b4c536cc05b552dee9f3041b718417ef",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "5463303ad021986ea9cb8cbb957c30496a697a4823bd465fbc949513af026bea"
+        },
+        "after": {
+          "bytes": 1826340,
+          "sha256": "ebc49124c9ae4243a55236340f35a0ad790b67bf9793279bba7840e641ba8c2f",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "5463303ad021986ea9cb8cbb957c30496a697a4823bd465fbc949513af026bea"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-fire_b.png",
+        "before": {
+          "bytes": 1988518,
+          "sha256": "ac75a2c913a28b4119219dc4d728df7bbe38457f61e456ccafb9b793d3807d65",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "08c43fd592b4f12226bd2ace26b62829322b637213a5b5a44a4841ea346fd6b1"
+        },
+        "after": {
+          "bytes": 1844597,
+          "sha256": "c44a1b6e7671c196d52e3af69b0d38b974a91514148789571b31b5b3db6a9214",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "08c43fd592b4f12226bd2ace26b62829322b637213a5b5a44a4841ea346fd6b1"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-forest_a.png",
+        "before": {
+          "bytes": 2215614,
+          "sha256": "717929ac789d0811776e1d5dce573ab531d8e2a8bbce89bb1fa62fe0f708456a",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "14954d4e17e6a6abd55eb8f7041d0d650f85b176bdc184ec5b0d677f2facf7e8"
+        },
+        "after": {
+          "bytes": 2014767,
+          "sha256": "516b694ef4c08f8f770d6f4a3556cd96c6e79e5c48f41a343fe4a0d68c641fdd",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "14954d4e17e6a6abd55eb8f7041d0d650f85b176bdc184ec5b0d677f2facf7e8"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-forest_b.png",
+        "before": {
+          "bytes": 2267908,
+          "sha256": "aba506a7a6d78cd72d0f04d0714221dda85a0aed8608a5e314060ee9c60b57ec",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4c352c798bdeb9b9e05159dc431ad493124c11bd333af5de6d262077a5938ade"
+        },
+        "after": {
+          "bytes": 2055538,
+          "sha256": "5b8be274ec180f478e1464434292b69156a0de7ad904c2818d86f31d725bf799",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4c352c798bdeb9b9e05159dc431ad493124c11bd333af5de6d262077a5938ade"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-highlands.png",
+        "before": {
+          "bytes": 2171720,
+          "sha256": "478a822601ad05b2be2b2941464e3a6dfaa614cdd4bd69fce9a4b0142c6aadc3",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "464a738a5073d9a4c2158543bd24a163727d06436e8a8dc5a0661ab033d65f88"
+        },
+        "after": {
+          "bytes": 2037013,
+          "sha256": "195c0d59002c002acf0a9a284025691fc4baf5360514b56482d207bfb00ca04c",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "464a738a5073d9a4c2158543bd24a163727d06436e8a8dc5a0661ab033d65f88"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-mirror_a.png",
+        "before": {
+          "bytes": 2399828,
+          "sha256": "5b55bfec4e483b41533d81073d7f846d97fb8b3b3b76adbeb21307287cf911e9",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "211e485f164e83f824befe92488773f063400dca4fed563e90a4d5bc07684546"
+        },
+        "after": {
+          "bytes": 2164965,
+          "sha256": "8e3a700f8bdc9bd8056ac90fa226d9b350e555d02cc8b718bc9d06cb57c6fe98",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "211e485f164e83f824befe92488773f063400dca4fed563e90a4d5bc07684546"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-mirror_b.png",
+        "before": {
+          "bytes": 2259923,
+          "sha256": "147e98d019288e89195ae60acfe5cda6c79feefdd1690e93ea5f30112c4dd237",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "99e68b15e218d2da8e6bb1900bb04af75104575839ef3b2f5685f33affe6c14f"
+        },
+        "after": {
+          "bytes": 2104523,
+          "sha256": "20f06d3544c9caf790edb2fbefacfa3e543f356cfec702891998daac1b54bf1b",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "99e68b15e218d2da8e6bb1900bb04af75104575839ef3b2f5685f33affe6c14f"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-moth.png",
+        "before": {
+          "bytes": 1535024,
+          "sha256": "7507043582f0e51eafb6bd95c372f96498468bd7a5f2d05cfd2d6a70ae21abfc",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "abb0f385de5bd9fdb7b0f72e4f6c5ea3a7cc42f89e41372579e0800b8851b47d"
+        },
+        "after": {
+          "bytes": 1437331,
+          "sha256": "1c34cd9ae69a95444714ac831b81549ec9a1ed2227067bde8ef352bda1a60673",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "abb0f385de5bd9fdb7b0f72e4f6c5ea3a7cc42f89e41372579e0800b8851b47d"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-tidal.png",
+        "before": {
+          "bytes": 2212719,
+          "sha256": "407bd27377c1fb3414aa0ebc1737c0baf1f1707ebb5804314630667fa048a7bc",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "deacd1f825e7c6b08cab48cab0b9abef42baf96c232bb32515115251fd42780a"
+        },
+        "after": {
+          "bytes": 2031762,
+          "sha256": "d0885779d7fe2b6b420667136746468c6491e8e3412d69b1409bc4db44ff90df",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "deacd1f825e7c6b08cab48cab0b9abef42baf96c232bb32515115251fd42780a"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-urban.png",
+        "before": {
+          "bytes": 1806074,
+          "sha256": "aab623ecb687d279815c2ba441cf87fbe480bc45c57ad948e0d3aaba93e13ae6",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "99f45f288f03ced75cd8afcfd368e1a23c08d46d38eae7daf96d4fb14ec3dc09"
+        },
+        "after": {
+          "bytes": 1644185,
+          "sha256": "e8bcc363a9d59f79d4482a5592667fe0707a9b4f8fcf52384d0fb06f0aa3eec4",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "99f45f288f03ced75cd8afcfd368e1a23c08d46d38eae7daf96d4fb14ec3dc09"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-wind_a.png",
+        "before": {
+          "bytes": 2287261,
+          "sha256": "f9eb5e9ef02ee6556a60ff070257e54ea8c387ee6e4c542f3878d9417fb3b76f",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4874717c2484c1dc870685e74f3f40eac5f77df83f5781f8fa281d78ff822c1e"
+        },
+        "after": {
+          "bytes": 2088702,
+          "sha256": "d379f0fd0c490cc499962e0e9e7bd813d7aa6378ad570d85c761695510174c08",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "4874717c2484c1dc870685e74f3f40eac5f77df83f5781f8fa281d78ff822c1e"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/creatures-wind_b.png",
+        "before": {
+          "bytes": 2203551,
+          "sha256": "4ce051bd4818659ca73cb9e8ae6f24b30eac08eff42b3d0daf4061aaad3a3edb",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "a743479a13d978ee73520ef5e643b94eb000a93fdc166d55894552b991946a0b"
+        },
+        "after": {
+          "bytes": 2019277,
+          "sha256": "36c533593dd28893caba482c116c0d7c03e9705604d0d00d5d7eb328e8fd5168",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "a743479a13d978ee73520ef5e643b94eb000a93fdc166d55894552b991946a0b"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/icon.png",
+        "before": {
+          "bytes": 1775060,
+          "sha256": "8b1c3c860e80a21d2b1539960b1bb6fe8ae7b185d9e03a211013879ca7187fa2",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "cba003843974b1eea5d9bdddb375d6689bdee66ab1e1f2d9759b726811e48905"
+        },
+        "after": {
+          "bytes": 1582291,
+          "sha256": "887a9b22b843eb401ca5dafcca4d11c52bafa5263e2a25d9c7971ded633b33e7",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "cba003843974b1eea5d9bdddb375d6689bdee66ab1e1f2d9759b726811e48905"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-coast.png",
+        "before": {
+          "bytes": 2482179,
+          "sha256": "4e1cd93c0a937e4d6c7fe03e8801dad88936f5982120019b006d2bdf9f3446e5",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "aedaa9f3495bb01003eac10448d4acde6d4d9570d1c906e8422897c2561aa6b2"
+        },
+        "after": {
+          "bytes": 2332745,
+          "sha256": "2ce566c3bd73353534f571fe6914682aaaffb29a91296ed75a2a877dd67ff64f",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "aedaa9f3495bb01003eac10448d4acde6d4d9570d1c906e8422897c2561aa6b2"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-electric.png",
+        "before": {
+          "bytes": 3172778,
+          "sha256": "2993d931288724f1d6e0bb30c85bab6da19b935e6053e9ed738e2f2ee1a7a25d",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "9d95570d43c31933db46f8523fdf04ecc988f8583cf3a0c1147b221e999cab34"
+        },
+        "after": {
+          "bytes": 2992716,
+          "sha256": "a85f27784b2a5c9d6a61f147f959eaed92a84d3d897f163e24f92e0fc2d70c49",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "9d95570d43c31933db46f8523fdf04ecc988f8583cf3a0c1147b221e999cab34"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-furnace.png",
+        "before": {
+          "bytes": 2927044,
+          "sha256": "c88c59544e38b78130db3961c4ba76d7b6612f36765d17d626f12098f236ed6e",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "1c87cb45628057037353e1ac8e7bb2a17a92f6e740f6c4a8c257d317cd80cc34"
+        },
+        "after": {
+          "bytes": 2744756,
+          "sha256": "2a3b1ec8b7028522a88be3548a1152cebeb39996894aef4cee55c2d44faa9816",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "1c87cb45628057037353e1ac8e7bb2a17a92f6e740f6c4a8c257d317cd80cc34"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-highlands.png",
+        "before": {
+          "bytes": 2406968,
+          "sha256": "3ae4fe6a9fa59c14ee044a85d46aa966f7118c6e31af2525380c5810579ba692",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "45dfd8d9290db37722ca89a1e0c7179a62b7465db179b154975670114c03f873"
+        },
+        "after": {
+          "bytes": 2277202,
+          "sha256": "ff12c50bcf943d62b8baddc1d47cc704b54f29bb424b22f1c524cb5620e3f118",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "45dfd8d9290db37722ca89a1e0c7179a62b7465db179b154975670114c03f873"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-lake.png",
+        "before": {
+          "bytes": 3332630,
+          "sha256": "4fbe60da54697e08ea00770aba1a4b0a346751a29452aa639557f80d250a23bc",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "680b7cfbfcc4a73017d549fc3ecdad94c914a416122053b668ec38c12201dc15"
+        },
+        "after": {
+          "bytes": 3111033,
+          "sha256": "002e5afd08e78606a54f2a0c577f40c96704c100aa3b00648ca9f61f9b032c53",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "680b7cfbfcc4a73017d549fc3ecdad94c914a416122053b668ec38c12201dc15"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-league.png",
+        "before": {
+          "bytes": 2959699,
+          "sha256": "7c0d57f52fd2180fe6ddcaaf20fecea7238be7f2d7a9ebc6393ecf9243b2448e",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "8b66ea5c8d8bb9f12abe583f031124d3fc0831ccc6135736b4f03e5a98329f84"
+        },
+        "after": {
+          "bytes": 2819229,
+          "sha256": "eae40de9ba906d0249432659c51f311b1f40b5ff303cb6b3cf6f37a4c105d962",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "8b66ea5c8d8bb9f12abe583f031124d3fc0831ccc6135736b4f03e5a98329f84"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-meadow.png",
+        "before": {
+          "bytes": 3015713,
+          "sha256": "709a7ea28bc8baf5895e5045c5fd0df2e4e6d18adb74d3a75645dcbfd9f70f00",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "dee5837de651ca89961feaac2aae61d354cee92e0c628dd5b8cf697224ec7878"
+        },
+        "after": {
+          "bytes": 2855186,
+          "sha256": "f5e13386356d251b811d8e7931f23d067b2025336d250ac2cda62fdc40067bb4",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "dee5837de651ca89961feaac2aae61d354cee92e0c628dd5b8cf697224ec7878"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-star.png",
+        "before": {
+          "bytes": 3340192,
+          "sha256": "7301a8dafab0449be44175031d8c0b5f69d6c0b3a0139886d5bf9f00a0c36d27",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "1b186601b5442fe27505882686c80b564465c0af4e77cd600b06968fcad80285"
+        },
+        "after": {
+          "bytes": 3119622,
+          "sha256": "0913271387b6dca3a9ee2fa53b70ee915ab5bdbe0b3e5d4136ea59bddd6a9103",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "1b186601b5442fe27505882686c80b564465c0af4e77cd600b06968fcad80285"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/battle-wind.png",
+        "before": {
+          "bytes": 3402378,
+          "sha256": "28619079bf51b597898cc4e42a426b64dd37e0cdb3f4708efe28365dda972e94",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "a1a48359c552ce17142538c1b1d02b9a2011be0aea78de0eae0ecafdf35f3cf6"
+        },
+        "after": {
+          "bytes": 3145609,
+          "sha256": "47a5eb40896bd359fc19d03b97bf071245c969e71dc21aeb33a160f95f43b9de",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "a1a48359c552ce17142538c1b1d02b9a2011be0aea78de0eae0ecafdf35f3cf6"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/biome-tiles.png",
+        "before": {
+          "bytes": 3890918,
+          "sha256": "c11a6adac095371eb7925fc89a41eb72b4b0dc5652bccb72666c4ed92158067f",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "7ccfa5fde47446df9d5d9204514d07ef9bf98b76f96982b670ca881f72a6f3bf"
+        },
+        "after": {
+          "bytes": 3496164,
+          "sha256": "240b9c3d59af5b24f823d6ba5756e2c0ffeea9877233e37744bbfd614eefe6e7",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "7ccfa5fde47446df9d5d9204514d07ef9bf98b76f96982b670ca881f72a6f3bf"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/city-ground-tiles.png",
+        "before": {
+          "bytes": 3543062,
+          "sha256": "d51bab7811373284004e442ebe1cdb4c505b4909f4b336d44684fc46caa045b0",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "a9c2aa6315a446f4df330c23dd91b823ff80c8923417451d9320b407dadc0fa7"
+        },
+        "after": {
+          "bytes": 3180444,
+          "sha256": "28c8c646bc78ec22e77ac069c8f54bad1653d39da2f24f1ab1cdb0bd12316b8c",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "a9c2aa6315a446f4df330c23dd91b823ff80c8923417451d9320b407dadc0fa7"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/coast-route.png",
+        "before": {
+          "bytes": 3573330,
+          "sha256": "b9d151f4b4fe67b5ff95abcbd8be8bcde39772d5487b703b77f9fe69a3a22406",
+          "width": 1555,
+          "height": 1011,
+          "rgbaSha256": "a50acaa8ca27f5059d0996b6a87e21e3a4b2a1efaaca21a7e964032ca367da68"
+        },
+        "after": {
+          "bytes": 3328764,
+          "sha256": "684e4bf043ba952988309683879ea4639056491aa981fdb5c82d5e12351ec105",
+          "width": 1555,
+          "height": 1011,
+          "rgbaSha256": "a50acaa8ca27f5059d0996b6a87e21e3a4b2a1efaaca21a7e964032ca367da68"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/dawn-expanded.png",
+        "before": {
+          "bytes": 3519306,
+          "sha256": "1b3e8eea5fb32a5b5fd26215e3f48be1f4f34e8e4d57a645845aafe4f5c5aeb4",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "895d2746f5d9b1104f624f0b63de671d9550ce377274f630e3f3ae91d1e4ba71"
+        },
+        "after": {
+          "bytes": 3235865,
+          "sha256": "cc538db84618e4f1eec82d37209ceebd3ae19e551a37e3c2653bb6c94bfb0768",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "895d2746f5d9b1104f624f0b63de671d9550ce377274f630e3f3ae91d1e4ba71"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/expedition-tiles.png",
+        "before": {
+          "bytes": 2893030,
+          "sha256": "a3f791c784d83b5a78493e893a52fb517c70bc8f53246dd8fc4c76796c1e9e1a",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "e2d773b869fdb75fab5dda1f000107bfa1de1a7686ac320a4213bd09aad11d87"
+        },
+        "after": {
+          "bytes": 2756253,
+          "sha256": "2087ad31d4b05778d001a4dd3e6b0987787559d155050a5d6c971137e3e04422",
+          "width": 1254,
+          "height": 1254,
+          "rgbaSha256": "e2d773b869fdb75fab5dda1f000107bfa1de1a7686ac320a4213bd09aad11d87"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/forest-expanded.png",
+        "before": {
+          "bytes": 3551861,
+          "sha256": "c24186a5f757fb0dfc900ba6955c954940d5d83ea6530a82bacc8049a407b03f",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "b5fc9186df6a5d281e8601f8564d7f54a8dd924fd157eb43da86e3fc77a7fbcd"
+        },
+        "after": {
+          "bytes": 3284635,
+          "sha256": "cddd92bbcf1fae22852f87eae88fa150adbfe9eb0cd6a6290bfac3b02bf642cf",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "b5fc9186df6a5d281e8601f8564d7f54a8dd924fd157eb43da86e3fc77a7fbcd"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/gym.png",
+        "before": {
+          "bytes": 3633468,
+          "sha256": "bd8af324ad63bd3e28d26e66de2de4909ff11b597a7d3b2f9f6e90d583199af0",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "2311c18668362c65d15f52c04397181c64289e8bd5b669dd846cd8f88134d775"
+        },
+        "after": {
+          "bytes": 3336486,
+          "sha256": "63b2ced382f1b99b392938bad98e5555c357f8529ed2bed59d68ed560ea2908a",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "2311c18668362c65d15f52c04397181c64289e8bd5b669dd846cd8f88134d775"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/harbor-city-v2.png",
+        "before": {
+          "bytes": 3362757,
+          "sha256": "71b3b305367217e2898ccf444219285670ac7ae7c7be4086e59e9307ffe90d3e",
+          "width": 1476,
+          "height": 1065,
+          "rgbaSha256": "fc4a0ea89d3d592941ab7c17913406fe854b00352c9ed60f2ba0cdc26b946069"
+        },
+        "after": {
+          "bytes": 3172310,
+          "sha256": "938fbf697e5dfbbcd934d1c00e5542f79dc6f8dfed6b6f9c3b387ad4418d395f",
+          "width": 1476,
+          "height": 1065,
+          "rgbaSha256": "fc4a0ea89d3d592941ab7c17913406fe854b00352c9ed60f2ba0cdc26b946069"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/moss-expanded.png",
+        "before": {
+          "bytes": 3811536,
+          "sha256": "17df058f4771a01bbc881275d65ef06ab1e165dc7af9bcfeb5bc658438c50841",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "eb80031ed4b7827b2266de09d21a4f37806915fba65fcc5febfcdb0dcf052841"
+        },
+        "after": {
+          "bytes": 3483252,
+          "sha256": "5978cc8b2dba935d311c804125ea70f341ee0163934e555179fa5f6089305948",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "eb80031ed4b7827b2266de09d21a4f37806915fba65fcc5febfcdb0dcf052841"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/old-mine.png",
+        "before": {
+          "bytes": 3069072,
+          "sha256": "b1725d8ac7b039b533f0d30e56a27178efed1d13e097ec210e8cf0d5efd4873b",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "c7cb48e88b191a76ae1461b3425bffe8fb055a81447cf8394fb26df166b0ad15"
+        },
+        "after": {
+          "bytes": 2647879,
+          "sha256": "a5900a93ea13b844d1e64b8effda16722dc472f52360013475c608d613e5a4d5",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "c7cb48e88b191a76ae1461b3425bffe8fb055a81447cf8394fb26df166b0ad15"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/rock-gym.png",
+        "before": {
+          "bytes": 2318622,
+          "sha256": "e2b835b99b092722ad2eb47d058367d6e093339e1e35fe3dab47f6e2b357a6a9",
+          "width": 1430,
+          "height": 1100,
+          "rgbaSha256": "89283fac8929be803ca8056d3f1d17ffa25eb808a9c6d7136539fa217cd068bd"
+        },
+        "after": {
+          "bytes": 2175748,
+          "sha256": "54bb297853c3197821aee84b1f56f064d0d54a6e3f2b3f9b21e6c77001fa5a08",
+          "width": 1430,
+          "height": 1100,
+          "rgbaSha256": "89283fac8929be803ca8056d3f1d17ffa25eb808a9c6d7136539fa217cd068bd"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/route-expanded.png",
+        "before": {
+          "bytes": 3653648,
+          "sha256": "37d470830b2c7039b89f83a69e257986a411436c7721e631cc25442930ca5494",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "69b844e2848ae47ffaaf8fb6bd59e60123f60b199f51e2843ed10a36dccc4d73"
+        },
+        "after": {
+          "bytes": 3358959,
+          "sha256": "858a2ac7c9caea05aeed22ad878da956fc6a2f2f81a87997ac478c07c971b78b",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "69b844e2848ae47ffaaf8fb6bd59e60123f60b199f51e2843ed10a36dccc4d73"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/stone-city-coast-v2.png",
+        "before": {
+          "bytes": 3281817,
+          "sha256": "181bda491cd65a03c1b1b03706d47ab5c1d0e0c962ef421ec437e31c6c78d416",
+          "width": 1465,
+          "height": 1073,
+          "rgbaSha256": "1fe897fdb54c5f6921beab716f059fddf838fe4a4d0c1623bc36570c64207150"
+        },
+        "after": {
+          "bytes": 3100090,
+          "sha256": "6300453ffef5c0a13648a22f44ab560a9991cff87e2dac0ffa4613c7aa56f4a0",
+          "width": 1465,
+          "height": 1073,
+          "rgbaSha256": "1fe897fdb54c5f6921beab716f059fddf838fe4a4d0c1623bc36570c64207150"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/stone-route.png",
+        "before": {
+          "bytes": 3369997,
+          "sha256": "15ca1b308518bdd6f817a6553867a007f3a476ac091ba0e80ed7babef299442b",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "08549a941036ec749957dda80965d33f0af037c38788db1ef14a499cbfa784a4"
+        },
+        "after": {
+          "bytes": 3155013,
+          "sha256": "bd792d686238d4b776c2d9608c325c27c8ff4d7121ea80d782a69853d0e4b12c",
+          "width": 1536,
+          "height": 1024,
+          "rgbaSha256": "08549a941036ec749957dda80965d33f0af037c38788db1ef14a499cbfa784a4"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/tideworks-v2.png",
+        "before": {
+          "bytes": 3492602,
+          "sha256": "c72e77546c78593c277fe9a147573ca572efce6b9c8c1cdad2fcd020676fde1d",
+          "width": 1500,
+          "height": 1049,
+          "rgbaSha256": "32881caeed127cfbe49cece5dbe98e9821fd8d5939603de7839299ccb07df38f"
+        },
+        "after": {
+          "bytes": 3239719,
+          "sha256": "47af11446e621963ae62a51f253c2cf686c845de3c2c5edd7ec6453d3548ac65",
+          "width": 1500,
+          "height": 1049,
+          "rgbaSha256": "32881caeed127cfbe49cece5dbe98e9821fd8d5939603de7839299ccb07df38f"
+        },
+        "smaller": true
+      },
+      {
+        "file": "assets/maps/water-gym-v2.png",
+        "before": {
+          "bytes": 2360163,
+          "sha256": "92f5de39f1d6f850db37912fc4de044abf350c2047e60c7c3fd185c8100a4237",
+          "width": 1363,
+          "height": 1154,
+          "rgbaSha256": "ff3a80f2193a7eea1187d67d2428b59a089c2f6ebf452c407a2b4bdaeb52b99b"
+        },
+        "after": {
+          "bytes": 2226088,
+          "sha256": "a60f527dc85103ddd7c858500487b445d0c01150582400a71b92db5b84ce1d31",
+          "width": 1363,
+          "height": 1154,
+          "rgbaSha256": "ff3a80f2193a7eea1187d67d2428b59a089c2f6ebf452c407a2b4bdaeb52b99b"
+        },
+        "smaller": true
+      }
+    ]
+  },
+  "gitHistory": "The 11 local commits after caa6c295c49fe03f77d78be1632b1e17cca7b24d and all current code and asset cleanup changes were consolidated into one local commit. Existing remote history is unchanged; added history contains only the final optimized PNGs. Original local history and staging/working state were backed up outside the repository."
+}

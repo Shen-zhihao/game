@@ -227,6 +227,10 @@ describe('捕捉、成长与进化', () => {
       specialAttack: 0,
       specialDefense: 0,
       speed: 0,
+      accuracy: 0,
+      evasion: 0,
+      critical: 0,
+      criticalGuard: 0,
     });
     expect(battleActionReason(g, { kind: 'potion', creatureId: reserve.id })).toContain('请先选择');
     g.creatures[reserve.id]!.hp = 0;

@@ -1,0 +1,629 @@
+{
+  "contentVersion": "ch10.3",
+  "weather": {
+    "clear": {
+      "name": "晴朗",
+      "mark": "☀",
+      "field": "通常的栖地分布与步速。",
+      "battle": "无额外修正。"
+    },
+    "sun": {
+      "name": "烈日",
+      "mark": "◉",
+      "field": "火、草系更活跃；草地步速 ×0.95。",
+      "battle": "火伤 ×1.5，水伤 ×0.5；草系速度 ×1.15，回复术恢复 2/3 HP。"
+    },
+    "rain": {
+      "name": "降雨",
+      "mark": "☂",
+      "field": "水、电、虫系更活跃；土路 ×0.9，草地 ×0.85。",
+      "battle": "水伤 ×1.5，火伤 ×0.5；水系速度 ×1.15，电招命中 ×1.1；回复术恢复 1/4 HP。"
+    },
+    "storm": {
+      "name": "雷雨",
+      "mark": "ϟ",
+      "field": "电、水系更活跃；露天陆地 ×0.8，桥梁 ×0.9。",
+      "battle": "水伤 ×1.3，火伤 ×0.7；电招命中 ×1.2，飞行招命中 ×0.85；回复术恢复 1/4 HP。"
+    },
+    "fog": {
+      "name": "薄雾",
+      "mark": "≋",
+      "field": "幽灵、超能力、恶系更活跃；露天陆地 ×0.9。",
+      "battle": "幽灵、恶伤 ×1.2；除幽灵/超能力招外，对敌招式命中 ×0.85，自身技能不受影响。"
+    },
+    "snow": {
+      "name": "飘雪",
+      "mark": "❄",
+      "field": "冰系更活跃；露天陆地 ×0.8，桥梁 ×0.9。",
+      "battle": "冰伤 ×1.25、火伤 ×1.15；冰系防御 ×1.5、速度 ×1.15，无冰雹扣血。"
+    },
+    "sand": {
+      "name": "扬沙",
+      "mark": "⋰",
+      "field": "岩石、地面、钢系更活跃；露天陆地 ×0.85。",
+      "battle": "地面伤 ×1.15，岩石系特防 ×1.5；轮末扣 1/16 HP，岩石/地面/钢免疫。"
+    }
+  },
+  "citySurfaces": {
+    "dawn": {
+      "name": "暖白花园砖",
+      "street": 0,
+      "ground": { "atlas": "city", "cell": 10 },
+      "edge": "#9c845b",
+      "terrain": "lawn"
+    },
+    "moss": {
+      "name": "苔缝林间石",
+      "street": 1,
+      "ground": { "atlas": "city", "cell": 11 },
+      "edge": "#385841",
+      "terrain": "lawn"
+    },
+    "stone": {
+      "name": "灰玄武岩铺地",
+      "street": 2,
+      "ground": { "atlas": "base", "cell": 12 },
+      "edge": "#545f67",
+      "terrain": "gravel"
+    },
+    "harbor": {
+      "name": "晒暖木栈道",
+      "street": 3,
+      "ground": { "atlas": "city", "cell": 12 },
+      "edge": "#756044",
+      "terrain": "sand"
+    },
+    "volt": {
+      "name": "铜缝工业石板",
+      "street": 4,
+      "ground": { "atlas": "city", "cell": 13 },
+      "edge": "#b28759",
+      "terrain": "gravel"
+    },
+    "wind": {
+      "name": "霜边山城板岩",
+      "street": 5,
+      "ground": { "atlas": "city", "cell": 14 },
+      "edge": "#b7c9cf",
+      "terrain": "lawn"
+    },
+    "furnace": {
+      "name": "赤陶火山人字砖",
+      "street": 6,
+      "ground": { "atlas": "city", "cell": 15 },
+      "edge": "#643d2b",
+      "terrain": "gravel"
+    },
+    "lake": {
+      "name": "青银湖畔石",
+      "street": 7,
+      "ground": { "atlas": "biome", "cell": 12 },
+      "edge": "#74a8a8",
+      "terrain": "road"
+    },
+    "star": {
+      "name": "靛蓝星纹街砖",
+      "street": 8,
+      "ground": { "atlas": "biome", "cell": 14 },
+      "edge": "#b39b58",
+      "terrain": "lawn"
+    },
+    "league": {
+      "name": "金线礼仪石坪",
+      "street": 9,
+      "ground": { "atlas": "biome", "cell": 12 },
+      "edge": "#b29a57",
+      "terrain": "road"
+    }
+  },
+  "naturalWeather": {
+    "initial": "clear",
+    "initialSeconds": 240,
+    "durationSeconds": [180, 360],
+    "regions": {
+      "dawn": {
+        "name": "温和草原",
+        "weights": {
+          "clear": 34,
+          "sun": 20,
+          "rain": 23,
+          "storm": 5,
+          "fog": 15,
+          "snow": 3,
+          "sand": 0
+        }
+      },
+      "route": {
+        "name": "温和草原",
+        "weights": {
+          "clear": 34,
+          "sun": 20,
+          "rain": 23,
+          "storm": 5,
+          "fog": 15,
+          "snow": 3,
+          "sand": 0
+        }
+      },
+      "moss": {
+        "name": "湿润林地",
+        "weights": {
+          "clear": 28,
+          "sun": 13,
+          "rain": 28,
+          "storm": 5,
+          "fog": 26,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "forest": {
+        "name": "湿润林地",
+        "weights": {
+          "clear": 28,
+          "sun": 13,
+          "rain": 28,
+          "storm": 5,
+          "fog": 26,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "stoneRoute": {
+        "name": "高地矿区",
+        "weights": {
+          "clear": 30,
+          "sun": 15,
+          "rain": 8,
+          "storm": 3,
+          "fog": 10,
+          "snow": 10,
+          "sand": 24
+        }
+      },
+      "stone": {
+        "name": "高地矿区",
+        "weights": {
+          "clear": 30,
+          "sun": 15,
+          "rain": 8,
+          "storm": 3,
+          "fog": 10,
+          "snow": 10,
+          "sand": 24
+        }
+      },
+      "coastRoute": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "harbor": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "tideworks": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "championRoad": {
+        "name": "高山冷风",
+        "weights": {
+          "clear": 25,
+          "sun": 10,
+          "rain": 10,
+          "storm": 8,
+          "fog": 17,
+          "snow": 30,
+          "sand": 0
+        }
+      },
+      "league": {
+        "name": "星岚台地",
+        "weights": {
+          "clear": 32,
+          "sun": 17,
+          "rain": 14,
+          "storm": 8,
+          "fog": 23,
+          "snow": 6,
+          "sand": 0
+        }
+      },
+      "powerRoute": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "volt": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "windRoute": {
+        "name": "高山冷风",
+        "weights": {
+          "clear": 25,
+          "sun": 10,
+          "rain": 10,
+          "storm": 8,
+          "fog": 17,
+          "snow": 30,
+          "sand": 0
+        }
+      },
+      "wind": {
+        "name": "高山冷风",
+        "weights": {
+          "clear": 25,
+          "sun": 10,
+          "rain": 10,
+          "storm": 8,
+          "fog": 17,
+          "snow": 30,
+          "sand": 0
+        }
+      },
+      "windSanctuary": {
+        "name": "高山冷风",
+        "weights": {
+          "clear": 25,
+          "sun": 10,
+          "rain": 10,
+          "storm": 8,
+          "fog": 17,
+          "snow": 30,
+          "sand": 0
+        }
+      },
+      "furnaceRoute": {
+        "name": "火山暖谷",
+        "weights": {
+          "clear": 32,
+          "sun": 35,
+          "rain": 7,
+          "storm": 3,
+          "fog": 8,
+          "snow": 0,
+          "sand": 15
+        }
+      },
+      "furnace": {
+        "name": "火山暖谷",
+        "weights": {
+          "clear": 32,
+          "sun": 35,
+          "rain": 7,
+          "storm": 3,
+          "fog": 8,
+          "snow": 0,
+          "sand": 15
+        }
+      },
+      "hotSprings": {
+        "name": "火山暖谷",
+        "weights": {
+          "clear": 32,
+          "sun": 35,
+          "rain": 7,
+          "storm": 3,
+          "fog": 8,
+          "snow": 0,
+          "sand": 15
+        }
+      },
+      "lakeRoute": {
+        "name": "湖畔湿地",
+        "weights": {
+          "clear": 27,
+          "sun": 12,
+          "rain": 26,
+          "storm": 5,
+          "fog": 30,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "lake": {
+        "name": "湖畔湿地",
+        "weights": {
+          "clear": 27,
+          "sun": 12,
+          "rain": 26,
+          "storm": 5,
+          "fog": 30,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "mirrorRuins": {
+        "name": "湖畔湿地",
+        "weights": {
+          "clear": 27,
+          "sun": 12,
+          "rain": 26,
+          "storm": 5,
+          "fog": 30,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "starRoute": {
+        "name": "星岚台地",
+        "weights": {
+          "clear": 32,
+          "sun": 17,
+          "rain": 14,
+          "storm": 8,
+          "fog": 23,
+          "snow": 6,
+          "sand": 0
+        }
+      },
+      "star": {
+        "name": "星岚台地",
+        "weights": {
+          "clear": 32,
+          "sun": 17,
+          "rain": 14,
+          "storm": 8,
+          "fog": 23,
+          "snow": 6,
+          "sand": 0
+        }
+      },
+      "deepwood": {
+        "name": "湿润林地",
+        "weights": {
+          "clear": 28,
+          "sun": 13,
+          "rain": 28,
+          "storm": 5,
+          "fog": 26,
+          "snow": 0,
+          "sand": 0
+        }
+      },
+      "echoMeadow": {
+        "name": "温和草原",
+        "weights": {
+          "clear": 34,
+          "sun": 20,
+          "rain": 23,
+          "storm": 5,
+          "fog": 15,
+          "snow": 3,
+          "sand": 0
+        }
+      },
+      "kelpCove": {
+        "name": "海滨季风",
+        "weights": {
+          "clear": 29,
+          "sun": 15,
+          "rain": 28,
+          "storm": 16,
+          "fog": 12,
+          "snow": 0,
+          "sand": 0
+        }
+      }
+    },
+    "persistence": "独立种子；仅户外自由探索计时，菜单、对话、战斗、成长选择与室内暂停。存档、传档保留天气及剩余秒数。",
+    "ecology": "偏好属性相对权重 ×1.8，受抑制属性 ×0.6，不相乘叠加；不增添原栖地之外或剧情限定种。",
+    "battle": "入场冻结自然天气；天气招式覆盖五轮含施放轮，到期恢复入场天气。速度额度每轮锁定，天气不改十八属性克制表和免疫。"
+  },
+  "terrain": {
+    "road": { "name": "土路", "speed": 1 },
+    "bridge": { "name": "桥梁／栈道", "speed": 1 },
+    "floor": { "name": "室内地板", "speed": 1 },
+    "lawn": { "name": "草地", "speed": 0.92 },
+    "grass": { "name": "高草／花丛", "speed": 0.78 },
+    "gravel": { "name": "碎石地", "speed": 0.82 },
+    "sand": { "name": "沙滩", "speed": 0.75 },
+    "water": { "name": "渡水", "speed": 0.7 }
+  },
+  "travel": {
+    "baseIntervalMs": 160,
+    "baseDurationMs": 140,
+    "minimumSpeed": 0.5,
+    "formula": "地形倍率 × 天气倍率，下限 0.5；输入间隔 round(160 / speed)，动画时长 round(140 / speed)。桥梁免降雨惩罚，水面免陆地天气惩罚。"
+  },
+  "rewards": {
+    "wild": { "experienceFactor": 1, "moneyPerLevel": 8 },
+    "trainer": { "experienceFactor": 1.5, "moneyPerLevel": 18 },
+    "leader": { "experienceFactor": 2.5, "moneyPerLevel": 32 },
+    "baseExperiencePerLevel": 32,
+    "strength": "clamp(种族总值 / 350, 0.8, 1.5)",
+    "settlement": "逐只击败即时结算，保存已击败 ID 与累计池；参与者均分，健康后备每只获池的 25%。捕获仅给原队伍 level ×16 研究经验，不发击败金币。逃跑不发奖。",
+    "gymCompletion": "原训练师胜利旅费 + 300 × 当前徽章数金币；sum(敌方等级) ×16 × 当前徽章数额外经验池；成长果 ×2、高级星纹球 ×2，每枚新徽章一次。",
+    "growth": "沿用四条三次经验曲线，100 级封顶，每次升级 1–10 能力点。"
+  },
+  "fieldSkills": [
+    {
+      "id": "field_cut",
+      "name": "剪藤术",
+      "flag": "questReward",
+      "story": "完成森林救援并向穗禾报告",
+      "use": "战斗中为草系物理攻击；野外识路知识记入手册。剪藤工具仍由枝叶馆授予。",
+      "move": {
+        "id": "field_cut",
+        "name": "剪藤术",
+        "type": "grass",
+        "power": 50,
+        "category": "physical",
+        "accuracy": 100,
+        "pp": 15,
+        "priority": 0
+      }
+    },
+    {
+      "id": "field_break",
+      "name": "碎岩术",
+      "flag": "plaqueReturned",
+      "story": "把旧矿山工牌归还砚叔",
+      "use": "战斗中为格斗物理攻击；碎岩工具仍可由砾岩馆获得，不要求先学此招。",
+      "move": {
+        "id": "field_break",
+        "name": "碎岩术",
+        "type": "fighting",
+        "power": 55,
+        "category": "physical",
+        "accuracy": 100,
+        "pp": 15,
+        "priority": 0
+      }
+    },
+    {
+      "id": "surf",
+      "name": "冲浪术",
+      "flag": "lighthouseRepaired",
+      "story": "完成旧灯塔维修支线",
+      "use": "任意队伍伙伴掌握后可行走普通水面；潮汐馆渡水装备也能独立渡水。",
+      "move": {
+        "id": "surf",
+        "name": "冲浪术",
+        "type": "water",
+        "power": 80,
+        "category": "special",
+        "accuracy": 100,
+        "pp": 15,
+        "priority": 0
+      }
+    }
+  ],
+  "weatherMoves": [
+    {
+      "id": "sun_call",
+      "name": "祈晴",
+      "type": "fire",
+      "weather": "sun",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" }
+    },
+    {
+      "id": "rain_call",
+      "name": "唤雨",
+      "type": "water",
+      "weather": "rain",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" }
+    },
+    {
+      "id": "sand_call",
+      "name": "扬沙幕",
+      "type": "rock",
+      "weather": "sand",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" }
+    },
+    {
+      "id": "snow_call",
+      "name": "唤雪",
+      "type": "ice",
+      "weather": "snow",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" }
+    },
+    {
+      "id": "fog_call",
+      "name": "凝雾",
+      "type": "ghost",
+      "weather": "fog",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" }
+    }
+  ],
+  "capture": {
+    "balls": {
+      "ball": { "multiplier": 1, "guaranteed": false },
+      "great_ball": { "multiplier": 1.5, "guaranteed": false },
+      "ultra_ball": { "multiplier": 2.5, "guaranteed": false },
+      "master_ball": { "multiplier": 1, "guaranteed": true }
+    },
+    "strength": "clamp(1 - max(0, 种族总值 - 300) / 650, 0.35, 1)",
+    "level": "1 / (1 + max(0, level - 10) / 100)",
+    "chance": "clamp(捕获率/255 × 球倍率 × 强度倍率 × 等级倍率 × (1 - HP/(1.5×最大HP)) × 异常倍率, 0.03, 0.95)；睡眠 ×2，其他异常 ×1.5；大师球 100%。",
+    "ecology": "基础权重 × clamp(1 - max(0, 种族总值 - 300) / 500, 0.12, 1) × 0.5^(阶段-1) × min(1, 捕获率/120) × 天气偏好，再在同一栖地内归一化。",
+    "masterBallSources": [
+      {
+        "id": "harbor_report",
+        "name": "潮闸调查结案",
+        "requires": ["harborReport"],
+        "implemented": true
+      },
+      {
+        "id": "league_research",
+        "name": "联盟生态研究结案",
+        "requires": ["leagueResearch"],
+        "implemented": true
+      },
+      {
+        "id": "ancient_pact",
+        "name": "远古守护者的约定",
+        "requires": ["templeRestored"],
+        "implemented": true
+      }
+    ],
+    "masterBallLimit": 3,
+    "masterBallRestrictions": "仅可捕获已开启的野生／剧情精灵；禁止训练师伙伴与序章救援对象。所有商店、兑换、随机补给均排除。正常剧情最多三枚；金手指额外领取和使用独立记账。持有数 = 剧情领取 - 剧情使用 + 金手指领取 - 金手指使用。"
+  },
+  "freedom": "仅入门与本馆练习约束道馆；剧情调查保留实际证据依赖。所有普通城际道路和已开放道馆不要求天气、冲浪、其他徽章或稀有精灵；渡水只增加可选路线。"
+}

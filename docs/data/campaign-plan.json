@@ -1,0 +1,742 @@
+{
+  "version": 11,
+  "status": "complete playable campaign: prologue, eight free-order gyms, full regional crisis, elite four, champion, all 24 side stories and postgame conservation; 250 forms obtainable in one save",
+  "mainGoal": "自由选择道馆挑战顺序，集齐八枚不同的徽章，再挑战四位精英与冠军。",
+  "region": "星苔地区",
+  "references": [
+    {
+      "title": "Pokémon Emerald walkthrough",
+      "url": "https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_Emerald"
+    },
+    {
+      "title": "Emerald opening and first partner",
+      "url": "https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_Emerald/Part_1"
+    },
+    {
+      "title": "Ruby and Sapphire opening",
+      "url": "https://bulbapedia.bulbagarden.net/wiki/Walkthrough:Pok%C3%A9mon_Ruby_and_Sapphire/Part_1"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "arrival",
+      "label": "搬到晨芽镇",
+      "requires": [],
+      "implemented": true
+    },
+    {
+      "id": "neighbor",
+      "label": "认识阿澈",
+      "requires": ["arrival"],
+      "implemented": true
+    },
+    {
+      "id": "professorCall",
+      "label": "一号路听见呼救",
+      "requires": ["neighbor"],
+      "implemented": true
+    },
+    {
+      "id": "borrowStarter",
+      "label": "从博士背包临时借用伙伴",
+      "requires": ["professorCall"],
+      "implemented": true
+    },
+    {
+      "id": "professorRescue",
+      "label": "赶开绒团鼠，救出博士",
+      "requires": ["borrowStarter"],
+      "implemented": true
+    },
+    {
+      "id": "partnerGift",
+      "label": "研究所正式获赠伙伴",
+      "requires": ["professorRescue"],
+      "implemented": true
+    },
+    {
+      "id": "rivalVictory",
+      "label": "一号路与阿澈切磋获胜",
+      "requires": ["partnerGift"],
+      "implemented": true
+    },
+    {
+      "id": "fieldKit",
+      "label": "回研究所领取图鉴和捕捉球",
+      "requires": ["rivalVictory"],
+      "implemented": true
+    },
+    {
+      "id": "captureLesson",
+      "label": "完成捕捉练习",
+      "requires": ["fieldKit"],
+      "implemented": true
+    },
+    {
+      "id": "practice1",
+      "label": "完成苔丘镇道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice2",
+      "label": "完成石脊城道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice3",
+      "label": "完成潮汐港道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice4",
+      "label": "完成雷鸣市道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice5",
+      "label": "完成风栖镇道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice6",
+      "label": "完成炉心城道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice7",
+      "label": "完成镜湖镇道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "practice8",
+      "label": "完成星岚城道馆的馆内练习与机关",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "badge1",
+      "label": "获得枝叶徽章（自由顺序）",
+      "requires": ["practice1"],
+      "implemented": true
+    },
+    {
+      "id": "badge2",
+      "label": "获得砾岩徽章（自由顺序）",
+      "requires": ["practice2"],
+      "implemented": true
+    },
+    {
+      "id": "badge3",
+      "label": "获得潮汐徽章（自由顺序）",
+      "requires": ["practice3"],
+      "implemented": true
+    },
+    {
+      "id": "badge4",
+      "label": "获得霆光徽章（自由顺序）",
+      "requires": ["practice4"],
+      "implemented": true
+    },
+    {
+      "id": "badge5",
+      "label": "获得流羽徽章（自由顺序）",
+      "requires": ["practice5"],
+      "implemented": true
+    },
+    {
+      "id": "badge6",
+      "label": "获得炉心徽章（自由顺序）",
+      "requires": ["practice6"],
+      "implemented": true
+    },
+    {
+      "id": "badge7",
+      "label": "获得镜心徽章（自由顺序）",
+      "requires": ["practice7"],
+      "implemented": true
+    },
+    {
+      "id": "badge8",
+      "label": "获得星岚徽章（自由顺序）",
+      "requires": ["practice8"],
+      "implemented": true
+    },
+    {
+      "id": "forestRescue",
+      "label": "完成苔影森林救援并报告",
+      "requires": ["captureLesson"],
+      "implemented": true
+    },
+    {
+      "id": "mineRoute",
+      "label": "查清矿道晶矿的去向",
+      "requires": ["forestRescue"],
+      "implemented": true
+    },
+    {
+      "id": "harborPass",
+      "label": "修复普通航路",
+      "requires": ["mineRoute"],
+      "implemented": true
+    },
+    {
+      "id": "powerRoute",
+      "label": "关闭非法分流装置",
+      "requires": ["harborPass"],
+      "implemented": true
+    },
+    {
+      "id": "windRoute",
+      "label": "恢复迁徙风道并汇总回流记录",
+      "requires": ["powerRoute"],
+      "implemented": true
+    },
+    {
+      "id": "furnaceShutdown",
+      "label": "停止过载熔炉，取得主线校准件",
+      "requires": ["windRoute"],
+      "implemented": true
+    },
+    {
+      "id": "lakeRecords",
+      "label": "在遗迹公开档案中找到复原方法",
+      "requires": ["furnaceShutdown"],
+      "implemented": true
+    },
+    {
+      "id": "coreStabilized",
+      "label": "制止定序社，恢复星流平衡",
+      "requires": ["lakeRecords"],
+      "implemented": true
+    },
+    {
+      "id": "league",
+      "label": "集齐八枚不同徽章，通过冠军路",
+      "requires": ["badge1", "badge2", "badge3", "badge4", "badge5", "badge6", "badge7", "badge8"],
+      "implemented": true
+    },
+    {
+      "id": "champion",
+      "label": "击败四位精英与冠军",
+      "requires": ["league"],
+      "implemented": true
+    },
+    {
+      "id": "postgame",
+      "label": "开启重战和完整图鉴调查",
+      "requires": ["champion"],
+      "implemented": true
+    }
+  ],
+  "gyms": [
+    {
+      "number": 1,
+      "town": "苔丘镇",
+      "leader": "榆岚",
+      "type": "grass",
+      "badge": "枝叶徽章",
+      "toolId": "vineCut",
+      "tool": "剪藤工具",
+      "nextRoad": "2号碎石道",
+      "levelRange": [10, 12],
+      "milestone": "badge1",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice1",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 2,
+      "town": "石脊城",
+      "leader": "岳砾",
+      "type": "rock",
+      "badge": "砾岩徽章",
+      "toolId": "rockBreaker",
+      "tool": "碎岩工具",
+      "nextRoad": "3号矿港道",
+      "levelRange": [10, 12],
+      "milestone": "badge2",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice2",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 3,
+      "town": "潮汐港",
+      "leader": "汐遥",
+      "type": "water",
+      "badge": "潮汐徽章",
+      "toolId": "waterRig",
+      "tool": "渡水装备",
+      "nextRoad": "4号滨海栈道",
+      "levelRange": [10, 12],
+      "milestone": "badge3",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice3",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 4,
+      "town": "雷鸣市",
+      "leader": "衡电",
+      "type": "electric",
+      "badge": "霆光徽章",
+      "toolId": "powerPass",
+      "tool": "电梯通行权限",
+      "nextRoad": "6号高架山道",
+      "levelRange": [10, 12],
+      "milestone": "badge4",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice4",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 5,
+      "town": "风栖镇",
+      "leader": "岑羽",
+      "type": "flying",
+      "badge": "流羽徽章",
+      "toolId": "glider",
+      "tool": "滑翔装备",
+      "nextRoad": "7号断风岭",
+      "levelRange": [10, 12],
+      "milestone": "badge5",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice5",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 6,
+      "town": "炉心城",
+      "leader": "烁岑",
+      "type": "fire",
+      "badge": "炉心徽章",
+      "toolId": "heatSuit",
+      "tool": "隔热装备",
+      "nextRoad": "9号镜河路",
+      "levelRange": [10, 12],
+      "milestone": "badge6",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice6",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 7,
+      "town": "镜湖镇",
+      "leader": "澄镜",
+      "type": "psychic",
+      "badge": "镜心徽章",
+      "toolId": "ruinKey",
+      "tool": "遗迹通行钥匙",
+      "nextRoad": "10号星辉大道",
+      "levelRange": [10, 12],
+      "milestone": "badge7",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice7",
+      "rewardUse": "用于可选支路和捷径，不限制其他道馆或城镇通行。"
+    },
+    {
+      "number": 8,
+      "town": "星岚城",
+      "leader": "闻衡",
+      "type": null,
+      "badge": "星岚徽章",
+      "toolId": "coordinationManual",
+      "tool": "协同训练手册",
+      "nextRoad": "11号冠军路",
+      "levelRange": [10, 12],
+      "milestone": "badge8",
+      "approachRequiresTool": null,
+      "requiredOtherBadges": [],
+      "requiredStoryMilestones": [],
+      "practiceMilestone": "practice8",
+      "rewardUse": "配队教学；联盟资格由八枚不同徽章共同授予。"
+    }
+  ],
+  "sidequests": [
+    {
+      "id": "sq01",
+      "region": "苔丘",
+      "label": "路边补给",
+      "requires": ["captureLesson"],
+      "resolution": "记录已打开的旅行补给，不重置领取。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq02",
+      "region": "苔丘",
+      "label": "旧铃回声",
+      "requires": ["forestRescue"],
+      "resolution": "调查东南溪岸与东北林冠两处回声，拼合旧约；残碑开启雾铃灵定点捕捉，可重试、同档不重复领。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq03",
+      "region": "苔丘",
+      "label": "博士的观察册",
+      "requires": ["captureLesson"],
+      "resolution": "先做三类生态观察；通关后由保育站赠送另外两种初始伙伴的新个体。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq04",
+      "region": "石脊",
+      "label": "矿车旁的旧牌",
+      "requires": ["captureLesson"],
+      "resolution": "在旧矿车旁找到十七号工牌，归还石脊城的退休矿工；带回工牌拓印向钟石传达平安消息，剧情开启鸣钟石定点相遇，可重试且不重复获得。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq05",
+      "region": "石脊",
+      "label": "石壳虫的新家",
+      "requires": ["captureLesson"],
+      "resolution": "清出支路的小型栖息地，观察石壳虫；不交出或消耗玩家精灵。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq06",
+      "region": "石脊",
+      "label": "山道回声",
+      "requires": ["captureLesson"],
+      "resolution": "对应三处回声找到旧测量点，记录一份可回访的地图。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq07",
+      "region": "潮汐",
+      "label": "漂流瓶的收件人",
+      "requires": ["captureLesson"],
+      "resolution": "寻访港口居民，核对潮汐日期后送达普通书信。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq08",
+      "region": "潮汐",
+      "label": "潮池观察",
+      "requires": ["captureLesson"],
+      "resolution": "记录潮池生态，开放普通精灵遭遇；不要求现实时间。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq09",
+      "region": "潮汐",
+      "label": "旧灯塔维修",
+      "requires": ["captureLesson"],
+      "resolution": "修复支路灯塔，奖励小岛物资；主线航路另有必达路线。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq10",
+      "region": "雷鸣",
+      "label": "失物招领箱",
+      "requires": ["captureLesson"],
+      "resolution": "核对物品特征归还失物，不以猜错永久结算。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq11",
+      "region": "雷鸣",
+      "label": "电站值班簿",
+      "requires": ["captureLesson"],
+      "resolution": "补完普通值班记录，解释分流装置的事故影响。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq12",
+      "region": "雷鸣",
+      "label": "电梯旁的小花园",
+      "requires": ["captureLesson"],
+      "resolution": "恢复休息区供水，开放补给；不影响主线电梯权限。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq13",
+      "region": "风栖",
+      "label": "断线的风筝",
+      "requires": ["captureLesson"],
+      "resolution": "使用可重置风道找到风筝，回交委托人。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq14",
+      "region": "风栖",
+      "label": "迁徙记录",
+      "requires": ["captureLesson"],
+      "resolution": "按区域而非稀有个体记录飞行精灵的迁徙方向。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq15",
+      "region": "风栖",
+      "label": "观岩驿的旧约",
+      "requires": ["captureLesson"],
+      "resolution": "找到两位旅人的口述记录，在驿站完整收尾。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq16",
+      "region": "炉心",
+      "label": "熔炉外的工具",
+      "requires": ["captureLesson"],
+      "resolution": "归还支线工具，避免与不可出售的主线隔热装备混用。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq17",
+      "region": "炉心",
+      "label": "温泉与冷石",
+      "requires": ["captureLesson"],
+      "resolution": "调查温差与冰系精灵，得到普通遭遇支路。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq18",
+      "region": "炉心",
+      "label": "旧班长的证词",
+      "requires": ["captureLesson"],
+      "resolution": "补充定序社事故背景；阻止熔炉的必要证据仍在主线。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq19",
+      "region": "镜湖",
+      "label": "镜中旧景",
+      "requires": ["captureLesson"],
+      "resolution": "复原遗迹影像，了解双衡星兽的象征；无关键密码独占。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq20",
+      "region": "镜湖",
+      "label": "失落的拓片",
+      "requires": ["captureLesson"],
+      "resolution": "拼合可重复查看的拓片，得到一则有明确结尾的地方传说。",
+      "rewardItem": "ball",
+      "implemented": true
+    },
+    {
+      "id": "sq21",
+      "region": "镜湖",
+      "label": "泉镜幼灵的足迹",
+      "requires": ["captureLesson"],
+      "resolution": "保育调查解释泉镜幼灵的出现，完成故事后开启该家族的定点相遇，进化正常保留。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq22",
+      "region": "星岚",
+      "label": "巡礼者的合照",
+      "requires": ["captureLesson"],
+      "resolution": "收集各城镇的公开纪念标记，在联盟后补拍也可完成。",
+      "rewardItem": "potion",
+      "implemented": true
+    },
+    {
+      "id": "sq23",
+      "region": "星岚",
+      "label": "双衡古庙",
+      "requires": ["lakeRecords"],
+      "resolution": "修复古庙支路；通关后开启249双衡星兽可重复挑战的捕获事件。",
+      "rewardItem": "candy",
+      "implemented": true
+    },
+    {
+      "id": "sq24",
+      "region": "星岚",
+      "label": "终宵厅的回声",
+      "requires": ["champion", "sq23"],
+      "resolution": "通关后调查封闭深层，开启250终宵烛龙的捕捉机会；失败不永久消失。",
+      "rewardItem": "ball",
+      "implemented": true
+    }
+  ],
+  "legendary": [
+    {
+      "speciesId": "creature_249",
+      "name": "双衡星兽",
+      "role": "守护平衡；主线中通过历史记录和复原机制解释其力量，不强制玩家获得它。",
+      "captureRequires": ["champion", "sq23"],
+      "captureRequiredForMain": false,
+      "missedEncounter": "返回古庙重新启动事件；已捕获则保留观察和对话。"
+    },
+    {
+      "speciesId": "creature_250",
+      "name": "终宵烛龙",
+      "role": "星流严重失衡时苏醒；定序社制造的过载是直接原因，玩家关闭装置完成平衡，避免靠捕获消除危机。",
+      "captureRequires": ["champion", "sq24", "coreStabilized"],
+      "captureRequiredForMain": false,
+      "missedEncounter": "击倒、逃跑或离开后可在终宵厅重启；同档已获得则不再次发放。"
+    }
+  ],
+  "foreshadows": [
+    {
+      "id": "hook1",
+      "seed": "professorRescue",
+      "payoff": "mineRoute",
+      "question": "为什么温顺精灵会突然躁动？",
+      "answer": "受矿道流出的异常晶矿影响；开场博士只知观察惊扰，第二章给出可验证原因。"
+    },
+    {
+      "id": "hook2",
+      "seed": "forestRescue",
+      "payoff": "powerRoute",
+      "question": "森林中的晶丝与定序社在做什么？",
+      "answer": "晶丝是分流装置的测量材料，第四章以设备记录和现场说明用途。"
+    },
+    {
+      "id": "hook3",
+      "seed": "mineRoute",
+      "payoff": "furnaceShutdown",
+      "question": "定序社把矿石运往哪里？",
+      "answer": "运单与仓号在熔炉校准站对应，不让运输线无故消失。"
+    },
+    {
+      "id": "hook4",
+      "seed": "powerRoute",
+      "payoff": "coreStabilized",
+      "question": "集中供能为何会带来更大的危机？",
+      "answer": "单向抽取破坏回流，先影响迁徙，再触发终宵烛龙回应；停止装置和重建回路解决。"
+    },
+    {
+      "id": "hook5",
+      "seed": "lakeRecords",
+      "payoff": "coreStabilized",
+      "question": "古老的双衡符号能做什么？",
+      "answer": "档案明确它指向双向回流机制；校准件从主线路径获得，仪式不依赖支线密码。"
+    },
+    {
+      "id": "hook6",
+      "seed": "neighbor",
+      "payoff": "champion",
+      "question": "阿澈为何与玩家同行并多次挑战？",
+      "answer": "他同样参加道馆巡礼，在危机中分工疏散与修复；联盟前完成对手线，赛后明确再出发。"
+    }
+  ],
+  "invariants": [
+    "八枚不同徽章可按任意顺序获得；联盟逐项验证全部徽章，重复挑战不重复计数。",
+    "必经节点不依赖支线、稀有捕获、现实时间、联机或随机掉落。",
+    "神兽捕获不作为徽章或联盟条件。",
+    "所有支线可在通关后补做，主线必要道具不可出售或丢失。",
+    "250编号不增加；另外两种初始伙伴由通关后保育任务提供新个体。",
+    "伏笔必须指定出现与回收节点；早期猜测和后期事实在对话中明确区分。",
+    "任一道馆不要求另一枚徽章、森林救援或反派事件；仅保留入门练习及本馆考验。",
+    "所有稀有与传说家族通过明确剧情赠予或定点捕获，进化形态继承获取来源，不进入无条件随机草丛。",
+    "剧情调查可与道馆巡礼交替完成；剧情分支只限制自己的后续事件，不关闭城镇普通通路。",
+    "室外地图以岔路、回环、分区生态和存档内固定随机事件增加探索内容；不靠放大贴图。"
+  ],
+  "league": {
+    "requiredBadges": [1, 2, 3, 4, 5, 6, 7, 8],
+    "eliteThemes": ["ice", "ghost", "dark", "dragon"],
+    "championPartySize": 6,
+    "requiredLegendaryCaptures": [],
+    "requiredSidequests": [],
+    "repeatAfterFailure": true
+  },
+  "mainItems": [
+    {
+      "id": "returnFlowCalibrator",
+      "obtainedAt": "furnaceShutdown",
+      "usedAt": "coreStabilized",
+      "canSell": false,
+      "canDiscard": false,
+      "consumed": false
+    }
+  ],
+  "gymPolicy": {
+    "order": "free",
+    "sharedPrerequisites": ["rivalVictory", "captureLesson"],
+    "localPrerequisite": "仅本馆练习训练师与机关",
+    "requiredStoryForGyms": [],
+    "requiredOtherBadges": [],
+    "regionAccess": "完成入门后，城镇间普通道路连通；工具只开支路与捷径。",
+    "difficulty": "按已获不同徽章数选择档位，登记挑战时锁定队伍，失败不降低档位。",
+    "badgeIdsAreCatalogNumbers": true
+  },
+  "challengeScalingByBadges": [
+    {
+      "ownedBadges": 0,
+      "levelRange": [10, 12]
+    },
+    {
+      "ownedBadges": 1,
+      "levelRange": [14, 16]
+    },
+    {
+      "ownedBadges": 2,
+      "levelRange": [18, 20]
+    },
+    {
+      "ownedBadges": 3,
+      "levelRange": [22, 24]
+    },
+    {
+      "ownedBadges": 4,
+      "levelRange": [26, 28]
+    },
+    {
+      "ownedBadges": 5,
+      "levelRange": [30, 32]
+    },
+    {
+      "ownedBadges": 6,
+      "levelRange": [34, 36]
+    },
+    {
+      "ownedBadges": 7,
+      "levelRange": [38, 40]
+    }
+  ],
+  "exploration": {
+    "currentOutdoorTiles": [30, 20],
+    "previousOutdoorTiles": [24, 16],
+    "gymTiles": [24, 16],
+    "seededFinds": "不同新档变换候选位置和补给/普通精灵事件；已发现、已领取、待相遇信息随存档保存。",
+    "encounterZones": ["一号路东侧高草区", "森林林冠草地", "森林南岸湿地"],
+    "npcPatrol": "存档记录巡路员位置、朝向与步数；避让、停步、对话时冻结。",
+    "criticalPathsRandomized": false,
+    "rareInRandomFinds": false,
+    "runtimeMapCount": 46,
+    "allOrdinaryFamiliesHavePools": true
+  }
+}

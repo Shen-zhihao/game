@@ -1,0 +1,3224 @@
+{
+  "contentVersion": "ch10.3",
+  "totalMoves": 111,
+  "signatureCount": 51,
+  "policy": {
+    "rareLevel": 15,
+    "legendaryLevel": 50,
+    "exclusiveToExactSpecies": true,
+    "copyItemCanCopySignatures": false,
+    "evolution": "已学专属技能变为新形态对应招式，保留剩余 PP（不超过新招上限）；未学则按等级回忆。",
+    "haptics": "默认开启，可在设置关闭；本机独立保存。按钮 80ms 节流，方向键长按只在开始触发，后台不触发。"
+  },
+  "moves": [
+    {
+      "id": "tackle",
+      "name": "撞击",
+      "type": "normal",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 35,
+      "priority": 0,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "flame_tail",
+      "name": "炽尾扫击",
+      "type": "fire",
+      "category": "physical",
+      "power": 55,
+      "accuracy": 100,
+      "pp": 20,
+      "priority": 0,
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "water_tail",
+      "name": "水尾拍击",
+      "type": "water",
+      "category": "physical",
+      "power": 55,
+      "accuracy": 100,
+      "pp": 20,
+      "priority": 0,
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "quick",
+      "name": "疾步冲撞",
+      "type": "normal",
+      "category": "physical",
+      "power": 35,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 1,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "growl",
+      "name": "示威",
+      "type": "normal",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "debuff",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "guard",
+      "name": "坚壳",
+      "type": "normal",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 20,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "shield",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "recover",
+      "name": "苔息",
+      "type": "grass",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 8,
+      "priority": 0,
+      "effect": { "heal": 0.4, "target": "self" },
+      "visual": {
+        "pattern": "heal",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "sleep",
+      "name": "眠香",
+      "type": "grass",
+      "category": "status",
+      "power": 0,
+      "accuracy": 75,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "sleep", "chance": 1 },
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "poison",
+      "name": "毒粉",
+      "type": "poison",
+      "category": "status",
+      "power": 0,
+      "accuracy": 80,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 1 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "focus",
+      "name": "凝神",
+      "type": "psychic",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "critical", "amount": 2, "target": "self" },
+      "visual": {
+        "pattern": "focus",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "aim",
+      "name": "鹰眼",
+      "type": "normal",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "accuracy", "amount": 2, "target": "self" },
+      "visual": {
+        "pattern": "focus",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "agility",
+      "name": "轻身",
+      "type": "flying",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": 2, "target": "self" },
+      "visual": {
+        "pattern": "focus",
+        "color": "#9ebee2",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "shadow_step",
+      "name": "影步",
+      "type": "ghost",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "evasion", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "focus",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "steady",
+      "name": "守心",
+      "type": "steel",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "criticalGuard", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "shield",
+        "color": "#9dbcc2",
+        "glow": "#fff4c5",
+        "motion": "self",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "keen_strike",
+      "name": "破绽突刺",
+      "type": "normal",
+      "category": "physical",
+      "power": 55,
+      "accuracy": 95,
+      "pp": 15,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "struggle",
+      "name": "奋力一搏",
+      "type": null,
+      "category": "physical",
+      "power": 50,
+      "accuracy": 100,
+      "pp": 1,
+      "priority": 0,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "normal_1",
+      "name": "跃身扑击",
+      "type": "normal",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "normal_2",
+      "name": "回旋冲击",
+      "type": "normal",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "grass_1",
+      "name": "叶刃芽",
+      "type": "grass",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "grass_2",
+      "name": "藤鞭连击",
+      "type": "grass",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fire_1",
+      "name": "火星",
+      "type": "fire",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.12 },
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fire_2",
+      "name": "焰尾",
+      "type": "fire",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.12 },
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "water_1",
+      "name": "泡沫",
+      "type": "water",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "water_2",
+      "name": "潮汐弹",
+      "type": "water",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "electric_1",
+      "name": "微电弧",
+      "type": "electric",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "effect": { "status": "paralysis", "chance": 0.12 },
+      "visual": {
+        "pattern": "bolt",
+        "color": "#e9cd58",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "electric_2",
+      "name": "雷光",
+      "type": "electric",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "status": "paralysis", "chance": 0.12 },
+      "visual": {
+        "pattern": "bolt",
+        "color": "#e9cd58",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "bug_1",
+      "name": "虫咬",
+      "type": "bug",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "sting",
+        "color": "#b1c96b",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "bug_2",
+      "name": "晶丝斩",
+      "type": "bug",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "sting",
+        "color": "#b1c96b",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "flying_1",
+      "name": "风切",
+      "type": "flying",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "wind",
+        "color": "#9ebee2",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "flying_2",
+      "name": "岚翼",
+      "type": "flying",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "wind",
+        "color": "#9ebee2",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "rock_1",
+      "name": "碎石",
+      "type": "rock",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "stone",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "rock_2",
+      "name": "晶岩坠",
+      "type": "rock",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "stone",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "poison_1",
+      "name": "毒刺",
+      "type": "poison",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 0.12 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "poison_2",
+      "name": "毒液",
+      "type": "poison",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 0.12 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "ground_1",
+      "name": "扬沙击",
+      "type": "ground",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "earth",
+        "color": "#c99d6e",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "ground_2",
+      "name": "地脉波",
+      "type": "ground",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "earth",
+        "color": "#c99d6e",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "ice_1",
+      "name": "霜息",
+      "type": "ice",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "ice",
+        "color": "#96dad9",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "ice_2",
+      "name": "冰晶矢",
+      "type": "ice",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "ice",
+        "color": "#96dad9",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "fighting_1",
+      "name": "直拳",
+      "type": "fighting",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "fist",
+        "color": "#d77d6d",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fighting_2",
+      "name": "破岩掌",
+      "type": "fighting",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "fist",
+        "color": "#d77d6d",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "psychic_1",
+      "name": "念动",
+      "type": "psychic",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "psychic_2",
+      "name": "灵波",
+      "type": "psychic",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "ghost_1",
+      "name": "幽火",
+      "type": "ghost",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "ghost_2",
+      "name": "夜影",
+      "type": "ghost",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "dragon_1",
+      "name": "龙息",
+      "type": "dragon",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "dragon",
+        "color": "#9789e6",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "dragon_2",
+      "name": "鳞光",
+      "type": "dragon",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "dragon",
+        "color": "#9789e6",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "dark_1",
+      "name": "暗袭",
+      "type": "dark",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "claw",
+        "color": "#aa9f96",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "dark_2",
+      "name": "暮影爪",
+      "type": "dark",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "claw",
+        "color": "#aa9f96",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "steel_1",
+      "name": "铁爪",
+      "type": "steel",
+      "category": "physical",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "steel",
+        "color": "#9dbcc2",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "steel_2",
+      "name": "钢羽",
+      "type": "steel",
+      "category": "physical",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "steel",
+        "color": "#9dbcc2",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fairy_1",
+      "name": "星粉",
+      "type": "fairy",
+      "category": "special",
+      "power": 40,
+      "accuracy": 100,
+      "pp": 25,
+      "priority": 0,
+      "visual": {
+        "pattern": "star",
+        "color": "#e8b2d1",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fairy_2",
+      "name": "月辉",
+      "type": "fairy",
+      "category": "special",
+      "power": 65,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "star",
+        "color": "#e8b2d1",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "field_cut",
+      "name": "剪藤术",
+      "type": "grass",
+      "power": 50,
+      "category": "physical",
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "field_break",
+      "name": "碎岩术",
+      "type": "fighting",
+      "power": 55,
+      "category": "physical",
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "fist",
+        "color": "#d77d6d",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 820,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "surf",
+      "name": "冲浪术",
+      "type": "water",
+      "power": 80,
+      "category": "special",
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "sun_call",
+      "name": "祈晴",
+      "type": "fire",
+      "weather": "sun",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" },
+      "visual": {
+        "pattern": "weather",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "field",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "rain_call",
+      "name": "唤雨",
+      "type": "water",
+      "weather": "rain",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" },
+      "visual": {
+        "pattern": "weather",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "field",
+        "duration": 1050,
+        "variant": 0,
+        "signature": false
+      }
+    },
+    {
+      "id": "sand_call",
+      "name": "扬沙幕",
+      "type": "rock",
+      "weather": "sand",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" },
+      "visual": {
+        "pattern": "weather",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "field",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "snow_call",
+      "name": "唤雪",
+      "type": "ice",
+      "weather": "snow",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" },
+      "visual": {
+        "pattern": "weather",
+        "color": "#96dad9",
+        "glow": "#fff4c5",
+        "motion": "field",
+        "duration": 1050,
+        "variant": 2,
+        "signature": false
+      }
+    },
+    {
+      "id": "fog_call",
+      "name": "凝雾",
+      "type": "ghost",
+      "weather": "fog",
+      "power": 0,
+      "category": "status",
+      "accuracy": 100,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "target": "self" },
+      "visual": {
+        "pattern": "weather",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "field",
+        "duration": 1050,
+        "variant": 1,
+        "signature": false
+      }
+    },
+    {
+      "id": "signature_025",
+      "name": "引雾铃音",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_025",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_026",
+      "name": "送魂钟岚",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_026",
+      "category": "special",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_033",
+      "name": "晶露毒网",
+      "type": "poison",
+      "exclusiveSpeciesId": "creature_033",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 0.3 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_034",
+      "name": "镜池倒影",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_034",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_035",
+      "name": "腐叶回旋",
+      "type": "grass",
+      "exclusiveSpeciesId": "creature_035",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "heal": 0.15, "target": "self" },
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_036",
+      "name": "幽棘缚影",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_036",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_057",
+      "name": "眠云坠",
+      "type": "flying",
+      "exclusiveSpeciesId": "creature_057",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "sleep", "chance": 0.2 },
+      "visual": {
+        "pattern": "wind",
+        "color": "#9ebee2",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_058",
+      "name": "旋叶匿袭",
+      "type": "grass",
+      "exclusiveSpeciesId": "creature_058",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "leaf",
+        "color": "#78c65b",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_077",
+      "name": "镇矿钟鸣",
+      "type": "rock",
+      "exclusiveSpeciesId": "creature_077",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "stone",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_078",
+      "name": "盲灯冷闪",
+      "type": "ice",
+      "exclusiveSpeciesId": "creature_078",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "paralysis", "chance": 0.25 },
+      "visual": {
+        "pattern": "ice",
+        "color": "#96dad9",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_097",
+      "name": "珊枝繁潮",
+      "type": "water",
+      "exclusiveSpeciesId": "creature_097",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "heal": 0.15, "target": "self" },
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_098",
+      "name": "浮岛落陆",
+      "type": "ground",
+      "exclusiveSpeciesId": "creature_098",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "earth",
+        "color": "#c99d6e",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_099",
+      "name": "回潮葬歌",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_099",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_115",
+      "name": "远雷贯空",
+      "type": "electric",
+      "exclusiveSpeciesId": "creature_115",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "paralysis", "chance": 0.25 },
+      "visual": {
+        "pattern": "bolt",
+        "color": "#e9cd58",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_116",
+      "name": "栖云霜环",
+      "type": "ice",
+      "exclusiveSpeciesId": "creature_116",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ice",
+        "color": "#96dad9",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_127",
+      "name": "黑曜尾针",
+      "type": "poison",
+      "exclusiveSpeciesId": "creature_127",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 0.3 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_128",
+      "name": "日冕鳞舞",
+      "type": "fire",
+      "exclusiveSpeciesId": "creature_128",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.25 },
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_138",
+      "name": "梦灯引魂",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_138",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "sleep", "chance": 0.2 },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_139",
+      "name": "铜翼电羽",
+      "type": "steel",
+      "exclusiveSpeciesId": "creature_139",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "paralysis", "chance": 0.25 },
+      "visual": {
+        "pattern": "steel",
+        "color": "#9dbcc2",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_140",
+      "name": "讯流穿心",
+      "type": "electric",
+      "exclusiveSpeciesId": "creature_140",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "bolt",
+        "color": "#e9cd58",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_141",
+      "name": "纹印震",
+      "type": "rock",
+      "exclusiveSpeciesId": "creature_141",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "stone",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_142",
+      "name": "碑纹裁断",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_142",
+      "category": "physical",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_143",
+      "name": "镇域天印",
+      "type": "fighting",
+      "exclusiveSpeciesId": "creature_143",
+      "category": "physical",
+      "power": 94,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "fist",
+        "color": "#d77d6d",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_144",
+      "name": "遗羽星芒",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_144",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_145",
+      "name": "铭羽天书",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_145",
+      "category": "special",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialAttack", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_146",
+      "name": "星仪焚天",
+      "type": "fire",
+      "exclusiveSpeciesId": "creature_146",
+      "category": "special",
+      "power": 94,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.25 },
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_147",
+      "name": "残月噬影",
+      "type": "dark",
+      "exclusiveSpeciesId": "creature_147",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "claw",
+        "color": "#aa9f96",
+        "glow": "#e6b9ff",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_148",
+      "name": "镜月潮蚀",
+      "type": "water",
+      "exclusiveSpeciesId": "creature_148",
+      "category": "special",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_149",
+      "name": "源环五重光",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_149",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialAttack", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_150",
+      "name": "无相界裂",
+      "type": "normal",
+      "exclusiveSpeciesId": "creature_150",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "slash",
+        "color": "#a7b2a5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_164",
+      "name": "菌冠孢伞",
+      "type": "poison",
+      "exclusiveSpeciesId": "creature_164",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "poison", "chance": 0.3 },
+      "visual": {
+        "pattern": "venom",
+        "color": "#c495cc",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_175",
+      "name": "远望蜃界",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_175",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_186",
+      "name": "封矿重扉",
+      "type": "steel",
+      "exclusiveSpeciesId": "creature_186",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "steel",
+        "color": "#9dbcc2",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_200",
+      "name": "九汐开匣",
+      "type": "water",
+      "exclusiveSpeciesId": "creature_200",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_214",
+      "name": "断峰龙陨",
+      "type": "dragon",
+      "exclusiveSpeciesId": "creature_214",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "dragon",
+        "color": "#9789e6",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_225",
+      "name": "硫面鬼焰",
+      "type": "fire",
+      "exclusiveSpeciesId": "creature_225",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.25 },
+      "visual": {
+        "pattern": "flame",
+        "color": "#ee9256",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_236",
+      "name": "锚钟敲魂",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_236",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_237",
+      "name": "霓幕终场",
+      "type": "fairy",
+      "exclusiveSpeciesId": "creature_237",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "star",
+        "color": "#e8b2d1",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_238",
+      "name": "砂字蚀刻",
+      "type": "ground",
+      "exclusiveSpeciesId": "creature_238",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "defense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "earth",
+        "color": "#c99d6e",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_239",
+      "name": "铭砂封页",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_239",
+      "category": "special",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialDefense", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_240",
+      "name": "篆域千蝶",
+      "type": "fairy",
+      "exclusiveSpeciesId": "creature_240",
+      "category": "special",
+      "power": 94,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialAttack", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "star",
+        "color": "#e8b2d1",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_241",
+      "name": "残曜碎鳞",
+      "type": "rock",
+      "exclusiveSpeciesId": "creature_241",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "stone",
+        "color": "#c6ac76",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_242",
+      "name": "碑翼掠魂",
+      "type": "ghost",
+      "exclusiveSpeciesId": "creature_242",
+      "category": "physical",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "ghost",
+        "color": "#a19cce",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_243",
+      "name": "古曜龙烬",
+      "type": "dragon",
+      "exclusiveSpeciesId": "creature_243",
+      "category": "physical",
+      "power": 94,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.25 },
+      "visual": {
+        "pattern": "dragon",
+        "color": "#9789e6",
+        "glow": "#fff4c5",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_244",
+      "name": "泉镜碎光",
+      "type": "water",
+      "exclusiveSpeciesId": "creature_244",
+      "category": "special",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_245",
+      "name": "轮镜回澜",
+      "type": "water",
+      "exclusiveSpeciesId": "creature_245",
+      "category": "special",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "heal": 0.15, "target": "self" },
+      "visual": {
+        "pattern": "wave",
+        "color": "#64b8df",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_246",
+      "name": "时涟逆流",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_246",
+      "category": "special",
+      "power": 94,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_247",
+      "name": "玄锁封牙",
+      "type": "dark",
+      "exclusiveSpeciesId": "creature_247",
+      "category": "physical",
+      "power": 78,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "effect": { "stage": "attack", "amount": -1, "target": "enemy" },
+      "visual": {
+        "pattern": "claw",
+        "color": "#aa9f96",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_248",
+      "name": "解印断界",
+      "type": "dark",
+      "exclusiveSpeciesId": "creature_248",
+      "category": "physical",
+      "power": 86,
+      "accuracy": 95,
+      "pp": 10,
+      "priority": 0,
+      "criticalStage": 1,
+      "visual": {
+        "pattern": "claw",
+        "color": "#aa9f96",
+        "glow": "#e6b9ff",
+        "motion": "lunge",
+        "duration": 1420,
+        "variant": 1,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_249",
+      "name": "双衡星裁",
+      "type": "psychic",
+      "exclusiveSpeciesId": "creature_249",
+      "category": "special",
+      "power": 105,
+      "accuracy": 95,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "stage": "specialAttack", "amount": 1, "target": "self" },
+      "visual": {
+        "pattern": "mind",
+        "color": "#ef97b5",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 2,
+        "signature": true
+      }
+    },
+    {
+      "id": "signature_250",
+      "name": "终宵烛寂",
+      "type": "dragon",
+      "exclusiveSpeciesId": "creature_250",
+      "category": "special",
+      "power": 105,
+      "accuracy": 95,
+      "pp": 5,
+      "priority": 0,
+      "effect": { "status": "burn", "chance": 0.25 },
+      "visual": {
+        "pattern": "dragon",
+        "color": "#9789e6",
+        "glow": "#fff4c5",
+        "motion": "cast",
+        "duration": 1420,
+        "variant": 0,
+        "signature": true
+      }
+    }
+  ],
+  "signatures": [
+    {
+      "speciesId": "creature_025",
+      "level": 15,
+      "description": "铃音凝成幽雾，扰乱对手的攻击。",
+      "legendary": false,
+      "move": {
+        "id": "signature_025",
+        "name": "引雾铃音",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_025",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "attack", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "雾铃灵"
+    },
+    {
+      "speciesId": "creature_026",
+      "level": 15,
+      "description": "钟岚掠过战场，撕开对手的防线。",
+      "legendary": false,
+      "move": {
+        "id": "signature_026",
+        "name": "送魂钟岚",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_026",
+        "category": "special",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "defense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "雾钟灵"
+    },
+    {
+      "speciesId": "creature_033",
+      "level": 15,
+      "description": "晶露织成毒网，有机会使对手中毒。",
+      "legendary": false,
+      "move": {
+        "id": "signature_033",
+        "name": "晶露毒网",
+        "type": "poison",
+        "exclusiveSpeciesId": "creature_033",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "poison", "chance": 0.3 }
+      },
+      "speciesName": "晶露蛛"
+    },
+    {
+      "speciesId": "creature_034",
+      "level": 15,
+      "description": "倒影化成念波，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_034",
+        "name": "镜池倒影",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_034",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "镜池鱼"
+    },
+    {
+      "speciesId": "creature_035",
+      "level": 15,
+      "description": "腐叶随壳旋转，攻击后汲取少量生机。",
+      "legendary": false,
+      "move": {
+        "id": "signature_035",
+        "name": "腐叶回旋",
+        "type": "grass",
+        "exclusiveSpeciesId": "creature_035",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "heal": 0.15, "target": "self" }
+      },
+      "speciesName": "腐叶螺"
+    },
+    {
+      "speciesId": "creature_036",
+      "level": 15,
+      "description": "棘刺钉住影子，降低对手速度。",
+      "legendary": false,
+      "move": {
+        "id": "signature_036",
+        "name": "幽棘缚影",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_036",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "speed", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "幽棘偶"
+    },
+    {
+      "speciesId": "creature_057",
+      "level": 15,
+      "description": "云团轻轻坠落，有机会令对手入睡。",
+      "legendary": false,
+      "move": {
+        "id": "signature_057",
+        "name": "眠云坠",
+        "type": "flying",
+        "exclusiveSpeciesId": "creature_057",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "sleep", "chance": 0.2 }
+      },
+      "speciesName": "眠云牛"
+    },
+    {
+      "speciesId": "creature_058",
+      "level": 15,
+      "description": "藏身叶旋后突然袭击，容易命中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_058",
+        "name": "旋叶匿袭",
+        "type": "grass",
+        "exclusiveSpeciesId": "creature_058",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "旋叶鼩"
+    },
+    {
+      "speciesId": "creature_077",
+      "level": 15,
+      "description": "矿石共振成钟声，降低对手特防。",
+      "legendary": false,
+      "move": {
+        "id": "signature_077",
+        "name": "镇矿钟鸣",
+        "type": "rock",
+        "exclusiveSpeciesId": "creature_077",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "鸣钟石"
+    },
+    {
+      "speciesId": "creature_078",
+      "level": 15,
+      "description": "冷光急闪，有机会麻痹对手。",
+      "legendary": false,
+      "move": {
+        "id": "signature_078",
+        "name": "盲灯冷闪",
+        "type": "ice",
+        "exclusiveSpeciesId": "creature_078",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "paralysis", "chance": 0.25 }
+      },
+      "speciesName": "盲灯虾"
+    },
+    {
+      "speciesId": "creature_097",
+      "level": 15,
+      "description": "珊枝引来潮水，攻击后恢复少量体力。",
+      "legendary": false,
+      "move": {
+        "id": "signature_097",
+        "name": "珊枝繁潮",
+        "type": "water",
+        "exclusiveSpeciesId": "creature_097",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "heal": 0.15, "target": "self" }
+      },
+      "speciesName": "珊枝鹿"
+    },
+    {
+      "speciesId": "creature_098",
+      "level": 15,
+      "description": "浮岛压落地面，扬起岩土并增强自身防御。",
+      "legendary": false,
+      "move": {
+        "id": "signature_098",
+        "name": "浮岛落陆",
+        "type": "ground",
+        "exclusiveSpeciesId": "creature_098",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "defense", "amount": 1, "target": "self" }
+      },
+      "speciesName": "浮岛龟"
+    },
+    {
+      "speciesId": "creature_099",
+      "level": 15,
+      "description": "贝壳唱出回潮幽歌，降低对手特攻。",
+      "legendary": false,
+      "move": {
+        "id": "signature_099",
+        "name": "回潮葬歌",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_099",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "attack", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "回潮贝"
+    },
+    {
+      "speciesId": "creature_115",
+      "level": 15,
+      "description": "远雷沿翼贯穿天空，有机会麻痹对手。",
+      "legendary": false,
+      "move": {
+        "id": "signature_115",
+        "name": "远雷贯空",
+        "type": "electric",
+        "exclusiveSpeciesId": "creature_115",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "paralysis", "chance": 0.25 }
+      },
+      "speciesName": "远雷鹏"
+    },
+    {
+      "speciesId": "creature_116",
+      "level": 15,
+      "description": "云间霜环扩散，降低对手速度。",
+      "legendary": false,
+      "move": {
+        "id": "signature_116",
+        "name": "栖云霜环",
+        "type": "ice",
+        "exclusiveSpeciesId": "creature_116",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "speed", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "栖云灵"
+    },
+    {
+      "speciesId": "creature_127",
+      "level": 15,
+      "description": "黑曜尾针刺入破绽，有机会使对手中毒。",
+      "legendary": false,
+      "move": {
+        "id": "signature_127",
+        "name": "黑曜尾针",
+        "type": "poison",
+        "exclusiveSpeciesId": "creature_127",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "poison", "chance": 0.3 }
+      },
+      "speciesName": "黑曜蝎"
+    },
+    {
+      "speciesId": "creature_128",
+      "level": 15,
+      "description": "日冕鳞粉爆燃，有机会造成灼伤。",
+      "legendary": false,
+      "move": {
+        "id": "signature_128",
+        "name": "日冕鳞舞",
+        "type": "fire",
+        "exclusiveSpeciesId": "creature_128",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "burn", "chance": 0.25 }
+      },
+      "speciesName": "日冕蝶"
+    },
+    {
+      "speciesId": "creature_138",
+      "level": 15,
+      "description": "梦灯照入意识，有机会令对手入睡。",
+      "legendary": false,
+      "move": {
+        "id": "signature_138",
+        "name": "梦灯引魂",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_138",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "sleep", "chance": 0.2 }
+      },
+      "speciesName": "梦灯猫"
+    },
+    {
+      "speciesId": "creature_139",
+      "level": 15,
+      "description": "电流沿铜羽射出，有机会麻痹对手。",
+      "legendary": false,
+      "move": {
+        "id": "signature_139",
+        "name": "铜翼电羽",
+        "type": "steel",
+        "exclusiveSpeciesId": "creature_139",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "paralysis", "chance": 0.25 }
+      },
+      "speciesName": "铜壳鸽"
+    },
+    {
+      "speciesId": "creature_140",
+      "level": 15,
+      "description": "讯流精准穿过防线，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_140",
+        "name": "讯流穿心",
+        "type": "electric",
+        "exclusiveSpeciesId": "creature_140",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "讯流灵"
+    },
+    {
+      "speciesId": "creature_141",
+      "level": 15,
+      "description": "岩纹迸发冲击，增强自身防御。",
+      "legendary": false,
+      "move": {
+        "id": "signature_141",
+        "name": "纹印震",
+        "type": "rock",
+        "exclusiveSpeciesId": "creature_141",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "defense", "amount": 1, "target": "self" }
+      },
+      "speciesName": "纹印石"
+    },
+    {
+      "speciesId": "creature_142",
+      "level": 15,
+      "description": "碑文凝成刃光，降低对手特防。",
+      "legendary": false,
+      "move": {
+        "id": "signature_142",
+        "name": "碑纹裁断",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_142",
+        "category": "physical",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "碑纹卫"
+    },
+    {
+      "speciesId": "creature_143",
+      "level": 15,
+      "description": "镇域之印坠落，增强自身攻击。",
+      "legendary": false,
+      "move": {
+        "id": "signature_143",
+        "name": "镇域天印",
+        "type": "fighting",
+        "exclusiveSpeciesId": "creature_143",
+        "category": "physical",
+        "power": 94,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "attack", "amount": 1, "target": "self" }
+      },
+      "speciesName": "镇域像"
+    },
+    {
+      "speciesId": "creature_144",
+      "level": 15,
+      "description": "遗羽折射星芒，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_144",
+        "name": "遗羽星芒",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_144",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "遗羽雏"
+    },
+    {
+      "speciesId": "creature_145",
+      "level": 15,
+      "description": "铭文随羽光展开，增强自身特攻。",
+      "legendary": false,
+      "move": {
+        "id": "signature_145",
+        "name": "铭羽天书",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_145",
+        "category": "special",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialAttack", "amount": 1, "target": "self" }
+      },
+      "speciesName": "铭羽鸟"
+    },
+    {
+      "speciesId": "creature_146",
+      "level": 15,
+      "description": "星仪之火化为羽阵，有机会造成灼伤。",
+      "legendary": false,
+      "move": {
+        "id": "signature_146",
+        "name": "星仪焚天",
+        "type": "fire",
+        "exclusiveSpeciesId": "creature_146",
+        "category": "special",
+        "power": 94,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "burn", "chance": 0.25 }
+      },
+      "speciesName": "星仪鸾"
+    },
+    {
+      "speciesId": "creature_147",
+      "level": 15,
+      "description": "残月之影掠过，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_147",
+        "name": "残月噬影",
+        "type": "dark",
+        "exclusiveSpeciesId": "creature_147",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "残月狐"
+    },
+    {
+      "speciesId": "creature_148",
+      "level": 15,
+      "description": "镜月之潮侵蚀防线，降低对手特防。",
+      "legendary": false,
+      "move": {
+        "id": "signature_148",
+        "name": "镜月潮蚀",
+        "type": "water",
+        "exclusiveSpeciesId": "creature_148",
+        "category": "special",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "镜月狐"
+    },
+    {
+      "speciesId": "creature_149",
+      "level": 15,
+      "description": "五重光环共鸣，增强自身特攻。",
+      "legendary": false,
+      "move": {
+        "id": "signature_149",
+        "name": "源环五重光",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_149",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialAttack", "amount": 1, "target": "self" }
+      },
+      "speciesName": "源环灵"
+    },
+    {
+      "speciesId": "creature_150",
+      "level": 15,
+      "description": "无相裂隙骤然合拢，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_150",
+        "name": "无相界裂",
+        "type": "normal",
+        "exclusiveSpeciesId": "creature_150",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "无相兽"
+    },
+    {
+      "speciesId": "creature_164",
+      "level": 15,
+      "description": "孢伞撑开并洒落毒孢，有机会使对手中毒。",
+      "legendary": false,
+      "move": {
+        "id": "signature_164",
+        "name": "菌冠孢伞",
+        "type": "poison",
+        "exclusiveSpeciesId": "creature_164",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "poison", "chance": 0.3 }
+      },
+      "speciesName": "菌冠伞客"
+    },
+    {
+      "speciesId": "creature_175",
+      "level": 15,
+      "description": "蜃景收束成念波，降低对手命中。",
+      "legendary": false,
+      "move": {
+        "id": "signature_175",
+        "name": "远望蜃界",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_175",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "远望蜃兽"
+    },
+    {
+      "speciesId": "creature_186",
+      "level": 15,
+      "description": "矿门重重合拢，增强自身防御。",
+      "legendary": false,
+      "move": {
+        "id": "signature_186",
+        "name": "封矿重扉",
+        "type": "steel",
+        "exclusiveSpeciesId": "creature_186",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "defense", "amount": 1, "target": "self" }
+      },
+      "speciesName": "封矿门兽"
+    },
+    {
+      "speciesId": "creature_200",
+      "level": 15,
+      "description": "匣中九汐涌出，降低对手速度。",
+      "legendary": false,
+      "move": {
+        "id": "signature_200",
+        "name": "九汐开匣",
+        "type": "water",
+        "exclusiveSpeciesId": "creature_200",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "speed", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "九汐匣灵"
+    },
+    {
+      "speciesId": "creature_214",
+      "level": 15,
+      "description": "龙翼挟断峰之势俯冲，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_214",
+        "name": "断峰龙陨",
+        "type": "dragon",
+        "exclusiveSpeciesId": "creature_214",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "断峰龙"
+    },
+    {
+      "speciesId": "creature_225",
+      "level": 15,
+      "description": "硫烟面具喷出鬼焰，有机会造成灼伤。",
+      "legendary": false,
+      "move": {
+        "id": "signature_225",
+        "name": "硫面鬼焰",
+        "type": "fire",
+        "exclusiveSpeciesId": "creature_225",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "burn", "chance": 0.25 }
+      },
+      "speciesName": "硫烟面狐"
+    },
+    {
+      "speciesId": "creature_236",
+      "level": 15,
+      "description": "锚钟敲中灵魂，降低对手攻击。",
+      "legendary": false,
+      "move": {
+        "id": "signature_236",
+        "name": "锚钟敲魂",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_236",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "attack", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "锚钟管家"
+    },
+    {
+      "speciesId": "creature_237",
+      "level": 15,
+      "description": "霓幕收拢成终场光束，降低对手命中。",
+      "legendary": false,
+      "move": {
+        "id": "signature_237",
+        "name": "霓幕终场",
+        "type": "fairy",
+        "exclusiveSpeciesId": "creature_237",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "霓幕小丑"
+    },
+    {
+      "speciesId": "creature_238",
+      "level": 15,
+      "description": "砂字刻入地面，降低对手防御。",
+      "legendary": false,
+      "move": {
+        "id": "signature_238",
+        "name": "砂字蚀刻",
+        "type": "ground",
+        "exclusiveSpeciesId": "creature_238",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "defense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "砂字虫"
+    },
+    {
+      "speciesId": "creature_239",
+      "level": 15,
+      "description": "铭砂化成封页，增强自身特防。",
+      "legendary": false,
+      "move": {
+        "id": "signature_239",
+        "name": "铭砂封页",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_239",
+        "category": "special",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialDefense", "amount": 1, "target": "self" }
+      },
+      "speciesName": "铭砂蛹"
+    },
+    {
+      "speciesId": "creature_240",
+      "level": 15,
+      "description": "篆文化作蝶群，增强自身特攻。",
+      "legendary": false,
+      "move": {
+        "id": "signature_240",
+        "name": "篆域千蝶",
+        "type": "fairy",
+        "exclusiveSpeciesId": "creature_240",
+        "category": "special",
+        "power": 94,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialAttack", "amount": 1, "target": "self" }
+      },
+      "speciesName": "篆域蝶"
+    },
+    {
+      "speciesId": "creature_241",
+      "level": 15,
+      "description": "残曜鳞片疾射，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_241",
+        "name": "残曜碎鳞",
+        "type": "rock",
+        "exclusiveSpeciesId": "creature_241",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "残曜蜥"
+    },
+    {
+      "speciesId": "creature_242",
+      "level": 15,
+      "description": "碑翼掠过魂影，降低对手特防。",
+      "legendary": false,
+      "move": {
+        "id": "signature_242",
+        "name": "碑翼掠魂",
+        "type": "ghost",
+        "exclusiveSpeciesId": "creature_242",
+        "category": "physical",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "specialDefense", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "碑翼蜥"
+    },
+    {
+      "speciesId": "creature_243",
+      "level": 15,
+      "description": "古曜龙焰贯地，有机会造成灼伤。",
+      "legendary": false,
+      "move": {
+        "id": "signature_243",
+        "name": "古曜龙烬",
+        "type": "dragon",
+        "exclusiveSpeciesId": "creature_243",
+        "category": "physical",
+        "power": 94,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "status": "burn", "chance": 0.25 }
+      },
+      "speciesName": "古曜龙"
+    },
+    {
+      "speciesId": "creature_244",
+      "level": 15,
+      "description": "泉镜折出碎光，降低对手命中。",
+      "legendary": false,
+      "move": {
+        "id": "signature_244",
+        "name": "泉镜碎光",
+        "type": "water",
+        "exclusiveSpeciesId": "creature_244",
+        "category": "special",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "accuracy", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "泉镜幼灵"
+    },
+    {
+      "speciesId": "creature_245",
+      "level": 15,
+      "description": "轮镜拨转水澜，攻击后恢复少量体力。",
+      "legendary": false,
+      "move": {
+        "id": "signature_245",
+        "name": "轮镜回澜",
+        "type": "water",
+        "exclusiveSpeciesId": "creature_245",
+        "category": "special",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "heal": 0.15, "target": "self" }
+      },
+      "speciesName": "轮镜灵"
+    },
+    {
+      "speciesId": "creature_246",
+      "level": 15,
+      "description": "时涟逆转流速，降低对手速度。",
+      "legendary": false,
+      "move": {
+        "id": "signature_246",
+        "name": "时涟逆流",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_246",
+        "category": "special",
+        "power": 94,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "speed", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "时涟灵"
+    },
+    {
+      "speciesId": "creature_247",
+      "level": 15,
+      "description": "玄锁咬合，降低对手攻击。",
+      "legendary": false,
+      "move": {
+        "id": "signature_247",
+        "name": "玄锁封牙",
+        "type": "dark",
+        "exclusiveSpeciesId": "creature_247",
+        "category": "physical",
+        "power": 78,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "effect": { "stage": "attack", "amount": -1, "target": "enemy" }
+      },
+      "speciesName": "玄锁兽"
+    },
+    {
+      "speciesId": "creature_248",
+      "level": 15,
+      "description": "封印解开时斩断界线，容易击中要害。",
+      "legendary": false,
+      "move": {
+        "id": "signature_248",
+        "name": "解印断界",
+        "type": "dark",
+        "exclusiveSpeciesId": "creature_248",
+        "category": "physical",
+        "power": 86,
+        "accuracy": 95,
+        "pp": 10,
+        "priority": 0,
+        "criticalStage": 1
+      },
+      "speciesName": "解印兽"
+    },
+    {
+      "speciesId": "creature_249",
+      "level": 50,
+      "description": "双衡星轨汇成裁决之光，增强自身特攻。",
+      "legendary": true,
+      "move": {
+        "id": "signature_249",
+        "name": "双衡星裁",
+        "type": "psychic",
+        "exclusiveSpeciesId": "creature_249",
+        "category": "special",
+        "power": 105,
+        "accuracy": 95,
+        "pp": 5,
+        "priority": 0,
+        "effect": { "stage": "specialAttack", "amount": 1, "target": "self" }
+      },
+      "speciesName": "双衡星兽"
+    },
+    {
+      "speciesId": "creature_250",
+      "level": 50,
+      "description": "烛龙以终宵之火封住天空，有机会造成灼伤。",
+      "legendary": true,
+      "move": {
+        "id": "signature_250",
+        "name": "终宵烛寂",
+        "type": "dragon",
+        "exclusiveSpeciesId": "creature_250",
+        "category": "special",
+        "power": 105,
+        "accuracy": 95,
+        "pp": 5,
+        "priority": 0,
+        "effect": { "status": "burn", "chance": 0.25 }
+      },
+      "speciesName": "终宵烛龙"
+    }
+  ]
+}

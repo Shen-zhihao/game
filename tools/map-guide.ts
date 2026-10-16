@@ -1,4 +1,4 @@
-import { MAPS } from '../src/content/world';
+import { MAPS, mapSize } from '../src/content/world';
 import { MapId } from '../src/game/model';
 
 const rect = (x: number, y: number, w: number, h: number, fill: string, extra = '') =>
@@ -14,17 +14,37 @@ function building(x: number, y: number, w: number, h: number, type: string) {
 export function mapBackground(mapId: MapId): string {
   const map = MAPS[mapId];
   const forest = mapId === 'forest';
-  const gym = mapId === 'gym';
-  const ground = gym ? '#9bb37a' : forest ? '#78a66b' : '#9fbd7d';
-  let content = rect(0, 0, 768, 512, ground);
+  const stone = [
+    'stoneRoute',
+    'stone',
+    'mine',
+    'rockGym',
+    'coastRoute',
+    'harbor',
+    'tideworks',
+    'waterGym',
+  ].includes(mapId);
+  const gym = mapId === 'gym' || mapId === 'rockGym' || mapId === 'waterGym';
+  const ground =
+    mapId === 'mine'
+      ? '#676356'
+      : stone
+        ? '#b7ac87'
+        : gym
+          ? '#9bb37a'
+          : forest
+            ? '#78a66b'
+            : '#9fbd7d';
+  const { width, height } = mapSize(mapId);
+  let content = rect(0, 0, width, height, ground);
   const buildingTiles = new Set<string>();
-  for (let y = 0; y < 16; y++)
-    for (let x = 0; x < 24; x++) {
+  for (let y = 0; y < map.rows.length; y++)
+    for (let x = 0; x < map.rows[0]!.length; x++) {
       const tile = map.rows[y]![x]!;
       const xx = x * 32;
       const yy = y * 32;
       const n = (x * 37 + y * 59) % 11;
-      if (tile === ':' || tile === '=') {
+      if (tile === ':' || tile === '=' || tile === 'R' || tile === 'W') {
         content += rect(xx, yy, 32, 32, gym ? '#d5d1a0' : '#d7c895');
         if (n < 5)
           content +=
@@ -53,7 +73,10 @@ export function mapBackground(mapId: MapId): string {
           rect(xx + 21, yy + 16, 2, 4, '#b5ce8e');
         if (tile === 'g')
           for (let j = 0; j < 4; j++)
-            content += `<path d="M${xx + 3 + j * 8} ${yy + 25 - (j % 2) * 8}l-2-9 5 5 3-11 1 15Z" fill="${j % 2 ? '#50885b' : '#639762'}"/>`;
+            content +=
+              mapId === 'mine'
+                ? rect(xx + 3 + j * 7, yy + 8 + (j % 2) * 9, 6, 5, j % 2 ? '#9da3a0' : '#8f8a70')
+                : `<path d="M${xx + 3 + j * 8} ${yy + 25 - (j % 2) * 8}l-2-9 5 5 3-11 1 15Z" fill="${j % 2 ? '#50885b' : '#639762'}"/>`;
         if (tile === '^')
           for (let j = 0; j < 4; j++)
             content +=
@@ -61,11 +84,16 @@ export function mapBackground(mapId: MapId): string {
               rect(xx + j * 7 + 4, yy + (j % 2) * 10 + 9, 2, 2, '#f4efc3');
       }
     }
-  for (let y = 0; y < 16; y++)
-    for (let x = 0; x < 24; x++)
+  for (let y = 0; y < map.rows.length; y++)
+    for (let x = 0; x < map.rows[0]!.length; x++)
       if (map.rows[y]![x] === '#')
-        content += gym
-          ? rect(x * 32, y * 32, 32, 32, '#3a6550') + rect(x * 32 + 2, y * 32 + 2, 28, 7, '#52775b')
-          : tree(x * 32, y * 32, forest);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="768" height="512" viewBox="0 0 768 512">${content}</svg>`;
+        content += stone
+          ? rect(x * 32, y * 32, 32, 32, mapId === 'mine' ? '#343638' : '#796e58') +
+            rect(x * 32 + 2, y * 32 + 3, 28, 8, '#a69b7c') +
+            rect(x * 32 + 9, y * 32 + 17, 19, 4, '#504e43')
+          : gym
+            ? rect(x * 32, y * 32, 32, 32, '#3a6550') +
+              rect(x * 32 + 2, y * 32 + 2, 28, 7, '#52775b')
+            : tree(x * 32, y * 32, forest);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${content}</svg>`;
 }

@@ -2,6 +2,8 @@ import net from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 import { MemoryDriver, SaveRepository } from '../src/persistence/repository';
 import { createSnapshot } from '../src/persistence/snapshot';
+import { newGame, reduceGame } from '../src/game/engine';
+import { recommendedAllocation } from '../src/game/growth';
 import {
   decodePairing,
   encodePairing,
@@ -13,6 +15,17 @@ import {
 } from '../src/transfer/crypto';
 import { TransferEvents, TransferPeer, Wire } from '../src/transfer/protocol';
 import { fixture, testEntropy } from './helpers';
+import { playableCoast } from './coast-helpers';
+import { playableHighlands } from './highland-helpers';
+import {
+  playableElectric,
+  playableWind,
+  playableFurnace,
+  playableLake,
+  playableStar,
+  playableChampion,
+  playablePostgame,
+} from './adventure-helpers';
 
 describe('配对与加密', () => {
   it('二维码绑定临时公钥与 256 位凭据，过期拒绝', () => {
@@ -73,15 +86,111 @@ afterEach(() => {
   for (const fn of cleanups.splice(0)) fn();
 });
 describe('真实 Node TCP 上的共用传档协议', () => {
-  it('加密分块→预览同意→原子覆盖→提交回执→冷读取继续', async () => {
+  it.each([
+    'current',
+    'opening',
+    'legacy',
+    'highlands',
+    'cultivation',
+    'ecologySkills',
+    'combatMoves',
+    'coast',
+    'environment',
+    'cheats',
+    'electric',
+    'wind',
+    'furnace',
+    'lake',
+    'star',
+    'champion',
+    'postgame',
+  ] as const)('%s：加密分块→预览同意→原子覆盖→提交回执→冷读取继续', async (version) => {
     const senderRepo = new SaveRepository(new MemoryDriver(), testEntropy);
     const driver = new MemoryDriver();
     const receiverRepo = new SaveRepository(driver, testEntropy);
     const old = await receiverRepo.save(2, fixture('creature_004'), null);
-    const game = fixture('creature_007');
+    let game =
+      version === 'opening'
+        ? newGame('来自甲手机', 0, null, 45678)
+        : version === 'postgame'
+          ? playablePostgame().game
+          : version === 'champion'
+            ? playableChampion().game
+            : version === 'star'
+              ? playableStar().game
+              : version === 'lake'
+                ? playableLake().game
+                : version === 'furnace'
+                  ? playableFurnace().game
+                  : version === 'wind'
+                    ? playableWind().game
+                    : version === 'electric'
+                      ? playableElectric().game
+                      : version === 'coast' || version === 'environment'
+                        ? playableCoast().game
+                        : version === 'highlands'
+                          ? playableHighlands().game
+                          : fixture('creature_007');
+    game.dialogue = null;
     game.player.name = '来自甲手机';
+    if (version === 'cheats') {
+      game = reduceGame(game, { kind: 'cheat', code: '105' });
+      game = reduceGame(game, { kind: 'cheat', code: '503' });
+      game = reduceGame(game, { kind: 'cheat', code: '301' });
+      expect(game.cheats!.masterBallsGranted).toBe(10);
+      expect(game.inventory.key_water_rig).toBe(1);
+      expect(game.progress.flags.waterLeader).not.toBe(true);
+    }
+    if (version === 'environment') {
+      const { atCenter } = await import('../src/game/fieldSkills');
+      expect(atCenter(game)).toBe(true);
+      game = reduceGame(game, {
+        kind: 'centerLearn',
+        creatureId: game.party[0]!,
+        moveId: 'surf',
+        replace: 0,
+      });
+      game = reduceGame(game, { kind: 'tick', seconds: 10 });
+      expect(game.masterBalls!.claimed).toEqual(['harbor_report']);
+      expect(game.creatures[game.party[0]!]!.taughtMoves).toContain('surf');
+      expect(game.environment!.remaining).toBe(230);
+    }
+    if (version === 'ecologySkills' || version === 'combatMoves') {
+      const { makeCreature } = await import('../src/game/rules');
+      game.progress.flags.rival = game.progress.flags.catchTutorial = true;
+      const source = makeCreature(game, 'creature_001', version === 'combatMoves' ? 9 : 12);
+      game.creatures[source.id] = source;
+      game.box.push(source.id);
+      game.dex.seen.push(source.speciesId);
+      game.dex.caught.push(source.speciesId);
+      game = reduceGame(game, { kind: 'buy', itemId: 'skill_copy', quantity: 1 });
+      game = reduceGame(game, {
+        kind: 'copyMove',
+        sourceId: source.id,
+        creatureId: game.party[0]!,
+        moveId: version === 'combatMoves' ? 'focus' : 'grass_2',
+        replace: null,
+      });
+      expect(game.creatures[game.party[0]!]!.taughtMoves).toContain(
+        version === 'combatMoves' ? 'focus' : 'grass_2',
+      );
+    }
+    if (version === 'cultivation') {
+      const c = game.creatures[game.party[0]!]!;
+      game.progress.flags.rival = true;
+      game.progress.flags.catchTutorial = true;
+      game = reduceGame(game, {
+        kind: 'allocate',
+        creatureId: c.id,
+        points: recommendedAllocation(c),
+      });
+      game = reduceGame(game, { kind: 'cityQuest', questId: 'dawn_training', action: 'accept' });
+      game = reduceGame(game, { kind: 'cityQuest', questId: 'dawn_training', action: 'claim' });
+      game = reduceGame(game, { kind: 'exchange', offerId: 'dawn_respec', quantity: 1 });
+      expect(game.cityServices!.exchanges.dawn_respec).toBe(1);
+    }
     // Enough legitimate growth entries to exercise multiple 64 KiB chunks without invalid fields.
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < (version === 'opening' ? 0 : 30); i++) {
       const { makeCreature } = await import('../src/game/rules');
       const c = makeCreature(game, 'creature_040', 8);
       c.history = Array.from({ length: 32 }, () => ({
@@ -97,6 +206,7 @@ describe('真实 Node TCP 上的共用传档协议', () => {
       }
     }
     const snapshot = createSnapshot(game, testEntropy, null);
+    if (version === 'legacy') snapshot.contentVersion = 'ch1.1';
     let receiverPeer: TransferPeer;
     const raw: string[] = [];
     let offered = false;
@@ -127,6 +237,7 @@ describe('真实 Node TCP 上的共用传档协议', () => {
             offered = true;
             expect(driver.data.slots[2]!.revisionId).toBe(old.revisionId);
             expect(offer.summary.name).toBe('来自甲手机');
+            expect(offer.summary.party.length).toBe(game.party.length);
             await receiverPeer.accept(2, old.revisionId);
           },
           completed: (slot) => {

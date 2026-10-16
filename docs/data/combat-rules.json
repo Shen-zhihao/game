@@ -1,0 +1,2858 @@
+{
+  "contentVersion": "ch10.3",
+  "speed": {
+    "maxActions": 3,
+    "thresholds": [
+      { "ratio": 1, "actions": 1 },
+      { "ratio": 2, "actions": 2 },
+      { "ratio": 3, "actions": 3 }
+    ],
+    "order": "先比较招式优先度，再比较有效速度；相同时按存档 RNG 决定。先手方连续完成自己的技能额度，再由另一方行动。",
+    "effectiveSpeed": "六维速度 × 速度能力等级倍率 × 天气速度倍率，麻痹再减半；天气规则见 world-rules.json。",
+    "quota": "在换人或用药之后、技能执行之前锁定本轮双方额度；本轮技能的速度变化从下一轮生效。",
+    "repeatedSkill": "重复本回合选定的技能，每次独立扣 PP、判命中、要害和附加效果。PP 不足停止，不改用其他招式。",
+    "stop": "任一原出战精灵倒下便终止双方未执行的攻击；新上场精灵不承接旧目标的剩余攻击。",
+    "otherActions": "用药、换人、投球和逃跑不重复；未结束战斗时，对手按自身速度额度回应。倒下补位免费。",
+    "status": "睡眠倒计时和麻痹失去行动判定每轮一次，毒与灼伤在轮末各结算一次。"
+  },
+  "hiddenStages": [
+    { "id": "accuracy", "name": "命中", "initial": 0, "min": -6, "max": 6 },
+    { "id": "evasion", "name": "闪避", "initial": 0, "min": -6, "max": 6 },
+    { "id": "critical", "name": "要害率", "initial": 0, "min": -3, "max": 3 },
+    { "id": "criticalGuard", "name": "抗要害", "initial": 0, "min": -3, "max": 3 }
+  ],
+  "accuracy": "取命中等级减闪避等级，限制在 -6～6；非负倍率 (3+等级)/3，负倍率 3/(3-等级)，与招式基础命中和天气倍率相乘并限制在 0～100%。自身强化必定生效。",
+  "critical": {
+    "rates": [
+      { "stage": 0, "chance": 0.0625 },
+      { "stage": 1, "chance": 0.125 },
+      { "stage": 2, "chance": 0.25 },
+      { "stage": 3, "chance": 0.5 }
+    ],
+    "moveBonus": "招式自带要害等级加到进攻方要害等级中，上限 3；负等级按基础概率逐级减半。",
+    "guard": "防守方抗要害每级使概率减半，最终限制在 0～100%。",
+    "damageMultiplier": 2,
+    "rounding": "按原技能、属性、能力与浮动结算普通伤害并取整，再精确翻倍；免疫仍为 0，治疗和异常扣血不翻倍。"
+  },
+  "persistence": "新隐藏阶段为兼容可选字段，旧档缺省为零；换人和新战斗重置，战斗中存档保留。新招式可自然学习、免费回忆及通用复刻。",
+  "newSkills": [
+    {
+      "id": "focus",
+      "name": "凝神",
+      "type": "psychic",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "critical", "amount": 2, "target": "self" }
+    },
+    {
+      "id": "aim",
+      "name": "鹰眼",
+      "type": "normal",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "accuracy", "amount": 2, "target": "self" }
+    },
+    {
+      "id": "agility",
+      "name": "轻身",
+      "type": "flying",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "speed", "amount": 2, "target": "self" }
+    },
+    {
+      "id": "shadow_step",
+      "name": "影步",
+      "type": "ghost",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "evasion", "amount": 1, "target": "self" }
+    },
+    {
+      "id": "steady",
+      "name": "守心",
+      "type": "steel",
+      "category": "status",
+      "power": 0,
+      "accuracy": 100,
+      "pp": 15,
+      "priority": 0,
+      "effect": { "stage": "criticalGuard", "amount": 1, "target": "self" }
+    },
+    {
+      "id": "keen_strike",
+      "name": "破绽突刺",
+      "type": "normal",
+      "category": "physical",
+      "power": 55,
+      "accuracy": 95,
+      "pp": 15,
+      "priority": 0,
+      "criticalStage": 1
+    }
+  ],
+  "species": [
+    {
+      "speciesId": "creature_001",
+      "name": "芽角鹿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_002",
+      "name": "苔枝鹿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_003",
+      "name": "森冠鹿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_004",
+      "name": "炭尾鼬",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_005",
+      "name": "焰纹鼬",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_006",
+      "name": "烬冠鼬",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_007",
+      "name": "泡鳍獭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_008",
+      "name": "潮纹獭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_009",
+      "name": "沧流獭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_010",
+      "name": "叶耳兔",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_011",
+      "name": "藤耳兔",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_012",
+      "name": "花冠兔",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_013",
+      "name": "石壳虫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_014",
+      "name": "矿纹蛹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_015",
+      "name": "晶翼蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_016",
+      "name": "萤灯蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_017",
+      "name": "萤羽蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_018",
+      "name": "雷灯蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_019",
+      "name": "绒芽菇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_020",
+      "name": "簇伞菇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_021",
+      "name": "森梦菇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_022",
+      "name": "苔甲蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_023",
+      "name": "藤脊蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_024",
+      "name": "古木蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_025",
+      "name": "雾铃灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_026",
+      "name": "雾钟灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_027",
+      "name": "荷叶蛙",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_028",
+      "name": "莲冠蛙",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_029",
+      "name": "蜜芽蜂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_030",
+      "name": "琥蜜蜂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_031",
+      "name": "盘根蛇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_032",
+      "name": "缚林蟒",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_033",
+      "name": "晶露蛛",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_034",
+      "name": "镜池鱼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_035",
+      "name": "腐叶螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_036",
+      "name": "幽棘偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_037",
+      "name": "绒团鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_038",
+      "name": "疾尾鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_039",
+      "name": "逐电鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_040",
+      "name": "风翎雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_041",
+      "name": "疾风雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_042",
+      "name": "逐岚隼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_043",
+      "name": "绵球羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_044",
+      "name": "雷绒羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_045",
+      "name": "暴云羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_046",
+      "name": "滚果兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_047",
+      "name": "抱果兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_048",
+      "name": "丰穗兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_049",
+      "name": "蹦石兔",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_050",
+      "name": "峭耳兔",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_051",
+      "name": "黄昏狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_052",
+      "name": "暮影狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_053",
+      "name": "草铃雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_054",
+      "name": "牧歌鹂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_055",
+      "name": "踏沙驹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_056",
+      "name": "原野骏",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_057",
+      "name": "眠云牛",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_058",
+      "name": "旋叶鼩",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_059",
+      "name": "砾角犀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_060",
+      "name": "岩盾犀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_061",
+      "name": "山岳犀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_062",
+      "name": "晶芽螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_063",
+      "name": "棱晶螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_064",
+      "name": "辉晶螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_065",
+      "name": "砂鳞蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_066",
+      "name": "裂地蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_067",
+      "name": "断崖蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_068",
+      "name": "煤团鼹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_069",
+      "name": "炭爪鼹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_070",
+      "name": "熔钻鼹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_071",
+      "name": "听岩蝠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_072",
+      "name": "回声蝠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_073",
+      "name": "铁砂蚁",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_074",
+      "name": "磁列蚁",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_075",
+      "name": "滴石鲶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_076",
+      "name": "暗河鲶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_077",
+      "name": "鸣钟石",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_078",
+      "name": "盲灯虾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_079",
+      "name": "水纹鳅",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_080",
+      "name": "流线鳅",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_081",
+      "name": "奔潮鲵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_082",
+      "name": "泡沫蟹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_083",
+      "name": "浪壳蟹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_084",
+      "name": "礁冠蟹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_085",
+      "name": "细鳍鲨",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_086",
+      "name": "巡浪鲨",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_087",
+      "name": "破浪鲨",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_088",
+      "name": "小潮蛇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_089",
+      "name": "环流蛇",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_090",
+      "name": "涡龙鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_091",
+      "name": "灯伞水母",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_092",
+      "name": "海灯水母",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_093",
+      "name": "帆尾鱼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_094",
+      "name": "远航旗鱼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_095",
+      "name": "滩泥螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_096",
+      "name": "潮泥螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_097",
+      "name": "珊枝鹿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_098",
+      "name": "浮岛龟",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_099",
+      "name": "回潮贝",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_100",
+      "name": "攀岩羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_101",
+      "name": "峭角羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_102",
+      "name": "峰冠羊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_103",
+      "name": "雏岚鹰",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_104",
+      "name": "裂空鹰",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_105",
+      "name": "穹翼鹰",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_106",
+      "name": "雪雾狸",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_107",
+      "name": "寒岚狸",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_108",
+      "name": "霜灵狸",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_109",
+      "name": "旋羽蝶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_110",
+      "name": "飓纹蝶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_111",
+      "name": "鸣峰鹤",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_112",
+      "name": "云仪鹤",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_113",
+      "name": "岩喙雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_114",
+      "name": "陡翼鸦",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_115",
+      "name": "远雷鹏",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_116",
+      "name": "栖云灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_117",
+      "name": "烛芯灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_118",
+      "name": "灯焰灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_119",
+      "name": "曜灯灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_120",
+      "name": "熔团蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_121",
+      "name": "赤脊蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_122",
+      "name": "熔冠蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_123",
+      "name": "温泉猿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_124",
+      "name": "沸岩猿",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_125",
+      "name": "炉羽雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_126",
+      "name": "烬翼隼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_127",
+      "name": "黑曜蝎",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_128",
+      "name": "日冕蝶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_129",
+      "name": "插尾鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_130",
+      "name": "储电鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_131",
+      "name": "蓄雷鼠",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_132",
+      "name": "铃齿轮",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_133",
+      "name": "环齿轮",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_134",
+      "name": "塔轮灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_135",
+      "name": "纸翼偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_136",
+      "name": "折风偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_137",
+      "name": "万象纸灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_138",
+      "name": "梦灯猫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_139",
+      "name": "铜壳鸽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_140",
+      "name": "讯流灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_141",
+      "name": "纹印石",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_142",
+      "name": "碑纹卫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_143",
+      "name": "镇域像",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_144",
+      "name": "遗羽雏",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_145",
+      "name": "铭羽鸟",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_146",
+      "name": "星仪鸾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_147",
+      "name": "残月狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_148",
+      "name": "镜月狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_149",
+      "name": "源环灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_150",
+      "name": "无相兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_151",
+      "name": "苇哨雏",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_152",
+      "name": "笛羽鹭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_153",
+      "name": "芦歌鹭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_154",
+      "name": "墨点螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_155",
+      "name": "砚背螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_156",
+      "name": "墨潮螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_157",
+      "name": "织叶蚕",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_158",
+      "name": "缎苔蛹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_159",
+      "name": "锦林蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_160",
+      "name": "果盏狸",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_161",
+      "name": "宴枝狸",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_162",
+      "name": "睡莲貘",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_163",
+      "name": "镜沼貘",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_164",
+      "name": "菌冠伞客",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_165",
+      "name": "穗绒雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_166",
+      "name": "扬穗雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_167",
+      "name": "穗风鸢",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_168",
+      "name": "垒泥獾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_169",
+      "name": "夯土獾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_170",
+      "name": "阡陌獾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_171",
+      "name": "弹芽羚",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_172",
+      "name": "逐拍羚",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_173",
+      "name": "拂尘蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_174",
+      "name": "谷舞蛾",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_175",
+      "name": "远望蜃兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_176",
+      "name": "硫晶鼬",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_177",
+      "name": "硫脊鼬",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_178",
+      "name": "硫冠貂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_179",
+      "name": "叩石鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_180",
+      "name": "鸣脉鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_181",
+      "name": "震矿鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_182",
+      "name": "钟乳鳐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_183",
+      "name": "悬钟鳐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_184",
+      "name": "盐晶蟊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_185",
+      "name": "霜盐蟊",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_186",
+      "name": "封矿门兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_187",
+      "name": "卷浪螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_188",
+      "name": "涡纹螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_189",
+      "name": "潮卷螺",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_190",
+      "name": "泡舟鸭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_191",
+      "name": "帆背鸭",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_192",
+      "name": "远渡雁",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_193",
+      "name": "藻绳鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_194",
+      "name": "缆藻鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_195",
+      "name": "锚林鳗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_196",
+      "name": "砾砂鲎",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_197",
+      "name": "岸垒鲎",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_198",
+      "name": "明潮灯鱼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_199",
+      "name": "昼潮灯鱼",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_200",
+      "name": "九汐匣灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_201",
+      "name": "雪针貂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_202",
+      "name": "霜缝貂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_203",
+      "name": "缀极貂",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_204",
+      "name": "翼铃驹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_205",
+      "name": "云梭驹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_206",
+      "name": "极光天驹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_207",
+      "name": "砾羽雏",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_208",
+      "name": "盘山鹫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_209",
+      "name": "岳风鹫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_210",
+      "name": "晕雪狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_211",
+      "name": "环晕狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_212",
+      "name": "风索蛛",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_213",
+      "name": "悬岚蛛",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_214",
+      "name": "断峰龙",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_215",
+      "name": "炉砂蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_216",
+      "name": "燧背蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_217",
+      "name": "星炉蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_218",
+      "name": "烬壳螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_219",
+      "name": "沸纹螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_220",
+      "name": "热泉冕螈",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_221",
+      "name": "炭弦蝉",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_222",
+      "name": "熔弦蝉",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_223",
+      "name": "火漆鸦",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_224",
+      "name": "封焰鸦",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_225",
+      "name": "硫烟面狐",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_226",
+      "name": "线团灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_227",
+      "name": "纺线灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_228",
+      "name": "织城偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_229",
+      "name": "纸匣雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_230",
+      "name": "折讯雀",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_231",
+      "name": "邮星鸢",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_232",
+      "name": "瓷芽偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_233",
+      "name": "釉歌偶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_234",
+      "name": "轨芽蜗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_235",
+      "name": "环轨蜗",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_236",
+      "name": "锚钟管家",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_237",
+      "name": "霓幕小丑",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_238",
+      "name": "砂字虫",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_239",
+      "name": "铭砂蛹",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_240",
+      "name": "篆域蝶",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_241",
+      "name": "残曜蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_242",
+      "name": "碑翼蜥",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_243",
+      "name": "古曜龙",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_244",
+      "name": "泉镜幼灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_245",
+      "name": "轮镜灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_246",
+      "name": "时涟灵",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_247",
+      "name": "玄锁兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_248",
+      "name": "解印兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_249",
+      "name": "双衡星兽",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "steady" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    },
+    {
+      "speciesId": "creature_250",
+      "name": "终宵烛龙",
+      "newLearnset": [
+        { "level": 9, "moveId": "focus" },
+        { "level": 15, "moveId": "aim" },
+        { "level": 22, "moveId": "agility" },
+        { "level": 24, "moveId": "shadow_step" },
+        { "level": 28, "moveId": "keen_strike" }
+      ]
+    }
+  ]
+}
