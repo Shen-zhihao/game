@@ -1,5 +1,5 @@
 {
-  "contentVersion": "ch10.3",
+  "contentVersion": "ch10.4",
   "policy": "按食物、水源、温度、载体与进化适应安排自然栖地。草丛、湿岸、岩坡和水面分开；稀有、神兽与初始家族保留剧情来源。后续生境不计作当前可玩内容。",
   "land": "在对应草丛或矿山碎石间行走触发。",
   "water": "完成捕捉入门后，在可站立岸边朝向水面按 A 调查，不需要渡水。",
@@ -993,7 +993,7 @@
     {
       "dexNumber": 2,
       "name": "苔枝鹿",
-      "types": ["grass", "fairy"],
+      "types": ["grass"],
       "speciesId": "creature_002",
       "familyId": "F001",
       "ecology": "森林湿地",
@@ -1008,11 +1008,11 @@
     {
       "dexNumber": 3,
       "name": "森冠鹿",
-      "types": ["grass", "fairy", "flying"],
+      "types": ["grass", "fairy"],
       "speciesId": "creature_003",
       "familyId": "F001",
       "ecology": "森林湿地",
-      "description": "森冠鹿：取食林缘嫩叶与苔藓，角枝为微光植物提供附着面。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "森冠鹿：取食林缘嫩叶与苔藓，角枝为微光植物提供附着面。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["deepwood", "nursery"],
       "method": "evolution",
       "sourceSpeciesId": "creature_002",
@@ -1038,11 +1038,11 @@
     {
       "dexNumber": 5,
       "name": "焰纹鼬",
-      "types": ["fire", "flying"],
+      "types": ["fire"],
       "speciesId": "creature_005",
       "familyId": "F002",
       "ecology": "火山温泉",
-      "description": "焰纹鼬：在温暖树洞筑巢，炽尾用来驱散潮气，成长后借暖流滑翔。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "焰纹鼬：在温暖树洞筑巢，炽尾用来驱散潮气，成长后借暖流滑翔。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["warm_woodland", "nursery"],
       "method": "evolution",
       "sourceSpeciesId": "creature_004",
@@ -1053,11 +1053,11 @@
     {
       "dexNumber": 6,
       "name": "烬冠鼬",
-      "types": ["fire", "flying", "electric"],
+      "types": ["fire", "fighting"],
       "speciesId": "creature_006",
       "familyId": "F002",
       "ecology": "火山温泉",
-      "description": "烬冠鼬：在温暖树洞筑巢，炽尾用来驱散潮气，成长后借暖流滑翔。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "烬冠鼬：在温暖树洞筑巢，炽尾用来驱散潮气，成长后借暖流滑翔。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["warm_woodland", "nursery"],
       "method": "evolution",
       "sourceSpeciesId": "creature_005",
@@ -1083,7 +1083,7 @@
     {
       "dexNumber": 8,
       "name": "潮纹獭",
-      "types": ["water", "rock"],
+      "types": ["water"],
       "speciesId": "creature_008",
       "familyId": "F003",
       "ecology": "海岸河湖",
@@ -1098,7 +1098,7 @@
     {
       "dexNumber": 9,
       "name": "沧流獭",
-      "types": ["water", "rock", "psychic"],
+      "types": ["water", "rock"],
       "speciesId": "creature_009",
       "familyId": "F003",
       "ecology": "海岸河湖",
@@ -1143,7 +1143,7 @@
     {
       "dexNumber": 12,
       "name": "花冠兔",
-      "types": ["grass", "normal"],
+      "types": ["grass"],
       "speciesId": "creature_012",
       "familyId": "F004",
       "ecology": "森林湿地",
@@ -1158,7 +1158,7 @@
     {
       "dexNumber": 13,
       "name": "石壳虫",
-      "types": ["bug", "rock"],
+      "types": ["bug"],
       "speciesId": "creature_013",
       "familyId": "F005",
       "ecology": "森林湿地",
@@ -1173,7 +1173,7 @@
     {
       "dexNumber": 14,
       "name": "矿纹蛹",
-      "types": ["bug", "rock"],
+      "types": ["bug"],
       "speciesId": "creature_014",
       "familyId": "F005",
       "ecology": "森林湿地",
@@ -1188,11 +1188,11 @@
     {
       "dexNumber": 15,
       "name": "晶翼蛾",
-      "types": ["bug", "rock", "flying"],
+      "types": ["bug", "rock"],
       "speciesId": "creature_015",
       "familyId": "F005",
       "ecology": "森林湿地",
-      "description": "晶翼蛾：幼体依附碎石与苔根，蛹在石缝结晶，成虫停留在有矿砂的林隙。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "晶翼蛾：幼体依附碎石与苔根，蛹在石缝结晶，成虫停留在有矿砂的林隙。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["route_meadow", "route_thicket", "forest_floor", "forest_canopy", "stone_slope"],
       "method": "evolution",
       "sourceSpeciesId": "creature_014",
@@ -1203,7 +1203,7 @@
     {
       "dexNumber": 16,
       "name": "萤灯蛾",
-      "types": ["bug", "electric"],
+      "types": ["bug"],
       "speciesId": "creature_016",
       "familyId": "F006",
       "ecology": "森林湿地",
@@ -1218,11 +1218,11 @@
     {
       "dexNumber": 17,
       "name": "萤羽蛾",
-      "types": ["bug", "electric", "flying"],
+      "types": ["bug"],
       "speciesId": "creature_017",
       "familyId": "F006",
       "ecology": "森林湿地",
-      "description": "萤羽蛾：取食花蜜与树汁，电光用于同伴交流，成虫沿高枝与安全电场迁飞。进化后沿屋檐与街巷风道扩大活动范围。",
+      "description": "萤羽蛾：取食花蜜与树汁，电光用于同伴交流，成虫沿高枝与安全电场迁飞。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["forest_canopy", "deepwood", "city_power"],
       "method": "evolution",
       "sourceSpeciesId": "creature_016",
@@ -1233,11 +1233,11 @@
     {
       "dexNumber": 18,
       "name": "雷灯蛾",
-      "types": ["bug", "electric", "flying", "fairy"],
+      "types": ["bug", "electric"],
       "speciesId": "creature_018",
       "familyId": "F006",
       "ecology": "森林湿地",
-      "description": "雷灯蛾：取食花蜜与树汁，电光用于同伴交流，成虫沿高枝与安全电场迁飞。进化后沿屋檐与街巷风道扩大活动范围。",
+      "description": "雷灯蛾：取食花蜜与树汁，电光用于同伴交流，成虫沿高枝与安全电场迁飞。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["forest_canopy", "deepwood", "city_power"],
       "method": "evolution",
       "sourceSpeciesId": "creature_017",
@@ -1263,7 +1263,7 @@
     {
       "dexNumber": 20,
       "name": "簇伞菇",
-      "types": ["grass", "poison"],
+      "types": ["grass"],
       "speciesId": "creature_020",
       "familyId": "F007",
       "ecology": "森林湿地",
@@ -1278,7 +1278,7 @@
     {
       "dexNumber": 21,
       "name": "森梦菇",
-      "types": ["grass", "poison", "ghost"],
+      "types": ["grass", "poison"],
       "speciesId": "creature_021",
       "familyId": "F007",
       "ecology": "森林湿地",
@@ -1293,7 +1293,7 @@
     {
       "dexNumber": 22,
       "name": "苔甲蜥",
-      "types": ["grass", "rock"],
+      "types": ["grass"],
       "speciesId": "creature_022",
       "familyId": "F008",
       "ecology": "森林湿地",
@@ -1308,7 +1308,7 @@
     {
       "dexNumber": 23,
       "name": "藤脊蜥",
-      "types": ["grass", "rock"],
+      "types": ["grass"],
       "speciesId": "creature_023",
       "familyId": "F008",
       "ecology": "森林湿地",
@@ -1323,7 +1323,7 @@
     {
       "dexNumber": 24,
       "name": "古木蜥",
-      "types": ["grass", "rock", "dragon"],
+      "types": ["grass", "dragon"],
       "speciesId": "creature_024",
       "familyId": "F008",
       "ecology": "森林湿地",
@@ -1353,11 +1353,11 @@
     {
       "dexNumber": 26,
       "name": "雾钟灵",
-      "types": ["ghost", "flying"],
+      "types": ["ghost"],
       "speciesId": "creature_026",
       "familyId": "F009",
       "ecology": "森林湿地",
-      "description": "雾钟灵：依附旧铃和护林记忆，在残碑雾气中维持回声，不出现在普通草丛。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "雾钟灵：依附旧铃和护林记忆，在残碑雾气中维持回声，不出现在普通草丛。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["forest_shrine"],
       "method": "evolution",
       "sourceSpeciesId": "creature_025",
@@ -1368,7 +1368,7 @@
     {
       "dexNumber": 27,
       "name": "荷叶蛙",
-      "types": ["water", "grass"],
+      "types": ["water"],
       "speciesId": "creature_027",
       "familyId": "F010",
       "ecology": "森林湿地",
@@ -1392,7 +1392,7 @@
     {
       "dexNumber": 28,
       "name": "莲冠蛙",
-      "types": ["water", "grass", "fairy"],
+      "types": ["water", "grass"],
       "speciesId": "creature_028",
       "familyId": "F010",
       "ecology": "森林湿地",
@@ -1416,7 +1416,7 @@
     {
       "dexNumber": 29,
       "name": "蜜芽蜂",
-      "types": ["bug", "grass"],
+      "types": ["bug"],
       "speciesId": "creature_029",
       "familyId": "F011",
       "ecology": "森林湿地",
@@ -1431,11 +1431,11 @@
     {
       "dexNumber": 30,
       "name": "琥蜜蜂",
-      "types": ["bug", "grass", "flying", "rock"],
+      "types": ["bug"],
       "speciesId": "creature_030",
       "familyId": "F011",
       "ecology": "森林湿地",
-      "description": "琥蜜蜂：追随开花植物采蜜，以树脂和花粉构筑蜂巢。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "琥蜜蜂：追随开花植物采蜜，以树脂和花粉构筑蜂巢。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["deepwood", "orchard"],
       "method": "evolution",
       "sourceSpeciesId": "creature_029",
@@ -1446,7 +1446,7 @@
     {
       "dexNumber": 31,
       "name": "盘根蛇",
-      "types": ["grass", "poison"],
+      "types": ["poison"],
       "speciesId": "creature_031",
       "familyId": "F012",
       "ecology": "森林湿地",
@@ -1461,7 +1461,7 @@
     {
       "dexNumber": 32,
       "name": "缚林蟒",
-      "types": ["grass", "poison", "dragon"],
+      "types": ["poison"],
       "speciesId": "creature_032",
       "familyId": "F012",
       "ecology": "森林湿地",
@@ -1476,7 +1476,7 @@
     {
       "dexNumber": 33,
       "name": "晶露蛛",
-      "types": ["bug", "poison"],
+      "types": ["poison"],
       "speciesId": "creature_033",
       "familyId": "F013",
       "ecology": "森林湿地",
@@ -1491,7 +1491,7 @@
     {
       "dexNumber": 34,
       "name": "镜池鱼",
-      "types": ["water", "psychic", "ghost"],
+      "types": ["water", "psychic"],
       "speciesId": "creature_034",
       "familyId": "F014",
       "ecology": "森林湿地",
@@ -1506,7 +1506,7 @@
     {
       "dexNumber": 35,
       "name": "腐叶螺",
-      "types": ["bug", "poison", "grass"],
+      "types": ["grass", "poison"],
       "speciesId": "creature_035",
       "familyId": "F015",
       "ecology": "森林湿地",
@@ -1521,7 +1521,7 @@
     {
       "dexNumber": 36,
       "name": "幽棘偶",
-      "types": ["grass", "ghost", "dark", "rock"],
+      "types": ["grass", "ghost", "dark"],
       "speciesId": "creature_036",
       "familyId": "F016",
       "ecology": "森林湿地",
@@ -1611,7 +1611,7 @@
     {
       "dexNumber": 42,
       "name": "逐岚隼",
-      "types": ["flying", "normal"],
+      "types": ["flying"],
       "speciesId": "creature_042",
       "familyId": "F018",
       "ecology": "草原丘陵",
@@ -1641,7 +1641,7 @@
     {
       "dexNumber": 44,
       "name": "雷绒羊",
-      "types": ["normal", "electric"],
+      "types": ["electric"],
       "speciesId": "creature_044",
       "familyId": "F019",
       "ecology": "草原丘陵",
@@ -1656,11 +1656,11 @@
     {
       "dexNumber": 45,
       "name": "暴云羊",
-      "types": ["normal", "electric", "flying"],
+      "types": ["electric"],
       "speciesId": "creature_045",
       "familyId": "F019",
       "ecology": "草原丘陵",
-      "description": "暴云羊：群居于有遮蔽的草场，电绒形态靠安全静电调节羊群信号。进化后沿屋檐与街巷风道扩大活动范围。",
+      "description": "暴云羊：群居于有遮蔽的草场，电绒形态靠安全静电调节羊群信号。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["ranch", "city_power"],
       "method": "evolution",
       "sourceSpeciesId": "creature_044",
@@ -1686,7 +1686,7 @@
     {
       "dexNumber": 47,
       "name": "抱果兽",
-      "types": ["grass", "normal"],
+      "types": ["grass"],
       "speciesId": "creature_047",
       "familyId": "F020",
       "ecology": "草原丘陵",
@@ -1701,7 +1701,7 @@
     {
       "dexNumber": 48,
       "name": "丰穗兽",
-      "types": ["grass", "normal", "rock"],
+      "types": ["grass"],
       "speciesId": "creature_048",
       "familyId": "F020",
       "ecology": "草原丘陵",
@@ -1716,7 +1716,7 @@
     {
       "dexNumber": 49,
       "name": "蹦石兔",
-      "types": ["normal", "ground"],
+      "types": ["ground"],
       "speciesId": "creature_049",
       "familyId": "F021",
       "ecology": "草原丘陵",
@@ -1731,7 +1731,7 @@
     {
       "dexNumber": 50,
       "name": "峭耳兔",
-      "types": ["normal", "ground", "fighting"],
+      "types": ["ground", "fighting"],
       "speciesId": "creature_050",
       "familyId": "F021",
       "ecology": "草原丘陵",
@@ -1746,7 +1746,7 @@
     {
       "dexNumber": 51,
       "name": "黄昏狐",
-      "types": ["normal", "dark"],
+      "types": ["dark"],
       "speciesId": "creature_051",
       "familyId": "F022",
       "ecology": "草原丘陵",
@@ -1761,7 +1761,7 @@
     {
       "dexNumber": 52,
       "name": "暮影狐",
-      "types": ["normal", "dark", "ghost"],
+      "types": ["dark"],
       "speciesId": "creature_052",
       "familyId": "F022",
       "ecology": "草原丘陵",
@@ -1776,7 +1776,7 @@
     {
       "dexNumber": 53,
       "name": "草铃雀",
-      "types": ["grass", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_053",
       "familyId": "F023",
       "ecology": "草原丘陵",
@@ -1791,7 +1791,7 @@
     {
       "dexNumber": 54,
       "name": "牧歌鹂",
-      "types": ["grass", "flying", "fairy"],
+      "types": ["flying"],
       "speciesId": "creature_054",
       "familyId": "F023",
       "ecology": "草原丘陵",
@@ -1821,7 +1821,7 @@
     {
       "dexNumber": 56,
       "name": "原野骏",
-      "types": ["normal", "fighting"],
+      "types": ["normal"],
       "speciesId": "creature_056",
       "familyId": "F024",
       "ecology": "草原丘陵",
@@ -1836,7 +1836,7 @@
     {
       "dexNumber": 57,
       "name": "眠云牛",
-      "types": ["normal", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_057",
       "familyId": "F025",
       "ecology": "草原丘陵",
@@ -1881,7 +1881,7 @@
     {
       "dexNumber": 60,
       "name": "岩盾犀",
-      "types": ["ground", "rock"],
+      "types": ["ground"],
       "speciesId": "creature_060",
       "familyId": "F027",
       "ecology": "矿山洞窟",
@@ -1896,7 +1896,7 @@
     {
       "dexNumber": 61,
       "name": "山岳犀",
-      "types": ["rock", "ground", "fighting"],
+      "types": ["ground", "rock"],
       "speciesId": "creature_061",
       "familyId": "F027",
       "ecology": "矿山洞窟",
@@ -1926,7 +1926,7 @@
     {
       "dexNumber": 63,
       "name": "棱晶螺",
-      "types": ["rock", "psychic"],
+      "types": ["rock"],
       "speciesId": "creature_063",
       "familyId": "F028",
       "ecology": "矿山洞窟",
@@ -1941,7 +1941,7 @@
     {
       "dexNumber": 64,
       "name": "辉晶螺",
-      "types": ["rock", "steel", "psychic"],
+      "types": ["rock", "psychic"],
       "speciesId": "creature_064",
       "familyId": "F028",
       "ecology": "矿山洞窟",
@@ -1971,7 +1971,7 @@
     {
       "dexNumber": 66,
       "name": "裂地蜥",
-      "types": ["ground", "dragon"],
+      "types": ["ground"],
       "speciesId": "creature_066",
       "familyId": "F029",
       "ecology": "矿山洞窟",
@@ -1986,7 +1986,7 @@
     {
       "dexNumber": 67,
       "name": "断崖蜥",
-      "types": ["ground", "dragon", "rock"],
+      "types": ["ground"],
       "speciesId": "creature_067",
       "familyId": "F029",
       "ecology": "矿山洞窟",
@@ -2016,7 +2016,7 @@
     {
       "dexNumber": 69,
       "name": "炭爪鼹",
-      "types": ["ground", "fire"],
+      "types": ["ground"],
       "speciesId": "creature_069",
       "familyId": "F030",
       "ecology": "矿山洞窟",
@@ -2031,7 +2031,7 @@
     {
       "dexNumber": 70,
       "name": "熔钻鼹",
-      "types": ["ground", "fire", "steel"],
+      "types": ["ground", "steel"],
       "speciesId": "creature_070",
       "familyId": "F030",
       "ecology": "矿山洞窟",
@@ -2046,7 +2046,7 @@
     {
       "dexNumber": 71,
       "name": "听岩蝠",
-      "types": ["flying", "dark"],
+      "types": ["flying"],
       "speciesId": "creature_071",
       "familyId": "F031",
       "ecology": "矿山洞窟",
@@ -2061,7 +2061,7 @@
     {
       "dexNumber": 72,
       "name": "回声蝠",
-      "types": ["flying", "dark", "ghost"],
+      "types": ["flying"],
       "speciesId": "creature_072",
       "familyId": "F031",
       "ecology": "矿山洞窟",
@@ -2076,7 +2076,7 @@
     {
       "dexNumber": 73,
       "name": "铁砂蚁",
-      "types": ["bug", "steel"],
+      "types": ["bug"],
       "speciesId": "creature_073",
       "familyId": "F032",
       "ecology": "矿山洞窟",
@@ -2091,7 +2091,7 @@
     {
       "dexNumber": 74,
       "name": "磁列蚁",
-      "types": ["bug", "steel", "electric"],
+      "types": ["bug", "steel"],
       "speciesId": "creature_074",
       "familyId": "F032",
       "ecology": "矿山洞窟",
@@ -2106,7 +2106,7 @@
     {
       "dexNumber": 75,
       "name": "滴石鲶",
-      "types": ["water", "rock"],
+      "types": ["water"],
       "speciesId": "creature_075",
       "familyId": "F033",
       "ecology": "矿山洞窟",
@@ -2121,7 +2121,7 @@
     {
       "dexNumber": 76,
       "name": "暗河鲶",
-      "types": ["water", "rock", "dark"],
+      "types": ["water"],
       "speciesId": "creature_076",
       "familyId": "F033",
       "ecology": "矿山洞窟",
@@ -2136,7 +2136,7 @@
     {
       "dexNumber": 77,
       "name": "鸣钟石",
-      "types": ["rock", "ghost"],
+      "types": ["rock"],
       "speciesId": "creature_077",
       "familyId": "F034",
       "ecology": "矿山洞窟",
@@ -2151,7 +2151,7 @@
     {
       "dexNumber": 78,
       "name": "盲灯虾",
-      "types": ["water", "electric", "ice"],
+      "types": ["ice"],
       "speciesId": "creature_078",
       "familyId": "F035",
       "ecology": "矿山洞窟",
@@ -2181,7 +2181,7 @@
     {
       "dexNumber": 80,
       "name": "流线鳅",
-      "types": ["water", "dragon"],
+      "types": ["water"],
       "speciesId": "creature_080",
       "familyId": "F036",
       "ecology": "海岸河湖",
@@ -2196,7 +2196,7 @@
     {
       "dexNumber": 81,
       "name": "奔潮鲵",
-      "types": ["water", "fighting"],
+      "types": ["water"],
       "speciesId": "creature_081",
       "familyId": "F036",
       "ecology": "海岸河湖",
@@ -2226,7 +2226,7 @@
     {
       "dexNumber": 83,
       "name": "浪壳蟹",
-      "types": ["water", "rock"],
+      "types": ["water"],
       "speciesId": "creature_083",
       "familyId": "F037",
       "ecology": "海岸河湖",
@@ -2241,7 +2241,7 @@
     {
       "dexNumber": 84,
       "name": "礁冠蟹",
-      "types": ["water", "rock", "ice"],
+      "types": ["water", "rock"],
       "speciesId": "creature_084",
       "familyId": "F037",
       "ecology": "海岸河湖",
@@ -2256,7 +2256,7 @@
     {
       "dexNumber": 85,
       "name": "细鳍鲨",
-      "types": ["water", "dark"],
+      "types": ["water"],
       "speciesId": "creature_085",
       "familyId": "F038",
       "ecology": "海岸河湖",
@@ -2271,7 +2271,7 @@
     {
       "dexNumber": 86,
       "name": "巡浪鲨",
-      "types": ["water", "flying", "dark"],
+      "types": ["water"],
       "speciesId": "creature_086",
       "familyId": "F038",
       "ecology": "海岸河湖",
@@ -2286,7 +2286,7 @@
     {
       "dexNumber": 87,
       "name": "破浪鲨",
-      "types": ["water", "dark", "dragon"],
+      "types": ["water", "dark"],
       "speciesId": "creature_087",
       "familyId": "F038",
       "ecology": "海岸河湖",
@@ -2316,7 +2316,7 @@
     {
       "dexNumber": 89,
       "name": "环流蛇",
-      "types": ["water", "dragon"],
+      "types": ["water"],
       "speciesId": "creature_089",
       "familyId": "F039",
       "ecology": "海岸河湖",
@@ -2331,7 +2331,7 @@
     {
       "dexNumber": 90,
       "name": "涡龙鳗",
-      "types": ["water", "dragon", "electric"],
+      "types": ["water", "dragon"],
       "speciesId": "creature_090",
       "familyId": "F039",
       "ecology": "海岸河湖",
@@ -2346,7 +2346,7 @@
     {
       "dexNumber": 91,
       "name": "灯伞水母",
-      "types": ["water", "electric"],
+      "types": ["water"],
       "speciesId": "creature_091",
       "familyId": "F040",
       "ecology": "海岸河湖",
@@ -2361,7 +2361,7 @@
     {
       "dexNumber": 92,
       "name": "海灯水母",
-      "types": ["water", "electric", "poison"],
+      "types": ["water", "electric"],
       "speciesId": "creature_092",
       "familyId": "F040",
       "ecology": "海岸河湖",
@@ -2376,7 +2376,7 @@
     {
       "dexNumber": 93,
       "name": "帆尾鱼",
-      "types": ["water", "flying"],
+      "types": ["water"],
       "speciesId": "creature_093",
       "familyId": "F041",
       "ecology": "海岸河湖",
@@ -2391,7 +2391,7 @@
     {
       "dexNumber": 94,
       "name": "远航旗鱼",
-      "types": ["water", "flying", "dragon"],
+      "types": ["water"],
       "speciesId": "creature_094",
       "familyId": "F041",
       "ecology": "海岸河湖",
@@ -2406,7 +2406,7 @@
     {
       "dexNumber": 95,
       "name": "滩泥螺",
-      "types": ["water", "ground"],
+      "types": ["ground"],
       "speciesId": "creature_095",
       "familyId": "F042",
       "ecology": "海岸河湖",
@@ -2421,11 +2421,11 @@
     {
       "dexNumber": 96,
       "name": "潮泥螺",
-      "types": ["water", "ground", "grass"],
+      "types": ["ground"],
       "speciesId": "creature_096",
       "familyId": "F042",
       "ecology": "海岸河湖",
-      "description": "潮泥螺：在泥滩滤食并稳固水草根系，泥壳与草芽随潮汐共同生长。进化后需要更稳定的水源和更宽敞的水域或湿岸。",
+      "description": "潮泥螺：在泥滩滤食并稳固水草根系，泥壳与草芽随潮汐共同生长。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["coast_shore", "sluice_shore", "tidal_flat", "river_delta", "regional_kelpCove"],
       "method": "evolution",
       "sourceSpeciesId": "creature_095",
@@ -2496,7 +2496,7 @@
     {
       "dexNumber": 101,
       "name": "峭角羊",
-      "types": ["rock", "ice"],
+      "types": ["rock"],
       "speciesId": "creature_101",
       "familyId": "F046",
       "ecology": "山脊风谷",
@@ -2511,7 +2511,7 @@
     {
       "dexNumber": 102,
       "name": "峰冠羊",
-      "types": ["rock", "ice", "fighting"],
+      "types": ["rock"],
       "speciesId": "creature_102",
       "familyId": "F046",
       "ecology": "山脊风谷",
@@ -2541,7 +2541,7 @@
     {
       "dexNumber": 104,
       "name": "裂空鹰",
-      "types": ["flying", "dragon"],
+      "types": ["flying"],
       "speciesId": "creature_104",
       "familyId": "F047",
       "ecology": "山脊风谷",
@@ -2556,7 +2556,7 @@
     {
       "dexNumber": 105,
       "name": "穹翼鹰",
-      "types": ["flying", "dragon", "electric"],
+      "types": ["flying"],
       "speciesId": "creature_105",
       "familyId": "F047",
       "ecology": "山脊风谷",
@@ -2586,11 +2586,11 @@
     {
       "dexNumber": 107,
       "name": "寒岚狸",
-      "types": ["ice", "flying"],
+      "types": ["ice"],
       "speciesId": "creature_107",
       "familyId": "F048",
       "ecology": "山脊风谷",
-      "description": "寒岚狸：厚毛与寒雾保护身体，雪地和低温山林提供持续冷源。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "寒岚狸：厚毛与寒雾保护身体，雪地和低温山林提供持续冷源。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["alpine_snow"],
       "method": "evolution",
       "sourceSpeciesId": "creature_106",
@@ -2601,11 +2601,11 @@
     {
       "dexNumber": 108,
       "name": "霜灵狸",
-      "types": ["ice", "flying", "fairy"],
+      "types": ["ice"],
       "speciesId": "creature_108",
       "familyId": "F048",
       "ecology": "山脊风谷",
-      "description": "霜灵狸：厚毛与寒雾保护身体，雪地和低温山林提供持续冷源。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "霜灵狸：厚毛与寒雾保护身体，雪地和低温山林提供持续冷源。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["alpine_snow"],
       "method": "evolution",
       "sourceSpeciesId": "creature_107",
@@ -2616,7 +2616,7 @@
     {
       "dexNumber": 109,
       "name": "旋羽蝶",
-      "types": ["bug", "flying"],
+      "types": ["bug"],
       "speciesId": "creature_109",
       "familyId": "F049",
       "ecology": "山脊风谷",
@@ -2631,7 +2631,7 @@
     {
       "dexNumber": 110,
       "name": "飓纹蝶",
-      "types": ["bug", "flying", "ice"],
+      "types": ["bug", "flying"],
       "speciesId": "creature_110",
       "familyId": "F049",
       "ecology": "山脊风谷",
@@ -2661,7 +2661,7 @@
     {
       "dexNumber": 112,
       "name": "云仪鹤",
-      "types": ["flying", "psychic", "ice"],
+      "types": ["flying", "psychic"],
       "speciesId": "creature_112",
       "familyId": "F050",
       "ecology": "山脊风谷",
@@ -2676,7 +2676,7 @@
     {
       "dexNumber": 113,
       "name": "岩喙雀",
-      "types": ["rock", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_113",
       "familyId": "F051",
       "ecology": "山脊风谷",
@@ -2691,7 +2691,7 @@
     {
       "dexNumber": 114,
       "name": "陡翼鸦",
-      "types": ["rock", "flying", "dark"],
+      "types": ["flying", "rock"],
       "speciesId": "creature_114",
       "familyId": "F051",
       "ecology": "山脊风谷",
@@ -2721,7 +2721,7 @@
     {
       "dexNumber": 116,
       "name": "栖云灵",
-      "types": ["fairy", "flying", "ice"],
+      "types": ["ice"],
       "speciesId": "creature_116",
       "familyId": "F053",
       "ecology": "山脊风谷",
@@ -2736,7 +2736,7 @@
     {
       "dexNumber": 117,
       "name": "烛芯灵",
-      "types": ["fire", "ghost"],
+      "types": ["ghost"],
       "speciesId": "creature_117",
       "familyId": "F054",
       "ecology": "火山温泉",
@@ -2751,7 +2751,7 @@
     {
       "dexNumber": 118,
       "name": "灯焰灵",
-      "types": ["fire", "ghost", "dark"],
+      "types": ["ghost"],
       "speciesId": "creature_118",
       "familyId": "F054",
       "ecology": "火山温泉",
@@ -2766,7 +2766,7 @@
     {
       "dexNumber": 119,
       "name": "曜灯灵",
-      "types": ["fire", "ghost", "dark", "psychic"],
+      "types": ["ghost", "fire"],
       "speciesId": "creature_119",
       "familyId": "F054",
       "ecology": "火山温泉",
@@ -2796,7 +2796,7 @@
     {
       "dexNumber": 121,
       "name": "赤脊蜥",
-      "types": ["fire", "rock"],
+      "types": ["fire"],
       "speciesId": "creature_121",
       "familyId": "F055",
       "ecology": "火山温泉",
@@ -2811,7 +2811,7 @@
     {
       "dexNumber": 122,
       "name": "熔冠蜥",
-      "types": ["fire", "rock", "dragon"],
+      "types": ["fire"],
       "speciesId": "creature_122",
       "familyId": "F055",
       "ecology": "火山温泉",
@@ -2826,7 +2826,7 @@
     {
       "dexNumber": 123,
       "name": "温泉猿",
-      "types": ["water", "fire"],
+      "types": ["water"],
       "speciesId": "creature_123",
       "familyId": "F056",
       "ecology": "火山温泉",
@@ -2841,7 +2841,7 @@
     {
       "dexNumber": 124,
       "name": "沸岩猿",
-      "types": ["water", "fire", "fighting"],
+      "types": ["water", "fire"],
       "speciesId": "creature_124",
       "familyId": "F056",
       "ecology": "火山温泉",
@@ -2856,7 +2856,7 @@
     {
       "dexNumber": 125,
       "name": "炉羽雀",
-      "types": ["fire", "flying"],
+      "types": ["fire"],
       "speciesId": "creature_125",
       "familyId": "F057",
       "ecology": "火山温泉",
@@ -2871,7 +2871,7 @@
     {
       "dexNumber": 126,
       "name": "烬翼隼",
-      "types": ["fire", "flying", "dragon"],
+      "types": ["fire", "flying"],
       "speciesId": "creature_126",
       "familyId": "F057",
       "ecology": "火山温泉",
@@ -2886,7 +2886,7 @@
     {
       "dexNumber": 127,
       "name": "黑曜蝎",
-      "types": ["bug", "poison", "rock", "dark"],
+      "types": ["poison", "dark"],
       "speciesId": "creature_127",
       "familyId": "F058",
       "ecology": "火山温泉",
@@ -2901,7 +2901,7 @@
     {
       "dexNumber": 128,
       "name": "日冕蝶",
-      "types": ["fire", "bug", "flying", "fairy"],
+      "types": ["fire", "bug", "fairy"],
       "speciesId": "creature_128",
       "familyId": "F059",
       "ecology": "火山温泉",
@@ -2931,7 +2931,7 @@
     {
       "dexNumber": 130,
       "name": "储电鼠",
-      "types": ["electric", "normal"],
+      "types": ["electric"],
       "speciesId": "creature_130",
       "familyId": "F060",
       "ecology": "城镇设施",
@@ -2946,7 +2946,7 @@
     {
       "dexNumber": 131,
       "name": "蓄雷鼠",
-      "types": ["electric", "normal", "dark"],
+      "types": ["electric"],
       "speciesId": "creature_131",
       "familyId": "F060",
       "ecology": "城镇设施",
@@ -2961,7 +2961,7 @@
     {
       "dexNumber": 132,
       "name": "铃齿轮",
-      "types": ["steel", "electric"],
+      "types": ["steel"],
       "speciesId": "creature_132",
       "familyId": "F061",
       "ecology": "城镇设施",
@@ -2976,7 +2976,7 @@
     {
       "dexNumber": 133,
       "name": "环齿轮",
-      "types": ["steel", "electric"],
+      "types": ["steel"],
       "speciesId": "creature_133",
       "familyId": "F061",
       "ecology": "城镇设施",
@@ -2991,7 +2991,7 @@
     {
       "dexNumber": 134,
       "name": "塔轮灵",
-      "types": ["steel", "electric", "ghost"],
+      "types": ["steel", "ghost"],
       "speciesId": "creature_134",
       "familyId": "F061",
       "ecology": "城镇设施",
@@ -3006,7 +3006,7 @@
     {
       "dexNumber": 135,
       "name": "纸翼偶",
-      "types": ["normal", "flying"],
+      "types": ["normal"],
       "speciesId": "creature_135",
       "familyId": "F062",
       "ecology": "城镇设施",
@@ -3021,11 +3021,11 @@
     {
       "dexNumber": 136,
       "name": "折风偶",
-      "types": ["normal", "flying", "ghost"],
+      "types": ["normal"],
       "speciesId": "creature_136",
       "familyId": "F062",
       "ecology": "城镇设施",
-      "description": "折风偶：附着旧纸张与风声，在屋檐和工坊中折叠出飞行轮廓。进化后沿屋檐与街巷风道扩大活动范围。",
+      "description": "折风偶：附着旧纸张与风声，在屋檐和工坊中折叠出飞行轮廓。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["city_oldquarter", "city_workshop"],
       "method": "evolution",
       "sourceSpeciesId": "creature_135",
@@ -3036,11 +3036,11 @@
     {
       "dexNumber": 137,
       "name": "万象纸灵",
-      "types": ["normal", "flying", "ghost", "fairy"],
+      "types": ["normal", "fairy"],
       "speciesId": "creature_137",
       "familyId": "F062",
       "ecology": "城镇设施",
-      "description": "万象纸灵：附着旧纸张与风声，在屋檐和工坊中折叠出飞行轮廓。进化后沿屋檐与街巷风道扩大活动范围。",
+      "description": "万象纸灵：附着旧纸张与风声，在屋檐和工坊中折叠出飞行轮廓。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["city_oldquarter", "city_workshop"],
       "method": "evolution",
       "sourceSpeciesId": "creature_136",
@@ -3051,7 +3051,7 @@
     {
       "dexNumber": 138,
       "name": "梦灯猫",
-      "types": ["normal", "ghost", "dark"],
+      "types": ["ghost", "dark"],
       "speciesId": "creature_138",
       "familyId": "F063",
       "ecology": "城镇设施",
@@ -3081,7 +3081,7 @@
     {
       "dexNumber": 140,
       "name": "讯流灵",
-      "types": ["electric", "psychic"],
+      "types": ["electric"],
       "speciesId": "creature_140",
       "familyId": "F065",
       "ecology": "城镇设施",
@@ -3096,7 +3096,7 @@
     {
       "dexNumber": 141,
       "name": "纹印石",
-      "types": ["rock", "psychic"],
+      "types": ["rock"],
       "speciesId": "creature_141",
       "familyId": "F066",
       "ecology": "遗迹秘境",
@@ -3111,7 +3111,7 @@
     {
       "dexNumber": 142,
       "name": "碑纹卫",
-      "types": ["rock", "psychic", "ghost"],
+      "types": ["rock", "psychic"],
       "speciesId": "creature_142",
       "familyId": "F066",
       "ecology": "遗迹秘境",
@@ -3126,7 +3126,7 @@
     {
       "dexNumber": 143,
       "name": "镇域像",
-      "types": ["rock", "steel", "fighting", "psychic"],
+      "types": ["rock", "psychic", "fighting"],
       "speciesId": "creature_143",
       "familyId": "F066",
       "ecology": "遗迹秘境",
@@ -3141,7 +3141,7 @@
     {
       "dexNumber": 144,
       "name": "遗羽雏",
-      "types": ["psychic", "flying"],
+      "types": ["psychic"],
       "speciesId": "creature_144",
       "familyId": "F067",
       "ecology": "遗迹秘境",
@@ -3156,7 +3156,7 @@
     {
       "dexNumber": 145,
       "name": "铭羽鸟",
-      "types": ["psychic", "flying", "dragon"],
+      "types": ["psychic", "flying"],
       "speciesId": "creature_145",
       "familyId": "F067",
       "ecology": "遗迹秘境",
@@ -3171,7 +3171,7 @@
     {
       "dexNumber": 146,
       "name": "星仪鸾",
-      "types": ["psychic", "flying", "dragon", "fire", "ghost"],
+      "types": ["psychic", "flying", "fire"],
       "speciesId": "creature_146",
       "familyId": "F067",
       "ecology": "遗迹秘境",
@@ -3201,7 +3201,7 @@
     {
       "dexNumber": 148,
       "name": "镜月狐",
-      "types": ["dark", "ghost", "water", "fairy"],
+      "types": ["dark", "water", "fairy"],
       "speciesId": "creature_148",
       "familyId": "F068",
       "ecology": "遗迹秘境",
@@ -3216,7 +3216,7 @@
     {
       "dexNumber": 149,
       "name": "源环灵",
-      "types": ["psychic", "electric", "dragon", "rock", "ice"],
+      "types": ["psychic", "electric", "dragon"],
       "speciesId": "creature_149",
       "familyId": "F069",
       "ecology": "遗迹秘境",
@@ -3231,7 +3231,7 @@
     {
       "dexNumber": 150,
       "name": "无相兽",
-      "types": ["normal", "dragon", "ghost", "dark", "fairy"],
+      "types": ["normal"],
       "speciesId": "creature_150",
       "familyId": "F070",
       "ecology": "遗迹秘境",
@@ -3246,7 +3246,7 @@
     {
       "dexNumber": 151,
       "name": "苇哨雏",
-      "types": ["grass", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_151",
       "familyId": "F071",
       "ecology": "森林湿地",
@@ -3261,7 +3261,7 @@
     {
       "dexNumber": 152,
       "name": "笛羽鹭",
-      "types": ["grass", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_152",
       "familyId": "F071",
       "ecology": "森林湿地",
@@ -3276,7 +3276,7 @@
     {
       "dexNumber": 153,
       "name": "芦歌鹭",
-      "types": ["grass", "flying", "fairy"],
+      "types": ["flying", "grass"],
       "speciesId": "creature_153",
       "familyId": "F071",
       "ecology": "森林湿地",
@@ -3291,7 +3291,7 @@
     {
       "dexNumber": 154,
       "name": "墨点螈",
-      "types": ["water", "poison"],
+      "types": ["water"],
       "speciesId": "creature_154",
       "familyId": "F072",
       "ecology": "森林湿地",
@@ -3306,7 +3306,7 @@
     {
       "dexNumber": 155,
       "name": "砚背螈",
-      "types": ["water", "poison", "dark"],
+      "types": ["water"],
       "speciesId": "creature_155",
       "familyId": "F072",
       "ecology": "森林湿地",
@@ -3321,7 +3321,7 @@
     {
       "dexNumber": 156,
       "name": "墨潮螈",
-      "types": ["water", "poison", "dark", "ghost"],
+      "types": ["water", "poison"],
       "speciesId": "creature_156",
       "familyId": "F072",
       "ecology": "森林湿地",
@@ -3336,7 +3336,7 @@
     {
       "dexNumber": 157,
       "name": "织叶蚕",
-      "types": ["bug", "grass"],
+      "types": ["bug"],
       "speciesId": "creature_157",
       "familyId": "F073",
       "ecology": "森林湿地",
@@ -3351,7 +3351,7 @@
     {
       "dexNumber": 158,
       "name": "缎苔蛹",
-      "types": ["bug", "grass"],
+      "types": ["bug"],
       "speciesId": "creature_158",
       "familyId": "F073",
       "ecology": "森林湿地",
@@ -3366,7 +3366,7 @@
     {
       "dexNumber": 159,
       "name": "锦林蛾",
-      "types": ["bug", "grass", "psychic"],
+      "types": ["bug"],
       "speciesId": "creature_159",
       "familyId": "F073",
       "ecology": "森林湿地",
@@ -3381,7 +3381,7 @@
     {
       "dexNumber": 160,
       "name": "果盏狸",
-      "types": ["grass", "normal"],
+      "types": ["grass"],
       "speciesId": "creature_160",
       "familyId": "F074",
       "ecology": "森林湿地",
@@ -3396,7 +3396,7 @@
     {
       "dexNumber": 161,
       "name": "宴枝狸",
-      "types": ["grass", "normal", "fairy"],
+      "types": ["grass"],
       "speciesId": "creature_161",
       "familyId": "F074",
       "ecology": "森林湿地",
@@ -3411,7 +3411,7 @@
     {
       "dexNumber": 162,
       "name": "睡莲貘",
-      "types": ["water", "psychic"],
+      "types": ["psychic"],
       "speciesId": "creature_162",
       "familyId": "F075",
       "ecology": "森林湿地",
@@ -3426,11 +3426,11 @@
     {
       "dexNumber": 163,
       "name": "镜沼貘",
-      "types": ["water", "psychic", "ghost"],
+      "types": ["psychic"],
       "speciesId": "creature_163",
       "familyId": "F075",
       "ecology": "森林湿地",
-      "description": "镜沼貘：在睡莲浅池休息，安静水面与梦境波纹共同保护领地。进化后需要更稳定的水源和更宽敞的水域或湿岸。",
+      "description": "镜沼貘：在睡莲浅池休息，安静水面与梦境波纹共同保护领地。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["reed_marsh", "mirror_lake", "ruins_court"],
       "method": "evolution",
       "sourceSpeciesId": "creature_162",
@@ -3456,7 +3456,7 @@
     {
       "dexNumber": 165,
       "name": "穗绒雀",
-      "types": ["normal", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_165",
       "familyId": "F077",
       "ecology": "草原丘陵",
@@ -3471,7 +3471,7 @@
     {
       "dexNumber": 166,
       "name": "扬穗雀",
-      "types": ["grass", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_166",
       "familyId": "F077",
       "ecology": "草原丘陵",
@@ -3486,7 +3486,7 @@
     {
       "dexNumber": 167,
       "name": "穗风鸢",
-      "types": ["grass", "flying", "ground"],
+      "types": ["flying"],
       "speciesId": "creature_167",
       "familyId": "F077",
       "ecology": "草原丘陵",
@@ -3516,7 +3516,7 @@
     {
       "dexNumber": 169,
       "name": "夯土獾",
-      "types": ["ground", "fighting"],
+      "types": ["ground"],
       "speciesId": "creature_169",
       "familyId": "F078",
       "ecology": "草原丘陵",
@@ -3531,7 +3531,7 @@
     {
       "dexNumber": 170,
       "name": "阡陌獾",
-      "types": ["ground", "fighting", "rock"],
+      "types": ["ground"],
       "speciesId": "creature_170",
       "familyId": "F078",
       "ecology": "草原丘陵",
@@ -3546,7 +3546,7 @@
     {
       "dexNumber": 171,
       "name": "弹芽羚",
-      "types": ["normal", "grass"],
+      "types": ["normal"],
       "speciesId": "creature_171",
       "familyId": "F079",
       "ecology": "草原丘陵",
@@ -3561,7 +3561,7 @@
     {
       "dexNumber": 172,
       "name": "逐拍羚",
-      "types": ["normal", "grass", "electric"],
+      "types": ["normal", "electric"],
       "speciesId": "creature_172",
       "familyId": "F079",
       "ecology": "草原丘陵",
@@ -3576,7 +3576,7 @@
     {
       "dexNumber": 173,
       "name": "拂尘蛾",
-      "types": ["bug", "flying"],
+      "types": ["bug"],
       "speciesId": "creature_173",
       "familyId": "F080",
       "ecology": "草原丘陵",
@@ -3591,11 +3591,11 @@
     {
       "dexNumber": 174,
       "name": "谷舞蛾",
-      "types": ["bug", "flying", "psychic"],
+      "types": ["bug"],
       "speciesId": "creature_174",
       "familyId": "F080",
       "ecology": "草原丘陵",
-      "description": "谷舞蛾：在花粉与谷物尘间振翅，利用起伏气流进行求偶和迁飞。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "谷舞蛾：在花粉与谷物尘间振翅，利用起伏气流进行求偶和迁飞。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["ranch", "orchard", "dusk_grass"],
       "method": "evolution",
       "sourceSpeciesId": "creature_173",
@@ -3606,7 +3606,7 @@
     {
       "dexNumber": 175,
       "name": "远望蜃兽",
-      "types": ["psychic", "normal", "fairy"],
+      "types": ["psychic"],
       "speciesId": "creature_175",
       "familyId": "F081",
       "ecology": "草原丘陵",
@@ -3621,7 +3621,7 @@
     {
       "dexNumber": 176,
       "name": "硫晶鼬",
-      "types": ["rock", "poison"],
+      "types": ["rock"],
       "speciesId": "creature_176",
       "familyId": "F082",
       "ecology": "矿山洞窟",
@@ -3636,7 +3636,7 @@
     {
       "dexNumber": 177,
       "name": "硫脊鼬",
-      "types": ["rock", "poison", "fire"],
+      "types": ["rock"],
       "speciesId": "creature_177",
       "familyId": "F082",
       "ecology": "矿山洞窟",
@@ -3651,7 +3651,7 @@
     {
       "dexNumber": 178,
       "name": "硫冠貂",
-      "types": ["rock", "poison", "fire", "steel"],
+      "types": ["rock", "fire"],
       "speciesId": "creature_178",
       "familyId": "F082",
       "ecology": "矿山洞窟",
@@ -3666,7 +3666,7 @@
     {
       "dexNumber": 179,
       "name": "叩石鳗",
-      "types": ["electric", "rock"],
+      "types": ["electric"],
       "speciesId": "creature_179",
       "familyId": "F083",
       "ecology": "矿山洞窟",
@@ -3681,7 +3681,7 @@
     {
       "dexNumber": 180,
       "name": "鸣脉鳗",
-      "types": ["electric", "rock", "ground"],
+      "types": ["electric"],
       "speciesId": "creature_180",
       "familyId": "F083",
       "ecology": "矿山洞窟",
@@ -3696,7 +3696,7 @@
     {
       "dexNumber": 181,
       "name": "震矿鳗",
-      "types": ["electric", "rock", "ground", "dragon"],
+      "types": ["electric", "ground"],
       "speciesId": "creature_181",
       "familyId": "F083",
       "ecology": "矿山洞窟",
@@ -3711,7 +3711,7 @@
     {
       "dexNumber": 182,
       "name": "钟乳鳐",
-      "types": ["rock", "flying"],
+      "types": ["rock"],
       "speciesId": "creature_182",
       "familyId": "F084",
       "ecology": "矿山洞窟",
@@ -3726,11 +3726,11 @@
     {
       "dexNumber": 183,
       "name": "悬钟鳐",
-      "types": ["rock", "flying", "ghost"],
+      "types": ["rock"],
       "speciesId": "creature_183",
       "familyId": "F084",
       "ecology": "矿山洞窟",
-      "description": "悬钟鳐：钟乳岩状身体悬在洞顶，利用空腔共鸣滑行，避开无岩顶草原。进化后沿洞顶与岩壁活动，需要更宽阔的洞室。",
+      "description": "悬钟鳐：钟乳岩状身体悬在洞顶，利用空腔共鸣滑行，避开无岩顶草原。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["quartz_depths", "salt_ice"],
       "method": "evolution",
       "sourceSpeciesId": "creature_182",
@@ -3741,7 +3741,7 @@
     {
       "dexNumber": 184,
       "name": "盐晶蟊",
-      "types": ["bug", "ice"],
+      "types": ["ice"],
       "speciesId": "creature_184",
       "familyId": "F085",
       "ecology": "矿山洞窟",
@@ -3756,7 +3756,7 @@
     {
       "dexNumber": 185,
       "name": "霜盐蟊",
-      "types": ["bug", "ice", "steel"],
+      "types": ["ice"],
       "speciesId": "creature_185",
       "familyId": "F085",
       "ecology": "矿山洞窟",
@@ -3771,7 +3771,7 @@
     {
       "dexNumber": 186,
       "name": "封矿门兽",
-      "types": ["rock", "steel", "psychic"],
+      "types": ["steel", "psychic"],
       "speciesId": "creature_186",
       "familyId": "F086",
       "ecology": "矿山洞窟",
@@ -3801,7 +3801,7 @@
     {
       "dexNumber": 188,
       "name": "涡纹螺",
-      "types": ["water", "psychic"],
+      "types": ["water"],
       "speciesId": "creature_188",
       "familyId": "F087",
       "ecology": "海岸河湖",
@@ -3816,7 +3816,7 @@
     {
       "dexNumber": 189,
       "name": "潮卷螺",
-      "types": ["water", "psychic", "dragon"],
+      "types": ["water"],
       "speciesId": "creature_189",
       "familyId": "F087",
       "ecology": "海岸河湖",
@@ -3831,7 +3831,7 @@
     {
       "dexNumber": 190,
       "name": "泡舟鸭",
-      "types": ["water", "flying"],
+      "types": ["water"],
       "speciesId": "creature_190",
       "familyId": "F088",
       "ecology": "海岸河湖",
@@ -3854,7 +3854,7 @@
     {
       "dexNumber": 191,
       "name": "帆背鸭",
-      "types": ["water", "flying"],
+      "types": ["water"],
       "speciesId": "creature_191",
       "familyId": "F088",
       "ecology": "海岸河湖",
@@ -3877,7 +3877,7 @@
     {
       "dexNumber": 192,
       "name": "远渡雁",
-      "types": ["water", "flying", "ice"],
+      "types": ["water", "flying"],
       "speciesId": "creature_192",
       "familyId": "F088",
       "ecology": "海岸河湖",
@@ -3900,7 +3900,7 @@
     {
       "dexNumber": 193,
       "name": "藻绳鳗",
-      "types": ["water", "grass"],
+      "types": ["grass"],
       "speciesId": "creature_193",
       "familyId": "F089",
       "ecology": "海岸河湖",
@@ -3915,11 +3915,11 @@
     {
       "dexNumber": 194,
       "name": "缆藻鳗",
-      "types": ["water", "grass", "electric"],
+      "types": ["grass"],
       "speciesId": "creature_194",
       "familyId": "F089",
       "ecology": "海岸河湖",
-      "description": "缆藻鳗：以藻丝、矿质锚盘和浅海电场相连，成年会携带小片漂流藻林。进化后需要更稳定的水源和更宽敞的水域或湿岸。",
+      "description": "缆藻鳗：以藻丝、矿质锚盘和浅海电场相连，成年会携带小片漂流藻林。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["kelp_forest"],
       "method": "evolution",
       "sourceSpeciesId": "creature_193",
@@ -3930,11 +3930,11 @@
     {
       "dexNumber": 195,
       "name": "锚林鳗",
-      "types": ["water", "grass", "electric", "steel"],
+      "types": ["grass", "steel"],
       "speciesId": "creature_195",
       "familyId": "F089",
       "ecology": "海岸河湖",
-      "description": "锚林鳗：以藻丝、矿质锚盘和浅海电场相连，成年会携带小片漂流藻林。进化后需要更稳定的水源和更宽敞的水域或湿岸。",
+      "description": "锚林鳗：以藻丝、矿质锚盘和浅海电场相连，成年会携带小片漂流藻林。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["kelp_forest"],
       "method": "evolution",
       "sourceSpeciesId": "creature_194",
@@ -3945,7 +3945,7 @@
     {
       "dexNumber": 196,
       "name": "砾砂鲎",
-      "types": ["water", "rock"],
+      "types": ["rock"],
       "speciesId": "creature_196",
       "familyId": "F090",
       "ecology": "海岸河湖",
@@ -3960,11 +3960,11 @@
     {
       "dexNumber": 197,
       "name": "岸垒鲎",
-      "types": ["water", "rock", "ground"],
+      "types": ["rock"],
       "speciesId": "creature_197",
       "familyId": "F090",
       "ecology": "海岸河湖",
-      "description": "岸垒鲎：在砂砾岸潜伏并稳固浅潮池，层叠甲壳与泥岩相互伪装。进化后需要更稳定的水源和更宽敞的水域或湿岸。",
+      "description": "岸垒鲎：在砂砾岸潜伏并稳固浅潮池，层叠甲壳与泥岩相互伪装。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["coast_shore", "sluice_shore", "tidal_flat", "regional_kelpCove"],
       "method": "evolution",
       "sourceSpeciesId": "creature_196",
@@ -3975,7 +3975,7 @@
     {
       "dexNumber": 198,
       "name": "明潮灯鱼",
-      "types": ["water", "fairy"],
+      "types": ["water"],
       "speciesId": "creature_198",
       "familyId": "F091",
       "ecology": "海岸河湖",
@@ -3990,7 +3990,7 @@
     {
       "dexNumber": 199,
       "name": "昼潮灯鱼",
-      "types": ["water", "fairy", "electric"],
+      "types": ["water", "electric"],
       "speciesId": "creature_199",
       "familyId": "F091",
       "ecology": "海岸河湖",
@@ -4035,7 +4035,7 @@
     {
       "dexNumber": 202,
       "name": "霜缝貂",
-      "types": ["ice", "steel"],
+      "types": ["ice"],
       "speciesId": "creature_202",
       "familyId": "F093",
       "ecology": "山脊风谷",
@@ -4050,7 +4050,7 @@
     {
       "dexNumber": 203,
       "name": "缀极貂",
-      "types": ["ice", "steel", "fighting"],
+      "types": ["ice", "steel"],
       "speciesId": "creature_203",
       "familyId": "F093",
       "ecology": "山脊风谷",
@@ -4065,7 +4065,7 @@
     {
       "dexNumber": 204,
       "name": "翼铃驹",
-      "types": ["flying", "fairy"],
+      "types": ["flying"],
       "speciesId": "creature_204",
       "familyId": "F094",
       "ecology": "山脊风谷",
@@ -4080,7 +4080,7 @@
     {
       "dexNumber": 205,
       "name": "云梭驹",
-      "types": ["flying", "fairy", "psychic"],
+      "types": ["flying"],
       "speciesId": "creature_205",
       "familyId": "F094",
       "ecology": "山脊风谷",
@@ -4095,7 +4095,7 @@
     {
       "dexNumber": 206,
       "name": "极光天驹",
-      "types": ["flying", "fairy", "psychic", "ice"],
+      "types": ["flying", "fairy"],
       "speciesId": "creature_206",
       "familyId": "F094",
       "ecology": "山脊风谷",
@@ -4110,7 +4110,7 @@
     {
       "dexNumber": 207,
       "name": "砾羽雏",
-      "types": ["rock", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_207",
       "familyId": "F095",
       "ecology": "山脊风谷",
@@ -4125,7 +4125,7 @@
     {
       "dexNumber": 208,
       "name": "盘山鹫",
-      "types": ["rock", "flying", "ground"],
+      "types": ["flying"],
       "speciesId": "creature_208",
       "familyId": "F095",
       "ecology": "山脊风谷",
@@ -4140,7 +4140,7 @@
     {
       "dexNumber": 209,
       "name": "岳风鹫",
-      "types": ["rock", "flying", "ground", "fighting"],
+      "types": ["flying", "rock"],
       "speciesId": "creature_209",
       "familyId": "F095",
       "ecology": "山脊风谷",
@@ -4155,7 +4155,7 @@
     {
       "dexNumber": 210,
       "name": "晕雪狐",
-      "types": ["ice", "psychic"],
+      "types": ["ice"],
       "speciesId": "creature_210",
       "familyId": "F096",
       "ecology": "山脊风谷",
@@ -4170,7 +4170,7 @@
     {
       "dexNumber": 211,
       "name": "环晕狐",
-      "types": ["ice", "psychic", "fairy"],
+      "types": ["ice", "psychic"],
       "speciesId": "creature_211",
       "familyId": "F096",
       "ecology": "山脊风谷",
@@ -4185,7 +4185,7 @@
     {
       "dexNumber": 212,
       "name": "风索蛛",
-      "types": ["bug", "flying"],
+      "types": ["bug"],
       "speciesId": "creature_212",
       "familyId": "F097",
       "ecology": "山脊风谷",
@@ -4200,11 +4200,11 @@
     {
       "dexNumber": 213,
       "name": "悬岚蛛",
-      "types": ["bug", "flying", "electric"],
+      "types": ["bug", "electric"],
       "speciesId": "creature_213",
       "familyId": "F097",
       "ecology": "山脊风谷",
-      "description": "悬岚蛛：以结实风索在岩壁与树杈间架网，利用气流而非地下暗河行动。进化后利用高枝、岩壁或上升气流扩大活动范围。",
+      "description": "悬岚蛛：以结实风索在岩壁与树杈间架网，利用气流而非地下暗河行动。进化后在同一生境中占据更宽的觅食或守护范围。",
       "siteIds": ["wind_valley", "alpine_snow", "champion_alpine"],
       "method": "evolution",
       "sourceSpeciesId": "creature_212",
@@ -4215,7 +4215,7 @@
     {
       "dexNumber": 214,
       "name": "断峰龙",
-      "types": ["dragon", "ice", "rock", "flying"],
+      "types": ["dragon", "ice", "flying"],
       "speciesId": "creature_214",
       "familyId": "F098",
       "ecology": "山脊风谷",
@@ -4230,7 +4230,7 @@
     {
       "dexNumber": 215,
       "name": "炉砂蜥",
-      "types": ["fire", "ground"],
+      "types": ["fire"],
       "speciesId": "creature_215",
       "familyId": "F099",
       "ecology": "火山温泉",
@@ -4245,7 +4245,7 @@
     {
       "dexNumber": 216,
       "name": "燧背蜥",
-      "types": ["fire", "ground", "steel"],
+      "types": ["fire"],
       "speciesId": "creature_216",
       "familyId": "F099",
       "ecology": "火山温泉",
@@ -4260,7 +4260,7 @@
     {
       "dexNumber": 217,
       "name": "星炉蜥",
-      "types": ["fire", "ground", "steel", "dragon"],
+      "types": ["fire", "steel"],
       "speciesId": "creature_217",
       "familyId": "F099",
       "ecology": "火山温泉",
@@ -4275,7 +4275,7 @@
     {
       "dexNumber": 218,
       "name": "烬壳螈",
-      "types": ["fire", "water"],
+      "types": ["water"],
       "speciesId": "creature_218",
       "familyId": "F100",
       "ecology": "火山温泉",
@@ -4290,7 +4290,7 @@
     {
       "dexNumber": 219,
       "name": "沸纹螈",
-      "types": ["fire", "water", "poison"],
+      "types": ["water"],
       "speciesId": "creature_219",
       "familyId": "F100",
       "ecology": "火山温泉",
@@ -4305,7 +4305,7 @@
     {
       "dexNumber": 220,
       "name": "热泉冕螈",
-      "types": ["fire", "water", "poison", "rock"],
+      "types": ["water", "fire"],
       "speciesId": "creature_220",
       "familyId": "F100",
       "ecology": "火山温泉",
@@ -4320,7 +4320,7 @@
     {
       "dexNumber": 221,
       "name": "炭弦蝉",
-      "types": ["bug", "fire"],
+      "types": ["bug"],
       "speciesId": "creature_221",
       "familyId": "F101",
       "ecology": "火山温泉",
@@ -4335,7 +4335,7 @@
     {
       "dexNumber": 222,
       "name": "熔弦蝉",
-      "types": ["bug", "fire", "steel"],
+      "types": ["bug", "fire"],
       "speciesId": "creature_222",
       "familyId": "F101",
       "ecology": "火山温泉",
@@ -4350,7 +4350,7 @@
     {
       "dexNumber": 223,
       "name": "火漆鸦",
-      "types": ["fire", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_223",
       "familyId": "F102",
       "ecology": "火山温泉",
@@ -4365,7 +4365,7 @@
     {
       "dexNumber": 224,
       "name": "封焰鸦",
-      "types": ["fire", "flying", "ghost"],
+      "types": ["flying", "fire"],
       "speciesId": "creature_224",
       "familyId": "F102",
       "ecology": "火山温泉",
@@ -4395,7 +4395,7 @@
     {
       "dexNumber": 226,
       "name": "线团灵",
-      "types": ["normal", "ghost"],
+      "types": ["ghost"],
       "speciesId": "creature_226",
       "familyId": "F104",
       "ecology": "城镇设施",
@@ -4410,7 +4410,7 @@
     {
       "dexNumber": 227,
       "name": "纺线灵",
-      "types": ["ghost", "steel"],
+      "types": ["ghost"],
       "speciesId": "creature_227",
       "familyId": "F104",
       "ecology": "城镇设施",
@@ -4425,7 +4425,7 @@
     {
       "dexNumber": 228,
       "name": "织城偶",
-      "types": ["ghost", "steel", "fairy"],
+      "types": ["ghost"],
       "speciesId": "creature_228",
       "familyId": "F104",
       "ecology": "城镇设施",
@@ -4440,7 +4440,7 @@
     {
       "dexNumber": 229,
       "name": "纸匣雀",
-      "types": ["normal", "flying"],
+      "types": ["flying"],
       "speciesId": "creature_229",
       "familyId": "F105",
       "ecology": "城镇设施",
@@ -4455,7 +4455,7 @@
     {
       "dexNumber": 230,
       "name": "折讯雀",
-      "types": ["flying", "electric"],
+      "types": ["flying"],
       "speciesId": "creature_230",
       "familyId": "F105",
       "ecology": "城镇设施",
@@ -4470,7 +4470,7 @@
     {
       "dexNumber": 231,
       "name": "邮星鸢",
-      "types": ["flying", "electric", "psychic"],
+      "types": ["flying", "electric"],
       "speciesId": "creature_231",
       "familyId": "F105",
       "ecology": "城镇设施",
@@ -4485,7 +4485,7 @@
     {
       "dexNumber": 232,
       "name": "瓷芽偶",
-      "types": ["fairy", "rock"],
+      "types": ["fairy"],
       "speciesId": "creature_232",
       "familyId": "F106",
       "ecology": "城镇设施",
@@ -4500,7 +4500,7 @@
     {
       "dexNumber": 233,
       "name": "釉歌偶",
-      "types": ["fairy", "rock", "psychic"],
+      "types": ["fairy"],
       "speciesId": "creature_233",
       "familyId": "F106",
       "ecology": "城镇设施",
@@ -4515,7 +4515,7 @@
     {
       "dexNumber": 234,
       "name": "轨芽蜗",
-      "types": ["steel", "electric"],
+      "types": ["steel"],
       "speciesId": "creature_234",
       "familyId": "F107",
       "ecology": "城镇设施",
@@ -4530,7 +4530,7 @@
     {
       "dexNumber": 235,
       "name": "环轨蜗",
-      "types": ["steel", "electric", "ground"],
+      "types": ["steel", "electric"],
       "speciesId": "creature_235",
       "familyId": "F107",
       "ecology": "城镇设施",
@@ -4545,7 +4545,7 @@
     {
       "dexNumber": 236,
       "name": "锚钟管家",
-      "types": ["steel", "ghost", "fighting"],
+      "types": ["steel", "ghost"],
       "speciesId": "creature_236",
       "familyId": "F108",
       "ecology": "城镇设施",
@@ -4695,7 +4695,7 @@
     {
       "dexNumber": 246,
       "name": "时涟灵",
-      "types": ["water", "psychic", "fairy", "ghost"],
+      "types": ["water", "psychic", "ghost"],
       "speciesId": "creature_246",
       "familyId": "F112",
       "ecology": "遗迹秘境",
@@ -4725,7 +4725,7 @@
     {
       "dexNumber": 248,
       "name": "解印兽",
-      "types": ["dark", "steel", "psychic", "ghost"],
+      "types": ["dark", "steel", "ghost"],
       "speciesId": "creature_248",
       "familyId": "F113",
       "ecology": "遗迹秘境",
@@ -4740,7 +4740,7 @@
     {
       "dexNumber": 249,
       "name": "双衡星兽",
-      "types": ["psychic", "fighting", "fairy"],
+      "types": ["psychic"],
       "speciesId": "creature_249",
       "familyId": "F114",
       "ecology": "遗迹秘境",
@@ -4755,7 +4755,7 @@
     {
       "dexNumber": 250,
       "name": "终宵烛龙",
-      "types": ["dragon", "ghost", "fire", "dark", "ice"],
+      "types": ["dragon", "ghost", "fire", "ice"],
       "speciesId": "creature_250",
       "familyId": "F115",
       "ecology": "遗迹秘境",

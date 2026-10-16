@@ -1,5 +1,5 @@
 {
-  "contentVersion": "ch10.3",
+  "contentVersion": "ch10.4",
   "speed": {
     "maxActions": 3,
     "thresholds": [
@@ -1508,7 +1508,7 @@
         { "level": 9, "moveId": "focus" },
         { "level": 15, "moveId": "aim" },
         { "level": 22, "moveId": "agility" },
-        { "level": 24, "moveId": "shadow_step" },
+        { "level": 24, "moveId": "steady" },
         { "level": 28, "moveId": "keen_strike" }
       ]
     },

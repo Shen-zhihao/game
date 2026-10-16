@@ -1,4 +1,4 @@
-import campaign from '../../../docs/data/campaign-plan.json';
+import campaign from '../../../docs/剧情规划/剧情规划.json';
 import { ITEMS, isOrdinarySpecies, SPECIES } from '../catalog';
 import { GameState, MapId, TownId, TypeId } from '../../game/model';
 import { sumStats, trainingFor } from '../../game/growth';

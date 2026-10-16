@@ -1,4 +1,4 @@
-import regions from '../../../docs/data/sprite-frames.json';
+import regions from '../../../docs/美术资源/精灵取图区.json';
 
 export interface SpriteReference {
   atlas: string;

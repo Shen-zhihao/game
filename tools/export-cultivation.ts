@@ -4,7 +4,7 @@ import { CITIES } from '../src/content/cities';
 import { GROWTH_WEIGHTS, STAT_NAMES, TRAINING_PLANS } from '../src/content/training';
 
 writeFileSync(
-  'docs/data/training-plans.json',
+  'docs/精灵成长/培养方案.json',
   JSON.stringify(
     {
       contentVersion: CONTENT_VERSION,
@@ -41,7 +41,7 @@ writeFileSync(
   ) + '\n',
 );
 writeFileSync(
-  'docs/data/city-services.json',
+  'docs/城镇服务/城镇服务.json',
   JSON.stringify(
     {
       contentVersion: CONTENT_VERSION,

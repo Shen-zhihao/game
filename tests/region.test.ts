@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import campaign from '../docs/data/campaign-plan.json';
+import campaign from '../docs/剧情规划/剧情规划.json';
 import {
   localMapPoint,
   regionPlaceForMap,

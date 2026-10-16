@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import plan from '../docs/data/campaign-plan.json';
-import acquisition from '../docs/data/acquisition-plan.json';
+import plan from '../docs/剧情规划/剧情规划.json';
+import acquisition from '../docs/精灵获取/稀有精灵获取.json';
 import { CONTENT_VERSION, isOrdinarySpecies, SPECIES } from '../src/content/catalog';
 import { MAPS, mapSize, terrainPassable } from '../src/content/world';
 import { reduceGame } from '../src/game/engine';

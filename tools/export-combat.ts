@@ -11,7 +11,7 @@ import {
 import { CombatStage } from '../src/game/model';
 
 async function main() {
-  const path = 'docs/data/combat-rules.json';
+  const path = 'docs/战斗规则/战斗规则.json';
   const skills = ['focus', 'aim', 'agility', 'shadow_step', 'steady', 'keen_strike'];
   const data = {
     contentVersion: CONTENT_VERSION,

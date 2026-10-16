@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import acquisition from '../docs/data/acquisition-plan.json';
+import acquisition from '../docs/精灵获取/稀有精灵获取.json';
 import { ALL_SPECIES, isOrdinarySpecies, MOVES, SPECIES } from '../src/content/catalog';
 import { CITIES } from '../src/content/cities';
 import { encounterSiteAt, HABITAT_SITES, SPECIES_HABITATS } from '../src/content/habitats';

@@ -1,13 +1,14 @@
-import design from '../../../docs/data/creature-types.json';
-import acquisition from '../../../docs/data/acquisition-plan.json';
+import design from '../../../docs/精灵属性/精灵设计数据.json';
+import acquisition from '../../../docs/精灵获取/稀有精灵获取.json';
 import { EXPANSION_SPRITES } from '../sprites';
 import { CombatStage, Curve, Species, TypeId } from '../../game/model';
 import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 
-export const CONTENT_VERSION = 'ch10.3';
+export const CONTENT_VERSION = 'ch10.4';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch10.3' ||
   version === 'ch10.2' ||
   version === 'ch10.1' ||
   version === 'ch10.0' ||

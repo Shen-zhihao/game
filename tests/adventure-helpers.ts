@@ -183,6 +183,11 @@ export function playableLake() {
 export function starInvestigation(bot: PlayerBot) {
   travel(bot, 'star');
   bot.heal();
+  bot.act({ kind: 'buy', itemId: 'hyper_potion', quantity: 10 });
+  const lead = bot.game.creatures[bot.game.party[0]!]!;
+  const support = lead.moves.findIndex((move) => move.id === 'growl');
+  if (support >= 0)
+    bot.act({ kind: 'centerLearn', creatureId: lead.id, moveId: 'surf', replace: support });
   bot.npc('starCoordinator');
   travel(bot, 'starCore');
   for (const id of [
@@ -228,6 +233,8 @@ export function playableStar() {
   starInvestigation(bot);
   starSidequests(bot);
   travel(bot, 'star');
+  bot.heal();
+  bot.act({ kind: 'buy', itemId: 'hyper_potion', quantity: 10 });
   bot.npc('rivalStar');
   regionalChallenge(bot, 8);
   return bot;

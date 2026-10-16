@@ -138,6 +138,13 @@ export class PlayerBot {
       }
       if (catchIt && b.kind === 'wild') {
         if (!this.game.inventory[this.captureBall]) throw new Error('Need more capture balls');
+        const sleep = c.moves.findIndex(
+          (move) => move.pp > 0 && MOVES[move.id]!.effect?.status === 'sleep',
+        );
+        if (this.captureBall !== 'master_ball' && !b.tutorialCatch && !e.status && sleep >= 0) {
+          this.act({ kind: 'battle', action: { kind: 'move', index: sleep } });
+          continue;
+        }
         let weak = -1;
         let damage = Infinity;
         const count = roundPace(c, e, b.playerStages, b.enemyStages, b.weather?.kind).playerActions;
@@ -194,9 +201,39 @@ export class PlayerBot {
           best = i;
         }
       });
-      if (score <= 0 && (this.game.inventory.ether ?? 0) > 0) {
-        this.act({ kind: 'battle', action: { kind: 'ether', creatureId: c.id } });
-        continue;
+      if (score <= 0) {
+        const usefulDamage = (member: typeof c, moveId: string) =>
+          calculateDamage(
+            member,
+            e,
+            moveId,
+            b.playerStages,
+            b.enemyStages,
+            1,
+            false,
+            b.weather?.kind,
+          ).damage;
+        const canRestoreAttack = c.moves.some(
+          (move) => move.pp < MOVES[move.id]!.pp && usefulDamage(c, move.id) > 0,
+        );
+        // Immunity does not consume PP. Restore only a useful depleted attack;
+        // otherwise change partners instead of trying a full-PP medicine forever.
+        if (canRestoreAttack && (this.game.inventory.ether ?? 0) > 0) {
+          this.act({ kind: 'battle', action: { kind: 'ether', creatureId: c.id } });
+          continue;
+        }
+        const next = this.game.party.find((id) => {
+          const member = this.game.creatures[id]!;
+          return (
+            id !== c.id &&
+            member.hp > 0 &&
+            member.moves.some((move) => move.pp > 0 && usefulDamage(member, move.id) > 0)
+          );
+        });
+        if (next) {
+          this.act({ kind: 'battle', action: { kind: 'switch', creatureId: next } });
+          continue;
+        }
       }
       this.act({ kind: 'battle', action: { kind: 'move', index: best } });
     }

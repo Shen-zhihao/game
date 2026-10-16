@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import design from '../docs/data/creature-types.json';
+import design from '../docs/精灵属性/精灵设计数据.json';
 import { ALL_SPECIES, SPECIES, STARTERS, TYPE_CHART, TYPE_IDS } from '../src/content/catalog';
 import { battleActionReason, startBattle } from '../src/game/battle';
 import { reduceGame } from '../src/game/engine';

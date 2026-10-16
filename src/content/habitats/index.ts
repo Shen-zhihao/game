@@ -1,5 +1,5 @@
-import design from '../../../docs/data/creature-types.json';
-import acquisition from '../../../docs/data/acquisition-plan.json';
+import design from '../../../docs/精灵属性/精灵设计数据.json';
+import acquisition from '../../../docs/精灵获取/稀有精灵获取.json';
 import { ADVENTURE_STORY_CONTENT } from '../adventure';
 import { CONSERVATION_WATER } from '../conservation';
 import { LEAGUE_MAPS } from '../league';

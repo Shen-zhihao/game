@@ -211,7 +211,7 @@ function GameApp() {
                     开始新冒险 ▸
                   </Button>
                   <Button testID="open-save-menu" onPress={() => changeMenu('save')}>
-                    存档管理 / 导入
+                    读取存档 / 管理
                   </Button>
                   <Button onPress={() => changeMenu('transfer')}>存档互传</Button>
                 </View>

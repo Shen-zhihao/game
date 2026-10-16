@@ -4,7 +4,7 @@ import { ALL_SPECIES, CONTENT_VERSION } from '../src/content/catalog';
 import { HABITAT_SITES, SPECIES_HABITATS } from '../src/content/habitats';
 
 async function main() {
-  const path = 'docs/data/habitat-plan.json';
+  const path = 'docs/生态栖地/生态栖地.json';
   const data = {
     contentVersion: CONTENT_VERSION,
     policy:

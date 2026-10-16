@@ -5,5 +5,5 @@ ios
 dist
 exports
 pnpm-lock.yaml
-docs/data/creature-types.json
+docs/精灵属性/精灵设计数据.json
 assets

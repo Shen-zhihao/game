@@ -1,5 +1,5 @@
 {
-  "designVersion": "0.5",
+  "designVersion": "0.7",
   "status": "design-draft",
   "typingPolicy": {
     "minTypes": 1,
@@ -11,7 +11,23 @@
     "sameTypeAttackBonusStacks": false,
     "note": "精灵属性列表不设固定数量上限；从十八种标准属性中选择不重复的属性。三属性及以上属于本作扩展，基础关系使用宝可梦主系列标准表，逐项叠乘，任何一项为零则属性伤害为零。",
     "immuneMultiplier": 0,
-    "immunityTakesPrecedence": true
+    "immunityTakesPrecedence": true,
+    "balancePolicy": {
+      "minimumWeaknesses": 1,
+      "minimumResistancesOrImmunities": 1,
+      "maxAssignedIncomingMultiplier": 4,
+      "requireEachTypeBenefit": true,
+      "scope": "校验实际投放的全部精灵组合；不篡改18属性基础表或逐项相乘公式，不给属性数量设置固定槽位上限。"
+    },
+    "distributionPolicy": {
+      "raritySource": "docs/精灵获取/稀有精灵获取.json",
+      "ordinary": "以单属性为主；明确拥有第二种独立能力的成熟形态可为双属性，普通物种本轮不投放三属性及以上。",
+      "starter": "初始与中间形态保持核心单属性，最终形态才获得有明确成长依据的第二属性。",
+      "rareAndLegendary": "可走单属性专精，或按真实能力、栖地和剧情配置多属性；不按进化阶段机械累加，也不要求稀有必定多属性。",
+      "extremes": "单系专精依靠现有种族能力、战斗定位与专属技能体现，不额外叠加本系伤害或更改克制表。",
+      "evolution": "保留家族核心属性；增加、移除或转换副属性都须在家族说明中对应成熟能力和生态变化。",
+      "compatibility": "只更改物种属性。旧档中的等级、能力点、已学招式、待学招式、个体和剧情保留；图鉴、战斗、天气和自然学招读取当前物种配置。"
+    }
   },
   "types": [
     {
@@ -205,8 +221,7 @@
           "dexNumber": 2,
           "name": "苔枝鹿",
           "types": [
-            "grass",
-            "fairy"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -237,8 +252,7 @@
           "name": "森冠鹿",
           "types": [
             "grass",
-            "fairy",
-            "flying"
+            "fairy"
           ],
           "stage": 3,
           "baseStats": {
@@ -257,7 +271,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "以林木生命力为核心，森冠鹿成年后才体现森林精怪的妖精力量。"
     },
     {
       "id": "F002",
@@ -298,8 +313,7 @@
           "dexNumber": 5,
           "name": "焰纹鼬",
           "types": [
-            "fire",
-            "flying"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -330,8 +344,7 @@
           "name": "烬冠鼬",
           "types": [
             "fire",
-            "flying",
-            "electric"
+            "fighting"
           ],
           "stage": 3,
           "baseStats": {
@@ -350,7 +363,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "保留炭尾与焰纹的火系主线，成年鼬以近身搏击驾驭火焰，不再附加飞行和电。"
     },
     {
       "id": "F003",
@@ -391,8 +405,7 @@
           "dexNumber": 8,
           "name": "潮纹獭",
           "types": [
-            "water",
-            "rock"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -423,8 +436,7 @@
           "name": "沧流獭",
           "types": [
             "water",
-            "rock",
-            "psychic"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -443,7 +455,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "水獭始终依赖水流，沧流獭成年后以坚硬礁石护具形成第二属性。"
     },
     {
       "id": "F004",
@@ -514,8 +527,7 @@
           "dexNumber": 12,
           "name": "花冠兔",
           "types": [
-            "grass",
-            "normal"
+            "grass"
           ],
           "stage": 3,
           "baseStats": {
@@ -534,7 +546,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "耳叶、藤蔓和花冠体现同一种植物适应，整条进化线专注草系。"
     },
     {
       "id": "F005",
@@ -545,8 +558,7 @@
           "dexNumber": 13,
           "name": "石壳虫",
           "types": [
-            "bug",
-            "rock"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -576,8 +588,7 @@
           "dexNumber": 14,
           "name": "矿纹蛹",
           "types": [
-            "bug",
-            "rock"
+            "bug"
           ],
           "stage": 2,
           "baseStats": {
@@ -608,8 +619,7 @@
           "name": "晶翼蛾",
           "types": [
             "bug",
-            "rock",
-            "flying"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -628,7 +638,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "幼虫与蛹以虫系生长，晶翼蛾成熟的矿晶甲壳才形成岩石属性。"
     },
     {
       "id": "F006",
@@ -639,8 +650,7 @@
           "dexNumber": 16,
           "name": "萤灯蛾",
           "types": [
-            "bug",
-            "electric"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -670,9 +680,7 @@
           "dexNumber": 17,
           "name": "萤羽蛾",
           "types": [
-            "bug",
-            "electric",
-            "flying"
+            "bug"
           ],
           "stage": 2,
           "baseStats": {
@@ -703,9 +711,7 @@
           "name": "雷灯蛾",
           "types": [
             "bug",
-            "electric",
-            "flying",
-            "fairy"
+            "electric"
           ],
           "stage": 3,
           "baseStats": {
@@ -724,7 +730,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "早期荧光属于昆虫的生物发光，雷灯蛾才具备主动放电能力；有翅不自动增加飞行。"
     },
     {
       "id": "F007",
@@ -765,8 +772,7 @@
           "dexNumber": 20,
           "name": "簇伞菇",
           "types": [
-            "grass",
-            "poison"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -797,8 +803,7 @@
           "name": "森梦菇",
           "types": [
             "grass",
-            "poison",
-            "ghost"
+            "poison"
           ],
           "stage": 3,
           "baseStats": {
@@ -817,7 +822,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "蘑菇生长以草系为主，森梦菇成熟的致幻孢子增加毒系，不再叠加幽灵。"
     },
     {
       "id": "F008",
@@ -828,8 +834,7 @@
           "dexNumber": 22,
           "name": "苔甲蜥",
           "types": [
-            "grass",
-            "rock"
+            "grass"
           ],
           "stage": 1,
           "baseStats": {
@@ -859,8 +864,7 @@
           "dexNumber": 23,
           "name": "藤脊蜥",
           "types": [
-            "grass",
-            "rock"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -893,7 +897,6 @@
           "name": "古木蜥",
           "types": [
             "grass",
-            "rock",
             "dragon"
           ],
           "stage": 3,
@@ -913,7 +916,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "苔与藤均属于植物伪装，古木蜥成年后才觉醒龙脉。"
     },
     {
       "id": "F009",
@@ -956,8 +960,7 @@
           "dexNumber": 26,
           "name": "雾钟灵",
           "types": [
-            "ghost",
-            "flying"
+            "ghost"
           ],
           "stage": 2,
           "baseStats": {
@@ -976,7 +979,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "雾只是魂铃的显形方式，两形态都专精幽灵与魂音，不把悬浮另算飞行。"
     },
     {
       "id": "F010",
@@ -987,8 +991,7 @@
           "dexNumber": 27,
           "name": "荷叶蛙",
           "types": [
-            "water",
-            "grass"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -1019,8 +1022,7 @@
           "name": "莲冠蛙",
           "types": [
             "water",
-            "grass",
-            "fairy"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -1039,7 +1041,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "幼蛙依水生活，莲冠蛙与莲叶形成稳定共生后增加草系。"
     },
     {
       "id": "F011",
@@ -1050,8 +1053,7 @@
           "dexNumber": 29,
           "name": "蜜芽蜂",
           "types": [
-            "bug",
-            "grass"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -1083,10 +1085,7 @@
           "dexNumber": 30,
           "name": "琥蜜蜂",
           "types": [
-            "bug",
-            "grass",
-            "flying",
-            "rock"
+            "bug"
           ],
           "stage": 2,
           "baseStats": {
@@ -1105,7 +1104,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "蜜、琥珀色外壳与翅膀都是昆虫生态特征，不分别增加草、岩石和飞行属性。"
     },
     {
       "id": "F012",
@@ -1116,7 +1116,6 @@
           "dexNumber": 31,
           "name": "盘根蛇",
           "types": [
-            "grass",
             "poison"
           ],
           "stage": 1,
@@ -1149,9 +1148,7 @@
           "dexNumber": 32,
           "name": "缚林蟒",
           "types": [
-            "grass",
-            "poison",
-            "dragon"
+            "poison"
           ],
           "stage": 2,
           "baseStats": {
@@ -1170,7 +1167,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "以毒牙与束缚狩猎为核心，根蔓外观属于林间拟态，并非植物或龙族。"
     },
     {
       "id": "F013",
@@ -1181,7 +1179,6 @@
           "dexNumber": 33,
           "name": "晶露蛛",
           "types": [
-            "bug",
             "poison"
           ],
           "stage": 1,
@@ -1201,7 +1198,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "晶露毒网是唯一核心武器，以毒系专精体现稀有性，晶壳和蛛形不继续增加属性。"
     },
     {
       "id": "F014",
@@ -1213,8 +1211,7 @@
           "name": "镜池鱼",
           "types": [
             "water",
-            "psychic",
-            "ghost"
+            "psychic"
           ],
           "stage": 1,
           "baseStats": {
@@ -1233,7 +1230,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "镜池鱼通过水面倒影施展念力，幻象并非亡魂。"
     },
     {
       "id": "F015",
@@ -1244,9 +1242,8 @@
           "dexNumber": 35,
           "name": "腐叶螺",
           "types": [
-            "bug",
-            "poison",
-            "grass"
+            "grass",
+            "poison"
           ],
           "stage": 1,
           "baseStats": {
@@ -1265,7 +1262,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "腐叶分解与毒性分泌形成共生循环，保留植物和毒素两种实质能力。"
     },
     {
       "id": "F016",
@@ -1278,8 +1276,7 @@
           "types": [
             "grass",
             "ghost",
-            "dark",
-            "rock"
+            "dark"
           ],
           "stage": 1,
           "baseStats": {
@@ -1298,7 +1295,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "活棘、附魂与恶意诅咒构成三重能力，偶身上的石纹仅为外观。"
     },
     {
       "id": "F017",
@@ -1389,7 +1387,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "早期是普通原野小兽，逐电鼠进化后才掌握蓄电奔跑。"
     },
     {
       "id": "F018",
@@ -1460,8 +1459,7 @@
           "dexNumber": 42,
           "name": "逐岚隼",
           "types": [
-            "flying",
-            "normal"
+            "flying"
           ],
           "stage": 3,
           "baseStats": {
@@ -1480,7 +1478,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "以飞行速度和风压为核心，鸟类体型不额外附加一般或其他属性。"
     },
     {
       "id": "F019",
@@ -1521,7 +1520,6 @@
           "dexNumber": 44,
           "name": "雷绒羊",
           "types": [
-            "normal",
             "electric"
           ],
           "stage": 2,
@@ -1552,9 +1550,7 @@
           "dexNumber": 45,
           "name": "暴云羊",
           "types": [
-            "normal",
-            "electric",
-            "flying"
+            "electric"
           ],
           "stage": 3,
           "baseStats": {
@@ -1573,7 +1569,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "绵球羊未形成电囊，雷绒羊起转为纯电系；暴云来自带电羊绒而非飞行能力。"
     },
     {
       "id": "F020",
@@ -1614,8 +1611,7 @@
           "dexNumber": 47,
           "name": "抱果兽",
           "types": [
-            "grass",
-            "normal"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -1645,9 +1641,7 @@
           "dexNumber": 48,
           "name": "丰穗兽",
           "types": [
-            "grass",
-            "normal",
-            "rock"
+            "grass"
           ],
           "stage": 3,
           "baseStats": {
@@ -1666,7 +1660,8 @@
         }
       ],
       "battleRole": "balanced",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "果实、枝干与谷穗属于连续的植物成长，不因抱持果实或硬壳增加属性。"
     },
     {
       "id": "F021",
@@ -1677,7 +1672,6 @@
           "dexNumber": 49,
           "name": "蹦石兔",
           "types": [
-            "normal",
             "ground"
           ],
           "stage": 1,
@@ -1708,7 +1702,6 @@
           "dexNumber": 50,
           "name": "峭耳兔",
           "types": [
-            "normal",
             "ground",
             "fighting"
           ],
@@ -1729,7 +1722,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "蹦石兔擅长掘土，峭耳兔成年后的蹬击才发展成格斗技巧。"
     },
     {
       "id": "F022",
@@ -1740,7 +1734,6 @@
           "dexNumber": 51,
           "name": "黄昏狐",
           "types": [
-            "normal",
             "dark"
           ],
           "stage": 1,
@@ -1773,9 +1766,7 @@
           "dexNumber": 52,
           "name": "暮影狐",
           "types": [
-            "normal",
-            "dark",
-            "ghost"
+            "dark"
           ],
           "stage": 2,
           "baseStats": {
@@ -1794,7 +1785,8 @@
         }
       ],
       "battleRole": "trickster",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "专注黄昏伏击、隐匿与影中追踪，影子不是幽灵附身。"
     },
     {
       "id": "F023",
@@ -1805,7 +1797,6 @@
           "dexNumber": 53,
           "name": "草铃雀",
           "types": [
-            "grass",
             "flying"
           ],
           "stage": 1,
@@ -1838,9 +1829,7 @@
           "dexNumber": 54,
           "name": "牧歌鹂",
           "types": [
-            "grass",
-            "flying",
-            "fairy"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -1859,7 +1848,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "草铃与牧歌是鸟鸣及羽色特征，整条进化线专精飞行。"
     },
     {
       "id": "F024",
@@ -1900,8 +1890,7 @@
           "dexNumber": 56,
           "name": "原野骏",
           "types": [
-            "normal",
-            "fighting"
+            "normal"
           ],
           "stage": 2,
           "baseStats": {
@@ -1920,7 +1909,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "原野马以体力和奔跑见长，强壮蹄击不自动成为格斗属性。"
     },
     {
       "id": "F025",
@@ -1931,7 +1921,6 @@
           "dexNumber": 57,
           "name": "眠云牛",
           "types": [
-            "normal",
             "flying"
           ],
           "stage": 1,
@@ -1951,7 +1940,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "云体与浮空睡眠构成纯飞行专精，依靠眠云坠发挥稀有精灵的控场特色。"
     },
     {
       "id": "F026",
@@ -1983,7 +1973,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "叶旋飞掠与伏击各有独立用途，保留草、飞行和恶的稀有组合。"
     },
     {
       "id": "F027",
@@ -2024,8 +2015,7 @@
           "dexNumber": 60,
           "name": "岩盾犀",
           "types": [
-            "ground",
-            "rock"
+            "ground"
           ],
           "stage": 2,
           "baseStats": {
@@ -2055,9 +2045,8 @@
           "dexNumber": 61,
           "name": "山岳犀",
           "types": [
-            "rock",
             "ground",
-            "fighting"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -2076,7 +2065,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "掘地习性贯穿成长，山岳犀完全矿化的护盾才增加岩石属性。"
     },
     {
       "id": "F028",
@@ -2117,8 +2107,7 @@
           "dexNumber": 63,
           "name": "棱晶螺",
           "types": [
-            "rock",
-            "psychic"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -2149,7 +2138,6 @@
           "name": "辉晶螺",
           "types": [
             "rock",
-            "steel",
             "psychic"
           ],
           "stage": 3,
@@ -2169,7 +2157,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "晶壳以岩石为本，辉晶螺成熟后借晶面聚焦念力。"
     },
     {
       "id": "F029",
@@ -2210,8 +2199,7 @@
           "dexNumber": 66,
           "name": "裂地蜥",
           "types": [
-            "ground",
-            "dragon"
+            "ground"
           ],
           "stage": 2,
           "baseStats": {
@@ -2243,9 +2231,7 @@
           "dexNumber": 67,
           "name": "断崖蜥",
           "types": [
-            "ground",
-            "dragon",
-            "rock"
+            "ground"
           ],
           "stage": 3,
           "baseStats": {
@@ -2264,7 +2250,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "砂鳞、裂地与断崖均是地层适应，不因蜥形或硬鳞添加龙和岩石。"
     },
     {
       "id": "F030",
@@ -2305,8 +2292,7 @@
           "dexNumber": 69,
           "name": "炭爪鼹",
           "types": [
-            "ground",
-            "fire"
+            "ground"
           ],
           "stage": 2,
           "baseStats": {
@@ -2337,7 +2323,6 @@
           "name": "熔钻鼹",
           "types": [
             "ground",
-            "fire",
             "steel"
           ],
           "stage": 3,
@@ -2357,7 +2342,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "以矿洞掘进为主，熔钻鼹成熟的金属钻爪增加钢系；余热不另算火系。"
     },
     {
       "id": "F031",
@@ -2368,8 +2354,7 @@
           "dexNumber": 71,
           "name": "听岩蝠",
           "types": [
-            "flying",
-            "dark"
+            "flying"
           ],
           "stage": 1,
           "baseStats": {
@@ -2399,9 +2384,7 @@
           "dexNumber": 72,
           "name": "回声蝠",
           "types": [
-            "flying",
-            "dark",
-            "ghost"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -2420,7 +2403,8 @@
         }
       ],
       "battleRole": "trickster",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "回声用于洞窟导航，夜行和幽暗栖地不等于恶系或幽灵系。"
     },
     {
       "id": "F032",
@@ -2431,8 +2415,7 @@
           "dexNumber": 73,
           "name": "铁砂蚁",
           "types": [
-            "bug",
-            "steel"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -2465,8 +2448,7 @@
           "name": "磁列蚁",
           "types": [
             "bug",
-            "steel",
-            "electric"
+            "steel"
           ],
           "stage": 2,
           "baseStats": {
@@ -2485,7 +2467,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "铁砂先作为携带材料，磁列蚁成熟的金属外骨骼才形成钢系。"
     },
     {
       "id": "F033",
@@ -2496,8 +2479,7 @@
           "dexNumber": 75,
           "name": "滴石鲶",
           "types": [
-            "water",
-            "rock"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -2527,9 +2509,7 @@
           "dexNumber": 76,
           "name": "暗河鲶",
           "types": [
-            "water",
-            "rock",
-            "dark"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -2548,7 +2528,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "石滴与暗河是水域环境，鲶鱼本身专精水系。"
     },
     {
       "id": "F034",
@@ -2559,8 +2540,7 @@
           "dexNumber": 77,
           "name": "鸣钟石",
           "types": [
-            "rock",
-            "ghost"
+            "rock"
           ],
           "stage": 1,
           "baseStats": {
@@ -2579,7 +2559,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "依靠矿石共振和镇矿钟鸣形成纯岩石守卫，不再以幽灵解释钟声。"
     },
     {
       "id": "F035",
@@ -2590,8 +2571,6 @@
           "dexNumber": 78,
           "name": "盲灯虾",
           "types": [
-            "water",
-            "electric",
             "ice"
           ],
           "stage": 1,
@@ -2611,7 +2590,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "寒潭盲虾将冷光和冰晶凝结发挥到极致，纯冰系与专属冷闪共同形成稀有定位。"
     },
     {
       "id": "F036",
@@ -2652,8 +2632,7 @@
           "dexNumber": 80,
           "name": "流线鳅",
           "types": [
-            "water",
-            "dragon"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -2683,8 +2662,7 @@
           "dexNumber": 81,
           "name": "奔潮鲵",
           "types": [
-            "water",
-            "fighting"
+            "water"
           ],
           "stage": 3,
           "baseStats": {
@@ -2703,7 +2681,8 @@
         }
       ],
       "battleRole": "balanced",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "河流适应、流线身体与逆流游泳构成纯水系成长，不把修长体型误归龙族。"
     },
     {
       "id": "F037",
@@ -2744,8 +2723,7 @@
           "dexNumber": 83,
           "name": "浪壳蟹",
           "types": [
-            "water",
-            "rock"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -2776,8 +2754,7 @@
           "name": "礁冠蟹",
           "types": [
             "water",
-            "rock",
-            "ice"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -2796,7 +2773,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "潮蟹以水系生长，礁冠蟹成年后由坚固礁壳增加岩石。"
     },
     {
       "id": "F038",
@@ -2807,8 +2785,7 @@
           "dexNumber": 85,
           "name": "细鳍鲨",
           "types": [
-            "water",
-            "dark"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -2838,9 +2815,7 @@
           "dexNumber": 86,
           "name": "巡浪鲨",
           "types": [
-            "water",
-            "flying",
-            "dark"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -2871,8 +2846,7 @@
           "name": "破浪鲨",
           "types": [
             "water",
-            "dark",
-            "dragon"
+            "dark"
           ],
           "stage": 3,
           "baseStats": {
@@ -2891,7 +2865,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "小鲨以水系游动，破浪鲨才发展成熟的掠食伏击；跃浪不等于飞行。"
     },
     {
       "id": "F039",
@@ -2932,8 +2907,7 @@
           "dexNumber": 89,
           "name": "环流蛇",
           "types": [
-            "water",
-            "dragon"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -2964,8 +2938,7 @@
           "name": "涡龙鳗",
           "types": [
             "water",
-            "dragon",
-            "electric"
+            "dragon"
           ],
           "stage": 3,
           "baseStats": {
@@ -2984,7 +2957,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "幼体专精水流，涡龙鳗成年后觉醒真正龙脉，不再附带电系。"
     },
     {
       "id": "F040",
@@ -2995,8 +2969,7 @@
           "dexNumber": 91,
           "name": "灯伞水母",
           "types": [
-            "water",
-            "electric"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -3029,8 +3002,7 @@
           "name": "海灯水母",
           "types": [
             "water",
-            "electric",
-            "poison"
+            "electric"
           ],
           "stage": 2,
           "baseStats": {
@@ -3049,7 +3021,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "灯伞先是生物光，海灯水母成熟的电场才增加电系。"
     },
     {
       "id": "F041",
@@ -3060,8 +3033,7 @@
           "dexNumber": 93,
           "name": "帆尾鱼",
           "types": [
-            "water",
-            "flying"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -3091,9 +3063,7 @@
           "dexNumber": 94,
           "name": "远航旗鱼",
           "types": [
-            "water",
-            "flying",
-            "dragon"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -3112,7 +3082,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "帆尾鱼和旗鱼的帆是水中推进结构，仍是纯水系。"
     },
     {
       "id": "F042",
@@ -3123,7 +3094,6 @@
           "dexNumber": 95,
           "name": "滩泥螺",
           "types": [
-            "water",
             "ground"
           ],
           "stage": 1,
@@ -3154,9 +3124,7 @@
           "dexNumber": 96,
           "name": "潮泥螺",
           "types": [
-            "water",
-            "ground",
-            "grass"
+            "ground"
           ],
           "stage": 2,
           "baseStats": {
@@ -3175,7 +3143,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "以潮间带淤泥中的掘行和筑巢为核心，湿润环境不自动增加水与草。"
     },
     {
       "id": "F043",
@@ -3207,7 +3176,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "珊枝生命、水流操纵和护礁祝福分别构成三种能力。"
     },
     {
       "id": "F044",
@@ -3240,7 +3210,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "浮岛龟同时具有水循环、土壤岛壳、共生林与浮空能力，是四属性的特殊稀有设计。"
     },
     {
       "id": "F045",
@@ -3272,7 +3243,8 @@
         }
       ],
       "battleRole": "special_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "回潮之水、葬歌亡魂与封存在贝中的寒流构成稀有三属性。"
     },
     {
       "id": "F046",
@@ -3313,8 +3285,7 @@
           "dexNumber": 101,
           "name": "峭角羊",
           "types": [
-            "rock",
-            "ice"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -3344,9 +3315,7 @@
           "dexNumber": 102,
           "name": "峰冠羊",
           "types": [
-            "rock",
-            "ice",
-            "fighting"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -3365,7 +3334,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "山羊靠矿质角甲攀岩，雪地栖息和坚实蹄击不增加冰与格斗。"
     },
     {
       "id": "F047",
@@ -3406,8 +3376,7 @@
           "dexNumber": 104,
           "name": "裂空鹰",
           "types": [
-            "flying",
-            "dragon"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -3437,9 +3406,7 @@
           "dexNumber": 105,
           "name": "穹翼鹰",
           "types": [
-            "flying",
-            "dragon",
-            "electric"
+            "flying"
           ],
           "stage": 3,
           "baseStats": {
@@ -3458,7 +3425,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "鹰类专精高空机动，裂空与穹翼表达风压而非龙脉或放电。"
     },
     {
       "id": "F048",
@@ -3499,8 +3467,7 @@
           "dexNumber": 107,
           "name": "寒岚狸",
           "types": [
-            "ice",
-            "flying"
+            "ice"
           ],
           "stage": 2,
           "baseStats": {
@@ -3532,9 +3499,7 @@
           "dexNumber": 108,
           "name": "霜灵狸",
           "types": [
-            "ice",
-            "flying",
-            "fairy"
+            "ice"
           ],
           "stage": 3,
           "baseStats": {
@@ -3553,7 +3518,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "三形态都以霜雾和低温适应为核心，岚与灵只是外观和动作意象。"
     },
     {
       "id": "F049",
@@ -3564,8 +3530,7 @@
           "dexNumber": 109,
           "name": "旋羽蝶",
           "types": [
-            "bug",
-            "flying"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -3598,8 +3563,7 @@
           "name": "飓纹蝶",
           "types": [
             "bug",
-            "flying",
-            "ice"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -3618,7 +3582,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "幼蝶以虫系为本，飓纹蝶成年后能够主动驱使气流。"
     },
     {
       "id": "F050",
@@ -3660,8 +3625,7 @@
           "name": "云仪鹤",
           "types": [
             "flying",
-            "psychic",
-            "ice"
+            "psychic"
           ],
           "stage": 2,
           "baseStats": {
@@ -3680,7 +3644,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "鸣峰鹤以飞行为主，云仪鹤成熟后借仪式舞姿聚焦念力。"
     },
     {
       "id": "F051",
@@ -3691,7 +3656,6 @@
           "dexNumber": 113,
           "name": "岩喙雀",
           "types": [
-            "rock",
             "flying"
           ],
           "stage": 1,
@@ -3722,9 +3686,8 @@
           "dexNumber": 114,
           "name": "陡翼鸦",
           "types": [
-            "rock",
             "flying",
-            "dark"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -3743,7 +3706,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "岩喙雀先以飞行为本，陡翼鸦成年后才拥有矿化翼羽。"
     },
     {
       "id": "F052",
@@ -3775,7 +3739,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "龙脉、雷暴与高空巡航均为远雷鹏的实际力量。"
     },
     {
       "id": "F053",
@@ -3786,8 +3751,6 @@
           "dexNumber": 116,
           "name": "栖云灵",
           "types": [
-            "fairy",
-            "flying",
             "ice"
           ],
           "stage": 1,
@@ -3807,7 +3770,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "栖云灵的云体由微小冰晶组成，以霜环和控温形成纯冰系稀有精灵。"
     },
     {
       "id": "F054",
@@ -3818,7 +3782,6 @@
           "dexNumber": 117,
           "name": "烛芯灵",
           "types": [
-            "fire",
             "ghost"
           ],
           "stage": 1,
@@ -3849,9 +3812,7 @@
           "dexNumber": 118,
           "name": "灯焰灵",
           "types": [
-            "fire",
-            "ghost",
-            "dark"
+            "ghost"
           ],
           "stage": 2,
           "baseStats": {
@@ -3883,10 +3844,8 @@
           "dexNumber": 119,
           "name": "曜灯灵",
           "types": [
-            "fire",
             "ghost",
-            "dark",
-            "psychic"
+            "fire"
           ],
           "stage": 3,
           "baseStats": {
@@ -3905,7 +3864,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "幼体以烛芯附魂为核心，曜灯灵成熟后才具备独立释放烈焰的能力。"
     },
     {
       "id": "F055",
@@ -3946,8 +3906,7 @@
           "dexNumber": 121,
           "name": "赤脊蜥",
           "types": [
-            "fire",
-            "rock"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -3977,9 +3936,7 @@
           "dexNumber": 122,
           "name": "熔冠蜥",
           "types": [
-            "fire",
-            "rock",
-            "dragon"
+            "fire"
           ],
           "stage": 3,
           "baseStats": {
@@ -3998,7 +3955,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "熔蜥的脊冠来自耐热鳞片，整条进化线专精火焰而非岩石或龙族。"
     },
     {
       "id": "F056",
@@ -4009,8 +3967,7 @@
           "dexNumber": 123,
           "name": "温泉猿",
           "types": [
-            "water",
-            "fire"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -4043,8 +4000,7 @@
           "name": "沸岩猿",
           "types": [
             "water",
-            "fire",
-            "fighting"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -4063,7 +4019,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "幼猿依温泉水生活，沸岩猿成熟后能够自主加热水流。"
     },
     {
       "id": "F057",
@@ -4074,8 +4031,7 @@
           "dexNumber": 125,
           "name": "炉羽雀",
           "types": [
-            "fire",
-            "flying"
+            "fire"
           ],
           "stage": 1,
           "baseStats": {
@@ -4106,8 +4062,7 @@
           "name": "烬翼隼",
           "types": [
             "fire",
-            "flying",
-            "dragon"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -4126,7 +4081,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "炉羽雀先以火焰羽绒为本，烬翼隼成年后主动驾驭热上升气流。"
     },
     {
       "id": "F058",
@@ -4137,9 +4093,7 @@
           "dexNumber": 127,
           "name": "黑曜蝎",
           "types": [
-            "bug",
             "poison",
-            "rock",
             "dark"
           ],
           "stage": 1,
@@ -4159,7 +4113,8 @@
         }
       ],
       "battleRole": "physical_attacker",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "黑曜蝎以尾毒和伏击为武器，黑曜色甲壳不另算岩石属性。"
     },
     {
       "id": "F059",
@@ -4172,7 +4127,6 @@
           "types": [
             "fire",
             "bug",
-            "flying",
             "fairy"
           ],
           "stage": 1,
@@ -4192,7 +4146,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "虫体、日冕火焰和鳞粉祝福构成日冕蝶的三系能力，不因有翼继续叠加。"
     },
     {
       "id": "F060",
@@ -4233,8 +4188,7 @@
           "dexNumber": 130,
           "name": "储电鼠",
           "types": [
-            "electric",
-            "normal"
+            "electric"
           ],
           "stage": 2,
           "baseStats": {
@@ -4264,9 +4218,7 @@
           "dexNumber": 131,
           "name": "蓄雷鼠",
           "types": [
-            "electric",
-            "normal",
-            "dark"
+            "electric"
           ],
           "stage": 3,
           "baseStats": {
@@ -4285,7 +4237,8 @@
         }
       ],
       "battleRole": "speed_attacker",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "插尾、储电和蓄雷属于同一电能成长路线，不继续增加一般和恶。"
     },
     {
       "id": "F061",
@@ -4296,8 +4249,7 @@
           "dexNumber": 132,
           "name": "铃齿轮",
           "types": [
-            "steel",
-            "electric"
+            "steel"
           ],
           "stage": 1,
           "baseStats": {
@@ -4327,8 +4279,7 @@
           "dexNumber": 133,
           "name": "环齿轮",
           "types": [
-            "steel",
-            "electric"
+            "steel"
           ],
           "stage": 2,
           "baseStats": {
@@ -4361,7 +4312,6 @@
           "name": "塔轮灵",
           "types": [
             "steel",
-            "electric",
             "ghost"
           ],
           "stage": 3,
@@ -4381,7 +4331,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "齿轮前两形态为机械钢体，塔轮灵成年后出现真正附魂。"
     },
     {
       "id": "F062",
@@ -4392,8 +4343,7 @@
           "dexNumber": 135,
           "name": "纸翼偶",
           "types": [
-            "normal",
-            "flying"
+            "normal"
           ],
           "stage": 1,
           "baseStats": {
@@ -4423,9 +4373,7 @@
           "dexNumber": 136,
           "name": "折风偶",
           "types": [
-            "normal",
-            "flying",
-            "ghost"
+            "normal"
           ],
           "stage": 2,
           "baseStats": {
@@ -4458,8 +4406,6 @@
           "name": "万象纸灵",
           "types": [
             "normal",
-            "flying",
-            "ghost",
             "fairy"
           ],
           "stage": 3,
@@ -4479,7 +4425,8 @@
         }
       ],
       "battleRole": "trickster",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "纸偶先依靠折叠结构行动，万象纸灵成年后觉醒变形魔法。"
     },
     {
       "id": "F063",
@@ -4490,7 +4437,6 @@
           "dexNumber": 138,
           "name": "梦灯猫",
           "types": [
-            "normal",
             "ghost",
             "dark"
           ],
@@ -4511,7 +4457,8 @@
         }
       ],
       "battleRole": "support",
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "梦灯猫通过魂灯侵入梦境，以幽灵和恶形成夜间干扰定位。"
     },
     {
       "id": "F064",
@@ -4543,7 +4490,8 @@
         }
       ],
       "battleRole": "balanced",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "金属铜羽、飞行与传导电流都是铜壳鸽不可替代的能力。"
     },
     {
       "id": "F065",
@@ -4554,8 +4502,7 @@
           "dexNumber": 140,
           "name": "讯流灵",
           "types": [
-            "electric",
-            "psychic"
+            "electric"
           ],
           "stage": 1,
           "baseStats": {
@@ -4574,7 +4521,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "讯流灵以电流传讯和高速穿透为唯一核心，纯电系保留鲜明的稀有专精。"
     },
     {
       "id": "F066",
@@ -4585,8 +4533,7 @@
           "dexNumber": 141,
           "name": "纹印石",
           "types": [
-            "rock",
-            "psychic"
+            "rock"
           ],
           "stage": 1,
           "baseStats": {
@@ -4617,8 +4564,7 @@
           "name": "碑纹卫",
           "types": [
             "rock",
-            "psychic",
-            "ghost"
+            "psychic"
           ],
           "stage": 2,
           "baseStats": {
@@ -4649,9 +4595,8 @@
           "name": "镇域像",
           "types": [
             "rock",
-            "steel",
-            "fighting",
-            "psychic"
+            "psychic",
+            "fighting"
           ],
           "stage": 3,
           "baseStats": {
@@ -4670,7 +4615,8 @@
         }
       ],
       "battleRole": "physical_tank",
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "纹印先是矿石，再依碑文觉醒念力，镇域像成年后才把守护仪式化作格斗。"
     },
     {
       "id": "F067",
@@ -4681,8 +4627,7 @@
           "dexNumber": 144,
           "name": "遗羽雏",
           "types": [
-            "psychic",
-            "flying"
+            "psychic"
           ],
           "stage": 1,
           "baseStats": {
@@ -4713,8 +4658,7 @@
           "name": "铭羽鸟",
           "types": [
             "psychic",
-            "flying",
-            "dragon"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -4748,9 +4692,7 @@
           "types": [
             "psychic",
             "flying",
-            "dragon",
-            "fire",
-            "ghost"
+            "fire"
           ],
           "stage": 3,
           "baseStats": {
@@ -4769,7 +4711,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "遗羽以念力成长，铭羽鸟获得主动飞行，星仪鸾最终点燃星火；不再叠加无依据的龙和幽灵。"
     },
     {
       "id": "F068",
@@ -4814,7 +4757,6 @@
           "name": "镜月狐",
           "types": [
             "dark",
-            "ghost",
             "water",
             "fairy"
           ],
@@ -4835,7 +4777,8 @@
         }
       ],
       "battleRole": "trickster",
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "残月以魂影潜行，镜月进化后借月潮与幻术显形，保留恶系主线并转换具体能力。"
     },
     {
       "id": "F069",
@@ -4848,9 +4791,7 @@
           "types": [
             "psychic",
             "electric",
-            "dragon",
-            "rock",
-            "ice"
+            "dragon"
           ],
           "stage": 1,
           "baseStats": {
@@ -4869,7 +4810,8 @@
         }
       ],
       "battleRole": "special_attacker",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "星环念力、环间电弧与源脉龙能形成三种实际力量，岩石和冰不再作为装饰属性。"
     },
     {
       "id": "F070",
@@ -4880,11 +4822,7 @@
           "dexNumber": 150,
           "name": "无相兽",
           "types": [
-            "normal",
-            "dragon",
-            "ghost",
-            "dark",
-            "fairy"
+            "normal"
           ],
           "stage": 1,
           "baseStats": {
@@ -4903,7 +4841,8 @@
         }
       ],
       "battleRole": "balanced",
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "无相兽将不偏元素的本体力量发挥到极致，纯一般系配合无相界裂，不依赖堆叠免疫。"
     },
     {
       "id": "F071",
@@ -4916,7 +4855,6 @@
           "dexNumber": 151,
           "name": "苇哨雏",
           "types": [
-            "grass",
             "flying"
           ],
           "stage": 1,
@@ -4947,7 +4885,6 @@
           "dexNumber": 152,
           "name": "笛羽鹭",
           "types": [
-            "grass",
             "flying"
           ],
           "stage": 2,
@@ -4980,9 +4917,8 @@
           "dexNumber": 153,
           "name": "芦歌鹭",
           "types": [
-            "grass",
             "flying",
-            "fairy"
+            "grass"
           ],
           "stage": 3,
           "baseStats": {
@@ -5000,7 +4936,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "苇哨与笛羽先体现涉禽飞行，芦歌鹭成年后才与活芦苇形成共生。"
     },
     {
       "id": "F072",
@@ -5013,8 +4950,7 @@
           "dexNumber": 154,
           "name": "墨点螈",
           "types": [
-            "water",
-            "poison"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -5044,9 +4980,7 @@
           "dexNumber": 155,
           "name": "砚背螈",
           "types": [
-            "water",
-            "poison",
-            "dark"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -5077,9 +5011,7 @@
           "name": "墨潮螈",
           "types": [
             "water",
-            "poison",
-            "dark",
-            "ghost"
+            "poison"
           ],
           "stage": 3,
           "baseStats": {
@@ -5097,7 +5029,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "墨囊属于水中隐蔽器官，墨潮螈成熟后才分泌真正毒性墨汁。"
     },
     {
       "id": "F073",
@@ -5110,8 +5043,7 @@
           "dexNumber": 157,
           "name": "织叶蚕",
           "types": [
-            "bug",
-            "grass"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -5141,8 +5073,7 @@
           "dexNumber": 158,
           "name": "缎苔蛹",
           "types": [
-            "bug",
-            "grass"
+            "bug"
           ],
           "stage": 2,
           "baseStats": {
@@ -5172,9 +5103,7 @@
           "dexNumber": 159,
           "name": "锦林蛾",
           "types": [
-            "bug",
-            "grass",
-            "psychic"
+            "bug"
           ],
           "stage": 3,
           "baseStats": {
@@ -5192,7 +5121,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "叶织物和锦纹用于昆虫伪装与导航，整条路线专精虫系。"
     },
     {
       "id": "F074",
@@ -5205,8 +5135,7 @@
           "dexNumber": 160,
           "name": "果盏狸",
           "types": [
-            "grass",
-            "normal"
+            "grass"
           ],
           "stage": 1,
           "baseStats": {
@@ -5238,9 +5167,7 @@
           "dexNumber": 161,
           "name": "宴枝狸",
           "types": [
-            "grass",
-            "normal",
-            "fairy"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -5258,7 +5185,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "传播落果与种子的共生习性构成草系定位，宴会意象不额外增加妖精。"
     },
     {
       "id": "F075",
@@ -5271,7 +5199,6 @@
           "dexNumber": 162,
           "name": "睡莲貘",
           "types": [
-            "water",
             "psychic"
           ],
           "stage": 1,
@@ -5304,9 +5231,7 @@
           "dexNumber": 163,
           "name": "镜沼貘",
           "types": [
-            "water",
-            "psychic",
-            "ghost"
+            "psychic"
           ],
           "stage": 2,
           "baseStats": {
@@ -5324,7 +5249,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "睡梦与倒影迷惑来自念力，睡莲和沼泽只是栖地及身体装饰。"
     },
     {
       "id": "F076",
@@ -5357,7 +5283,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "活菌生长、毒孢与护林祝福各有独立能力来源。"
     },
     {
       "id": "F077",
@@ -5370,7 +5297,6 @@
           "dexNumber": 165,
           "name": "穗绒雀",
           "types": [
-            "normal",
             "flying"
           ],
           "stage": 1,
@@ -5401,7 +5327,6 @@
           "dexNumber": 166,
           "name": "扬穗雀",
           "types": [
-            "grass",
             "flying"
           ],
           "stage": 2,
@@ -5432,9 +5357,7 @@
           "dexNumber": 167,
           "name": "穗风鸢",
           "types": [
-            "grass",
-            "flying",
-            "ground"
+            "flying"
           ],
           "stage": 3,
           "baseStats": {
@@ -5452,7 +5375,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "播种是鸟类携种迁飞的生态行为，不按种子与扬土逐项加属性。"
     },
     {
       "id": "F078",
@@ -5495,8 +5419,7 @@
           "dexNumber": 169,
           "name": "夯土獾",
           "types": [
-            "ground",
-            "fighting"
+            "ground"
           ],
           "stage": 2,
           "baseStats": {
@@ -5526,9 +5449,7 @@
           "dexNumber": 170,
           "name": "阡陌獾",
           "types": [
-            "ground",
-            "fighting",
-            "rock"
+            "ground"
           ],
           "stage": 3,
           "baseStats": {
@@ -5546,7 +5467,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "泥甲、夯土爪与田埂建筑均属于地面能力，不因工具式前爪增加格斗。"
     },
     {
       "id": "F079",
@@ -5559,8 +5481,7 @@
           "dexNumber": 171,
           "name": "弹芽羚",
           "types": [
-            "normal",
-            "grass"
+            "normal"
           ],
           "stage": 1,
           "baseStats": {
@@ -5593,7 +5514,6 @@
           "name": "逐拍羚",
           "types": [
             "normal",
-            "grass",
             "electric"
           ],
           "stage": 2,
@@ -5612,7 +5532,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "弹芽羚以弹跳奔跑为本，逐拍羚成熟后蹄部节奏才能产生电弧。"
     },
     {
       "id": "F080",
@@ -5625,8 +5546,7 @@
           "dexNumber": 173,
           "name": "拂尘蛾",
           "types": [
-            "bug",
-            "flying"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -5658,9 +5578,7 @@
           "dexNumber": 174,
           "name": "谷舞蛾",
           "types": [
-            "bug",
-            "flying",
-            "psychic"
+            "bug"
           ],
           "stage": 2,
           "baseStats": {
@@ -5678,7 +5596,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "拂尘和谷舞是清粉与振翅行为，不把感知干扰另算超能力。"
     },
     {
       "id": "F081",
@@ -5691,9 +5610,7 @@
           "dexNumber": 175,
           "name": "远望蜃兽",
           "types": [
-            "psychic",
-            "normal",
-            "fairy"
+            "psychic"
           ],
           "stage": 1,
           "baseStats": {
@@ -5711,7 +5628,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "远望蜃兽的膜与观景眼共同聚焦念力，以纯超能力形成幻景专精。"
     },
     {
       "id": "F082",
@@ -5724,8 +5642,7 @@
           "dexNumber": 176,
           "name": "硫晶鼬",
           "types": [
-            "rock",
-            "poison"
+            "rock"
           ],
           "stage": 1,
           "baseStats": {
@@ -5755,9 +5672,7 @@
           "dexNumber": 177,
           "name": "硫脊鼬",
           "types": [
-            "rock",
-            "poison",
-            "fire"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -5788,9 +5703,7 @@
           "name": "硫冠貂",
           "types": [
             "rock",
-            "poison",
-            "fire",
-            "steel"
+            "fire"
           ],
           "stage": 3,
           "baseStats": {
@@ -5808,7 +5721,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "硫晶沿脊背结成矿冠，硫冠貂成年后炉口结构才具备喷火能力。"
     },
     {
       "id": "F083",
@@ -5821,8 +5735,7 @@
           "dexNumber": 179,
           "name": "叩石鳗",
           "types": [
-            "electric",
-            "rock"
+            "electric"
           ],
           "stage": 1,
           "baseStats": {
@@ -5852,9 +5765,7 @@
           "dexNumber": 180,
           "name": "鸣脉鳗",
           "types": [
-            "electric",
-            "rock",
-            "ground"
+            "electric"
           ],
           "stage": 2,
           "baseStats": {
@@ -5885,9 +5796,7 @@
           "name": "震矿鳗",
           "types": [
             "electric",
-            "rock",
-            "ground",
-            "dragon"
+            "ground"
           ],
           "stage": 3,
           "baseStats": {
@@ -5905,7 +5814,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "叩石与鸣脉主要传导电流，震矿鳗成年后才将共鸣扩展为地层震动。"
     },
     {
       "id": "F084",
@@ -5918,8 +5828,7 @@
           "dexNumber": 182,
           "name": "钟乳鳐",
           "types": [
-            "rock",
-            "flying"
+            "rock"
           ],
           "stage": 1,
           "baseStats": {
@@ -5951,9 +5860,7 @@
           "dexNumber": 183,
           "name": "悬钟鳐",
           "types": [
-            "rock",
-            "flying",
-            "ghost"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -5971,7 +5878,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "薄石翼和滴水共鸣均来自岩体结构，洞顶滑翔和幽光不自动增加飞行或幽灵。"
     },
     {
       "id": "F085",
@@ -5984,7 +5892,6 @@
           "dexNumber": 184,
           "name": "盐晶蟊",
           "types": [
-            "bug",
             "ice"
           ],
           "stage": 1,
@@ -6017,9 +5924,7 @@
           "dexNumber": 185,
           "name": "霜盐蟊",
           "types": [
-            "bug",
-            "ice",
-            "steel"
+            "ice"
           ],
           "stage": 2,
           "baseStats": {
@@ -6037,7 +5942,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "寒潭盐霜甲片形成纯冰系防护，蟊形不要求再附加虫系。"
     },
     {
       "id": "F086",
@@ -6050,7 +5956,6 @@
           "dexNumber": 186,
           "name": "封矿门兽",
           "types": [
-            "rock",
             "steel",
             "psychic"
           ],
@@ -6070,7 +5975,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "门板金属护甲与星纹念力核心形成守门能力，矿晶外饰不再叠加岩石。"
     },
     {
       "id": "F087",
@@ -6113,8 +6019,7 @@
           "dexNumber": 188,
           "name": "涡纹螺",
           "types": [
-            "water",
-            "psychic"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -6146,9 +6051,7 @@
           "dexNumber": 189,
           "name": "潮卷螺",
           "types": [
-            "water",
-            "psychic",
-            "dragon"
+            "water"
           ],
           "stage": 3,
           "baseStats": {
@@ -6166,7 +6069,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "螺壳浪纹与卷流都由水流塑造，触须形状不代表龙脉。"
     },
     {
       "id": "F088",
@@ -6179,8 +6083,7 @@
           "dexNumber": 190,
           "name": "泡舟鸭",
           "types": [
-            "water",
-            "flying"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -6210,8 +6113,7 @@
           "dexNumber": 191,
           "name": "帆背鸭",
           "types": [
-            "water",
-            "flying"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -6242,8 +6144,7 @@
           "name": "远渡雁",
           "types": [
             "water",
-            "flying",
-            "ice"
+            "flying"
           ],
           "stage": 3,
           "baseStats": {
@@ -6261,7 +6162,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "幼体与帆背阶段专精水面航行，远渡雁完成迁飞能力后增加飞行。"
     },
     {
       "id": "F089",
@@ -6274,7 +6176,6 @@
           "dexNumber": 193,
           "name": "藻绳鳗",
           "types": [
-            "water",
             "grass"
           ],
           "stage": 1,
@@ -6305,9 +6206,7 @@
           "dexNumber": 194,
           "name": "缆藻鳗",
           "types": [
-            "water",
-            "grass",
-            "electric"
+            "grass"
           ],
           "stage": 2,
           "baseStats": {
@@ -6337,9 +6236,7 @@
           "dexNumber": 195,
           "name": "锚林鳗",
           "types": [
-            "water",
             "grass",
-            "electric",
             "steel"
           ],
           "stage": 3,
@@ -6358,7 +6255,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "主体为活藻与缆藻，锚林鳗成年后矿质锚盘形成钢系；水域与微电流不另算属性。"
     },
     {
       "id": "F090",
@@ -6371,7 +6269,6 @@
           "dexNumber": 196,
           "name": "砾砂鲎",
           "types": [
-            "water",
             "rock"
           ],
           "stage": 1,
@@ -6402,9 +6299,7 @@
           "dexNumber": 197,
           "name": "岸垒鲎",
           "types": [
-            "water",
-            "rock",
-            "ground"
+            "rock"
           ],
           "stage": 2,
           "baseStats": {
@@ -6422,7 +6317,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "砂砾背甲和岸垒挡浪结构形成纯岩石守卫，潮间带只是栖地。"
     },
     {
       "id": "F091",
@@ -6435,8 +6331,7 @@
           "dexNumber": 198,
           "name": "明潮灯鱼",
           "types": [
-            "water",
-            "fairy"
+            "water"
           ],
           "stage": 1,
           "baseStats": {
@@ -6469,7 +6364,6 @@
           "name": "昼潮灯鱼",
           "types": [
             "water",
-            "fairy",
             "electric"
           ],
           "stage": 2,
@@ -6488,7 +6382,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "明潮灯鱼先以生物光沟通，昼潮灯鱼成熟后灯鳍能产生电信号。"
     },
     {
       "id": "F092",
@@ -6521,7 +6416,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "潮汐水纹、回声附魂与金属匣板各有真实作用，保留三系。"
     },
     {
       "id": "F093",
@@ -6564,8 +6460,7 @@
           "dexNumber": 202,
           "name": "霜缝貂",
           "types": [
-            "ice",
-            "steel"
+            "ice"
           ],
           "stage": 2,
           "baseStats": {
@@ -6598,8 +6493,7 @@
           "name": "缀极貂",
           "types": [
             "ice",
-            "steel",
-            "fighting"
+            "steel"
           ],
           "stage": 3,
           "baseStats": {
@@ -6617,7 +6511,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "雪针和霜线以冰系成长，缀极貂成熟后才缝合出金属般的护甲。"
     },
     {
       "id": "F094",
@@ -6630,8 +6525,7 @@
           "dexNumber": 204,
           "name": "翼铃驹",
           "types": [
-            "flying",
-            "fairy"
+            "flying"
           ],
           "stage": 1,
           "baseStats": {
@@ -6661,9 +6555,7 @@
           "dexNumber": 205,
           "name": "云梭驹",
           "types": [
-            "flying",
-            "fairy",
-            "psychic"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -6696,9 +6588,7 @@
           "name": "极光天驹",
           "types": [
             "flying",
-            "fairy",
-            "psychic",
-            "ice"
+            "fairy"
           ],
           "stage": 3,
           "baseStats": {
@@ -6716,7 +6606,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "先以风铃翼和高山飞行为主，极光天驹最终觉醒引路祝福。"
     },
     {
       "id": "F095",
@@ -6729,7 +6620,6 @@
           "dexNumber": 207,
           "name": "砾羽雏",
           "types": [
-            "rock",
             "flying"
           ],
           "stage": 1,
@@ -6760,9 +6650,7 @@
           "dexNumber": 208,
           "name": "盘山鹫",
           "types": [
-            "rock",
-            "flying",
-            "ground"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -6792,10 +6680,8 @@
           "dexNumber": 209,
           "name": "岳风鹫",
           "types": [
-            "rock",
             "flying",
-            "ground",
-            "fighting"
+            "rock"
           ],
           "stage": 3,
           "baseStats": {
@@ -6813,7 +6699,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "山地鸟先依靠滑翔，岳风鹫成年后等高线羽片才完全矿化。"
     },
     {
       "id": "F096",
@@ -6826,8 +6713,7 @@
           "dexNumber": 210,
           "name": "晕雪狐",
           "types": [
-            "ice",
-            "psychic"
+            "ice"
           ],
           "stage": 1,
           "baseStats": {
@@ -6860,8 +6746,7 @@
           "name": "环晕狐",
           "types": [
             "ice",
-            "psychic",
-            "fairy"
+            "psychic"
           ],
           "stage": 2,
           "baseStats": {
@@ -6879,7 +6764,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "晕雪狐的冰晶先用于折光，环晕狐成熟后才形成主动念力幻象。"
     },
     {
       "id": "F097",
@@ -6892,8 +6778,7 @@
           "dexNumber": 212,
           "name": "风索蛛",
           "types": [
-            "bug",
-            "flying"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -6926,7 +6811,6 @@
           "name": "悬岚蛛",
           "types": [
             "bug",
-            "flying",
             "electric"
           ],
           "stage": 2,
@@ -6945,7 +6829,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "丝索悬挂属于蛛类本能，悬岚蛛成熟带电蛛丝增加电系。"
     },
     {
       "id": "F098",
@@ -6960,7 +6845,6 @@
           "types": [
             "dragon",
             "ice",
-            "rock",
             "flying"
           ],
           "stage": 1,
@@ -6979,7 +6863,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "真实龙脉、冰翼与高空停驻构成三系力量，断崖状冠仅是造型。"
     },
     {
       "id": "F099",
@@ -6992,8 +6877,7 @@
           "dexNumber": 215,
           "name": "炉砂蜥",
           "types": [
-            "fire",
-            "ground"
+            "fire"
           ],
           "stage": 1,
           "baseStats": {
@@ -7023,9 +6907,7 @@
           "dexNumber": 216,
           "name": "燧背蜥",
           "types": [
-            "fire",
-            "ground",
-            "steel"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -7058,9 +6940,7 @@
           "name": "星炉蜥",
           "types": [
             "fire",
-            "ground",
-            "steel",
-            "dragon"
+            "steel"
           ],
           "stage": 3,
           "baseStats": {
@@ -7078,7 +6958,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "炉腔先以火系运作，星炉蜥成年后形成锻造钢甲；砂与龙纹只是材料和花纹。"
     },
     {
       "id": "F100",
@@ -7091,7 +6972,6 @@
           "dexNumber": 218,
           "name": "烬壳螈",
           "types": [
-            "fire",
             "water"
           ],
           "stage": 1,
@@ -7122,9 +7002,7 @@
           "dexNumber": 219,
           "name": "沸纹螈",
           "types": [
-            "fire",
-            "water",
-            "poison"
+            "water"
           ],
           "stage": 2,
           "baseStats": {
@@ -7154,10 +7032,8 @@
           "dexNumber": 220,
           "name": "热泉冕螈",
           "types": [
-            "fire",
             "water",
-            "poison",
-            "rock"
+            "fire"
           ],
           "stage": 3,
           "baseStats": {
@@ -7175,7 +7051,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "温泉螈先通过水流调温，热泉冕螈成年后能够主动加热并释放蒸汽。"
     },
     {
       "id": "F101",
@@ -7188,8 +7065,7 @@
           "dexNumber": 221,
           "name": "炭弦蝉",
           "types": [
-            "bug",
-            "fire"
+            "bug"
           ],
           "stage": 1,
           "baseStats": {
@@ -7222,8 +7098,7 @@
           "name": "熔弦蝉",
           "types": [
             "bug",
-            "fire",
-            "steel"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -7241,7 +7116,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "炭弦蝉以虫鸣为本，熔弦蝉成熟后共鸣能点燃炭弦，不再因金属光泽加钢。"
     },
     {
       "id": "F102",
@@ -7254,7 +7130,6 @@
           "dexNumber": 223,
           "name": "火漆鸦",
           "types": [
-            "fire",
             "flying"
           ],
           "stage": 1,
@@ -7287,9 +7162,8 @@
           "dexNumber": 224,
           "name": "封焰鸦",
           "types": [
-            "fire",
             "flying",
-            "ghost"
+            "fire"
           ],
           "stage": 2,
           "baseStats": {
@@ -7307,7 +7181,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "火漆先是蜡状羽片，封焰鸦成熟后羽印才释放火焰，不将旧印记视为亡魂。"
     },
     {
       "id": "F103",
@@ -7340,7 +7215,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "硫焰、毒烟与假脸伏击构成稀有三系定位。"
     },
     {
       "id": "F104",
@@ -7353,7 +7229,6 @@
           "dexNumber": 226,
           "name": "线团灵",
           "types": [
-            "normal",
             "ghost"
           ],
           "stage": 1,
@@ -7384,8 +7259,7 @@
           "dexNumber": 227,
           "name": "纺线灵",
           "types": [
-            "ghost",
-            "steel"
+            "ghost"
           ],
           "stage": 2,
           "baseStats": {
@@ -7417,9 +7291,7 @@
           "dexNumber": 228,
           "name": "织城偶",
           "types": [
-            "ghost",
-            "steel",
-            "fairy"
+            "ghost"
           ],
           "stage": 3,
           "baseStats": {
@@ -7437,7 +7309,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "废线、线轴与织物是同一附魂载体，整条路线专精幽灵。"
     },
     {
       "id": "F105",
@@ -7450,7 +7323,6 @@
           "dexNumber": 229,
           "name": "纸匣雀",
           "types": [
-            "normal",
             "flying"
           ],
           "stage": 1,
@@ -7481,8 +7353,7 @@
           "dexNumber": 230,
           "name": "折讯雀",
           "types": [
-            "flying",
-            "electric"
+            "flying"
           ],
           "stage": 2,
           "baseStats": {
@@ -7513,8 +7384,7 @@
           "name": "邮星鸢",
           "types": [
             "flying",
-            "electric",
-            "psychic"
+            "electric"
           ],
           "stage": 3,
           "baseStats": {
@@ -7532,7 +7402,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "纸匣和折讯阶段以飞行为本，邮星鸢成年后才通过电光传讯。"
     },
     {
       "id": "F106",
@@ -7545,8 +7416,7 @@
           "dexNumber": 232,
           "name": "瓷芽偶",
           "types": [
-            "fairy",
-            "rock"
+            "fairy"
           ],
           "stage": 1,
           "baseStats": {
@@ -7578,9 +7448,7 @@
           "dexNumber": 233,
           "name": "釉歌偶",
           "types": [
-            "fairy",
-            "rock",
-            "psychic"
+            "fairy"
           ],
           "stage": 2,
           "baseStats": {
@@ -7598,7 +7466,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "瓷偶以魔法活化和共鸣釉纹为核心，材质与歌声不再附加岩石和超能力。"
     },
     {
       "id": "F107",
@@ -7611,8 +7480,7 @@
           "dexNumber": 234,
           "name": "轨芽蜗",
           "types": [
-            "steel",
-            "electric"
+            "steel"
           ],
           "stage": 1,
           "baseStats": {
@@ -7645,8 +7513,7 @@
           "name": "环轨蜗",
           "types": [
             "steel",
-            "electric",
-            "ground"
+            "electric"
           ],
           "stage": 2,
           "baseStats": {
@@ -7664,7 +7531,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "轨芽蜗先使用机械轨壳，环轨蜗成熟磁轨系统增加电系。"
     },
     {
       "id": "F108",
@@ -7678,8 +7546,7 @@
           "name": "锚钟管家",
           "types": [
             "steel",
-            "ghost",
-            "fighting"
+            "ghost"
           ],
           "stage": 1,
           "baseStats": {
@@ -7697,7 +7564,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "旧钟金属身躯与管家附魂构成双系，锚形手臂的敲击不再额外增加格斗。"
     },
     {
       "id": "F109",
@@ -7730,7 +7598,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "诡术面具、舞台魔法与霓虹电流形成三个相互配合的稀有能力。"
     },
     {
       "id": "F110",
@@ -7829,7 +7698,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "fast"
+      "experienceCurve": "fast",
+      "typingRationale": "砂字虫以虫体与刻砂起步，铭砂蛹觉醒碑文念力，篆域蝶最后得到遗迹结界祝福。"
     },
     {
       "id": "F111",
@@ -7926,7 +7796,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "龙脉贯穿全线，石化碑翼逐渐引出亡魂，古曜龙最终点燃幽焰，保留有剧情依据的四系。"
     },
     {
       "id": "F112",
@@ -8006,7 +7877,6 @@
           "types": [
             "water",
             "psychic",
-            "fairy",
             "ghost"
           ],
           "stage": 3,
@@ -8025,7 +7895,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_slow"
+      "experienceCurve": "medium_slow",
+      "typingRationale": "泉镜与念力始终为本，轮镜以祝福护泉，时涟进化后改用回声残像记录旧泉。"
     },
     {
       "id": "F113",
@@ -8073,7 +7944,6 @@
           "types": [
             "dark",
             "steel",
-            "psychic",
             "ghost"
           ],
           "stage": 2,
@@ -8092,7 +7962,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "medium_fast"
+      "experienceCurve": "medium_fast",
+      "typingRationale": "玄锁以暗能和金属封印为本，解印后守门魂影显现，不再额外堆叠超能力。"
     },
     {
       "id": "F114",
@@ -8105,9 +7976,7 @@
           "dexNumber": 249,
           "name": "双衡星兽",
           "types": [
-            "psychic",
-            "fighting",
-            "fairy"
+            "psychic"
           ],
           "stage": 1,
           "baseStats": {
@@ -8125,7 +7994,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "双衡星兽将星盘、秩序与双向回流统一为纯超能力，以神兽级种族能力和双衡星裁体现单系极致。"
     },
     {
       "id": "F115",
@@ -8141,7 +8011,6 @@
             "dragon",
             "ghost",
             "fire",
-            "dark",
             "ice"
           ],
           "stage": 1,
@@ -8160,7 +8029,8 @@
           "evolutions": []
         }
       ],
-      "experienceCurve": "slow"
+      "experienceCurve": "slow",
+      "typingRationale": "龙脉本体、夜魂、角端幽焰与尾部寒晶均对应明确力量，冷暖回流保留四系，移除重复表达夜色的恶系。"
     }
   ],
   "ruleset": {

@@ -74,3 +74,11 @@ export function saveFileData(save: PortableSave): { filename: string; text: stri
     text,
   };
 }
+/** Legacy collections remain readable, but every import must select exactly one entry. */
+export function selectSaveEntry(file: ReturnType<typeof decodeSaveFile>, index?: number) {
+  if (index === undefined && file.entries.length > 1) throw new Error('请先选择要导入的一份存档');
+  const selected = index ?? 0;
+  if (!Number.isSafeInteger(selected) || selected < 0 || selected >= file.entries.length)
+    throw new Error('所选存档不存在，请重新选择');
+  return file.entries[selected]!;
+}

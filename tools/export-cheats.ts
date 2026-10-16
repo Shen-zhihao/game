@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { format, resolveConfig } from 'prettier';
-import { CONTENT_VERSION, ITEMS, ITEM_POCKETS } from '../src/content/catalog';
-import { CHEAT_CODES } from '../src/game/cheats';
+import { CONTENT_VERSION, ITEMS, ITEM_POCKETS, SPECIES } from '../src/content/catalog';
+import { CHEAT_CODES, CREATURE_CHEAT_CODES, ITEM_CHEAT_CODES } from '../src/game/cheats';
 
 async function main() {
   const groups = Object.keys(ITEM_POCKETS) as (keyof typeof ITEM_POCKETS)[];
@@ -10,7 +10,7 @@ async function main() {
     '',
     `适用内容版本：\`${CONTENT_VERSION}\`。从游戏运行配置生成；更新命令为 \`pnpm exec tsx tools/export-cheats.ts\`。`,
     '',
-    '在一段已载入的冒险中打开「菜单 → 设置 → 金手指」，输入三位纯数字指令并按「确认」。仅有一个输入框和确认按钮，不在界面公开指令列表。首位1为精灵球、2为回复、3为培养、4为进化、5为重要物品。旧字母代码不再接受。可以重复领取普通道具；重要物品永久携带、每件一份。',
+    '在一段已载入的冒险中打开「菜单 → 设置 → 金手指」，输入数字指令并按「确认」。界面仅显示输入框和确认按钮。三位道具代码保留：首位1为精灵球、2为回复、3为培养、4为进化、5为重要物品；四位精灵代码为6加三位图鉴编号，6001至6250，每种精灵各一条。旧字母代码不接受。',
     '',
     '战斗、对话、初始伙伴选择和待处理的升级／进化中不能领取。无效代码、已有重要物品或完整奖励放不下时不发放，也不扣旅费。每种普通道具最多携带999个。大师球另外为尚未领取的三个正常剧情奖励预留空间；例如尚无剧情球时最多携带996枚金手指球。',
     '',
@@ -23,15 +23,26 @@ async function main() {
       '',
       '| 数字指令 | 道具 | 数量 |',
       '| --- | --- | --- |',
-      ...CHEAT_CODES.filter((entry) => ITEMS[entry.itemId]!.pocket === pocket).map(
+      ...ITEM_CHEAT_CODES.filter((entry) => ITEMS[entry.itemId]!.pocket === pocket).map(
         (entry) => `| \`${entry.code}\` | ${ITEMS[entry.itemId]!.name} | ${entry.quantity} |`,
       ),
       '',
     ]),
     '重要物品不消耗，不参与普通商店与兑换；正常通过剧情获得的同一工具也会显示在「重要物品」袋中。剪藤和碎岩工具不替代各城馆内练习。归流校准件虽然可以提前持有，但相关设备仍检查调查与证据前置。',
     '',
+    '## 精灵代码',
+    '',
+    '先完成博士救援并正式获得初始伙伴。每次获得一只Lv.5精灵，同码可重复获得不同个体；队伍未满6只时加入队伍，否则进入360格仓库，全部满时拒绝领取。同步登记见过与捕获图鉴，角色、精灵和账本可正常保存、读取与传输。代码不自动完成剧情，不授予徽章或冠军。',
+    '',
+    '| 数字指令 | 图鉴编号 | 精灵 | 等级 |',
+    '| --- | --- | --- | --- |',
+    ...CREATURE_CHEAT_CODES.map(
+      (entry) =>
+        `| \`${entry.code}\` | ${String(SPECIES[entry.speciesId]!.dexNumber).padStart(3, '0')} | ${SPECIES[entry.speciesId]!.name} | ${entry.level} |`,
+    ),
+    '',
   ].join('\n');
-  const path = 'docs/cheat-codes.md';
+  const path = 'docs/金手指/金手指代码.md';
   writeFileSync(path, await format(text, { ...(await resolveConfig(path)), filepath: path }));
   console.log(`导出 ${CHEAT_CODES.length} 条金手指代码到 ${path}`);
 }

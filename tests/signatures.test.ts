@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import acquisition from '../docs/data/acquisition-plan.json';
+import acquisition from '../docs/精灵获取/稀有精灵获取.json';
 import { ALL_SPECIES, canLearnMove, learnset, SPECIES } from '../src/content/catalog';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../src/content/signatures';
 import { reduceGame } from '../src/game/engine';

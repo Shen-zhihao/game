@@ -1,5 +1,5 @@
 import { GameState } from '../../game/model';
-import { createCollection, decodeSaveFile } from '../archive';
+import { decodeSaveFile, selectSaveEntry } from '../archive';
 import {
   createSnapshot,
   decodeSnapshot,
@@ -99,26 +99,17 @@ export class SaveRepository {
       }),
     );
   }
-  async exportAll() {
-    await this.queue;
-    const store = await this.driver.read();
-    const entries = Object.entries(store.slots).map(([slot, snapshot]) => ({
-      slot: Number(slot),
-      snapshot,
-    }));
-    if (!entries.length) throw new Error('还没有可以分享的存档');
-    return createCollection(entries);
-  }
-  async importNew(text: string): Promise<{ slot: number; snapshot: Snapshot }[]> {
-    const { entries } = decodeSaveFile(text);
+  async importNew(
+    text: string,
+    entryIndex?: number,
+  ): Promise<{ slot: number; snapshot: Snapshot }> {
+    const { snapshot } = selectSaveEntry(decodeSaveFile(text), entryIndex);
     return this.serialize(() =>
-      this.driver.transaction((store) =>
-        entries.map(({ snapshot }) => {
-          const slot = nextSlot(store);
-          this.put(store, slot, snapshot);
-          return { slot, snapshot };
-        }),
-      ),
+      this.driver.transaction((store) => {
+        const slot = nextSlot(store);
+        this.put(store, slot, snapshot);
+        return { slot, snapshot };
+      }),
     );
   }
   async save(

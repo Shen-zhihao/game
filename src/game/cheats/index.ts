@@ -1,8 +1,9 @@
-import { ITEMS } from '../../content/catalog';
+import { ALL_SPECIES, ITEMS, SPECIES } from '../../content/catalog';
 import { KEY_ITEMS, hasFieldAccess } from '../../content/keyItems';
 import type { GameState } from '../model';
+import { makeCreature } from '../rules';
 
-export const CHEAT_CODES = [
+export const ITEM_CHEAT_CODES = [
   // Explicit IDs keep existing commands stable when new items are added or reordered.
   ...(
     [
@@ -34,9 +35,21 @@ export const CHEAT_CODES = [
       ['411', 'echo_bell', 10],
       ['412', 'amber_drop', 10],
     ] as const
-  ).map(([code, itemId, quantity]) => ({ code, itemId, quantity })),
-  ...KEY_ITEMS.map((item) => ({ code: item.code, itemId: item.id, quantity: 1 })),
+  ).map(([code, itemId, quantity]) => ({ kind: 'item' as const, code, itemId, quantity })),
+  ...KEY_ITEMS.map((item) => ({
+    kind: 'item' as const,
+    code: item.code,
+    itemId: item.id,
+    quantity: 1,
+  })),
 ] as const;
+export const CREATURE_CHEAT_CODES = ALL_SPECIES.map((species) => ({
+  kind: 'creature' as const,
+  code: `6${String(species.dexNumber).padStart(3, '0')}`,
+  speciesId: species.id,
+  level: 5,
+}));
+export const CHEAT_CODES = [...ITEM_CHEAT_CODES, ...CREATURE_CHEAT_CODES];
 export const normalizeCheatCode = (code: string) => code.trim();
 export const cheatFor = (code: string) =>
   CHEAT_CODES.find((entry) => entry.code === normalizeCheatCode(code));
@@ -44,7 +57,18 @@ export function cheatReason(game: GameState, code: string): string | null {
   if (game.battle || game.dialogue || game.pending.length || game.progress.flags.starterChoice)
     return '请先完成当前战斗、对话或成长选择。';
   const entry = cheatFor(code);
-  if (!entry) return code.trim() ? '指令无效，请输入三位数字指令。' : '请输入三位数字指令。';
+  if (!entry)
+    return code.trim()
+      ? '指令无效，请输入三位道具或四位精灵数字指令。'
+      : '请输入三位道具或四位精灵数字指令。';
+  if ((game.cheats?.redemptions ?? 0) >= 999999999) return '领取记录已达上限，本次未领取。';
+  if (entry.kind === 'creature') {
+    if (game.progress.flags.opening && !game.progress.flags.partnerReceived)
+      return '请先完成博士救援并正式获得初始伙伴。';
+    if (game.party.length >= 6 && game.box.length >= 360)
+      return '队伍和仓库都已满，本次未获得精灵。';
+    return null;
+  }
   const key = KEY_ITEMS.find((i) => i.id === entry.itemId);
   if (key && hasFieldAccess(game, key.flag)) return '已经持有这件重要物品。';
   // Leave room for the unclaimed story balls so a full cheat stack cannot break later story rewards.
@@ -53,9 +77,8 @@ export function cheatReason(game: GameState, code: string): string | null {
   if ((game.inventory[entry.itemId] ?? 0) + entry.quantity > limit)
     return '该道具已接近携带上限，本次未领取。大师球会为尚未领取的剧情奖励预留位置。';
   if (
-    (game.cheats?.redemptions ?? 0) >= 999999999 ||
     (game.cheats?.masterBallsGranted ?? 0) + (entry.itemId === 'master_ball' ? entry.quantity : 0) >
-      999999999
+    999999999
   )
     return '领取记录已达上限，本次未领取。';
   return null;
@@ -69,6 +92,17 @@ export function redeemCheat(game: GameState, code: string): void {
   const entry = cheatFor(code)!;
   const ledger = (game.cheats ??= { redemptions: 0, masterBallsGranted: 0, masterBallsUsed: 0 });
   ledger.redemptions++;
+  if (entry.kind === 'creature') {
+    const creature = makeCreature(game, entry.speciesId, entry.level);
+    creature.history[0]!.label = '通过精灵数字指令成为伙伴';
+    game.creatures[creature.id] = creature;
+    const inParty = game.party.length < 6;
+    (inParty ? game.party : game.box).push(creature.id);
+    if (!game.dex.seen.includes(entry.speciesId)) game.dex.seen.push(entry.speciesId);
+    if (!game.dex.caught.includes(entry.speciesId)) game.dex.caught.push(entry.speciesId);
+    game.notice = `已获得${SPECIES[entry.speciesId]!.name} Lv.${entry.level}，已加入${inParty ? '队伍' : '仓库'}。`;
+    return;
+  }
   if (entry.itemId === 'master_ball') ledger.masterBallsGranted += entry.quantity;
   game.inventory[entry.itemId] = (game.inventory[entry.itemId] ?? 0) + entry.quantity;
   game.notice = `已获得${ITEMS[entry.itemId]!.name} ×${entry.quantity}。`;

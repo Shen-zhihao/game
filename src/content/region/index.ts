@@ -1,4 +1,4 @@
-import campaign from '../../../docs/data/campaign-plan.json';
+import campaign from '../../../docs/剧情规划/剧情规划.json';
 import { MapId, TypeId } from '../../game/model';
 import { TYPES } from '../catalog';
 import { MAPS } from '../world';

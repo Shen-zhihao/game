@@ -134,6 +134,7 @@ describe('真实 Node TCP 上的共用传档协议', () => {
     game.dialogue = null;
     game.player.name = '来自甲手机';
     if (version === 'cheats') {
+      game = reduceGame(game, { kind: 'cheat', code: '6250' });
       game = reduceGame(game, { kind: 'cheat', code: '105' });
       game = reduceGame(game, { kind: 'cheat', code: '503' });
       game = reduceGame(game, { kind: 'cheat', code: '301' });

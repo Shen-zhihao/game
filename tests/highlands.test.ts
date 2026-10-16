@@ -133,8 +133,12 @@ describe('石脊区域的自由道馆与矿山故事', () => {
     bot.act({ kind: 'useItem', itemId: 'candy', creatureId: bot.game.party[0]! });
     bot.choices();
     bot.heal();
-    train(bot, bot.game.party[0]!, 12);
-    bot.act({ kind: 'buy', itemId: 'ball', quantity: 10 });
+    train(bot, bot.game.party[0]!, 16);
+    bot.act({ kind: 'recall', creatureId: bot.game.party[0]!, moveId: 'sleep', replace: 2 });
+    expect(bot.game.creatures[bot.game.party[0]!]!.moves[2]!.id).toBe('sleep');
+    bot.captureBall = 'great_ball';
+    bot.act({ kind: 'buy', itemId: 'great_ball', quantity: 8 });
+    expect(bot.game.inventory.great_ball).toBe(8);
     bot.act({ kind: 'buy', itemId: 'potion', quantity: 5 });
     bot.portal('mine');
     bot.npc('bellStone');

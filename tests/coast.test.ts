@@ -122,7 +122,7 @@ describe('潮汐章节：自由道馆、港口结案与三段浅礁旧约', () =
     bot.portal('harbor');
     bot.portal('tideworks');
     bot.go(25, 24);
-    for (let step = 0; step < 4; step++) bot.act({ kind: 'walk', direction: 'right' });
+    bot.go(29, 24);
     expect([bot.game.player.x, bot.game.player.y]).toEqual([29, 24]);
     bot.game = decodeSnapshot(JSON.stringify(createSnapshot(bot.game, testEntropy, null))).game;
     bot.portal('harbor');

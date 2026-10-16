@@ -78,13 +78,13 @@ function CheatMenu({
           setError('');
           setSubmitted(false);
         }}
-        placeholder="输入三位数字指令"
+        placeholder="输入数字指令"
         placeholderTextColor={palette.muted}
         inputMode="numeric"
         keyboardType="number-pad"
         autoCapitalize="none"
         autoCorrect={false}
-        maxLength={3}
+        maxLength={4}
         returnKeyType="done"
         onSubmitEditing={confirm}
         style={[

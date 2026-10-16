@@ -25,7 +25,7 @@ describe('多玩家独立存档与可分享文件', () => {
       await expect(repo.save(slot, fixture(), null)).rejects.toThrow(/槽位/);
     }
   });
-  it('不同玩家的全部存档一次分享，新设备批量新增、冷读并独立继续，原档不覆盖', async () => {
+  it('旧合集必须选择一份，只新增和读取所选玩家，其他条目与本机原档均不导入或覆盖', async () => {
     const source = new SaveRepository(new MemoryDriver(), testEntropy);
     const games = [
       player('甲玩家'),
@@ -35,26 +35,34 @@ describe('多玩家独立存档与可分享文件', () => {
     games[1] = reduceGame(games[1]!, { kind: 'cheat', code: '105' });
     games[1] = reduceGame(games[1]!, { kind: 'cheat', code: '503' });
     games[2] = reduceGame(games[2]!, { kind: 'tick', seconds: 5 });
-    for (const game of games) await source.saveNew(game);
-    const collection = await source.exportAll();
+    const saved = [];
+    for (const game of games) saved.push(await source.saveNew(game));
+    const collection = createCollection(saved);
     const file = saveFileData(collection);
     expect(file.filename).toMatch(/^stargrove-all-.*\.stargrove$/);
     const targetDriver = new MemoryDriver();
     const target = new SaveRepository(targetDriver, testEntropy);
     const own = await target.saveNew(player('本机玩家'));
-    const restored = await target.importNew(file.text);
-    expect(restored.map((entry) => entry.slot)).toEqual([2, 3, 4]);
+    await expect(target.importNew(file.text)).rejects.toThrow(/选择/);
+    const restored = await target.importNew(file.text, 1);
+    expect(restored.slot).toBe(2);
     const cold = new SaveRepository(targetDriver, testEntropy);
     expect((await cold.load(1))!.snapshot).toEqual(own.snapshot);
-    for (let i = 0; i < games.length; i++)
-      expect((await cold.load(restored[i]!.slot))!.game).toEqual(games[i]);
+    expect((await cold.load(restored.slot))!.game).toEqual(games[1]);
+    expect(await cold.load(3)).toBeNull();
     const continued = reduceGame(games[1]!, { kind: 'tick', seconds: 4 });
-    const next = await cold.save(3, continued, restored[1]!.snapshot.revisionId, cold.newBranch());
+    const next = await cold.save(
+      restored.slot,
+      continued,
+      restored.snapshot.revisionId,
+      cold.newBranch(),
+    );
     expect(next.lineageId).toBe(collection.entries[1]!.snapshot.lineageId);
     expect(next.parentRevisionId).toBe(collection.entries[1]!.snapshot.revisionId);
     expect(next.branchId).not.toBe(collection.entries[1]!.snapshot.branchId);
     expect((await source.load(2))!.game).toEqual(games[1]);
-    expect((await cold.load(3))!.game).toEqual(continued);
+    expect((await cold.load(restored.slot))!.game).toEqual(continued);
+    expect('exportAll' in target).toBe(false);
   });
   it('单档与旧版文件可给另一位玩家重复新增恢复，不绑定原设备或传档回执', async () => {
     const source = createSnapshot(player('原旅行者'), testEntropy, null);
@@ -65,8 +73,8 @@ describe('多玩家独立存档与可分享文件', () => {
     expect(decodeSaveFile(file.text).collection).toBe(false);
     const first = await target.importNew(file.text);
     const second = await target.importNew(file.text);
-    expect(first[0]!.slot).toBe(2);
-    expect(second[0]!.slot).toBe(3);
+    expect(first.slot).toBe(2);
+    expect(second.slot).toBe(3);
     expect((await target.load(1))!.snapshot).toEqual(own.snapshot);
     expect((await target.load(2))!.game.player.name).toBe('原旅行者');
     expect((await target.load(3))!.snapshot).toEqual(source);
@@ -77,13 +85,14 @@ describe('多玩家独立存档与可分享文件', () => {
     await repo.save(1, player('现在的我'), before.snapshot.revisionId);
     const history = await repo.recovery(1);
     const restored = await repo.importNew(saveFileData(history[0]!.snapshot).text);
-    expect((await repo.load(restored[0]!.slot))!.game.player.name).toBe('过去的我');
+    expect((await repo.load(restored.slot))!.game.player.name).toBe('过去的我');
     expect((await repo.load(1))!.game.player.name).toBe('现在的我');
   });
   it('合集任意一档损坏、重复或版本不兼容时，整个导入均不写入', async () => {
-    const repo = new SaveRepository(new MemoryDriver(), testEntropy);
+    const driver = new MemoryDriver();
+    const repo = new SaveRepository(driver, testEntropy);
     await repo.saveNew(player('保留'));
-    const before = await repo.exportAll();
+    const before = await driver.read();
     const collection = createCollection([
       { slot: 1, snapshot: createSnapshot(player('甲'), testEntropy, null) },
       { slot: 2, snapshot: createSnapshot(player('乙'), testEntropy, null) },
@@ -106,14 +115,14 @@ describe('多玩家独立存档与可分享文件', () => {
       const bad = structuredClone(collection);
       mutate(bad);
       bad.checksum = digest(JSON.stringify(bad.entries));
-      await expect(repo.importNew(JSON.stringify(bad))).rejects.toThrow();
-      expect((await repo.exportAll()).entries).toEqual(before.entries);
+      await expect(repo.importNew(JSON.stringify(bad), 0)).rejects.toThrow();
+      expect(await driver.read()).toEqual(before);
     }
     const damaged = { ...collection, checksum: '0'.repeat(64) };
-    await expect(repo.importNew(JSON.stringify(damaged))).rejects.toThrow(/校验/);
-    expect((await repo.exportAll()).entries).toEqual(before.entries);
+    await expect(repo.importNew(JSON.stringify(damaged), 0)).rejects.toThrow(/校验/);
+    expect(await driver.read()).toEqual(before);
   });
-  it('批量导入遇到磁盘故障全部回滚，不留下半份合集或改动原档', async () => {
+  it('所选存档导入遇到磁盘故障回滚，不改动原档', async () => {
     const driver = new MemoryDriver();
     const repo = new SaveRepository(driver, testEntropy);
     await repo.saveNew(player('原玩家'));
@@ -123,8 +132,19 @@ describe('多玩家独立存档与可分享文件', () => {
     ]);
     const before = await driver.read();
     driver.failCommit = true;
-    await expect(repo.importNew(JSON.stringify(collection))).rejects.toThrow(/磁盘/);
+    await expect(repo.importNew(JSON.stringify(collection), 1)).rejects.toThrow(/磁盘/);
     expect(await driver.read()).toEqual(before);
+  });
+  it('不存在的合集选择不会导入任何其他条目', async () => {
+    const driver = new MemoryDriver();
+    const repo = new SaveRepository(driver, testEntropy);
+    const collection = createCollection([
+      { slot: 1, snapshot: createSnapshot(player('甲'), testEntropy, null) },
+      { slot: 2, snapshot: createSnapshot(player('乙'), testEntropy, null) },
+    ]);
+    for (const index of [-1, 2, 0.5, NaN, Infinity])
+      await expect(repo.importNew(JSON.stringify(collection), index)).rejects.toThrow(/所选存档/);
+    expect((await driver.read()).slots).toEqual({});
   });
   it('两份仓库同时新增不会抢占同一槽，旧 revision 写入仍被拦截', async () => {
     const driver = new MemoryDriver();

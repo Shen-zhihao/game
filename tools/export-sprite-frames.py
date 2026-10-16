@@ -107,7 +107,7 @@ def export_frames():
             "frames": frames,
         }
 
-    Path("docs/data/sprite-frames.json").write_text(
+    Path("docs/美术资源/精灵取图区.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n"
     )
     total = sum(len(atlas["frames"]) for atlas in report.values())

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import plan from '../docs/data/campaign-plan.json';
+import plan from '../docs/剧情规划/剧情规划.json';
 import { ITEMS, SPECIES, TYPE_IDS } from '../src/content/catalog';
 
 describe('八徽章主线设计的前置与回收', () => {

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
 import { SaveRepository } from '../../persistence/repository';
 import { exportSave, pickSave } from '../../persistence/saveFiles';
 import { Snapshot, summary } from '../../persistence/snapshot';
-import { decodeSaveFile } from '../../persistence/archive';
+import { decodeSaveFile, selectSaveEntry } from '../../persistence/archive';
 
 export type Slots = Awaited<ReturnType<SaveRepository['list']>>;
 export function timeLabel(seconds: number) {
@@ -53,7 +53,9 @@ export function SaveMenu({
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<{ label: string; snapshot: Snapshot }[]>([]);
   const [incoming, setIncoming] = useState<ReturnType<typeof decodeSaveFile> | null>(null);
+  const [incomingSelected, setIncomingSelected] = useState(0);
   const [confirm, setConfirm] = useState(false);
+  const running = useRef(false);
   const refresh = useCallback(async () => {
     const list = await repository.list();
     setSlots(list);
@@ -73,7 +75,8 @@ export function SaveMenu({
     };
   }, [repository]);
   const attempt = async (work: () => Promise<void>) => {
-    if (busy) return;
+    if (running.current) return;
+    running.current = true;
     setBusy(true);
     setMessage('');
     try {
@@ -81,15 +84,16 @@ export function SaveMenu({
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e));
     } finally {
+      running.current = false;
       setBusy(false);
     }
   };
   const current = slots.find((s) => s.slot === selected);
   return (
     <ScrollView contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
-      <Label style={styles.title}>本地冒险记录</Label>
+      <Label style={styles.title}>读取与管理存档</Label>
       <Label muted style={{ fontSize: 12 }}>
-        可新增独立存档，任意选择读取；每槽保留10份历史，覆盖前另留保护备份。
+        先选择一份存档，再按读取；每次只读取所选存档。每槽保留10份历史，覆盖前另留保护备份。
       </Label>
       <Label muted style={{ fontSize: 12 }}>
         存档不绑定账号或设备。分享文件后，其他玩家可导入为新档继续；角色名字与原进度一并保留。
@@ -98,7 +102,9 @@ export function SaveMenu({
         {slots.map((s) => (
           <Button
             key={s.slot}
+            testID={`save-slot-${s.slot}`}
             small
+            selected={selected === s.slot}
             accent={selected === s.slot}
             disabled={busy}
             onPress={() => {
@@ -150,6 +156,7 @@ export function SaveMenu({
           另存为新档并继续
         </Button>
         <Button
+          testID="load-selected-save"
           disabled={busy || !current?.snapshot || !!current.error}
           onPress={() =>
             attempt(async () => {
@@ -157,7 +164,7 @@ export function SaveMenu({
             })
           }
         >
-          读取所选槽位
+          读取所选存档 · 槽 {selected}
         </Button>
         <Button
           disabled={busy || !current?.snapshot || !!current.error}
@@ -174,23 +181,7 @@ export function SaveMenu({
           分享所选存档文件
         </Button>
         <Button
-          testID="share-all-saves"
-          disabled={busy || !slots.some((s) => s.snapshot)}
-          onPress={() =>
-            attempt(async () => {
-              await onSave();
-              const collection = await repository.exportAll();
-              await exportSave(collection);
-              await refresh();
-              setMessage(
-                `已生成包含全部 ${collection.entries.length} 份独立存档的分享文件，接收者可批量新增恢复。`,
-              );
-            })
-          }
-        >
-          分享全部存档
-        </Button>
-        <Button
+          testID="import-save-file"
           disabled={busy}
           onPress={() =>
             attempt(async () => {
@@ -198,6 +189,7 @@ export function SaveMenu({
               const text = await pickSave();
               if (text) {
                 setIncoming(decodeSaveFile(text));
+                setIncomingSelected(0);
                 setConfirm(false);
                 await refresh();
               }
@@ -225,16 +217,30 @@ export function SaveMenu({
       {incoming && (
         <Panel style={{ gap: 12 }}>
           <Label style={{ color: palette.gold, fontWeight: '700' }}>
-            {incoming.collection ? `准备导入 ${incoming.entries.length} 份存档` : '准备恢复的存档'}
+            {incoming.collection ? '从旧合集选择一份存档' : '准备恢复的存档'}
           </Label>
-          {incoming.entries.map((entry, i) => (
-            <SnapshotInfo
-              key={i}
-              snapshot={entry.snapshot}
-              label={entry.slot ? `原槽位 ${entry.slot}` : undefined}
-            />
-          ))}
-          <Label muted>新增导入会保留本机所有存档，后续在所选新档独立游玩。</Label>
+          {incoming.collection && (
+            <View style={styles.wrap}>
+              {incoming.entries.map((entry, index) => (
+                <Button
+                  key={index}
+                  small
+                  testID={`import-entry-${index}`}
+                  selected={incomingSelected === index}
+                  accent={incomingSelected === index}
+                  disabled={busy}
+                  onPress={() => {
+                    setIncomingSelected(index);
+                    setConfirm(false);
+                  }}
+                >
+                  原槽 {entry.slot} · {summary(entry.snapshot).name}
+                </Button>
+              ))}
+            </View>
+          )}
+          <SnapshotInfo snapshot={selectSaveEntry(incoming, incomingSelected).snapshot} />
+          <Label muted>只导入并读取上面选中的这一份。新增导入会保留本机原有存档。</Label>
           <View style={styles.wrap}>
             <Button
               accent
@@ -242,54 +248,51 @@ export function SaveMenu({
               disabled={busy}
               onPress={() =>
                 attempt(async () => {
-                  const restored = await repository.importNew(JSON.stringify(incoming.file));
+                  const restored = await repository.importNew(
+                    JSON.stringify(incoming.file),
+                    incomingSelected,
+                  );
                   setIncoming(null);
                   setHistory([]);
-                  setSelected(restored[0]!.slot);
+                  setSelected(restored.slot);
                   await refresh();
-                  if (!incoming.collection) await onReload(restored[0]!.slot);
-                  else
-                    setMessage(
-                      `已新增恢复 ${restored.length} 份存档，选择任一槽位即可读取。原有存档未覆盖。`,
-                    );
+                  await onReload(restored.slot);
                 })
               }
             >
-              {incoming.collection ? '全部导入为新档' : '导入为新档并读取'}
+              导入所选存档为新档并读取
             </Button>
-            {!incoming.collection && (
-              <Button
-                disabled={busy}
-                onPress={() =>
-                  attempt(async () => {
-                    if (!confirm && current?.snapshot) {
-                      setConfirm(true);
-                      return;
-                    }
-                    await repository.import(
-                      selected,
-                      JSON.stringify(incoming.entries[0]!.snapshot),
-                      current?.snapshot?.revisionId ?? null,
-                      repository.newBranch(),
-                    );
-                    setIncoming(null);
-                    setHistory([]);
-                    await onReload(selected);
-                    await refresh();
-                    setMessage('已恢复并读取。');
-                  })
-                }
-              >
-                {confirm
-                  ? '确认覆盖并恢复'
-                  : `${current?.snapshot ? '覆盖' : '恢复到'}槽位 ${selected}`}
-              </Button>
-            )}
+            <Button
+              disabled={busy}
+              onPress={() =>
+                attempt(async () => {
+                  if (!confirm && current?.snapshot) {
+                    setConfirm(true);
+                    return;
+                  }
+                  await repository.import(
+                    selected,
+                    JSON.stringify(selectSaveEntry(incoming, incomingSelected).snapshot),
+                    current?.snapshot?.revisionId ?? null,
+                    repository.newBranch(),
+                  );
+                  setIncoming(null);
+                  setHistory([]);
+                  await onReload(selected);
+                  await refresh();
+                  setMessage('已恢复并读取。');
+                })
+              }
+            >
+              {confirm
+                ? '确认覆盖并恢复'
+                : `${current?.snapshot ? '覆盖' : '恢复到'}槽位 ${selected}`}
+            </Button>
             <Button disabled={busy} onPress={() => setIncoming(null)}>
               取消
             </Button>
           </View>
-          {!incoming.collection && current?.snapshot && (
+          {current?.snapshot && (
             <Label muted>覆盖槽位 {selected} 前会保留原进度到保护备份，需再次确认。</Label>
           )}
         </Panel>
@@ -301,6 +304,7 @@ export function SaveMenu({
             small
             onPress={() => {
               setIncoming(decodeSaveFile(JSON.stringify(h.snapshot)));
+              setIncomingSelected(0);
               setConfirm(false);
             }}
           >

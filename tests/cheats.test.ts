@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ITEMS } from '../src/content/catalog';
+import { ALL_SPECIES, ITEMS } from '../src/content/catalog';
 import { bagInventory, KEY_ITEMS } from '../src/content/keyItems';
 import { MAPS, terrainPassable } from '../src/content/world';
 import { shopStock } from '../src/content/cities';
-import { CHEAT_CODES } from '../src/game/cheats';
-import { reduceGame } from '../src/game/engine';
+import { CHEAT_CODES, CREATURE_CHEAT_CODES, ITEM_CHEAT_CODES } from '../src/game/cheats';
+import { newGame, reduceGame } from '../src/game/engine';
+import { makeCreature } from '../src/game/rules';
 import { startBattle } from '../src/game/battle';
 import { consumeMasterBall } from '../src/game/capture';
 import { playableCoast } from './coast-helpers';
@@ -44,7 +45,7 @@ describe('统一金手指与重要物品', () => {
       const invalid = reduceGame(g, { kind: 'cheat', code });
       expect(invalid.inventory).toEqual(g.inventory);
       expect(invalid.cheats).toBeUndefined();
-      expect(invalid.notice).toMatch(/三位数字指令/);
+      expect(invalid.notice).toMatch(/数字指令/);
     }
     const full = structuredClone(g);
     full.inventory.potion = 950;
@@ -163,15 +164,72 @@ describe('统一金手指与重要物品', () => {
     expect(cold(bot.game)).toEqual(bot.game);
   });
   it('项目 Markdown 包含每个实际生效代码，没有重复代码或未知道具', () => {
-    const guide = readFileSync('docs/cheat-codes.md', 'utf8');
+    const guide = readFileSync('docs/金手指/金手指代码.md', 'utf8');
     expect(new Set(CHEAT_CODES.map((e) => e.code)).size).toBe(CHEAT_CODES.length);
-    expect([...new Set(CHEAT_CODES.map((e) => e.itemId))].sort()).toEqual(
+    expect([...new Set(ITEM_CHEAT_CODES.map((e) => e.itemId))].sort()).toEqual(
       Object.keys(ITEMS).sort(),
     );
-    for (const entry of CHEAT_CODES) {
+    for (const entry of ITEM_CHEAT_CODES) {
       expect(entry.code).toMatch(/^[1-5]\d{2}$/);
       expect(guide).toContain(entry.code);
       expect(ITEMS[entry.itemId]).toBeDefined();
+    }
+    expect(CREATURE_CHEAT_CODES).toHaveLength(250);
+    for (const entry of CREATURE_CHEAT_CODES) {
+      expect(entry.code).toMatch(/^6\d{3}$/);
+      expect(guide).toContain(`\`${entry.code}\``);
+    }
+  });
+  it('250个固定代码分别获得对应精灵，正式图鉴与冷读记录一致', () => {
+    for (const species of ALL_SPECIES) {
+      const entry = CREATURE_CHEAT_CODES.find((item) => item.speciesId === species.id)!;
+      const g = reduceGame(fixture(), { kind: 'cheat', code: ` ${entry.code} ` });
+      const creature = g.creatures[g.party.at(-1)!]!;
+      expect(creature.speciesId).toBe(species.id);
+      expect(creature.level).toBe(5);
+      expect(creature.moves.length).toBeGreaterThan(0);
+      expect(g.dex.caught).toContain(species.id);
+      expect(g.dex.seen).toContain(species.id);
+      expect(cold(g)).toEqual(g);
+    }
+  });
+  it('同一代码可重复获得独立个体，队伍满后入仓，双满时不消耗序号或领取次数', () => {
+    let g = fixture();
+    for (let i = 0; i < 6; i++) g = reduceGame(g, { kind: 'cheat', code: '6250' });
+    expect(g.party).toHaveLength(6);
+    expect(g.box).toHaveLength(1);
+    expect(new Set([...g.party, ...g.box]).size).toBe(7);
+    expect(g.creatures[g.box[0]!]!.speciesId).toBe('creature_250');
+    expect(cold(g)).toEqual(g);
+    while (g.box.length < 360) {
+      const c = makeCreature(g, 'creature_037', 5);
+      g.creatures[c.id] = c;
+      g.box.push(c.id);
+    }
+    g.dex.seen.push('creature_037');
+    g.dex.caught.push('creature_037');
+    const before = structuredClone(g);
+    g = reduceGame(g, { kind: 'cheat', code: '6001' });
+    expect(g.notice).toMatch(/都已满/);
+    expect(g.sequence).toBe(before.sequence);
+    expect(g.cheats).toEqual(before.cheats);
+    expect(g.creatures).toEqual(before.creatures);
+    expect(cold(g)).toEqual(g);
+  });
+  it('获得精灵不跳过序章救援、不授予剧情标记，忙碌与非法代码不会领取', () => {
+    const opening = newGame('测试', 0, null, 123);
+    opening.dialogue = null;
+    const blocked = reduceGame(opening, { kind: 'cheat', code: '6250' });
+    expect(blocked.party).toHaveLength(0);
+    expect(blocked.cheats).toBeUndefined();
+    expect(blocked.notice).toMatch(/博士救援/);
+    const original = fixture();
+    const received = reduceGame(original, { kind: 'cheat', code: '6250' });
+    expect(received.progress).toEqual(original.progress);
+    for (const code of ['6000', '6251', '06001', '６００１', '6e03']) {
+      const rejected = reduceGame(original, { kind: 'cheat', code });
+      expect(rejected.creatures).toEqual(original.creatures);
+      expect(rejected.cheats).toBeUndefined();
     }
   });
 });

@@ -9,7 +9,7 @@ import { CITY_SURFACES } from '../src/content/surfaces';
 import { FIELD_SKILLS } from '../src/game/fieldSkills';
 
 async function main() {
-  const path = 'docs/data/world-rules.json';
+  const path = 'docs/世界系统/世界规则.json';
   const data = {
     contentVersion: CONTENT_VERSION,
     weather: WEATHER,
