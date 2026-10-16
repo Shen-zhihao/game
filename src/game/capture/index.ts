@@ -1,5 +1,5 @@
 import { SPECIES } from '../../content/catalog';
-import { BallId, GameState } from '../model';
+import { BallId, BattleCaptureEvent, GameState } from '../model';
 
 export const BALLS: Record<BallId, { multiplier: number; guaranteed: boolean }> = {
   ball: { multiplier: 1, guaranteed: false },
@@ -8,6 +8,21 @@ export const BALLS: Record<BallId, { multiplier: number; guaranteed: boolean }> 
   master_ball: { multiplier: 1, guaranteed: true },
 };
 export const isBall = (id: string): id is BallId => Object.hasOwn(BALLS, id);
+
+/** Four checks, with up to three visible shakes, using the game's final per-ball odds. */
+export function resolveCapture(
+  chance: number,
+  nextRoll: () => number,
+): { caught: boolean; shakes: NonNullable<BattleCaptureEvent['shakes']> } {
+  if (chance >= 1) return { caught: true, shakes: 3 };
+  if (!(chance > 0)) return { caught: false, shakes: 0 };
+  // All four must pass: taking the fourth root preserves the displayed overall chance.
+  const threshold = Math.pow(chance, 1 / 4);
+  for (const shakes of [0, 1, 2, 3] as const) {
+    if (nextRoll() >= threshold) return { caught: false, shakes };
+  }
+  return { caught: true, shakes: 3 };
+}
 export function captureDifficulty(speciesId: string, level: number): number {
   const s = SPECIES[speciesId]!;
   const strength = Math.max(0.35, 1 - Math.max(0, s.baseStatTotal - 300) / 650);

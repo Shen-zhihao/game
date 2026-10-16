@@ -3,6 +3,7 @@ import { TRAINERS, GYM_REWARDS, PRACTICE_TRAINERS } from '../../content/world';
 import { Battle, Creature, GameState } from '../model';
 import { earnedPoints, ensureTraining } from '../growth';
 import { creatureName, gainXp } from '../rules';
+import { battleScene } from '../battleVisuals';
 
 export const GYM_LEADERS = new Set<string>(GYM_REWARDS.map((g) => g.leader));
 export const REPEAT_TRAINERS = PRACTICE_TRAINERS;
@@ -46,9 +47,16 @@ export function distributeExperience(game: GameState, pool: number): void {
     const before = c.experience;
     const levels = gainXp(game, c, amount);
     const actual = c.experience - before;
+    const experienceLine = b.logs.length;
     b.logs.push(
       `${creatureName(c)}获得 ${actual} 经验${levels ? `，升到 Lv.${c.level}` : c.level === 100 ? '（已达满级）' : ''}。`,
     );
+    if (c.id === b.playerId && actual > 0)
+      (b.visualEvents ??= []).push({
+        kind: 'scene',
+        logIndex: experienceLine,
+        scene: battleScene(game),
+      });
     if (levels)
       b.logs.push(
         `获得 ${earnedPoints(c) - oldPoints} 能力点${ensureTraining(c).mode === 'auto' ? '，已按推荐自动分配' : '，可在「伙伴」中自由分配'}。`,

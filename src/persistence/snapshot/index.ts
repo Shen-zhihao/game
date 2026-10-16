@@ -115,6 +115,8 @@ const figureSchema = z.strictObject({
   hp: integer(9999),
   maxHp: integer(9999, 1),
   status: z.enum(['poison', 'burn', 'paralysis', 'sleep']).nullable(),
+  experience: integer(999999999).optional(),
+  growthPoints: integer(990).optional(),
 });
 const sceneSchema = z.strictObject({ player: figureSchema, enemy: figureSchema });
 const visualEventSchema = z.discriminatedUnion('kind', [
@@ -130,6 +132,14 @@ const visualEventSchema = z.discriminatedUnion('kind', [
     after: sceneSchema,
   }),
   z.strictObject({ kind: z.literal('scene'), logIndex: integer(99), scene: sceneSchema }),
+  z.strictObject({
+    kind: z.literal('capture'),
+    logIndex: integer(99),
+    ballId: z.enum(['ball', 'great_ball', 'ultra_ball', 'master_ball']),
+    caught: z.boolean(),
+    shakes: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    scene: sceneSchema,
+  }),
 ]);
 const stages = z.strictObject({
   attack: integer(6, -6),
@@ -945,7 +955,15 @@ export function validateGame(input: unknown): GameState {
       );
       previousLog = visual.logIndex;
       if (visual.kind === 'scene') checkScene(visual.scene);
-      else {
+      else if (visual.kind === 'capture') {
+        checkScene(visual.scene);
+        invariant(
+          b.kind === 'wild' &&
+            (!visual.caught || b.result === 'caught') &&
+            (!visual.caught || visual.shakes === undefined || visual.shakes === 3),
+          '捕捉画面结果无效',
+        );
+      } else {
         checkScene(visual.before);
         checkScene(visual.after);
         invariant(

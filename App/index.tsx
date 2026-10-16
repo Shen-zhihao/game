@@ -42,6 +42,8 @@ import { APP_DESCRIPTION, APP_ENGLISH_NAME, APP_NAME, APP_TAGLINE } from '../src
 import { SettingsMenu } from '../src/screens/SettingsMenu';
 import { ControlLayoutEditor } from '../src/screens/ControlLayoutEditor';
 import { useGameMusic } from '../src/platform/music';
+import { useJourneyPresentation } from '../src/hooks/useJourneyPresentation';
+import { JourneyEventIllustration } from '../src/components/JourneyEventIllustration';
 
 export default function App() {
   return (
@@ -70,11 +72,14 @@ function GameApp() {
   const [confirmNew, setConfirmNew] = useState(false);
   const session = useGameSession(repository);
   const game = session.game;
+  const presentation = useJourneyPresentation(game, session.dispatch);
+  const dispatch = presentation.dispatch;
+  const resetPresentation = presentation.reset;
   const [playingBattleId, setPlayingBattleId] = useState<string | null>(null);
   const onBattlePlayback = useCallback((id: string, playing: boolean) => {
     setPlayingBattleId((current) => (playing ? id : current === id ? null : current));
   }, []);
-  const music = useGameMusic(game, screen === 'play', playingBattleId);
+  const music = useGameMusic(presentation.game, screen === 'play', playingBattleId);
   const { load: loadSession, pause: pauseSession, save: saveSession, slot: activeSlot } = session;
   const titleScene = useMemo(() => {
     const g = newGame('旅人', 0, STARTERS[0]!, 12345);
@@ -114,8 +119,8 @@ function GameApp() {
     };
   }, []);
   useEffect(() => {
-    pauseSession(!!menu || editingControls || screen !== 'play');
-  }, [menu, editingControls, screen, pauseSession]);
+    pauseSession(!!menu || editingControls || !!presentation.view || screen !== 'play');
+  }, [menu, editingControls, presentation.view, screen, pauseSession]);
   const run = useCallback(async (work: () => Promise<void>) => {
     setBusy(true);
     setError('');
@@ -129,11 +134,12 @@ function GameApp() {
   }, []);
   const load = useCallback(
     async (slot: number) => {
+      resetPresentation();
       await loadSession(slot);
       setScreen('play');
       setMenu(null);
     },
-    [loadSession],
+    [loadSession, resetPresentation],
   );
   const closeMenu = useCallback(() => {
     void run(async () => {
@@ -436,18 +442,25 @@ function GameApp() {
         <>
           <AdventureScreen
             onBattlePlayback={onBattlePlayback}
+            coveredByEvent={!!presentation.view}
             key={session.slot}
-            game={game}
-            dispatch={session.dispatch}
+            game={presentation.game!}
+            dispatch={dispatch}
             width={width}
             height={height}
-            paused={!!menu || editingControls || !session.active || busy}
+            paused={!!menu || editingControls || !!presentation.view || !session.active || busy}
             onMenu={() => changeMenu('party')}
           />
         </>
       )}
       {menu && (
-        <MenuFrame menu={menu} onMenu={changeMenu} onClose={closeMenu} hasGame={!!game}>
+        <MenuFrame
+          menu={menu}
+          onMenu={changeMenu}
+          onClose={closeMenu}
+          hasGame={!!game}
+          coveredByEvent={!!presentation.view}
+        >
           {menu === 'transfer' ? (
             <TransferMenu
               repository={repository}
@@ -466,6 +479,7 @@ function GameApp() {
               onSaveAs={session.saveAs}
               onReload={load}
               onTitle={async () => {
+                presentation.reset();
                 await session.unload();
                 setMenu(null);
                 setScreen('title');
@@ -476,14 +490,14 @@ function GameApp() {
             <SettingsMenu
               game={game}
               music={music}
-              dispatch={session.dispatch}
+              dispatch={dispatch}
               onEditControls={() => setEditingControls(true)}
             />
           ) : game ? (
             <>
-              {menu === 'party' && <PartyMenu game={game} dispatch={session.dispatch} />}
-              {menu === 'center' && <CenterMenu game={game} dispatch={session.dispatch} />}
-              {menu === 'bag' && <BagMenu game={game} dispatch={session.dispatch} />}
+              {menu === 'party' && <PartyMenu game={game} dispatch={dispatch} />}
+              {menu === 'center' && <CenterMenu game={game} dispatch={dispatch} />}
+              {menu === 'bag' && <BagMenu game={game} dispatch={dispatch} />}
               {menu === 'dex' &&
                 (game.progress.flags.opening && !game.progress.flags.fieldKitReceived ? (
                   <Panel>
@@ -495,7 +509,7 @@ function GameApp() {
                 ) : (
                   <DexMenu game={game} />
                 ))}
-              {menu === 'quests' && <QuestMenu game={game} dispatch={session.dispatch} />}
+              {menu === 'quests' && <QuestMenu game={game} dispatch={dispatch} />}
               {menu === 'map' && <RegionMenu game={game} />}
             </>
           ) : (
@@ -509,6 +523,14 @@ function GameApp() {
           width={width}
           height={height}
           onClose={() => setEditingControls(false)}
+        />
+      )}
+      {screen === 'play' && presentation.view && (
+        <JourneyEventIllustration
+          key={presentation.view.id}
+          event={presentation.view.event}
+          paused={busy || !session.active}
+          onFinish={presentation.finish}
         />
       )}
       {!!error && (

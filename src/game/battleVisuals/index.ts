@@ -1,6 +1,7 @@
-import { MOVES, TYPE_COLORS } from '../../content/catalog';
+import { MOVES, SPECIES, TYPE_COLORS } from '../../content/catalog';
 import type {
   BattleFigure,
+  BattleCaptureEvent,
   BattleMoveEvent,
   BattleScene,
   BattleVisualEvent,
@@ -8,12 +9,21 @@ import type {
   GameState,
   TypeId,
 } from '../model';
-import { statsFor } from '../rules';
+import { statsFor, xpAt } from '../rules';
+import { earnedPoints } from '../growth';
 
 export interface BattleSwitchVisual {
   side: 'player' | 'enemy';
-  phase: 'recall' | 'send';
+  phase: 'recall' | 'send' | 'reveal';
   figure: BattleFigure;
+}
+
+/** A failed check releases immediately after its last completed shake. */
+export function captureAnimationTiming(event: Pick<BattleCaptureEvent, 'caught' | 'shakes'>) {
+  const shakes = event.caught ? 3 : (event.shakes ?? 3);
+  const releaseAt = (53 + shakes * 10) / 100;
+  const endAt = event.caught ? 1 : (70 + shakes * 10) / 100;
+  return { shakes, releaseAt, endAt, duration: Math.round(endAt * 3200) };
 }
 
 /** Derive switching from existing scene snapshots, preserving the saved battle format. */
@@ -27,6 +37,10 @@ export function presentationSwitches(
   for (const event of events) {
     if (event.kind === 'move') {
       previous = event.after;
+      continue;
+    }
+    if (event.kind === 'capture') {
+      previous = event.scene;
       continue;
     }
     for (const side of ['player', 'enemy'] as const) {
@@ -52,7 +66,84 @@ export const battleFigure = (c: Creature): BattleFigure => ({
   hp: c.hp,
   maxHp: statsFor(c).hp,
   status: c.status,
+  experience: c.experience,
+  growthPoints: earnedPoints(c),
 });
+
+export interface BattleFaintVisual {
+  side: 'player' | 'enemy';
+  figure: BattleFigure;
+  logIndex: number;
+}
+export function presentationFaints(
+  initial: BattleScene,
+  events: BattleVisualEvent[],
+  line: number,
+  scene: BattleScene,
+): BattleFaintVisual[] {
+  let previous = initial;
+  const faints: BattleFaintVisual[] = [];
+  for (const event of events) {
+    const next = event.kind === 'move' ? event.after : event.scene;
+    for (const side of ['player', 'enemy'] as const) {
+      const prior = event.kind === 'move' ? event.before[side] : previous[side];
+      if (prior.id === next[side].id && prior.hp > 0 && next[side].hp <= 0) {
+        const logIndex = event.kind === 'move' ? event.endLogIndex + 1 : event.logIndex;
+        if (line >= logIndex && scene[side].id === prior.id && scene[side].hp <= 0)
+          faints.push({ side, figure: prior, logIndex });
+      }
+    }
+    previous = next;
+  }
+  return faints;
+}
+export interface BattleGrowthVisual {
+  before: BattleFigure;
+  after: BattleFigure;
+}
+export function presentationGrowth(
+  initial: BattleScene,
+  events: BattleVisualEvent[],
+  line: number,
+): BattleGrowthVisual | null {
+  let previous = initial;
+  for (const event of events) {
+    const next = event.kind === 'move' ? event.after : event.scene;
+    if (
+      event.logIndex === line &&
+      previous.player.id === next.player.id &&
+      (next.player.experience ?? 0) > (previous.player.experience ?? 0)
+    )
+      return { before: previous.player, after: next.player };
+    previous = next;
+  }
+  return null;
+}
+export function experienceRatio(figure: BattleFigure) {
+  if (figure.level >= 100) return 1;
+  const curve = SPECIES[figure.speciesId]!.experienceCurve;
+  const base = xpAt(figure.level, curve),
+    next = xpAt(figure.level + 1, curve);
+  return Math.max(0, Math.min(1, ((figure.experience ?? base) - base) / Math.max(1, next - base)));
+}
+export function experienceFrames(before: BattleFigure, after: BattleFigure) {
+  const count = Math.max(1, after.level - before.level + 1);
+  const input = [0],
+    output = [experienceRatio(before)];
+  for (let i = 0; i < count - 1; i++) {
+    const boundary = (i + 1) / count;
+    input.push(boundary - 0.00001, boundary);
+    output.push(1, 0);
+  }
+  input.push(1);
+  output.push(experienceRatio(after));
+  return {
+    input,
+    output,
+    duration:
+      after.level > before.level ? Math.min(2800, 1100 + (after.level - before.level) * 200) : 720,
+  };
+}
 export function battleScene(game: GameState): BattleScene {
   const b = game.battle!;
   return {
@@ -190,16 +281,20 @@ export function presentationScene(
   events: BattleVisualEvent[],
   line: number,
   completed: boolean,
-): { scene: BattleScene; move: BattleMoveEvent | null } {
+): { scene: BattleScene; move: BattleMoveEvent | null; capture: BattleCaptureEvent | null } {
   let scene = initial;
   let move: BattleMoveEvent | null = null;
+  let capture: BattleCaptureEvent | null = null;
   for (const event of events) {
     if (event.logIndex > line) break;
     if (event.kind === 'scene') scene = event.scene;
-    else {
+    else if (event.kind === 'capture') {
+      scene = event.scene;
+      if (line === event.logIndex || event.caught) capture = event;
+    } else {
       scene = line === event.logIndex && !completed ? event.before : event.after;
       if (line === event.logIndex) move = event;
     }
   }
-  return { scene, move };
+  return { scene, move, capture };
 }

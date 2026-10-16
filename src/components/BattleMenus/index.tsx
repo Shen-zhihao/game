@@ -85,7 +85,11 @@ export function BattleMenus({
         : null;
     const capture =
       selectedItem && isBall(selectedItem) && battle.kind === 'wild'
-        ? `当前捕获率 ${BALLS[selectedItem].guaranteed || battle.tutorialCatch ? '100%' : chanceLabel(captureChance(battle.enemies[battle.enemyIndex]!, BALLS[selectedItem].multiplier))}。`
+        ? BALLS[selectedItem].guaranteed
+          ? '大师球：必定捕获。'
+          : battle.tutorialCatch
+            ? '捕捉教学：本次保证成功。普通野生遭遇仍可能捕捉失败。'
+            : `当前捕获率 ${chanceLabel(captureChance(battle.enemies[battle.enemyIndex]!, BALLS[selectedItem].multiplier))}。每次投球仍可能挣脱，降低 HP 或施加异常状态可提高成功率。`
         : '';
     return (
       <View

@@ -7,7 +7,13 @@ import type { BattleSwitchVisual } from '../../game/battleVisuals';
 import { CreatureSprite } from '../CreatureSprite';
 import { palette } from '../ui';
 
-export const SWITCH_DURATION = { recall: 480, send: 900, reducedRecall: 140, reducedSend: 220 };
+export const SWITCH_DURATION = {
+  recall: 480,
+  send: 900,
+  reveal: 720,
+  reducedRecall: 140,
+  reducedSend: 220,
+};
 
 /** A paper-and-amber effect driven only by presentation; it never changes battle state. */
 export function BattleSwitchIllustration({
@@ -32,11 +38,14 @@ export function BattleSwitchIllustration({
   onFinished: (key: string) => void;
 }) {
   const [progress] = useState(() => new Animated.Value(0));
-  const sending = visual.phase === 'send';
+  const revealing = visual.phase === 'reveal';
+  const sending = visual.phase !== 'recall';
   const duration = reduced
-    ? sending
-      ? SWITCH_DURATION.reducedSend
-      : SWITCH_DURATION.reducedRecall
+    ? revealing
+      ? 180
+      : sending
+        ? SWITCH_DURATION.reducedSend
+        : SWITCH_DURATION.reducedRecall
     : SWITCH_DURATION[visual.phase];
   useEffect(() => {
     if (completed) {
@@ -137,6 +146,9 @@ export function BattleSwitchIllustration({
             ? []
             : [
                 {
+                  translateX: revealing ? value([0, 0.6, 1], [-direction * size * 0.35, 0, 0]) : 0,
+                },
+                {
                   translateY: sending
                     ? value([0, 0.34, 0.65, 0.82, 1], [10, 10, -8, 2, 0])
                     : value([0, 1], [0, -size * 0.25]),
@@ -180,7 +192,7 @@ export function BattleSwitchIllustration({
           <Circle cx={100} cy={100} r={58} fill="none" stroke={sceneInk.gold} strokeWidth={1.5} />
           {!reduced &&
             Array.from({ length: 6 }, (_, i) => (
-              <G key={i} rotation={i * 60} origin="100,100">
+              <G key={i} transform={`rotate(${i * 60} 100 100)`}>
                 <Path
                   d="m100 15 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"
                   fill={i % 2 ? sceneInk.paper : sceneInk.gold}
@@ -192,66 +204,70 @@ export function BattleSwitchIllustration({
             ))}
         </Svg>
       </Animated.View>
-      <Animated.View
-        testID={`battle-switch-${visual.side}-ball`}
-        style={{
-          position: 'absolute',
-          left: anchor.x - 16,
-          top: anchor.y - size * 0.42 - 16,
-          width: 32,
-          height: 32,
-          opacity: sending
-            ? value([0, 0.3, 0.43, 1], [1, 1, 0, 0])
-            : value([0, 0.4, 0.7, 1], [0, 0.5, 1, 0]),
-          transform: reduced
-            ? []
-            : [
-                { translateX: sending ? value([0, 0.35, 1], [-size * 0.6 * direction, 0, 0]) : 0 },
-                { translateY: sending ? value([0, 0.18, 0.35, 1], [10, -size * 0.3, 0, 0]) : 0 },
-                {
-                  rotate: sending
-                    ? progress.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['-110deg', '170deg'],
-                      })
-                    : '0deg',
-                },
-                { scale: sending ? 1 : value([0, 0.7, 1], [0.5, 1, 0.4]) },
-              ],
-        }}
-      >
-        <Svg width={32} height={32} viewBox="0 0 40 40" aria-hidden>
-          <Circle
-            cx={20}
-            cy={20}
-            r={16}
-            fill={sceneInk.paper}
-            stroke={sceneInk.outline}
-            strokeWidth={2}
-          />
-          <Path
-            d="M4 20a16 16 0 0 1 32 0Z"
-            fill={sceneInk.gold}
-            stroke={sceneInk.outline}
-            strokeWidth={2}
-          />
-          <Circle
-            cx={20}
-            cy={20}
-            r={5}
-            fill={sceneInk.paper}
-            stroke={sceneInk.outline}
-            strokeWidth={1.8}
-          />
-          <Path
-            d="M11 13q3-4 8-4"
-            fill="none"
-            stroke={palette.tint}
-            strokeWidth={2}
-            strokeLinecap="round"
-          />
-        </Svg>
-      </Animated.View>
+      {!revealing && (
+        <Animated.View
+          testID={`battle-switch-${visual.side}-ball`}
+          style={{
+            position: 'absolute',
+            left: anchor.x - 16,
+            top: anchor.y - size * 0.42 - 16,
+            width: 32,
+            height: 32,
+            opacity: sending
+              ? value([0, 0.3, 0.43, 1], [1, 1, 0, 0])
+              : value([0, 0.4, 0.7, 1], [0, 0.5, 1, 0]),
+            transform: reduced
+              ? []
+              : [
+                  {
+                    translateX: sending ? value([0, 0.35, 1], [-size * 0.6 * direction, 0, 0]) : 0,
+                  },
+                  { translateY: sending ? value([0, 0.18, 0.35, 1], [10, -size * 0.3, 0, 0]) : 0 },
+                  {
+                    rotate: sending
+                      ? progress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['-110deg', '170deg'],
+                        })
+                      : '0deg',
+                  },
+                  { scale: sending ? 1 : value([0, 0.7, 1], [0.5, 1, 0.4]) },
+                ],
+          }}
+        >
+          <Svg width={32} height={32} viewBox="0 0 40 40" aria-hidden>
+            <Circle
+              cx={20}
+              cy={20}
+              r={16}
+              fill={sceneInk.paper}
+              stroke={sceneInk.outline}
+              strokeWidth={2}
+            />
+            <Path
+              d="M4 20a16 16 0 0 1 32 0Z"
+              fill={sceneInk.gold}
+              stroke={sceneInk.outline}
+              strokeWidth={2}
+            />
+            <Circle
+              cx={20}
+              cy={20}
+              r={5}
+              fill={sceneInk.paper}
+              stroke={sceneInk.outline}
+              strokeWidth={1.8}
+            />
+            <Path
+              d="M11 13q3-4 8-4"
+              fill="none"
+              stroke={palette.tint}
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          </Svg>
+        </Animated.View>
+      )}
     </View>
   );
 }

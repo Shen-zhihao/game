@@ -1,8 +1,9 @@
 import { HapticPressable as Pressable } from '../HapticPressable';
 import React from 'react';
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Animated, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { TYPES, TYPE_COLORS } from '../../content/catalog';
 import { TypeId } from '../../game/model';
+import { useAnimatedScalar } from '../../hooks/useAnimatedScalar';
 
 export const palette = {
   canvas: '#f7f2e7',
@@ -98,18 +99,23 @@ export function HpBar({
   value,
   max,
   width = 160,
+  paused = false,
 }: {
   value: number;
   max: number;
   width?: number | `${number}%`;
+  paused?: boolean;
 }) {
-  const ratio = value / max;
+  const ratio = Math.max(0, Math.min(1, value / max));
+  const fill = useAnimatedScalar(ratio, 420, paused);
   return (
     <View style={[styles.hp, { width }]}>
-      <View
+      <Animated.View
         style={{
           height: '100%',
-          width: `${Math.max(0, Math.min(1, ratio)) * 100}%`,
+          width: '100%',
+          transformOrigin: 'left center',
+          transform: [{ scaleX: fill }],
           backgroundColor: ratio > 0.5 ? '#92c878' : ratio > 0.2 ? '#e6c66e' : '#d67c65',
         }}
       />

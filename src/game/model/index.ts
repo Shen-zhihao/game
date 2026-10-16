@@ -243,6 +243,8 @@ export interface BattleFigure {
   hp: number;
   maxHp: number;
   status: Status | null;
+  experience?: number;
+  growthPoints?: number;
 }
 export interface BattleScene {
   player: BattleFigure;
@@ -259,8 +261,17 @@ export interface BattleMoveEvent {
   before: BattleScene;
   after: BattleScene;
 }
+export interface BattleCaptureEvent {
+  kind: 'capture';
+  logIndex: number;
+  ballId: BallId;
+  caught: boolean;
+  /** Absent in older checkpoints, which used a fixed three-shake animation. */
+  shakes?: 0 | 1 | 2 | 3;
+  scene: BattleScene;
+}
 export type BattleVisualEvent =
-  BattleMoveEvent | { kind: 'scene'; logIndex: number; scene: BattleScene };
+  BattleMoveEvent | BattleCaptureEvent | { kind: 'scene'; logIndex: number; scene: BattleScene };
 export interface Battle {
   id: string;
   npcId?: string;

@@ -5,7 +5,7 @@ import { rememberRecoveryTowns, returnToNearestCenter } from '../recovery';
 import { canLearnMove, ITEMS, MOVES, SPECIES, STARTERS } from '../../content/catalog';
 import { battleScene } from '../battleVisuals';
 import { emptyStats, ensureTraining } from '../growth';
-import { BALLS, consumeMasterBall } from '../capture';
+import { BALLS, consumeMasterBall, resolveCapture } from '../capture';
 import { WEATHER, weatherAt } from '../environment';
 import { addBattleMoney, distributeExperience, ensureRewards, settleKnockout } from '../rewards';
 import { isSupply, supplyReason, applySupply } from '../items';
@@ -607,13 +607,18 @@ export function battleAction(state: GameState, action: BattleAction): void {
     if (action.kind !== 'switch') b.logs = [];
     if (action.kind === 'ball') {
       const ballId = action.ballId ?? 'ball';
+      const scene = battleScene(state);
       if (ballId === 'master_ball') consumeMasterBall(state);
       else state.inventory[ballId]! -= 1;
-      if (
-        BALLS[ballId].guaranteed ||
-        b.tutorialCatch ||
-        random(state) < captureChance(enemy, BALLS[ballId].multiplier)
-      ) {
+      const { caught, shakes } = resolveCapture(
+        BALLS[ballId].guaranteed || b.tutorialCatch
+          ? 1
+          : captureChance(enemy, BALLS[ballId].multiplier),
+        () => random(state),
+      );
+      b.logs.push(`向${creatureName(enemy)}投出了${ITEMS[ballId]!.name}！`);
+      b.visualEvents.push({ kind: 'capture', logIndex: 0, ballId, caught, shakes, scene });
+      if (caught) {
         const oldMax = statsFor(enemy).hp;
         const training = ensureTraining(enemy);
         training.mode = 'manual';
@@ -641,7 +646,11 @@ export function battleAction(state: GameState, action: BattleAction): void {
         state.party = party;
         return;
       }
-      b.logs.push(`${ITEMS[ballId]!.name}摇晃了几下……精灵挣脱了！`);
+      b.logs.push(
+        shakes === 0
+          ? `精灵立刻挣脱了${ITEMS[ballId]!.name}！试着降低它的 HP 或施加异常状态。`
+          : `${ITEMS[ballId]!.name}摇晃了${shakes}次……${shakes === 3 ? '就差一点！' : ''}精灵挣脱了！`,
+      );
     }
     if (action.kind === 'run') {
       b.runAttempts += 1;

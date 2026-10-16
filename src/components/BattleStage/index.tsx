@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Ellipse, G, Line, Path, Polygon, Rect } from 'react-native-svg';
 import { MOVES } from '../../content/catalog';
-import { BattleMoveEvent, BattleScene } from '../../game/model';
+import { BattleCaptureEvent, BattleMoveEvent, BattleScene } from '../../game/model';
 import { moveFeedback, MOVE_VISUALS, MoveVisual, VisualPattern } from '../../game/battleVisuals';
-import type { BattleSwitchVisual } from '../../game/battleVisuals';
+import type { BattleFaintVisual, BattleSwitchVisual } from '../../game/battleVisuals';
 import { haptic } from '../../platform/haptics';
 import { CreatureSprite } from '../CreatureSprite';
 import { palette } from '../ui';
 import { BattleSwitchIllustration } from '../BattleSwitchIllustration';
+import { BattleCaptureIllustration } from '../BattleCaptureIllustration';
+import { BattleFaintIllustration } from '../BattleFaintIllustration';
 
 type Point = { x: number; y: number };
 function Glyph({ pattern, color, glow, variant, signature }: MoveVisual) {
@@ -255,6 +257,13 @@ export function BattleStage({
   completedSwitches,
   switchesPaused,
   onSwitchFinished,
+  capture,
+  captureCompleted,
+  captured,
+  captureKey,
+  faints,
+  hideFainted,
+  onFaintFinished,
 }: {
   scene: BattleScene;
   playerAnchor: Point;
@@ -271,6 +280,13 @@ export function BattleStage({
   completedSwitches: string[];
   switchesPaused: boolean;
   onSwitchFinished: (key: string) => void;
+  capture: BattleCaptureEvent | null;
+  captureCompleted: boolean;
+  captured: boolean;
+  captureKey: string;
+  faints: (BattleFaintVisual & { key: string; completed: boolean })[];
+  hideFainted: boolean;
+  onFaintFinished: (key: string) => void;
 }) {
   const [progress] = useState(() => new Animated.Value(0));
   const impactKey = useRef('');
@@ -383,43 +399,49 @@ export function BattleStage({
   const feedback = playing ? event : feedbackEvent;
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      {!switches.some((visual) => visual.side === 'enemy') && (
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              left: enemyAnchor.x - size / 2,
-              top: enemyAnchor.y - size * 0.92,
-            },
-            spriteStyle('enemy'),
-          ]}
-        >
-          <CreatureSprite
-            speciesId={scene.enemy.speciesId}
-            size={size}
-            animate={!ended && !playing}
-          />
-        </Animated.View>
-      )}
-      {!switches.some((visual) => visual.side === 'player') && (
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              left: playerAnchor.x - size * 0.6,
-              top: playerAnchor.y - size * 1.1,
-            },
-            spriteStyle('player'),
-          ]}
-        >
-          <CreatureSprite
-            speciesId={scene.player.speciesId}
-            size={size * 1.2}
-            flip
-            animate={!ended && !playing}
-          />
-        </Animated.View>
-      )}
+      {!capture &&
+        !captured &&
+        !faints.some((visual) => visual.side === 'enemy') &&
+        (!hideFainted || scene.enemy.hp > 0) &&
+        !switches.some((visual) => visual.side === 'enemy') && (
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                left: enemyAnchor.x - size / 2,
+                top: enemyAnchor.y - size * 0.92,
+              },
+              spriteStyle('enemy'),
+            ]}
+          >
+            <CreatureSprite
+              speciesId={scene.enemy.speciesId}
+              size={size}
+              animate={!ended && !playing}
+            />
+          </Animated.View>
+        )}
+      {!faints.some((visual) => visual.side === 'player') &&
+        (!hideFainted || scene.player.hp > 0) &&
+        !switches.some((visual) => visual.side === 'player') && (
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                left: playerAnchor.x - size * 0.6,
+                top: playerAnchor.y - size * 1.1,
+              },
+              spriteStyle('player'),
+            ]}
+          >
+            <CreatureSprite
+              speciesId={scene.player.speciesId}
+              size={size * 1.2}
+              flip
+              animate={!ended && !playing}
+            />
+          </Animated.View>
+        )}
       {switches.map((visual) => {
         const key = `${eventKey}:${visual.side}`;
         return (
@@ -437,6 +459,31 @@ export function BattleStage({
           />
         );
       })}
+      {capture && (
+        <BattleCaptureIllustration
+          key={captureKey}
+          event={capture}
+          playerAnchor={playerAnchor}
+          enemyAnchor={enemyAnchor}
+          size={size}
+          eventKey={eventKey}
+          paused={switchesPaused}
+          completed={captureCompleted}
+          reduced={reduced}
+          onFinished={onFinished}
+        />
+      )}
+      {faints.map((visual) => (
+        <BattleFaintIllustration
+          key={visual.key}
+          visual={visual}
+          anchor={visual.side === 'player' ? playerAnchor : enemyAnchor}
+          size={size}
+          paused={switchesPaused}
+          completed={visual.completed}
+          onFinished={() => onFaintFinished(visual.key)}
+        />
+      ))}
       {playing && visual && event && (
         <View
           testID="battle-skill-effect"

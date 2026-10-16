@@ -1,6 +1,6 @@
 /** Shared fade rhythm for crossing a doorway and returning from battle. */
 export const SCENE_TRANSITION = {
-  color: '#151b28',
+  color: '#f3e8cb',
   fadeOut: 160,
   fadeIn: 220,
   coveredFrame: 60,

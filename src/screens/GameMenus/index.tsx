@@ -76,12 +76,14 @@ export function MenuFrame({
   onMenu,
   onClose,
   hasGame = true,
+  coveredByEvent = false,
   children,
 }: {
   menu: MenuName;
   onMenu: (m: MenuName) => void;
   onClose: () => void;
   hasGame?: boolean;
+  coveredByEvent?: boolean;
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
@@ -129,6 +131,9 @@ export function MenuFrame({
   );
   return (
     <View
+      pointerEvents={coveredByEvent ? 'none' : 'auto'}
+      accessibilityElementsHidden={coveredByEvent}
+      importantForAccessibility={coveredByEvent ? 'no-hide-descendants' : 'auto'}
       style={[
         s.overlay,
         {
@@ -968,7 +973,7 @@ export function HelpMenu() {
     <ScrollView contentContainerStyle={{ gap: 12 }}>
       <Label style={styles.title}>旅行小贴士</Label>
       {[
-        '方向键：移动与转身；A：面向相邻人物或物体交谈、调查。电脑可用 WASD / 箭头、Enter / Z。',
+        '拖动摇杆：八向移动与转身，松手停止；A：面向相邻人物或物体交谈、调查。电脑可同时按 WASD / 箭头组合斜走，Enter / Z 交谈。',
         '草丛会遇到野生精灵。捕捉时先削弱对方；睡眠、麻痹等异常会提高捕获率。',
         '精灵按生境出没：林冠有萤灯蛾、湿岸有荷叶蛙、矿山暗河有滴石鲶。站在岸边面向水面按 A 调查；图鉴与地区地图可查栖息地。',
         '队伍最多 6 只，多出的精灵进入仓库。在城镇打开伙伴页面管理仓库、免费回忆技能。',

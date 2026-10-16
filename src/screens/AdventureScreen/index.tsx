@@ -6,6 +6,7 @@ import { BattleScreen } from '../BattleScreen';
 import { Explore } from '../Explore';
 import { SCENE_TRANSITION } from '../../sceneTransition';
 import { PendingScreen, StarterChoice } from '../GameMenus';
+import { BattleIntroIllustration } from '../../components/BattleIntroIllustration';
 
 interface BattleTransition {
   source: GameState;
@@ -20,6 +21,7 @@ export function AdventureScreen({
   paused,
   onMenu,
   onBattlePlayback,
+  coveredByEvent = false,
 }: {
   game: GameState;
   dispatch: (command: Command) => void;
@@ -28,6 +30,7 @@ export function AdventureScreen({
   paused: boolean;
   onMenu: () => void;
   onBattlePlayback: (id: string, playing: boolean) => void;
+  coveredByEvent?: boolean;
 }) {
   const battleId = game.battle?.id ?? null;
   const [view, setView] = useState<{
@@ -49,6 +52,9 @@ export function AdventureScreen({
   const [flash] = useState(() => new Animated.Value(0));
   const [curtain] = useState(() => new Animated.Value(0));
   const [readyMap, setReadyMap] = useState<MapId | null>(null);
+  const [completedIntro, setCompletedIntro] = useState<BattleTransition | null>(null);
+  const introFinished = completedIntro === view.transition;
+  const completeIntro = useCallback(() => setCompletedIntro(view.transition), [view.transition]);
   const onMapReady = useCallback((map: MapId) => setReadyMap(map), []);
   const reduced = useRef(false);
   useEffect(() => {
@@ -101,7 +107,13 @@ export function AdventureScreen({
   }, [transition, flash, curtain]);
   const destinationReady = !!transition?.entering || readyMap === game.player.map;
   useEffect(() => {
-    if (!transition || !view.showDestination || !destinationReady) return;
+    if (
+      !transition ||
+      !view.showDestination ||
+      !destinationReady ||
+      (transition.entering && !introFinished)
+    )
+      return;
     // A timeout alone cannot establish that a freshly loaded map image is ready.
     const animation = Animated.sequence([
       Animated.delay(SCENE_TRANSITION.coveredFrame),
@@ -119,14 +131,19 @@ export function AdventureScreen({
         );
     });
     return () => animation.stop();
-  }, [transition, view.showDestination, destinationReady, curtain]);
+  }, [transition, view.showDestination, destinationReady, curtain, introFinished]);
   const transitioning = !!transition;
   const presentedGame = transition && !view.showDestination ? transition.source : game;
   const showingBattle = !!presentedGame.battle;
   const [lastExplore, setLastExplore] = useState(game);
   if (!showingBattle && lastExplore !== presentedGame) setLastExplore(presentedGame);
   return (
-    <View style={{ flex: 1, backgroundColor: SCENE_TRANSITION.color }}>
+    <View
+      style={{ flex: 1, backgroundColor: SCENE_TRANSITION.color }}
+      pointerEvents={coveredByEvent ? 'none' : 'auto'}
+      accessibilityElementsHidden={coveredByEvent}
+      importantForAccessibility={coveredByEvent ? 'no-hide-descendants' : 'auto'}
+    >
       <View
         style={{ flex: 1 }}
         pointerEvents={transitioning ? 'none' : 'auto'}
@@ -200,12 +217,15 @@ export function AdventureScreen({
             {transition.entering && (
               <>
                 <View style={{ width: 64, height: 2, backgroundColor: palette.amber }} />
-                <Label style={{ color: palette.amber, fontSize: 22, fontWeight: '800' }}>
+                <Label style={{ color: palette.text, fontSize: 22, fontWeight: '800' }}>
                   {game.battle?.kind === 'wild' ? '野生精灵出现了' : '对战即将开始'}
                 </Label>
               </>
             )}
           </Animated.View>
+          {transition.entering && view.showDestination && !introFinished && game.battle && (
+            <BattleIntroIllustration game={game} paused={paused} onFinished={completeIntro} />
+          )}
         </View>
       )}
     </View>

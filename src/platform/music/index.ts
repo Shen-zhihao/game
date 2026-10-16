@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { gameMusic, MUSIC_NAMES } from '../../content/music';
 import type { GameState } from '../../game/model';
-import { useAppActivity } from '../appActivity';
+import { useAppActivity } from '../../hooks/useAppActivity';
 import { createMusicController } from './controller';
 import { driver, listenForMusicInteraction, preferenceDriver } from './driver';
 import { createMusicPreferences } from './preferences';

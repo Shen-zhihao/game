@@ -18,16 +18,34 @@ import { BATTLE_BACKGROUNDS } from '../../components/BattleStage/backgrounds';
 import { battleAnchors, battleTheme, BATTLE_SCENES } from '../../content/battleScenes';
 import { BattleMenus } from '../../components/BattleMenus';
 import { Button, HpBar, Label, palette, Panel, TypeBadges } from '../../components/ui';
-import { BattleAction, BattleVisualEvent, Command, GameState } from '../../game/model';
-import { battleScene, presentationScene, presentationSwitches } from '../../game/battleVisuals';
-import { creatureName, typeMultiplier, xpAt } from '../../game/rules';
+import {
+  BattleAction,
+  BattleCaptureEvent,
+  BattleVisualEvent,
+  Command,
+  GameState,
+} from '../../game/model';
+import {
+  battleScene,
+  presentationScene,
+  presentationSwitches,
+  presentationFaints,
+  presentationGrowth,
+  BattleSwitchVisual,
+} from '../../game/battleVisuals';
+import { creatureName, typeMultiplier } from '../../game/rules';
+import {
+  BattleExperienceBar,
+  BattleGrowthIllustration,
+} from '../../components/BattleGrowthIllustration';
+import { AnimatedNumber } from '../../components/AnimatedNumber';
 import { chanceLabel, criticalChance, hitChance, roundPace } from '../../game/combat';
 import { WEATHER } from '../../game/environment';
 import { WeatherOverlay } from '../../components/WeatherOverlay';
 import { BALLS } from '../../game/capture';
 import { createBattlePlaybackClock } from '../../game/battlePlayback';
 import { useBattleMessageDelay } from '../../platform/battlePlayback';
-import { useAppActivity } from '../../platform/appActivity';
+import { useAppActivity } from '../../hooks/useAppActivity';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
 function BattleTile({
@@ -116,9 +134,22 @@ export function BattleScreen({
   const [line, setLine] = useState(0);
   const [initialScene, setInitialScene] = useState(() => battleScene(game));
   const [visualEvents, setVisualEvents] = useState<BattleVisualEvent[]>([]);
+  const [initialOpening] = useState(() => b.turn === 1 && !b.visualEvents?.length);
   const [completedEffect, setCompletedEffect] = useState('');
   const [impactedEffect, setImpactedEffect] = useState('');
   const [completedSwitches, setCompletedSwitches] = useState<string[]>([]);
+  const opening =
+    initialOpening &&
+    presentationId === 0 &&
+    !(['player', 'enemy'] as const).every((side) =>
+      completedSwitches.includes(`${b.id}:opening:${side}`),
+    );
+  const [completedFaints, setCompletedFaints] = useState<string[]>([]);
+  const [completedGrowth, setCompletedGrowth] = useState('');
+  const onFaintFinished = useCallback(
+    (key: string) => setCompletedFaints((keys) => (keys.includes(key) ? keys : [...keys, key])),
+    [],
+  );
   const onSwitchFinished = useCallback((key: string) => {
     setCompletedSwitches((keys) => (keys.includes(key) ? keys : [...keys, key]));
   }, []);
@@ -127,12 +158,13 @@ export function BattleScreen({
   const messageDelay = useBattleMessageDelay();
   const active = useAppActivity();
   const effectKey = `${b.id}:${b.turn}:${b.actionRound?.playerRemaining ?? 0}:${presentationId}:${line}`;
+  const switchKey = opening ? `${b.id}:opening` : effectKey;
   const onEffectFinished = useCallback(
     (key: string) => setCompletedEffect(key),
     [setCompletedEffect],
   );
   const onEffectImpact = useCallback((key: string) => setImpactedEffect(key), []);
-  const presenting = presentation.length > 0;
+  const presenting = opening || presentation.length > 0;
   useEffect(() => {
     onPlaybackChange(b.id, presenting || busy || pendingTurn.current);
   }, [b.id, presenting, busy, onPlaybackChange]);
@@ -152,14 +184,49 @@ export function BattleScreen({
     b.weather?.kind,
   );
   const activeMove = presenting ? playback.move : null;
+  const capture = presenting
+    ? playback.capture
+    : !busy && b.result === 'caught'
+      ? (visualEvents.find(
+          (event): event is BattleCaptureEvent => event.kind === 'capture' && event.caught,
+        ) ?? null)
+      : null;
+  const animatingCapture =
+    !!capture && presenting && line === capture.logIndex && completedEffect !== effectKey;
+  const captured = !busy && b.result === 'caught';
   const switches = useMemo(
-    () => (presenting ? presentationSwitches(initialScene, visualEvents, line) : []),
-    [presenting, initialScene, visualEvents, line],
+    (): BattleSwitchVisual[] =>
+      opening
+        ? [
+            {
+              side: 'enemy',
+              phase: b.kind === 'wild' ? 'reveal' : 'send',
+              figure: initialScene.enemy,
+            },
+            { side: 'player', phase: 'send', figure: initialScene.player },
+          ]
+        : presenting
+          ? presentationSwitches(initialScene, visualEvents, line)
+          : [],
+    [opening, b.kind, presenting, initialScene, visualEvents, line],
   );
+  const faints =
+    presenting && !opening
+      ? presentationFaints(initialScene, visualEvents, line, scene).map((visual) => {
+          const key = `${b.id}:${presentationId}:faint:${visual.logIndex}:${visual.side}`;
+          return { ...visual, key, completed: completedFaints.includes(key) };
+        })
+      : [];
+  const growth =
+    presenting && !opening ? presentationGrowth(initialScene, visualEvents, line) : null;
+  const animatingGrowth = !!growth && completedGrowth !== effectKey;
   const animatingMove = !!activeMove && completedEffect !== effectKey;
   const animating =
     animatingMove ||
-    switches.some((visual) => !completedSwitches.includes(`${effectKey}:${visual.side}`));
+    animatingCapture ||
+    animatingGrowth ||
+    faints.some((visual) => !visual.completed) ||
+    switches.some((visual) => !completedSwitches.includes(`${switchKey}:${visual.side}`));
   const feedbackEvent =
     presenting && !animating
       ? (visualEvents.find(
@@ -175,16 +242,11 @@ export function BattleScreen({
     setVisualEvents(b.visualEvents ?? []);
     setCompletedEffect('');
     setCompletedSwitches([]);
+    setCompletedFaints([]);
+    setCompletedGrowth('');
     setLine(0);
     setBusy(false);
   }, [b]);
-  const advance = useCallback(() => {
-    if (paused || animating) return;
-    if (presenting) {
-      if (line + 1 < presentation.length) setLine(line + 1);
-      else setPresentation([]);
-    } else if (b.phase === 'ended') dispatch({ kind: 'closeBattle' });
-  }, [paused, animating, presenting, line, presentation.length, b.phase, dispatch]);
   const playbackKey = presenting
     ? effectKey
     : b.phase === 'ended' && !busy
@@ -199,11 +261,30 @@ export function BattleScreen({
             delayMs: messageDelay,
             ready: !animating,
             paused: playbackStopped,
-            onAdvance: advance,
+            onAdvance: () => {
+              if (paused || animating || opening) return;
+              if (presenting) {
+                if (line + 1 < presentation.length) setLine(line + 1);
+                else setPresentation([]);
+              } else if (b.phase === 'ended') dispatch({ kind: 'closeBattle' });
+            },
           }
         : null,
     );
-  }, [playbackClock, playbackKey, messageDelay, animating, playbackStopped, advance]);
+  }, [
+    playbackClock,
+    playbackKey,
+    messageDelay,
+    animating,
+    playbackStopped,
+    paused,
+    opening,
+    presenting,
+    line,
+    presentation.length,
+    b.phase,
+    dispatch,
+  ]);
   useEffect(() => () => playbackClock.dispose(), [playbackClock]);
   const act = useCallback(
     (action: BattleAction) => {
@@ -263,9 +344,6 @@ export function BattleScreen({
   );
   const maxPlayer = scene.player.maxHp;
   const maxEnemy = scene.enemy.maxHp;
-  const species = SPECIES[player.speciesId]!;
-  const baseXp = xpAt(player.level, species.experienceCurve);
-  const nextXp = xpAt(Math.min(100, player.level + 1), species.experienceCurve);
   const choosingParty =
     !presenting && (b.phase === 'forcedSwitch' || page === 'party' || page === 'targets');
   const ended = b.phase === 'ended';
@@ -315,7 +393,12 @@ export function BattleScreen({
             height: size * 0.14,
             borderRadius: size,
             backgroundColor: `${palette.ink}35`,
-            opacity: switches.some((visual) => visual.side === 'player') ? 0 : 1,
+            opacity:
+              switches.some((visual) => visual.side === 'player') ||
+              faints.some((visual) => visual.side === 'player') ||
+              (!presenting && scene.player.hp <= 0)
+                ? 0
+                : 1,
           }}
         />
         <View
@@ -328,7 +411,14 @@ export function BattleScreen({
             height: size * 0.1,
             borderRadius: size,
             backgroundColor: `${palette.ink}35`,
-            opacity: switches.some((visual) => visual.side === 'enemy') ? 0 : 1,
+            opacity:
+              capture ||
+              captured ||
+              switches.some((visual) => visual.side === 'enemy') ||
+              faints.some((visual) => visual.side === 'enemy') ||
+              (!presenting && scene.enemy.hp <= 0)
+                ? 0
+                : 1,
           }}
         />
         <BattleStage
@@ -338,7 +428,7 @@ export function BattleScreen({
           size={size}
           event={activeMove}
           feedbackEvent={feedbackEvent}
-          eventKey={effectKey}
+          eventKey={switchKey}
           playing={animatingMove && !playbackStopped}
           onImpact={onEffectImpact}
           onFinished={onEffectFinished}
@@ -347,7 +437,22 @@ export function BattleScreen({
           completedSwitches={completedSwitches}
           switchesPaused={playbackStopped}
           onSwitchFinished={onSwitchFinished}
+          capture={capture}
+          captureCompleted={!animatingCapture}
+          captured={captured}
+          captureKey={`${b.id}:${presentationId}:capture`}
+          faints={faints}
+          hideFainted={!presenting && !busy}
+          onFaintFinished={onFaintFinished}
         />
+        {growth && (
+          <BattleGrowthIllustration
+            key={effectKey}
+            visual={growth}
+            paused={playbackStopped}
+            onFinished={() => setCompletedGrowth(effectKey)}
+          />
+        )}
         <View
           style={[
             s.statusCard,
@@ -369,11 +474,14 @@ export function BattleScreen({
           <View style={{ flexDirection: 'row', gap: 7, alignItems: 'center' }}>
             <Text style={s.hpLabel}>HP</Text>
             <View style={{ flex: 1 }}>
-              <HpBar value={scene.enemy.hp} max={maxEnemy} width="100%" />
+              <HpBar value={scene.enemy.hp} max={maxEnemy} width="100%" paused={playbackStopped} />
             </View>
-            <Text style={s.hpNumber}>
-              {scene.enemy.hp}/{maxEnemy}
-            </Text>
+            <AnimatedNumber
+              value={scene.enemy.hp}
+              suffix={`/${maxEnemy}`}
+              paused={playbackStopped}
+              style={s.hpNumber}
+            />
           </View>
           {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
           <Text testID="enemy-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
@@ -401,30 +509,21 @@ export function BattleScreen({
           <View style={{ flexDirection: 'row', gap: 7, alignItems: 'center' }}>
             <Text style={s.hpLabel}>HP</Text>
             <View style={{ flex: 1 }}>
-              <HpBar value={scene.player.hp} max={maxPlayer} width="100%" />
+              <HpBar
+                value={scene.player.hp}
+                max={maxPlayer}
+                width="100%"
+                paused={playbackStopped}
+              />
             </View>
-            <Text style={s.hpNumber}>
-              {scene.player.hp}/{maxPlayer}
-            </Text>
-          </View>
-          <View
-            style={{
-              height: 3,
-              marginLeft: 22,
-              backgroundColor: palette.panel2,
-              borderRadius: 2,
-              overflow: 'hidden',
-              marginTop: 3,
-            }}
-          >
-            <View
-              style={{
-                height: '100%',
-                width: `${player.level === 100 ? 100 : Math.min(100, ((player.experience - baseXp) / Math.max(1, nextXp - baseXp)) * 100)}%`,
-                backgroundColor: '#a5b9b0',
-              }}
+            <AnimatedNumber
+              value={scene.player.hp}
+              suffix={`/${maxPlayer}`}
+              paused={playbackStopped}
+              style={s.hpNumber}
             />
           </View>
+          <BattleExperienceBar figure={scene.player} paused={playbackStopped} />
           {scene.player.status && (
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
@@ -608,15 +707,23 @@ export function BattleScreen({
               style={{ flex: 1, justifyContent: 'center' }}
             >
               <Label style={{ fontSize: compact ? 15 : 19, lineHeight: compact ? 23 : 29 }}>
-                {presentation[line]}
+                {opening ? '双方的伙伴正在登场！' : presentation[line]}
               </Label>
               <Text style={{ alignSelf: 'flex-end', color: palette.gold, fontSize: 11 }}>
                 {playbackStopped
                   ? '播放已暂停'
                   : animating
-                    ? activeMove
-                      ? '技能演出中 · 自动播放'
-                      : '精灵切换中 · 自动播放'
+                    ? animatingGrowth
+                      ? '伙伴成长中 · 自动播放'
+                      : faints.some((visual) => !visual.completed)
+                        ? '精灵正在退场 · 自动播放'
+                        : opening
+                          ? '伙伴登场中 · 自动播放'
+                          : activeMove
+                            ? '技能演出中 · 自动播放'
+                            : animatingCapture
+                              ? '捕捉演出中 · 自动播放'
+                              : '精灵切换中 · 自动播放'
                     : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
               </Text>
             </Pressable>

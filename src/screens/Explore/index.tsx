@@ -21,6 +21,8 @@ import { SCENE_TRANSITION } from '../../sceneTransition';
 import { calendarDetails } from '../../game/calendar';
 import { useDayNightEnabled } from '../../platform/dayNight';
 import { useNightLighting } from '../../useNightLighting';
+import { useMapPassage } from '../../hooks/useMapPassage';
+import { MapArrivalIllustration } from '../../components/MapArrivalIllustration';
 
 export function Explore({
   game: currentGame,
@@ -41,11 +43,20 @@ export function Explore({
   coveredTransition?: boolean;
   onReady?: (map: MapId) => void;
 }) {
-  const { game, door, transition } = useBuildingPassage(currentGame);
-  const night = useNightLighting(game, coveredTransition || !!transition);
+  const passage = useMapPassage(currentGame, coveredTransition, screenPaused);
+  const { game, door, transition } = useBuildingPassage(passage.game);
+  const night = useNightLighting(game, coveredTransition || !!transition || !!passage.transition);
   const dayNightEnabled = useDayNightEnabled();
   const calendar = calendarDetails(game);
-  const paused = screenPaused || !!transition;
+  const paused = screenPaused || !!transition || !!passage.transition;
+  const passageReady = passage.onReady;
+  const sceneReady = useCallback(
+    (map: MapId) => {
+      passageReady(map);
+      onReady?.(map);
+    },
+    [passageReady, onReady],
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const held = useRef<Direction | null>(null);
   const blocked =
@@ -175,8 +186,8 @@ export function Explore({
         height={height}
         paused={blocked}
         door={door}
-        coveredTransition={coveredTransition || !!transition}
-        onReady={onReady}
+        coveredTransition={coveredTransition || !!transition || !!passage.transition}
+        onReady={sceneReady}
         night={night}
       />
       <View
@@ -350,6 +361,38 @@ export function Explore({
           },
         ]}
       />
+      {!!passage.arrival && !transition && !passage.transition && !coveredTransition && (
+        <MapArrivalIllustration key={passage.arrival} map={game.player.map} paused={paused} />
+      )}
+      {passage.transition && (
+        <Animated.View
+          testID="world-map-transition"
+          accessibilityLabel={`正在前往${MAPS[passage.transition.map].name}`}
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: SCENE_TRANSITION.color,
+              opacity: passage.transition.opacity,
+              zIndex: 1000,
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+          ]}
+        >
+          <Text style={{ fontSize: 25, fontWeight: '800', color: '#655541' }}>
+            {MAPS[passage.transition.map].name}
+          </Text>
+          <View
+            style={{
+              marginTop: 14,
+              width: 50,
+              height: 3,
+              borderRadius: 2,
+              backgroundColor: '#e9b34f',
+            }}
+          />
+        </Animated.View>
+      )}
       {transition && (
         <Animated.View
           testID="building-door-transition"
