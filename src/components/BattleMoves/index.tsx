@@ -3,7 +3,7 @@ import { MOVES, SPECIES, TYPES, TYPE_COLORS } from '../../content/catalog';
 import { GameState } from '../../game/model';
 import { battleMoveDetails } from '../../game/moveDetails';
 import { chanceLabel, hitChance } from '../../game/combat';
-import { typeMultiplier } from '../../game/rules';
+import { abilityFor, typeMultiplier } from '../../game/rules';
 import { HapticPressable as Pressable } from '../HapticPressable';
 import { palette } from '../ui';
 
@@ -50,7 +50,9 @@ export function BattleMoves({
           const details = moveId ? battleMoveDetails(moveId, battle.weather?.kind) : null;
           const title = move ? `${move.exclusiveSpeciesId ? '✦ ' : ''}${move.name}` : '空技能位';
           const multiplier = move?.power
-            ? typeMultiplier(move.type, SPECIES[enemy.speciesId]!.types)
+            ? abilityFor(enemy).immuneType === move.type
+              ? 0
+              : typeMultiplier(move.type, SPECIES[enemy.speciesId]!.types)
             : 1;
           const effectiveness =
             multiplier === 0 ? '无效' : multiplier === 1 ? '' : `×${multiplier}`;
@@ -58,7 +60,7 @@ export function BattleMoves({
             ? `${move.type ? TYPES[move.type] : '无属性'} · ${details!.category} · 威力 ${move.power || '—'}`
             : '尚未学习技能';
           const pp = move
-            ? `${index === -1 ? '不消耗 PP' : `PP ${slot!.pp}/${move.pp}`} · 命中 ${chanceLabel(hitChance(move.id, battle.playerStages, battle.enemyStages, battle.weather?.kind))}`
+            ? `${index === -1 ? '不消耗 PP' : `PP ${slot!.pp}/${move.pp}`} · 命中 ${chanceLabel(hitChance(move.id, battle.playerStages, battle.enemyStages, battle.weather?.kind, player))}`
             : '';
           const disabled = !move || (index !== -1 && slot!.pp === 0);
           return (

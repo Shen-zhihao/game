@@ -20,6 +20,8 @@ import { DOOR_TIMINGS } from '../../game/buildingPassage';
 import { NightBuildingLights } from '../NightBuildingLights';
 import { sceneInk } from '../../content/sceneArt';
 import { FieldPropIllustration } from '../FieldPropIllustration';
+import { FieldObjectIllustration } from '../FieldObjectIllustration';
+import { fieldObjectFor, fieldObjectSize, fieldObjectFlag } from '../../content/fieldProps';
 import { BagIllustration } from '../ItemIcon';
 import { ServiceCounters } from '../ServiceCounters';
 import { palette } from '../ui';
@@ -201,31 +203,32 @@ export function WorldViewport({
               COAST_FRIENDS[n.id] ??
               (encounter ? [encounter.speciesId, encounter.caught] : undefined);
             const coastProp = COAST_PROPS[n.id];
+            const fieldObject = fieldObjectFor(n);
             const size = n.artSpeciesId
               ? 108
               : friend
                 ? 55
-                : n.role === 'log'
-                  ? 58
-                  : n.role === 'gate'
-                    ? 50
-                    : 42;
+                : fieldObject
+                  ? fieldObjectSize(fieldObject)
+                  : n.role === 'log'
+                    ? 58
+                    : n.role === 'gate'
+                      ? 50
+                      : 42;
             const cell =
-              n.role === 'clue' || n.role === 'discovery'
-                ? 1
-                : n.role === 'switch' || n.role === 'echo'
-                  ? 2
-                  : n.role === 'rock'
-                    ? 6
-                    : n.role === 'mechanism'
-                      ? 7
-                      : n.role === 'chest'
-                        ? 3
-                        : n.role === 'log'
-                          ? 4
-                          : n.role === 'gate'
-                            ? 5
-                            : 0;
+              n.role === 'switch' || n.role === 'echo'
+                ? 2
+                : n.role === 'rock'
+                  ? 6
+                  : n.role === 'mechanism'
+                    ? 7
+                    : n.role === 'chest'
+                      ? 3
+                      : n.role === 'log'
+                        ? 4
+                        : n.role === 'gate'
+                          ? 5
+                          : 0;
             return (
               <View
                 pointerEvents="none"
@@ -265,6 +268,12 @@ export function WorldViewport({
                               : n.id
                       ]
                     }
+                  />
+                ) : fieldObject ? (
+                  <FieldObjectIllustration
+                    kind={fieldObject}
+                    size={size * scale}
+                    active={!!game.progress.flags[fieldObjectFlag(n.id)]}
                   />
                 ) : n.role === 'rock' ||
                   n.role === 'mechanism' ||

@@ -1,6 +1,8 @@
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import { ITEMS, type ItemPocket } from '../../content/catalog';
 import { EvolutionMaterial } from './EvolutionMaterial';
+import { HeldTrinket } from './HeldTrinket';
+import { isHeldItem } from '../../content/battleTraits';
 
 const outline = '#554536';
 export function BagIllustration({ size = 128 }: { size?: number }) {
@@ -50,7 +52,9 @@ export function ItemIcon({ itemId, size = 32 }: { itemId: string; size?: number 
     <Svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
       <Ellipse cx={24} cy={43} rx={14} ry={3} fill="#64513b" opacity={0.1} />
       <G stroke={outline} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round">
-        {pocket === 'balls' ? (
+        {isHeldItem(itemId) ? (
+          <HeldTrinket itemId={itemId} />
+        ) : pocket === 'balls' ? (
           <>
             <Circle cx={24} cy={25} r={16} fill="#fff9eb" />
             <Path d="M8 25a16 16 0 0 1 32 0Z" fill={color} />
@@ -145,6 +149,7 @@ export function PocketIcon({ pocket, size = 25 }: { pocket: ItemPocket | 'all'; 
     training: 'candy',
     evolution: 'moon_shard',
     key: 'key_ruin_key',
+    held: 'held_band',
   };
   return <ItemIcon itemId={ids[pocket]} size={size} />;
 }

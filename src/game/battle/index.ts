@@ -9,6 +9,7 @@ import { BALLS, consumeMasterBall, resolveCapture } from '../capture';
 import { WEATHER, weatherAt } from '../environment';
 import { addBattleMoney, distributeExperience, ensureRewards, settleKnockout } from '../rewards';
 import { isSupply, supplyReason, applySupply } from '../items';
+import { endHeldTurn, triggerHeldItem } from '../heldItems';
 import {
   badgeCount,
   GYM_TRAINERS,
@@ -38,6 +39,7 @@ import {
 } from '../combat';
 import {
   calculateDamage,
+  abilityFor,
   captureChance,
   creatureName,
   makeCreature,
@@ -91,12 +93,13 @@ function aiMove(state: GameState): number {
           false,
           b.weather?.kind,
         ).damage *
-        hitChance(m.id, b.enemyStages, b.playerStages, b.weather?.kind) *
-        (1 + criticalChance(m.id, b.enemyStages, b.playerStages))
+        hitChance(m.id, b.enemyStages, b.playerStages, b.weather?.kind, enemy) *
+        (1 + criticalChance(m.id, b.enemyStages, b.playerStages, enemy))
       : 3;
     if (move.weather) score = move.weather === b.weather?.kind ? 0 : 5;
     if (move.effect?.heal) score = enemy.hp < statsFor(enemy).hp / 2 ? 18 : 0;
     if (move.effect?.status) score = player.status ? 0 : 7;
+    if (move.effect?.status && abilityFor(player).immuneStatus === move.effect.status) score = 0;
     if (move.effect?.stage) {
       const { stage, amount = 0, target } = move.effect;
       const current = (target === 'self' ? b.enemyStages : b.playerStages)[stage] ?? 0;
@@ -166,6 +169,15 @@ export function startBattle(
   }
   for (const c of enemies)
     if (!state.dex.seen.includes(c.speciesId)) state.dex.seen.push(c.speciesId);
+  if (!wild && event !== 'rival')
+    enemies.forEach((c, i) => {
+      c.heldItem =
+        GYM_TRAINERS.has(event!) || event?.startsWith('league')
+          ? i % 2 === 0
+            ? 'held_berry'
+            : 'held_shell'
+          : null;
+    });
   state.battle = {
     id: nextId(state, 'battle'),
     ...(npc && !wild ? { npcId: npc.id } : {}),
@@ -195,6 +207,7 @@ export function startBattle(
     state.battle.logs.push(
       `场地天气：${WEATHER[state.battle.weather!.kind].name}。${WEATHER[state.battle.weather!.kind].battle}`,
     );
+  triggerHeldItem(state.creatures[playerId]!, state.battle.logs);
   state.battle.aiMove = aiMove(state);
 }
 function finish(state: GameState, result: Battle['result']): void {
@@ -359,19 +372,37 @@ function attack(
   (b.visualEvents ??= []).push(visual);
   try {
     b.logs.push(`${creatureName(attacker)}使用了${move.name}！`);
-    if (random(state) >= hitChance(move.id, attackerStages, defenderStages, b.weather?.kind)) {
+    if (
+      random(state) >= hitChance(move.id, attackerStages, defenderStages, b.weather?.kind, attacker)
+    ) {
       visual.outcome = 'miss';
       b.logs.push('没有命中。');
       return true;
     }
     const multiplier = typeMultiplier(move.type, SPECIES[defender.speciesId]!.types);
+    const trait = abilityFor(defender);
+    if (move.type && trait.immuneType === move.type && move.effect?.target !== 'self') {
+      visual.outcome = 'immune';
+      if (trait.immuneType === 'electric' && defender.hp > 0) {
+        const before = defender.hp;
+        defender.hp = Math.min(
+          statsFor(defender).hp,
+          defender.hp + Math.max(1, Math.floor(statsFor(defender).hp / 4)),
+        );
+        b.logs.push(
+          `${creatureName(defender)}的${trait.name}吸收了电流，恢复${defender.hp - before}点体力。`,
+        );
+      } else b.logs.push(`${creatureName(defender)}的${trait.name}挡住了这个招式。`);
+      return true;
+    }
     if (multiplier === 0 && (move.power || move.effect?.target !== 'self')) {
       visual.outcome = 'immune';
       b.logs.push('对方免疫这个属性。');
       return true;
     }
     if (move.power) {
-      const critical = random(state) < criticalChance(move.id, attackerStages, defenderStages);
+      const critical =
+        random(state) < criticalChance(move.id, attackerStages, defenderStages, attacker);
       visual.critical = critical;
       const { damage } = calculateDamage(
         attacker,
@@ -383,8 +414,10 @@ function attack(
         critical,
         b.weather?.kind,
       );
-      const dealt = Math.min(defender.hp, damage);
+      const sturdy = trait.sturdy && defender.hp === statsFor(defender).hp && damage >= defender.hp;
+      const dealt = Math.min(defender.hp, sturdy ? Math.max(0, defender.hp - 1) : damage);
       defender.hp -= dealt;
+      if (sturdy) b.logs.push(`${creatureName(defender)}的${trait.name}让它留下了1点体力！`);
       b.logs.push(
         `造成 ${dealt} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
       );
@@ -440,8 +473,18 @@ function attack(
         const opposing = effect.target === 'self' ? defenderStages : attackerStages;
         const rate =
           effect.stage === 'critical'
-            ? criticalChance('tackle', affected, opposing)
-            : criticalChance('tackle', opposing, affected);
+            ? criticalChance(
+                'tackle',
+                affected,
+                opposing,
+                effect.target === 'self' ? attacker : defender,
+              )
+            : criticalChance(
+                'tackle',
+                opposing,
+                affected,
+                effect.target === 'self' ? defender : attacker,
+              );
         b.logs.push(
           `${subject}${effect.stage === 'criticalGuard' ? '受到普通攻击时，对方' : '当前普通攻击'}要害率 ${chanceLabel(rate)}；要害伤害 ×2。`,
         );
@@ -455,6 +498,7 @@ function attack(
     ) {
       const types = SPECIES[defender.speciesId]!.types;
       const immune =
+        trait.immuneStatus === effect.status ||
         (effect.status === 'burn' && types.includes('fire')) ||
         (effect.status === 'poison' && (types.includes('poison') || types.includes('steel'))) ||
         (effect.status === 'paralysis' && types.includes('electric'));
@@ -462,10 +506,15 @@ function attack(
         defender.status = effect.status;
         defender.sleepTurns = effect.status === 'sleep' ? 1 + Math.floor(random(state) * 3) : 0;
         b.logs.push(`${creatureName(defender)}陷入异常状态。`);
-      }
+      } else
+        b.logs.push(
+          `${creatureName(defender)}${trait.immuneStatus === effect.status ? `的${trait.name}` : '的属性'}避免了异常状态。`,
+        );
     }
     return true;
   } finally {
+    triggerHeldItem(attacker, b.logs);
+    triggerHeldItem(defender, b.logs);
     visual.endLogIndex = b.logs.length - 1;
     visual.after = battleScene(state);
   }
@@ -587,6 +636,17 @@ export function battleAction(state: GameState, action: BattleAction): void {
       b.logs = forced
         ? [`上吧，${creatureName(c)}！`]
         : [`${previous}，回来吧！`, `上吧，${creatureName(c)}！`];
+      const outgoing = state.creatures[b.playerId]!,
+        trait = abilityFor(outgoing);
+      if (!forced && outgoing.hp > 0 && trait.switchHeal && outgoing.hp < statsFor(outgoing).hp) {
+        const old = outgoing.hp;
+        outgoing.hp = Math.min(
+          statsFor(outgoing).hp,
+          outgoing.hp + Math.max(1, Math.floor(statsFor(outgoing).hp * trait.switchHeal)),
+        );
+        b.logs.push(`${previous}的${trait.name}恢复了${outgoing.hp - old}点体力。`);
+      }
+      triggerHeldItem(c, b.logs);
       b.playerId = c.id;
       b.visualEvents.push({
         kind: 'scene',
@@ -718,6 +778,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
         c.hp = Math.max(0, c.hp - loss);
         b.logs.push(`${creatureName(c)}受到扬沙伤害 ${loss}。`);
       }
+    for (const c of [player, enemy]) endHeldTurn(c, b.logs);
     if (b.weather?.turns !== null && b.weather?.turns !== undefined && --b.weather.turns === 0) {
       b.weather.kind = b.weather.ambient;
       b.weather.turns = null;

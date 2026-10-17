@@ -1,7 +1,8 @@
 import { MOVES } from '../../content/catalog';
 import { CombatStage, Creature, Stages, WeatherId } from '../model';
 import { weatherAccuracy } from '../environment';
-import { effectiveStat } from '../rules';
+import { abilityFor, effectiveStat } from '../rules';
+import { heldEffect } from '../../content/battleTraits';
 
 export const MAX_SPEED_ACTIONS = 3;
 export { CRITICAL_MULTIPLIER } from '../model';
@@ -49,6 +50,7 @@ export function hitChance(
   attackerStages: Partial<Stages> = {},
   defenderStages: Partial<Stages> = {},
   weather: WeatherId = 'clear',
+  attacker?: Creature,
 ): number {
   const move = MOVES[moveId]!;
   if (!move.power && move.effect?.target === 'self') return 1;
@@ -58,7 +60,11 @@ export function hitChance(
       1,
       (move.accuracy / 100) *
         weatherAccuracy(move.type, weather) *
-        accuracyMultiplier((attackerStages.accuracy ?? 0) - (defenderStages.evasion ?? 0)),
+        accuracyMultiplier(
+          (attacker && abilityFor(attacker).clearSight
+            ? Math.max(0, attackerStages.accuracy ?? 0)
+            : (attackerStages.accuracy ?? 0)) - (defenderStages.evasion ?? 0),
+        ),
     ),
   );
 }
@@ -66,12 +72,18 @@ export function criticalChance(
   moveId: string,
   attackerStages: Partial<Stages> = {},
   defenderStages: Partial<Stages> = {},
+  attacker?: Creature,
 ): number {
   const move = MOVES[moveId]!;
   if (!move.power) return 0;
   const stage = Math.max(
     -3,
-    Math.min(3, (attackerStages.critical ?? 0) + (move.criticalStage ?? 0)),
+    Math.min(
+      3,
+      (attackerStages.critical ?? 0) +
+        (move.criticalStage ?? 0) +
+        (attacker ? (heldEffect(attacker)?.criticalStage ?? 0) : 0),
+    ),
   );
   const rate = stage < 0 ? CRITICAL_RATES[0] * 2 ** stage : CRITICAL_RATES[stage]!;
   const guard = Math.max(-3, Math.min(3, defenderStages.criticalGuard ?? 0));

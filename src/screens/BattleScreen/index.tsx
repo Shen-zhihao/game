@@ -47,6 +47,7 @@ import { BALLS } from '../../game/capture';
 import { createBattlePlaybackClock } from '../../game/battlePlayback';
 import { useBattleMessageDelay } from '../../hooks/useBattleMessageDelay';
 import { useAppActivity } from '../../hooks/useAppActivity';
+import { CreatureTraits } from '../../components/CreatureTraits';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
 function BattleTile({
@@ -595,6 +596,10 @@ export function BattleScreen({
             >
               {showCombatStats ? (
                 <>
+                  <Label style={{ fontWeight: '700' }}>我方 · {creatureName(player)}</Label>
+                  <CreatureTraits creature={player} compact />
+                  <Label style={{ fontWeight: '700' }}>对方 · {creatureName(enemy)}</Label>
+                  <CreatureTraits creature={enemy} compact />
                   <Label style={{ color: palette.gold, fontSize: 12 }}>
                     {WEATHER[b.weather?.kind ?? 'clear'].name}：
                     {WEATHER[b.weather?.kind ?? 'clear'].battle}
@@ -606,9 +611,10 @@ export function BattleScreen({
                   </Label>
                   <Label muted style={{ fontSize: 12 }}>
                     普通攻击要害率：我方{' '}
-                    {chanceLabel(criticalChance('tackle', b.playerStages, b.enemyStages))} / 对方{' '}
-                    {chanceLabel(criticalChance('tackle', b.enemyStages, b.playerStages))}；要害伤害
-                    ×2。
+                    {chanceLabel(criticalChance('tackle', b.playerStages, b.enemyStages, player))} /
+                    对方{' '}
+                    {chanceLabel(criticalChance('tackle', b.enemyStages, b.playerStages, enemy))}
+                    ；要害伤害 ×2。
                   </Label>
                   <Label muted style={{ fontSize: 12 }}>
                     我方命中 {b.playerStages.accuracy ?? 0}／闪避 {b.playerStages.evasion ?? 0}
@@ -620,9 +626,11 @@ export function BattleScreen({
                   {player.moves.map((m) => (
                     <Label key={m.id} muted style={{ fontSize: 11 }}>
                       {MOVES[m.id]!.name}：当前命中{' '}
-                      {chanceLabel(hitChance(m.id, b.playerStages, b.enemyStages, b.weather?.kind))}
+                      {chanceLabel(
+                        hitChance(m.id, b.playerStages, b.enemyStages, b.weather?.kind, player),
+                      )}
                       {MOVES[m.id]!.power
-                        ? ` · 要害 ${chanceLabel(criticalChance(m.id, b.playerStages, b.enemyStages))}`
+                        ? ` · 要害 ${chanceLabel(criticalChance(m.id, b.playerStages, b.enemyStages, player))}`
                         : ''}
                     </Label>
                   ))}

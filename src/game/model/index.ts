@@ -102,6 +102,7 @@ export interface Creature {
   id: string;
   speciesId: string;
   nickname: string;
+  heldItem?: import('../../content/battleTraits').HeldItemId | null;
   level: number;
   experience: number;
   iv: Stats;
@@ -329,6 +330,7 @@ export interface ExplorationState {
   activeFind: string | null;
 }
 export interface GameState {
+  activities?: import('../activities/types').ActivityLedger;
   cheats?: { redemptions: number; masterBallsGranted: number; masterBallsUsed: number };
   league?: {
     runs: number;
@@ -384,6 +386,8 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'activity'; action: import('../activities/types').ActivityAction }
+  | { kind: 'equip'; creatureId: string; itemId: string | null }
   | { kind: 'cheat'; code: string }
   | { kind: 'walk'; direction: WalkDirection }
   | { kind: 'interact' }

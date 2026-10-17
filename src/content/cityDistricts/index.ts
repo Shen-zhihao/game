@@ -408,6 +408,14 @@ export function expandCityDistricts(maps: Record<string, GameMap>) {
         role: 'resident',
       },
     ];
+    if (town === 'harbor')
+      landmarkNpcs.push({
+        id: districtNpcId(town, 'fishing'),
+        name: '垂钓员白汀',
+        x: gx - 3,
+        y: gy - 3,
+        role: 'quest',
+      });
     for (const npc of landmarkNpcs) cells[npc.y]![npc.x] = ':';
     // Furnish both the original quarter and the new streets, beside rather than on roads.
     // Keep door approaches, NPC conversations, patrol routes and incoming save positions clear.

@@ -25,10 +25,12 @@ import {
 } from '../../content/catalog';
 import { isTownLocation } from '../../content/world';
 import { CreatureSprite } from '../../components/CreatureSprite';
+import { CreatureTraits } from '../../components/CreatureTraits';
 import { MoveDetails, MoveLearningPanel } from '../../components/MoveDetails';
 import { Button, HpBar, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
 import { Command, GameState, STAT_KEYS, TypeId } from '../../game/model';
 import {
+  abilityFor,
   canEvolve,
   creatureName,
   evolutionLabel,
@@ -423,6 +425,10 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
               <TrainingPanel key={c.id} c={c} game={game} dispatch={dispatch} />
             ) : (
               <>
+                <CreatureTraits
+                  creature={c}
+                  onUnequip={() => dispatch({ kind: 'equip', creatureId: c.id, itemId: null })}
+                />
                 <View style={styles.wrap}>
                   {STAT_KEYS.map((k) => (
                     <Panel key={k} style={{ padding: 10, minWidth: 80, flexGrow: 1 }}>
@@ -851,8 +857,14 @@ function DexDetails({
       {seen && (
         <>
           <TypeBadges types={species.types} />
+          <Label style={{ color: palette.gold, fontWeight: '700' }}>
+            特性 · {abilityFor({ speciesId }).name}
+          </Label>
+          <Label muted style={{ fontSize: 12 }}>
+            {abilityFor({ speciesId }).description}
+          </Label>
           <HabitatDetails speciesId={species.id} />
-          <Label style={{ fontSize: 12 }}>弱点与免疫</Label>
+          <Label style={{ fontSize: 12 }}>属性弱点与免疫</Label>
           <View style={styles.wrap}>
             {TYPE_IDS.filter((t) => typeMultiplier(t, species.types) !== 1).map((t) => (
               <Label

@@ -21,6 +21,7 @@ import { TileMapLayers } from '../../components/TileMap';
 import { layoutRegionLabels } from '../../content/regionLabels';
 import { ADVENTURE_GYMS } from '../../content/adventure';
 import { CITY_TOWNS, CITY_IDENTITIES, cityLayout } from '../../content/cityDistricts';
+import { CITY_ACTIVITIES } from '../../content/fieldActivities';
 
 function LocalMap({ game, map }: { game: GameState; map: MapId }) {
   const data = MAPS[map];
@@ -404,6 +405,26 @@ export function RegionMenu({ game }: { game: GameState }) {
               {place.description}
             </Label>
             <Label style={{ fontSize: 12, color: palette.accent }}>{place.services}</Label>
+            {CITY_ACTIVITIES.filter((a) => a.town === place.map).map((a) => (
+              <View
+                key={a.id}
+                testID={`map-activity-${a.town}`}
+                style={{ gap: 4, padding: 10, borderRadius: 10, backgroundColor: palette.panel2 }}
+              >
+                <Label style={{ fontWeight: '700', color: palette.gold }}>
+                  {a.title}
+                  {game.progress.flags[a.goalFlag] ? ' · 已完成' : ''}
+                </Label>
+                <Label muted style={{ fontSize: 11 }}>
+                  {a.town === 'harbor'
+                    ? '潮声滨园北岸 · 垂钓员白汀'
+                    : `${CITY_IDENTITIES[a.town!].houses[1]} · 屋内工作台`}
+                </Label>
+                <Label muted style={{ fontSize: 11 }}>
+                  {a.instructions}
+                </Label>
+              </View>
+            ))}
             {place.id === 'moss' && (
               <Button small testID="map-show-gym" onPress={() => openLocal('gym')}>
                 查看苔丘道馆

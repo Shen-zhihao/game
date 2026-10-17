@@ -346,16 +346,20 @@ const WORLD_MAPS: Record<WorldMapId, GameMap> = {
   ...COAST_MAPS,
   ...ADVENTURE_MAPS,
 };
-export const MAPS = WORLD_MAPS as Record<MapId, GameMap>;
+// Expansion and indoor installation mutate runtime maps. Keep imported chapter templates pristine
+// so a development refresh cannot expand an already expanded city or append duplicate portals.
+export const MAPS = JSON.parse(JSON.stringify(WORLD_MAPS)) as Record<MapId, GameMap>;
 // Every physical extension and its painted road use the same definition.
 // Keep public interaction clearings safe to stand in; tall grass begins beyond the posts.
 for (const chapter of ADVENTURE_STORY_CONTENT)
-  for (const map of chapter.maps)
+  for (const template of chapter.maps) {
+    const map = MAPS[template.id];
     for (const npc of map.npcs)
       for (let y = Math.max(1, npc.y - 1); y <= Math.min(map.rows.length - 2, npc.y + 1); y++)
         for (let x = Math.max(1, npc.x - 1); x <= Math.min(map.rows[0]!.length - 2, npc.x + 1); x++)
           if (map.rows[y]![x] === 'g')
             map.rows[y] = map.rows[y]!.slice(0, x) + '.' + map.rows[y]!.slice(x + 1);
+  }
 for (const chapter of ADVENTURE_STORY_CONTENT)
   for (const link of chapter.links) {
     const map = MAPS[link.from];
@@ -364,7 +368,7 @@ for (const chapter of ADVENTURE_STORY_CONTENT)
         const row = map.rows[yy]!;
         map.rows[yy] = row.slice(0, x) + ':'.repeat(w) + row.slice(x + w);
       }
-    map.portals.push(link.exit);
+    map.portals.push({ ...link.exit });
   }
 MAPS.star.rows[18] = ':' + MAPS.star.rows[18]!.slice(1);
 MAPS.star.portals.push({ x: 0, y: 18, map: 'championRoad', toX: 46, toY: 36 });

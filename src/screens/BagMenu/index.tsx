@@ -64,13 +64,15 @@ export function BagMenu({ game, dispatch }: { game: GameState; dispatch: (c: Com
       ? `持有 ×${selected ? (inventory[selected] ?? 0) : 0} · ${mode === 'exchange' ? '使用调查印记兑换补给。' : '购买后直接放入背包。'}`
       : item?.pocket === 'key'
         ? '随身携带即可生效，不消耗。'
-        : item?.pocket === 'balls'
-          ? '在野生精灵战斗中打开背包投球。'
-          : item?.pocket === 'evolution'
-            ? '在「伙伴」详情中使用进化道具。'
-            : selected === 'skill_copy'
-              ? '选择来源技能和接收伙伴，成功后消耗一瓶。'
-              : (supplyIssue ?? (target ? '选择伙伴，再确认使用。' : '先获得一位同行伙伴。'));
+        : item?.pocket === 'held'
+          ? `选择伙伴后确认携带；原携带道具会收回背包。${target?.heldItem ? `目前携带：${ITEMS[target.heldItem]!.name}。` : ''}`
+          : item?.pocket === 'balls'
+            ? '在野生精灵战斗中打开背包投球。'
+            : item?.pocket === 'evolution'
+              ? '在「伙伴」详情中使用进化道具。'
+              : selected === 'skill_copy'
+                ? '选择来源技能和接收伙伴，成功后消耗一瓶。'
+                : (supplyIssue ?? (target ? '选择伙伴，再确认使用。' : '先获得一位同行伙伴。'));
   return (
     <View testID="bag-screen" style={{ flex: 1, minHeight: 0, gap: 8 }}>
       <View
@@ -187,6 +189,27 @@ export function BagMenu({ game, dispatch }: { game: GameState; dispatch: (c: Com
                     ? `兑换 5 · ${offer!.cost * 5}印记`
                     : `购买 5 · ◎${item.price * 5}`}
                 </BagButton>
+              </View>
+            ) : item.pocket === 'held' ? (
+              <View style={{ gap: 6 }}>
+                <BagButton
+                  primary
+                  testID="bag-equip"
+                  disabled={!target || target.heldItem === selected}
+                  onPress={() => {
+                    if (target) act({ kind: 'equip', creatureId: target.id, itemId: selected });
+                  }}
+                >
+                  交给伙伴携带
+                </BagButton>
+                {target?.heldItem && (
+                  <BagButton
+                    testID="bag-unequip"
+                    onPress={() => act({ kind: 'equip', creatureId: target.id, itemId: null })}
+                  >
+                    收回携带道具
+                  </BagButton>
+                )}
               </View>
             ) : item.pocket === 'medicine' || item.pocket === 'training' ? (
               <BagButton

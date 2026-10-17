@@ -14,6 +14,12 @@ import {
 import { weatherDamage, weatherStat } from '../environment';
 import { captureDifficulty } from '../capture';
 import {
+  ABILITIES,
+  speciesAbility,
+  heldEffect,
+  type AbilityDefinition,
+} from '../../content/battleTraits';
+import {
   advanceGrowth,
   allocatePoints,
   emptyStats,
@@ -196,6 +202,9 @@ export function gainXp(state: GameState, creature: Creature, amount: number): nu
 export function statMultiplier(stage: number): number {
   return stage >= 0 ? (2 + stage) / 2 : 2 / (2 - stage);
 }
+export function abilityFor(creature: Pick<Creature, 'speciesId'>): AbilityDefinition {
+  return ABILITIES[speciesAbility(SPECIES[creature.speciesId]!.types)];
+}
 export function effectiveStat(
   creature: Creature,
   stat: Exclude<Stat, 'hp'>,
@@ -207,6 +216,11 @@ export function effectiveStat(
     statMultiplier(stages[stat] ?? 0) *
     weatherStat(creature, stat, weather);
   if (stat === 'speed' && creature.status === 'paralysis') value /= 2;
+  if (stat === 'speed') {
+    value *= heldEffect(creature)?.speed ?? 1;
+    const boost = abilityFor(creature).weatherSpeed;
+    if (boost?.weather === weather) value *= boost.multiplier;
+  }
   if (stat === 'attack' && creature.status === 'burn') value /= 2;
   return Math.max(1, value);
 }
@@ -222,6 +236,9 @@ export function calculateDamage(
 ): { damage: number; multiplier: number } {
   const move = MOVES[moveId]!;
   const mult = typeMultiplier(move.type, SPECIES[defender.speciesId]!.types);
+  const attackerAbility = abilityFor(attacker),
+    defenderAbility = abilityFor(defender);
+  if (move.type && defenderAbility.immuneType === move.type) return { damage: 0, multiplier: 0 };
   if (mult === 0 || move.power === 0) return { damage: 0, multiplier: mult };
   const attack = effectiveStat(
     attacker,
@@ -238,10 +255,29 @@ export function calculateDamage(
   const base =
     Math.floor((((2 * attacker.level) / 5 + 2) * move.power * attack) / defense / 50) + 2;
   const stab = move.type && SPECIES[attacker.speciesId]!.types.includes(move.type) ? 1.5 : 1;
+  const held = heldEffect(attacker),
+    guard = heldEffect(defender);
+  const traitMultiplier =
+    (attackerAbility.lowHpType === move.type && attacker.hp <= statsFor(attacker).hp / 3
+      ? 1.3
+      : 1) *
+    (held?.boostType === move.type ? 1.2 : 1) *
+    (move.category === 'physical'
+      ? (attackerAbility.physicalBoost ?? 1) *
+        (held?.physicalBoost ?? 1) *
+        (defenderAbility.physicalGuard ?? 1) *
+        (guard?.physicalGuard ?? 1)
+      : (held?.specialBoost ?? 1) * (defenderAbility.specialGuard ?? 1)) *
+    (defender.hp === statsFor(defender).hp ? (defenderAbility.fullHpGuard ?? 1) : 1) *
+    (move.type && defenderAbility.resistTypes?.includes(move.type) ? 0.75 : 1);
   return {
     damage:
-      Math.max(1, Math.floor(base * stab * mult * variation * weatherDamage(move.type, weather))) *
-      (critical ? CRITICAL_MULTIPLIER : 1),
+      Math.max(
+        1,
+        Math.floor(
+          base * stab * mult * variation * weatherDamage(move.type, weather) * traitMultiplier,
+        ),
+      ) * (critical ? CRITICAL_MULTIPLIER : 1),
     multiplier: mult,
   };
 }

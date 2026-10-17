@@ -119,8 +119,14 @@ function GameApp() {
     };
   }, []);
   useEffect(() => {
-    pauseSession(!!menu || editingControls || !!presentation.view || screen !== 'play');
-  }, [menu, editingControls, presentation.view, screen, pauseSession]);
+    pauseSession(
+      !!menu ||
+        editingControls ||
+        !!presentation.view ||
+        !!game?.activities?.active ||
+        screen !== 'play',
+    );
+  }, [menu, editingControls, presentation.view, game?.activities?.active, screen, pauseSession]);
   const run = useCallback(async (work: () => Promise<void>) => {
     setBusy(true);
     setError('');

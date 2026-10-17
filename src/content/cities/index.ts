@@ -6,6 +6,8 @@ import { ADVENTURE_CHAPTERS } from '../adventure';
 import { worldMapFor } from '../buildings';
 import { CITY_TOWNS } from '../cityDistricts';
 import { districtQuests } from '../cityQuests';
+import { CITY_ACTIVITIES, activityQuest } from '../fieldActivities';
+import { HELD_ITEMS } from '../battleTraits';
 
 export interface CityQuest {
   id: string;
@@ -234,6 +236,11 @@ for (const town of CITY_TOWNS) {
   const service = CITIES.find((c) => c.map === (town === 'league' ? 'star' : town));
   if (!service) throw new Error(`缺少城市委托服务：${town}`);
   service.quests.push(...districtQuests(town).map((q) => ({ ...q, cityId: service.id })));
+  const activity = CITY_ACTIVITIES.find((a) => a.town === town)!;
+  service.quests.push({ ...activityQuest(activity), cityId: service.id });
+  service.stock = [
+    ...new Set([...service.stock, 'held_berry', 'held_cleanse', activity.reward!.item]),
+  ];
 }
 export const CITY_QUESTS = Object.fromEntries(
   CITIES.flatMap((c) => c.quests.map((q) => [q.id, q])),
@@ -250,7 +257,11 @@ export function shopStock(game: GameState): string[] {
   // Keep the previous forest-report shop source for all evolution items available.
   const backup = game.progress.flags.questReward
     ? Object.keys(ITEMS).filter(
-        (id) => !supplies.includes(id) && id !== 'master_ball' && ITEMS[id]!.pocket !== 'key',
+        (id) =>
+          !supplies.includes(id) &&
+          id !== 'master_ball' &&
+          ITEMS[id]!.pocket !== 'key' &&
+          !Object.hasOwn(HELD_ITEMS, id),
       )
     : [];
   return [...new Set([...c.stock, ...backup])];

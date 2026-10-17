@@ -7,6 +7,9 @@ import {
   STARTERS,
 } from '../../content/catalog';
 import { SIGNATURE_BY_SPECIES } from '../../content/signatures';
+import { equipItem } from '../heldItems';
+import { activityAtNpc, applyActivity, openActivity } from '../activities';
+import { HABITAT_SITES } from '../../content/habitats';
 import {
   isTownLocation,
   GYM_BARRIERS,
@@ -309,6 +312,13 @@ function interact(state: GameState): void {
     return;
   }
   faceTraveler(state, npc);
+  const activity = activityAtNpc(state, npc.id);
+  if (activity && flags.rival && flags.catchTutorial) {
+    if (activity.prerequisite && !flags[activity.prerequisite]) {
+      talk(state, npc.name, ['先完成本馆学徒的练习，再来操作第二处机关。']);
+    } else openActivity(state, activity);
+    return;
+  }
   if (interactCityDistrict(state, npc, (speaker, lines) => talk(state, speaker, lines))) return;
   recordQuestContact(state, npc.id);
   if (
@@ -808,6 +818,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
     return state;
   }
   if (command.kind === 'tick') {
+    if (state.activities?.active) return current;
     for (let i = 0; i < Math.max(0, Math.min(10, Math.floor(command.seconds))); i++) {
       advanceCalendar(state);
       state.playTimeSeconds++;
@@ -840,6 +851,33 @@ function reduceCommand(current: GameState, command: Command): GameState {
     return state;
   }
   if (state.dialogue) return current;
+  if (command.kind === 'activity') {
+    if (state.battle || state.pending.length) return current;
+    const outcome = applyActivity(state, command.action);
+    if (outcome) {
+      const sites = HABITAT_SITES.filter(
+        (s) => s.map === 'coastRoute' && s.medium === 'water' && s.encounters.length,
+      );
+      const site = sites[outcome.fishSpot % sites.length];
+      const choices = weightedEcology(
+        (site?.encounters ?? []).filter((e) => isOrdinarySpecies(e.speciesId)),
+        weatherAt(state),
+      );
+      if (choices.length) {
+        let roll = random(state) * choices.reduce((sum, e) => sum + e.weight, 0);
+        const encounter = choices.find((e) => (roll -= e.weight) < 0) ?? choices[0]!;
+        startBattle(state, null, {
+          speciesId: encounter.speciesId,
+          level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
+        });
+        (state.battle as GameState['battle'])?.logs.unshift(
+          '你成功收线，水中的精灵来到了岸边！投出星纹球才能让它成为伙伴。',
+        );
+      }
+    }
+    return state;
+  }
+  if (state.activities?.active) return current;
   if (command.kind === 'closeBattle') {
     const b = state.battle;
     if (b?.phase === 'ended') {
@@ -965,6 +1003,9 @@ function reduceCommand(current: GameState, command: Command): GameState {
   }
   if (state.pending.length) return current;
   switch (command.kind) {
+    case 'equip':
+      equipItem(state, command.creatureId, command.itemId);
+      break;
     case 'walk':
       walk(state, command.direction);
       break;
@@ -1102,6 +1143,11 @@ function reduceCommand(current: GameState, command: Command): GameState {
       )
         return current;
       const c = state.creatures[command.creatureId]!;
+      if (c.heldItem && (state.inventory[c.heldItem] ?? 0) >= 999) {
+        state.notice = '携带道具的口袋已满，请先收回道具再放生。';
+        break;
+      }
+      if (c.heldItem) state.inventory[c.heldItem] = (state.inventory[c.heldItem] ?? 0) + 1;
       state.box = state.box.filter((id) => id !== c.id);
       delete state.creatures[c.id];
       state.notice = `${creatureName(c)}回到保育区。图鉴、任务与冠军名录保留。`;
@@ -1171,6 +1217,7 @@ export function safeForTransfer(state: GameState | null): boolean {
   return (
     !state ||
     (!state.battle &&
+      !state.activities?.active &&
       !state.dialogue &&
       !state.progress.flags.starterChoice &&
       state.pending.length === 0)

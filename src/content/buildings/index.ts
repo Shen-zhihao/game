@@ -1,4 +1,5 @@
 import type { InteriorMapId, MapId, WorldMapId } from '../../game/model';
+import { CITY_ACTIVITIES } from '../fieldActivities';
 import type { GameMap, Npc } from '../world';
 import {
   CITY_BUILDING_SITES,
@@ -560,9 +561,13 @@ export function installBuildingInteriors(
             id: districtNpcId(outside.id as keyof typeof CITY_IDENTITIES, `craft_${district.kind}`),
             x: 9,
             y: 7,
-            name: CITY_IDENTITIES[outside.id as keyof typeof CITY_IDENTITIES].craft[
-              ['bakery', 'workshop', 'library'].indexOf(district.kind)
-            ]!,
+            name:
+              (district.kind === 'workshop' && outside.id !== 'harbor'
+                ? CITY_ACTIVITIES.find((a) => a.town === outside.id)?.title
+                : null) ??
+              CITY_IDENTITIES[outside.id as keyof typeof CITY_IDENTITIES].craft[
+                ['bakery', 'workshop', 'library'].indexOf(district.kind)
+              ]!,
             role: 'clue',
           });
         maps[id] = {

@@ -7,6 +7,7 @@ import { Explore } from '../Explore';
 import { SCENE_TRANSITION } from '../../sceneTransition';
 import { PendingScreen, StarterChoice } from '../GameMenus';
 import { BattleIntroIllustration } from '../../components/BattleIntroIllustration';
+import { FieldActivityScreen } from '../FieldActivityScreen';
 
 interface BattleTransition {
   source: GameState;
@@ -161,7 +162,7 @@ export function AdventureScreen({
             dispatch={dispatch}
             width={width}
             height={height}
-            paused={paused || transitioning || showingBattle}
+            paused={paused || transitioning || showingBattle || !!presentedGame.activities?.active}
             onMenu={onMenu}
             coveredTransition={transitioning}
             onReady={onMapReady}
@@ -178,6 +179,9 @@ export function AdventureScreen({
               paused={paused || transitioning}
             />
           </View>
+        )}
+        {presentedGame.activities?.active && !presentedGame.battle && (
+          <FieldActivityScreen game={presentedGame} dispatch={dispatch} />
         )}
         {!presentedGame.battle && !presentedGame.dialogue && presentedGame.pending.length > 0 && (
           <PendingScreen game={presentedGame} dispatch={dispatch} />

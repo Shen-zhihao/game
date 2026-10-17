@@ -38,19 +38,12 @@ export function FieldPropIllustration({ cell, size }: { cell: number; size: numb
             <Path d="M7 23q25-27 50 0" fill="none" stroke={c.leafDark} strokeWidth={7} />
             <Path d="M15 15q-6-11 5-10m29 10q6-11-5-10" fill={c.leafLight} />
           </>
-        ) : cell === 2 || cell === 7 ? (
+        ) : (
           <>
             <Path d="M18 14q14-8 28 0l4 38H14Z" fill="#c5c5ab" />
             <Path d="M21 18h22m-24 29h26" stroke="#e9e5cc" />
             <Path d="M32 22q-14 7 0 20 14-13 0-20Z" fill={c.gold} />
             <Path d="M32 27v9" stroke={c.paper} />
-          </>
-        ) : (
-          <>
-            <Path d="M13 45q10-14 19-6 9-12 20-1" fill="none" stroke="#b99a70" strokeWidth={4} />
-            <Path d="M30 38q-9-19 5-23 10 13-5 23Z" fill={c.leaf} />
-            <Path d="m48 12 2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill={c.gold} strokeWidth={1} />
-            <Circle cx={20} cy={24} r={2} fill={c.gold} stroke="none" />
           </>
         )}
       </G>

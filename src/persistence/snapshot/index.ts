@@ -46,6 +46,9 @@ import { KEY_ITEMS, effectiveAccessFlags, hasFieldAccess } from '../../content/k
 import { RECOVERY_TOWNS, townVisitFlag } from '../../game/recovery';
 import { CLIMATES } from '../../content/climates';
 import { CALENDAR_DAY_SECONDS, MAX_CALENDAR_DAY } from '../../game/calendar';
+import { HELD_ITEMS } from '../../content/battleTraits';
+import { ACTIVITY_FLAGS, FIELD_ACTIVITIES } from '../../content/fieldActivities';
+import { validActivityLocation, validActivityBoard } from '../../game/activities';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -87,6 +90,10 @@ const creatureSchema = z.strictObject({
   id: idSchema,
   speciesId: idSchema,
   nickname: z.string().max(20),
+  heldItem: z
+    .enum(Object.keys(HELD_ITEMS) as [keyof typeof HELD_ITEMS, ...(keyof typeof HELD_ITEMS)[]])
+    .nullable()
+    .optional(),
   level: integer(100, 1),
   experience: integer(1250000),
   iv: statsSchema,
@@ -218,7 +225,32 @@ const worldSchema = z.strictObject({
   activeFind: idSchema.nullable(),
 });
 const weatherId = z.enum(['clear', 'sun', 'rain', 'storm', 'fog', 'snow', 'sand']);
+const activityRunSchema = z.strictObject({
+  id: idSchema,
+  board: z.array(integer(8)).max(25),
+  cursor: integer(24, -1),
+  value: integer(32),
+  aux: integer(24),
+  stage: integer(3),
+  moves: integer(10000),
+  status: z.enum(['playing', 'won', 'lost']),
+  feedback: z.string().max(500),
+});
 const gameSchema = z.strictObject({
+  activities: z
+    .strictObject({
+      active: activityRunSchema.nullable(),
+      drafts: z.record(idSchema, activityRunSchema).optional(),
+      records: z.record(
+        idSchema,
+        z.strictObject({
+          completions: integer(999999, 1),
+          bestMoves: integer(10000, 1),
+          rewardClaimed: z.boolean(),
+        }),
+      ),
+    })
+    .optional(),
   cheats: z
     .strictObject({
       redemptions: integer(999999999, 1),
@@ -388,6 +420,7 @@ const gameSchema = z.strictObject({
   notice: z.string().max(500),
 });
 const FLAGS = new Set([
+  ...ACTIVITY_FLAGS,
   ...DISTRICT_FLAGS,
   ...RECOVERY_TOWNS.map(townVisitFlag),
   ...Object.values(MAPS).flatMap((m) =>
@@ -483,6 +516,56 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  if (game.activities) {
+    const ledger = game.activities;
+    invariant(
+      Object.keys(ledger.drafts ?? {}).length <= Object.keys(FIELD_ACTIVITIES).length,
+      '活动草稿过多',
+    );
+    for (const [id, draft] of Object.entries(ledger.drafts ?? {}))
+      invariant(
+        id === draft.id &&
+          (draft.status !== 'won' || !!ledger.records[id]?.completions) &&
+          validActivityBoard(draft) &&
+          game.progress.flags.catchTutorial,
+        '活动草稿无效',
+      );
+    invariant(
+      Object.keys(ledger.records).length <= Object.keys(FIELD_ACTIVITIES).length,
+      '活动记录过多',
+    );
+    for (const [id, record] of Object.entries(ledger.records)) {
+      const definition = FIELD_ACTIVITIES[id];
+      invariant(
+        definition && game.progress.flags[definition.goalFlag] && game.progress.flags.catchTutorial,
+        '活动完成记录与机关进度不符',
+      );
+      invariant(!!definition.reward || record.rewardClaimed, '机关不提供物品奖励');
+    }
+    const active = ledger.active;
+    if (active) {
+      invariant(
+        !game.battle &&
+          !game.dialogue &&
+          !game.pending.length &&
+          validActivityLocation(game, active),
+        '活动位置或前置无效',
+      );
+      invariant(validActivityBoard(active), '活动棋盘无效');
+      invariant(
+        active.status !== 'won' || !!ledger.records[active.id]?.completions,
+        '活动结果缺少完成记录',
+      );
+    }
+  }
+  for (const flag of ACTIVITY_FLAGS)
+    invariant(
+      !game.progress.flags[flag] ||
+        Object.keys(game.activities?.records ?? {}).some(
+          (id) => FIELD_ACTIVITIES[id]?.goalFlag === flag,
+        ),
+      '活动标记缺少记录',
+    );
   const journal = game.questJournal ?? [];
   invariant(
     new Set(journal).size === journal.length &&

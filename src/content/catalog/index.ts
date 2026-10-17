@@ -4,10 +4,12 @@ import { EXPANSION_SPRITES } from '../sprites';
 import { CombatStage, Curve, Species, TypeId } from '../../game/model';
 import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
+import { HELD_ITEMS } from '../battleTraits';
 
-export const CONTENT_VERSION = 'ch10.6';
+export const CONTENT_VERSION = 'ch11.0';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch10.6' ||
   version === 'ch10.5' ||
   version === 'ch10.4' ||
   version === 'ch10.3' ||
@@ -134,12 +136,24 @@ export const ITEM_POCKETS = {
   training: '培养道具',
   evolution: '进化道具',
   key: '重要物品',
+  held: '携带道具',
 } as const;
 export type ItemPocket = keyof typeof ITEM_POCKETS;
 export const ITEMS: Record<
   string,
   { name: string; price: number; description: string; pocket: ItemPocket }
 > = {
+  ...Object.fromEntries(
+    Object.entries(HELD_ITEMS).map(([id, item]) => [
+      id,
+      {
+        name: item.name,
+        price: item.price,
+        description: item.description,
+        pocket: 'held' as const,
+      },
+    ]),
+  ),
   ball: {
     name: '星纹球',
     price: 100,

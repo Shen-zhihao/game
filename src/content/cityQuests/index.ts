@@ -7,6 +7,7 @@ import {
   districtQuestId,
 } from '../cityDistricts';
 import type { TownId } from '../../game/model';
+import { CITY_ACTIVITIES } from '../fieldActivities';
 
 export const DISTRICT_POINTS = [
   'market',
@@ -24,6 +25,7 @@ export const DISTRICT_FLAGS = CITY_TOWNS.flatMap((town) =>
 
 export function districtQuests(town: TownId): Omit<CityQuest, 'cityId'>[] {
   const identity = CITY_IDENTITIES[town];
+  const activity = CITY_ACTIVITIES.find((a) => a.town === town)!;
   const checklist = (points: string[], labels: string[]): CityQuest['condition'] => ({
     kind: 'checklist',
     stops: points.map((point, i) => ({
@@ -63,10 +65,14 @@ export function districtQuests(town: TownId): Omit<CityQuest, 'cityId'>[] {
       id: districtQuestId(town, 'craft'),
       name: `${identity.celebration} · 筹备`,
       client: identity.people[1],
-      story: `居民正在筹备${identity.celebration}。进入东侧的${identity.houses[0]}、${identity.houses[1]}、${identity.houses[2]}，调查各屋东南侧的工作记录，完成三份小帮忙。`,
+      story: `居民正在筹备${identity.celebration}。进入东侧的${identity.houses[0]}、${identity.houses[1]}、${identity.houses[2]}，调查各屋东南侧的工作台。${town === 'harbor' ? '修好风向帆并整理其他记录。' : `工坊需亲手完成「${activity.title}」，其余两屋整理工作记录。`}`,
       condition: checklist(
         ['craft_bakery', 'craft_workshop', 'craft_library'],
-        identity.craft.map((name, i) => `到${identity.houses[i]}整理${name}`),
+        identity.craft.map((name, i) =>
+          i === 1 && town !== 'harbor'
+            ? `到${identity.houses[i]}完成${activity.title}`
+            : `到${identity.houses[i]}整理${name}`,
+        ),
       ),
       reward: { money: 320, merit: 3, items: { ether: 1, candy: 1 } },
     },
