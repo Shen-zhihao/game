@@ -4,6 +4,7 @@ export interface PlaybackStep {
   ready: boolean;
   paused: boolean;
   onAdvance: () => void;
+  onSkip?: () => void;
 }
 /** Presentation-only clock. Never sends a gameplay command or resolves a turn. */
 export function createBattlePlaybackClock() {
@@ -20,13 +21,14 @@ export function createBattlePlaybackClock() {
       if (current) current.remaining = Math.max(0, current.remaining - (Date.now() - startedAt));
     }
   };
-  const advance = () => {
-    if (!current?.ready) return;
+  const advance = (manual = false) => {
+    if (!current || (!manual && !current.ready)) return;
     const step = current;
     stop();
     current = null;
     completedKey = step.key;
-    step.onAdvance();
+    if (manual && step.onSkip) step.onSkip();
+    else step.onAdvance();
   };
   return {
     update(step: PlaybackStep | null) {
@@ -52,7 +54,7 @@ export function createBattlePlaybackClock() {
         if (current.ready) advance();
       }, current.remaining);
     },
-    skip: advance,
+    skip: () => advance(true),
     dispose() {
       stop();
       current = null;

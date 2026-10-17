@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MOVES, SPECIES } from '../../content/catalog';
 import { BattleStage } from '../../components/BattleStage';
-import { BattleCommandIcon } from '../../components/BattleCommandIcon';
+import { BattleFooter } from '../../components/BattleFooter';
 import { BATTLE_BACKGROUNDS } from '../../components/BattleStage/backgrounds';
 import { battleAnchors, battleTheme, BATTLE_SCENES } from '../../content/battleScenes';
 import { BattleMenus } from '../../components/BattleMenus';
@@ -50,54 +50,6 @@ import { useAppActivity } from '../../hooks/useAppActivity';
 import { CreatureTraits } from '../../components/CreatureTraits';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
-function BattleTile({
-  title,
-  detail,
-  color,
-  disabled = false,
-  onPress,
-  testID,
-  icon = false,
-}: {
-  title: string;
-  detail?: string;
-  color?: string;
-  disabled?: boolean;
-  onPress: () => void;
-  testID?: string;
-  icon?: boolean;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={[title, detail].filter(Boolean).join('，')}
-      disabled={disabled}
-      onPress={onPress}
-      testID={testID}
-      style={({ pressed }) => [
-        s.tile,
-        disabled && { opacity: 0.35 },
-        pressed && { backgroundColor: '#f2df9c', transform: [{ translateY: 1 }] },
-      ]}
-    >
-      {icon ? (
-        <BattleCommandIcon name={title} />
-      ) : (
-        <View style={[s.tileDot, { backgroundColor: color ?? palette.accent }]} />
-      )}
-      <View style={{ flex: 1 }}>
-        <Text numberOfLines={1} style={s.tileTitle}>
-          {title}
-        </Text>
-        {detail && (
-          <Text numberOfLines={1} style={s.tileDetail}>
-            {detail}
-          </Text>
-        )}
-      </View>
-    </Pressable>
-  );
-}
 export function BattleScreen({
   game,
   dispatch,
@@ -121,14 +73,14 @@ export function BattleScreen({
   const actionsRemaining = b.actionRound?.playerRemaining ?? actionTotal;
   const enemyActionTotal = b.actionRound?.enemyTotal ?? pace.enemyActions;
   const compact = height < 450;
-  const defaultFooterHeight = compact ? 114 : Math.min(180, Math.round(height * 0.25));
+  const narrow = width - insets.left - insets.right < 600;
+  const defaultFooterHeight = compact ? 124 : narrow ? 236 : 176;
   const [field, setField] = useState({ width, height: height - defaultFooterHeight });
   const [page, setPage] = useState<Page>('commands');
   const [busy, setBusy] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [showCombatStats, setShowCombatStats] = useState(false);
   const [targetItem, setTargetItem] = useState<import('../../game/items').SupplyId>('potion');
-  const logRef = useRef<ScrollView>(null);
   const pendingTurn = useRef(false);
   const actionAt = useRef(0);
   const [presentation, setPresentation] = useState<string[]>([]);
@@ -157,6 +109,7 @@ export function BattleScreen({
   }, []);
   const [playbackClock] = useState(createBattlePlaybackClock);
   const [playbackPaused, setPlaybackPaused] = useState(false);
+  const [manualAdvanceId, setManualAdvanceId] = useState(0);
   const messageDelay = useBattleMessageDelay();
   const active = useAppActivity();
   const effectKey = `${b.id}:${b.turn}:${b.actionRound?.playerRemaining ?? 0}:${presentationId}:${line}`;
@@ -212,13 +165,26 @@ export function BattleScreen({
           : [],
     [opening, b.kind, presenting, initialScene, visualEvents, line],
   );
-  const faints =
-    presenting && !opening
-      ? presentationFaints(initialScene, visualEvents, line, scene).map((visual) => {
-          const key = `${b.id}:${presentationId}:faint:${visual.logIndex}:${visual.side}`;
-          return { ...visual, key, completed: completedFaints.includes(key) };
-        })
-      : [];
+  const faints = useMemo(
+    () =>
+      presenting && !opening
+        ? presentationFaints(initialScene, visualEvents, line, scene).map((visual) => {
+            const key = `${b.id}:${presentationId}:faint:${visual.logIndex}:${visual.side}`;
+            return { ...visual, key, completed: completedFaints.includes(key) };
+          })
+        : [],
+    [
+      presenting,
+      opening,
+      initialScene,
+      visualEvents,
+      line,
+      scene,
+      b.id,
+      presentationId,
+      completedFaints,
+    ],
+  );
   const growth =
     presenting && !opening ? presentationGrowth(initialScene, visualEvents, line) : null;
   const animatingGrowth = !!growth && completedGrowth !== effectKey;
@@ -270,6 +236,28 @@ export function BattleScreen({
                 else setPresentation([]);
               } else if (b.phase === 'ended') dispatch({ kind: 'closeBattle' });
             },
+            onSkip: () => {
+              // A manual step also snaps HP/experience displays to this step's resolved values.
+              setManualAdvanceId((value) => value + 1);
+              if (opening) {
+                setCompletedSwitches((keys) => [
+                  ...new Set([...keys, `${b.id}:opening:player`, `${b.id}:opening:enemy`]),
+                ]);
+                return;
+              }
+              // The engine has already resolved this action. Finish only its presentation;
+              // never dispatch a second move, item use, capture, reward or switch here.
+              setCompletedEffect(effectKey);
+              setImpactedEffect(effectKey);
+              setCompletedGrowth(effectKey);
+              setCompletedFaints((keys) => [
+                ...new Set([...keys, ...faints.map((visual) => visual.key)]),
+              ]);
+              if (presenting) {
+                if (line + 1 < presentation.length) setLine(line + 1);
+                else setPresentation([]);
+              } else if (b.phase === 'ended') dispatch({ kind: 'closeBattle' });
+            },
           }
         : null,
     );
@@ -285,9 +273,16 @@ export function BattleScreen({
     line,
     presentation.length,
     b.phase,
+    b.id,
+    effectKey,
+    faints,
     dispatch,
   ]);
   useEffect(() => () => playbackClock.dispose(), [playbackClock]);
+  const advancePresentation = useCallback(() => {
+    if (paused || busy || showLog || !active) return;
+    playbackClock.skip();
+  }, [paused, busy, showLog, active, playbackClock]);
   const act = useCallback(
     (action: BattleAction) => {
       if (paused || busy || presenting || Date.now() - actionAt.current < 350) return;
@@ -318,9 +313,9 @@ export function BattleScreen({
   );
   useEffect(() => {
     const back = () => {
-      if (paused || busy || animating) return true;
+      if (paused || busy || !active) return true;
       if (showLog) setShowLog(false);
-      else if (presenting) playbackClock.skip();
+      else if (presenting || b.phase === 'ended') advancePresentation();
       else if (b.phase !== 'forcedSwitch') setPage(page === 'targets' ? 'bag' : 'commands');
       return true;
     };
@@ -353,10 +348,16 @@ export function BattleScreen({
     page === 'moves' && !presenting && !ended && !busy && b.phase !== 'forcedSwitch';
   const moveColumns = width - insets.left - insets.right >= 600 ? 4 : 2;
   const footerHeight = choosingMoves
-    ? Math.min(moveColumns === 4 ? (compact ? 160 : 180) : 260, Math.round(height * 0.65))
-    : defaultFooterHeight;
+    ? Math.min(moveColumns === 4 ? (compact ? 160 : 180) : 300, Math.round(height * 0.65))
+    : presenting || ended
+      ? compact
+        ? 124
+        : narrow
+          ? 196
+          : 160
+      : defaultFooterHeight;
   return (
-    <View testID="battle-screen" style={{ flex: 1, backgroundColor: palette.ink }}>
+    <View testID="battle-screen" style={{ flex: 1, backgroundColor: palette.canvas }}>
       <View
         style={{ flex: 1, overflow: 'hidden' }}
         onLayout={(e) => {
@@ -466,7 +467,19 @@ export function BattleScreen({
             onFinished={() => setCompletedGrowth(effectKey)}
           />
         )}
+        {(presenting || ended) && !showLog && (
+          <Pressable
+            testID="battle-tap-to-advance"
+            accessibilityRole="button"
+            accessibilityLabel="点击画面立即继续战斗细节"
+            feedback={false}
+            disabled={paused || busy || !active}
+            onPress={advancePresentation}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
         <View
+          pointerEvents="none"
           style={[
             s.statusCard,
             {
@@ -487,9 +500,16 @@ export function BattleScreen({
           <View style={{ flexDirection: 'row', gap: 7, alignItems: 'center' }}>
             <Text style={s.hpLabel}>HP</Text>
             <View style={{ flex: 1 }}>
-              <HpBar value={scene.enemy.hp} max={maxEnemy} width="100%" paused={playbackStopped} />
+              <HpBar
+                key={`enemy-${manualAdvanceId}`}
+                value={scene.enemy.hp}
+                max={maxEnemy}
+                width="100%"
+                paused={playbackStopped}
+              />
             </View>
             <AnimatedNumber
+              key={`enemy-${manualAdvanceId}`}
               value={scene.enemy.hp}
               suffix={`/${maxEnemy}`}
               paused={playbackStopped}
@@ -502,6 +522,7 @@ export function BattleScreen({
           </Text>
         </View>
         <View
+          pointerEvents="none"
           style={[
             s.statusCard,
             {
@@ -523,6 +544,7 @@ export function BattleScreen({
             <Text style={s.hpLabel}>HP</Text>
             <View style={{ flex: 1 }}>
               <HpBar
+                key={`player-${manualAdvanceId}`}
                 value={scene.player.hp}
                 max={maxPlayer}
                 width="100%"
@@ -530,13 +552,18 @@ export function BattleScreen({
               />
             </View>
             <AnimatedNumber
+              key={`player-${manualAdvanceId}`}
               value={scene.player.hp}
               suffix={`/${maxPlayer}`}
               paused={playbackStopped}
               style={s.hpNumber}
             />
           </View>
-          <BattleExperienceBar figure={scene.player} paused={playbackStopped} />
+          <BattleExperienceBar
+            key={`experience-${manualAdvanceId}`}
+            figure={scene.player}
+            paused={playbackStopped}
+          />
           {scene.player.status && (
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
@@ -552,7 +579,7 @@ export function BattleScreen({
             </Text>
           )}
         </View>
-        <View style={[s.battleTag, { top: 7 + insets.top }]}>
+        <View pointerEvents="none" style={[s.battleTag, { top: 7 + insets.top }]}>
           <Text style={{ color: palette.text, fontSize: 11 }}>
             {b.name} ·{' '}
             {b.kind === 'wild' ? '野生遭遇' : `训练师 ${b.enemyIndex + 1}/${b.enemies.length}`}
@@ -689,206 +716,89 @@ export function BattleScreen({
             onBack={() => setPage('commands')}
           />
         ) : (
-          <>
-            <View
-              style={{
-                flex: 1,
-                paddingHorizontal: compact ? 15 : 24,
-                paddingVertical: compact ? 10 : 18,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: compact ? 3 : 8,
-                }}
-              >
-                <Text
-                  style={{ color: palette.gold, fontSize: compact ? 11 : 13, fontWeight: '700' }}
-                >
-                  {presenting
-                    ? '战斗进程'
-                    : ended
-                      ? '冒险记录'
-                      : choosingParty
-                        ? '伙伴的选择'
-                        : page === 'moves'
-                          ? `选择技能 · 本次使用 1 次，剩余 ${actionsRemaining}/${actionTotal} 次操作`
-                          : page === 'bag'
-                            ? '选择道具'
-                            : `${creatureName(player)}，你打算怎么做？`}
-                </Text>
-                {page !== 'commands' && !ended && !presenting && b.phase !== 'forcedSwitch' && (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="返回战斗指令"
-                    onPress={() => setPage('commands')}
-                  >
-                    <Text style={{ color: palette.muted, fontSize: 11 }}>‹ 返回指令</Text>
-                  </Pressable>
-                )}
-              </View>
-              {presenting ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="战斗信息，自动播放"
-                  testID="battle-dialogue"
-                  disabled={animating}
-                  onPress={playbackClock.skip}
-                  style={{ flex: 1, justifyContent: 'center' }}
-                >
-                  <Label style={{ fontSize: compact ? 15 : 19, lineHeight: compact ? 23 : 29 }}>
-                    {opening ? '双方的伙伴正在登场！' : presentation[line]}
-                  </Label>
-                  <Text style={{ alignSelf: 'flex-end', color: palette.gold, fontSize: 11 }}>
-                    {playbackStopped
-                      ? '播放已暂停'
-                      : animating
-                        ? animatingGrowth
-                          ? '伙伴成长中 · 自动播放'
-                          : faints.some((visual) => !visual.completed)
-                            ? '精灵正在退场 · 自动播放'
-                            : opening
-                              ? '伙伴登场中 · 自动播放'
-                              : activeMove
-                                ? '技能演出中 · 自动播放'
-                                : animatingCapture
-                                  ? '捕捉演出中 · 自动播放'
-                                  : '精灵切换中 · 自动播放'
-                        : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
-                  </Text>
-                </Pressable>
-              ) : (
-                <ScrollView
-                  ref={logRef}
-                  onContentSizeChange={() => logRef.current?.scrollToEnd({ animated: false })}
-                  contentContainerStyle={{ gap: 3 }}
-                >
-                  {b.logs.slice(-3).map((line, i) => (
-                    <Label
-                      key={`${b.turn}-${i}`}
-                      style={{
-                        fontSize: compact ? 12 : 15,
-                        lineHeight: compact ? 18 : 23,
-                        color: i === b.logs.slice(-3).length - 1 ? palette.text : palette.muted,
-                      }}
-                    >
-                      {line}
-                    </Label>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-            <View
-              style={[
-                s.commandBox,
-                {
-                  width: (field.width - insets.left - insets.right) * 0.41,
-                  padding: compact ? 8 : 13,
-                  gap: compact ? 6 : 9,
-                },
-              ]}
-            >
-              {presenting ? (
-                <View style={{ flex: 1, justifyContent: 'center', gap: compact ? 4 : 10 }}>
-                  <Label
-                    testID="battle-autoplay-status"
-                    style={{ color: palette.muted, fontSize: compact ? 11 : 13 }}
-                  >
-                    {playbackStopped ? '播放已暂停' : `自动播放 · ${messageDelay / 1000} 秒 / 条`}
-                  </Label>
-                  <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <Button
-                      small
-                      testID="battle-playback-pause"
-                      onPress={() => setPlaybackPaused(!playbackPaused)}
-                    >
-                      {playbackPaused ? '继续播放' : '暂停'}
-                    </Button>
-                    <Button
-                      small
-                      testID="battle-next-line"
-                      disabled={animating}
-                      onPress={playbackClock.skip}
-                    >
-                      下一条
-                    </Button>
-                  </View>
-                </View>
-              ) : ended ? (
-                <View style={{ flex: 1, justifyContent: 'center', gap: 8 }}>
-                  <Label
-                    testID="battle-auto-return"
-                    style={{ color: palette.muted, fontSize: compact ? 11 : 13 }}
-                  >
-                    {playbackStopped ? '播放已暂停' : `${messageDelay / 1000} 秒后自动返回旅程`}
-                  </Label>
-                  <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <Button
-                      small
-                      testID="battle-playback-pause"
-                      onPress={() => setPlaybackPaused(!playbackPaused)}
-                    >
-                      {playbackPaused ? '继续播放' : '暂停'}
-                    </Button>
-                    <Button accent small testID="close-battle" onPress={playbackClock.skip}>
-                      立即返回旅程
-                    </Button>
-                  </View>
-                </View>
-              ) : b.phase === 'forcedSwitch' ? (
-                <Label style={{ color: palette.gold, textAlign: 'center' }}>
-                  伙伴在等待你的选择
-                </Label>
-              ) : (
-                <>
-                  <BattleTile
-                    testID="fight"
-                    icon
-                    title="战斗"
-                    detail="选择技能"
-                    color="#b97662"
-                    disabled={busy || choosingParty}
-                    onPress={() => setPage('moves')}
-                  />
-                  <BattleTile
-                    title="背包"
-                    icon
-                    detail={`精灵球 ${Object.keys(BALLS).reduce((n, id) => n + (game.inventory[id] ?? 0), 0)}`}
-                    color="#ceae65"
-                    disabled={busy || choosingParty}
-                    onPress={() => setPage('bag')}
-                  />
-                  <BattleTile
-                    title="精灵"
-                    icon
-                    detail={`队伍 ${game.party.length} 只`}
-                    color={palette.accent}
-                    disabled={busy || choosingParty}
-                    onPress={() => setPage('party')}
-                  />
-                  <BattleTile
-                    title="逃跑"
-                    icon
-                    detail={
-                      b.event === 'openingRescue'
-                        ? '先帮助博士脱险'
-                        : b.kind === 'wild'
-                          ? '离开野生对战'
-                          : '训练师战不可逃跑'
-                    }
-                    color="#839fb4"
-                    disabled={
-                      busy || b.kind !== 'wild' || b.event === 'openingRescue' || choosingParty
-                    }
-                    onPress={() => act({ kind: 'run' })}
-                  />
-                </>
-              )}
-            </View>
-          </>
+          <BattleFooter
+            compact={compact}
+            narrow={narrow}
+            mode={
+              presenting
+                ? 'playback'
+                : busy
+                  ? 'waiting'
+                  : ended
+                    ? 'result'
+                    : b.phase === 'forcedSwitch'
+                      ? 'forcedSwitch'
+                      : 'commands'
+            }
+            title={
+              presenting ? '战斗进行中' : ended ? '本场战斗已结束' : `第 ${b.turn} 回合 · 选择行动`
+            }
+            message={
+              presenting
+                ? opening
+                  ? '双方的伙伴正在登场！'
+                  : (presentation[line] ?? '')
+                : busy
+                  ? '伙伴正在行动…'
+                  : ended
+                    ? b.result === 'win'
+                      ? '对战胜利，继续前行吧！'
+                      : b.result === 'caught'
+                        ? '新伙伴加入了队伍！'
+                        : b.result === 'escaped'
+                          ? '已顺利离开对战。'
+                          : '休整一下，再出发。'
+                    : b.phase === 'forcedSwitch'
+                      ? '选择下一位上场的伙伴'
+                      : `${creatureName(player)}，准备怎么做？`
+            }
+            detail={b.logs.at(-1)}
+            progress={presenting && !opening ? `${line + 1} / ${presentation.length}` : undefined}
+            stopped={playbackStopped}
+            paused={playbackPaused}
+            disabled={paused || busy || showLog || !active}
+            onAdvance={advancePresentation}
+            onTogglePause={() => setPlaybackPaused((value) => !value)}
+            commands={[
+              {
+                id: 'fight',
+                title: '战斗',
+                detail: '选择伙伴的技能',
+                color: '#b97662',
+                disabled: busy || choosingParty,
+                onPress: () => setPage('moves'),
+              },
+              {
+                id: 'battle-bag',
+                title: '背包',
+                detail: `精灵球 ${Object.keys(BALLS).reduce((n, id) => n + (game.inventory[id] ?? 0), 0)}`,
+                color: '#b69750',
+                disabled: busy || choosingParty,
+                onPress: () => setPage('bag'),
+              },
+              {
+                id: 'battle-party',
+                title: '精灵',
+                detail: `${game.party.length} 位同行伙伴`,
+                color: '#7b977c',
+                disabled: busy || choosingParty,
+                onPress: () => setPage('party'),
+              },
+              {
+                id: 'battle-run',
+                title: '逃跑',
+                detail:
+                  b.event === 'openingRescue'
+                    ? '先帮助博士脱险'
+                    : b.kind === 'wild'
+                      ? '离开野生对战'
+                      : '训练师战不可逃跑',
+                color: '#839fb4',
+                disabled: busy || b.kind !== 'wild' || b.event === 'openingRescue' || choosingParty,
+                onPress: () => act({ kind: 'run' }),
+              },
+            ]}
+          />
         )}
       </View>
       <BattleMenus
@@ -923,38 +833,13 @@ const s = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     flexShrink: 0,
-    backgroundColor: palette.panel,
-    borderTopWidth: 1,
-    borderColor: palette.line,
+    backgroundColor: '#fbf7ed',
+    borderTopWidth: 2,
+    borderColor: '#e2d2b2',
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    overflow: 'hidden',
   },
-  commandBox: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderLeftWidth: 1,
-    borderColor: palette.line,
-    backgroundColor: palette.panel2,
-    alignContent: 'stretch',
-    justifyContent: 'center',
-  },
-  tile: {
-    width: '48%',
-    height: '47%',
-    flexGrow: 1,
-    minHeight: 42,
-    flexBasis: '45%',
-    backgroundColor: palette.panel,
-    borderWidth: 1,
-    borderColor: palette.line,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  tileDot: { width: 5, height: 25, borderRadius: 2 },
-  tileTitle: { fontSize: 15, lineHeight: 18, fontWeight: '800', color: palette.ink },
-  tileDetail: { fontSize: 10, lineHeight: 14, color: palette.muted, marginTop: 2 },
   statusCard: {
     position: 'absolute',
     backgroundColor: `${palette.panel}f5`,

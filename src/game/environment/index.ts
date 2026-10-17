@@ -233,7 +233,7 @@ export function travelProfile(game: GameState, x = game.player.x, y = game.playe
     terrain,
     weather,
     speed,
-    interval: Math.round(160 / speed),
-    duration: Math.round(140 / speed),
+    interval: Math.round(220 / speed),
+    duration: Math.round(200 / speed),
   };
 }

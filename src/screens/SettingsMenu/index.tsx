@@ -149,7 +149,8 @@ export function SettingsMenu({
             ))}
           </View>
           <Label muted style={settingsStyles.description}>
-            默认每条停留 2 秒，技能动画完整播放；技能、道具和换人由你选择。
+            默认每条自动停留 2
+            秒；点击战斗画面或信息栏可立即进入下一条，也可跳过当前演出。技能、道具和换人由你选择。
           </Label>
         </SettingSection>
         <SettingSection title="操作与帮助" icon="party" wide={false}>

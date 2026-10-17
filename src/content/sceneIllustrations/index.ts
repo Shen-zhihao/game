@@ -893,10 +893,7 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
           'stroke="#ffe2a7" stroke-width="2" stroke-linecap="round"',
         );
       if (tile === 'F' && room) art += furniture(xx, yy, data.interior?.style ?? room, x + y);
-      if (tile === 'E')
-        art +=
-          rect(xx + 2, yy + 1, 28, 30, '#d8c193', 'rx="3"') +
-          path(`M${xx + 10},${yy + 13}l6,6 6,-6`, 'none', `stroke="${c.paper}" stroke-width="2"`);
+      if (tile === 'E') art += rect(xx + 2, yy + 1, 28, 30, '#d8c193', 'rx="3"');
       if (tile === '#' && !architectural && !landscapeCells.has(`${x},${y}`)) {
         if (room || (indoor && !cave && !forest)) {
           art += rect(xx, yy, 32, 32, room ? '#c7bba2' : p.wall);
