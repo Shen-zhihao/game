@@ -9,6 +9,39 @@ import {
 import { ITEMS } from '../../content/catalog';
 import { GameState } from '../model';
 
+export function sellPrice(itemId: string): number {
+  const item = ITEMS[itemId];
+  return item && item.pocket !== 'key' && item.price > 0 ? Math.floor(item.price / 2) : 0;
+}
+
+export function sellReason(state: GameState, itemId: string, quantity: number): string | null {
+  if (!cityFor(state.player.map) || !servicesUnlocked(state))
+    return '请到城镇完成捕捉入门后出售道具。';
+  if (!sellPrice(itemId)) return '重要物品和无售价的道具不能出售。';
+  if (
+    !Number.isSafeInteger(quantity) ||
+    quantity < 1 ||
+    quantity > 99 ||
+    (state.inventory[itemId] ?? 0) < quantity
+  )
+    return '请检查出售数量和背包库存，每次可出售 1 至 99 个。';
+  if (state.player.money + sellPrice(itemId) * quantity > 9999999)
+    return '旅费将超过上限，请减少出售数量。';
+  return null;
+}
+
+export function sellItem(state: GameState, itemId: string, quantity: number): void {
+  const reason = sellReason(state, itemId, quantity);
+  if (reason) {
+    state.notice = reason;
+    return;
+  }
+  const income = sellPrice(itemId) * quantity;
+  state.inventory[itemId]! -= quantity;
+  state.player.money += income;
+  state.notice = `出售${ITEMS[itemId]!.name} ×${quantity}，获得 ${income} 旅费。`;
+}
+
 export function buyItem(state: GameState, itemId: string, quantity: number): void {
   const item = ITEMS[itemId];
   if (

@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, Text, View } from 'react-native';
 import { Npc } from '../../content/world';
 import { NpcSprite } from '../CharacterSprite';
 
-export function WorldNpc({ npc, scale, paused }: { npc: Npc; scale: number; paused: boolean }) {
+export function WorldNpc({
+  npc,
+  scale,
+  paused,
+  alert = false,
+}: {
+  npc: Npc;
+  scale: number;
+  paused: boolean;
+  alert?: boolean;
+}) {
   const [position] = useState(() => new Animated.ValueXY({ x: npc.x * 32, y: npc.y * 32 }));
   const previous = useRef({ x: npc.x, y: npc.y });
   useEffect(() => {
@@ -50,6 +60,35 @@ export function WorldNpc({ npc, scale, paused }: { npc: Npc; scale: number; paus
         }}
       />
       <NpcSprite npc={npc} size={56 * scale} paused={paused} />
+      {alert && (
+        <View
+          testID={`trainer-alert-${npc.id}`}
+          style={{
+            position: 'absolute',
+            top: -17 * scale,
+            left: 19 * scale,
+            width: 20 * scale,
+            height: 25 * scale,
+            borderRadius: 8 * scale,
+            backgroundColor: '#fff7d7',
+            borderWidth: 1.5 * scale,
+            borderColor: '#c9a65e',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text
+            style={{
+              color: '#a56c26',
+              fontSize: 20 * scale,
+              lineHeight: 23 * scale,
+              fontWeight: '900',
+            }}
+          >
+            !
+          </Text>
+        </View>
+      )}
     </Animated.View>
   );
 }

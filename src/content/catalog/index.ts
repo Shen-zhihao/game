@@ -6,9 +6,10 @@ import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 import { HELD_ITEMS } from '../battleTraits';
 
-export const CONTENT_VERSION = 'ch11.0';
+export const CONTENT_VERSION = 'ch11.1';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch11.0' ||
   version === 'ch10.6' ||
   version === 'ch10.5' ||
   version === 'ch10.4' ||
@@ -137,12 +138,20 @@ export const ITEM_POCKETS = {
   evolution: '进化道具',
   key: '重要物品',
   held: '携带道具',
+  field: '探索道具',
 } as const;
 export type ItemPocket = keyof typeof ITEM_POCKETS;
 export const ITEMS: Record<
   string,
   { name: string; price: number; description: string; pocket: ItemPocket }
 > = {
+  repel: {
+    name: '驱避喷雾',
+    price: 200,
+    description:
+      '持续 100 步，驱避等级低于队伍第一位可出战伙伴的普通野生精灵。不影响钓鱼、训练师和固定相遇。',
+    pocket: 'field',
+  },
   ...Object.fromEntries(
     Object.entries(HELD_ITEMS).map(([id, item]) => [
       id,

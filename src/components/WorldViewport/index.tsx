@@ -62,6 +62,7 @@ export function WorldViewport({
   width,
   height,
   paused,
+  motionPaused = paused,
   door,
   coveredTransition = false,
   onReady,
@@ -71,6 +72,7 @@ export function WorldViewport({
   width: number;
   height: number;
   paused: boolean;
+  motionPaused?: boolean;
   door?: DoorPresentation | null;
   coveredTransition?: boolean;
   onReady?: (map: MapId) => void;
@@ -344,7 +346,16 @@ export function WorldViewport({
               npcVisible(game, n),
           )
           .map((n) => (
-            <WorldNpc key={n.id} npc={n} scale={scale} paused={paused} />
+            <WorldNpc
+              key={n.id}
+              npc={n}
+              scale={scale}
+              paused={game.world?.trainerChallenge?.npcId === n.id ? motionPaused : paused}
+              alert={
+                game.world?.trainerChallenge?.npcId === n.id &&
+                game.world.trainerChallenge.phase === 'alert'
+              }
+            />
           ))}
         <ServiceCounters map={game.player.map} scale={scale} />
         <Animated.View

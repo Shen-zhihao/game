@@ -35,6 +35,7 @@ export interface CityService {
   exchanges: { id: string; cityId: string; itemId: string; quantity: number; cost: number }[];
 }
 const supplies = [
+  'repel',
   'ball',
   'great_ball',
   'ultra_ball',

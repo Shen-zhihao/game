@@ -328,6 +328,8 @@ export interface ExplorationState {
     }
   >;
   activeFind: string | null;
+  trainerPositions?: Record<string, { x: number; y: number; facing: Direction; steps: number }>;
+  trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
   activities?: import('../activities/types').ActivityLedger;
@@ -371,6 +373,7 @@ export interface GameState {
   sequence: number;
   steps: number;
   encounterCooldown: number;
+  repelSteps?: number;
   playTimeSeconds: number;
   battle: Battle | null;
   pending: PendingChoice[];
@@ -398,6 +401,7 @@ export type Command =
   | { kind: 'evolve'; creatureId: string; toId: string; accept: boolean }
   | { kind: 'learn'; creatureId: string; moveId: string; replace: number | null }
   | { kind: 'useItem'; itemId: string; creatureId: string }
+  | { kind: 'useFieldItem'; itemId: string }
   | {
       kind: 'copyMove';
       sourceId: string;
@@ -406,6 +410,7 @@ export type Command =
       replace: number | null;
     }
   | { kind: 'buy'; itemId: string; quantity: number }
+  | { kind: 'sell'; itemId: string; quantity: number }
   | { kind: 'exchange'; offerId: string; quantity: number }
   | { kind: 'cityQuest'; questId: string; action: 'accept' | 'claim' }
   | { kind: 'trackQuest'; questId: string | null }

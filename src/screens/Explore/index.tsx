@@ -63,6 +63,7 @@ export function Explore({
     !!game.dialogue ||
     !!game.battle ||
     !!game.pending.length ||
+    !!game.world?.trainerChallenge ||
     !!game.progress.flags.starterChoice;
   const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu });
   const insets = useSafeAreaInsets();
@@ -99,6 +100,7 @@ export function Explore({
         width={width}
         height={height}
         paused={blocked}
+        motionPaused={paused}
         door={door}
         coveredTransition={coveredTransition || !!transition || !!passage.transition}
         onReady={sceneReady}
@@ -128,6 +130,11 @@ export function Explore({
               {' · '}下次变化 {nextWeather}
             </Text>
           )}
+          {!!game.repelSteps && (
+            <Text testID="repel-status" style={s.smallText}>
+              驱避喷雾 · 剩余 {game.repelSteps} 步
+            </Text>
+          )}
         </View>
       </View>
       {!tiny && !game.dialogue && !tracked && (
@@ -135,7 +142,11 @@ export function Explore({
           pointerEvents="none"
           style={[
             s.objective,
-            { top: insets.top + 96, left: insets.left + 14, maxWidth: Math.min(290, width * 0.4) },
+            {
+              top: insets.top + 96 + (game.repelSteps ? 16 : 0),
+              left: insets.left + 14,
+              maxWidth: Math.min(290, width * 0.4),
+            },
           ]}
         >
           <Text numberOfLines={2} style={s.goalText}>
@@ -150,7 +161,10 @@ export function Explore({
           style={[
             s.objective,
             {
-              top: insets.top + (tiny ? 74 : isIndoor(game.player.map) ? 78 : 96),
+              top:
+                insets.top +
+                (tiny ? 74 : isIndoor(game.player.map) ? 78 : 96) +
+                (game.repelSteps ? 16 : 0),
               left: insets.left + 14,
               maxWidth: Math.min(340, width * 0.45),
               paddingVertical: compactTracker ? 6 : 8,
@@ -247,9 +261,15 @@ export function Explore({
         layout={layout}
         blocked={blocked}
         actionDisabled={
-          paused || !!game.battle || !!game.pending.length || !!game.progress.flags.starterChoice
+          paused ||
+          !!game.battle ||
+          !!game.pending.length ||
+          !!game.progress.flags.starterChoice ||
+          !!game.world?.trainerChallenge
         }
-        menuDisabled={paused || !!game.progress.flags.starterChoice}
+        menuDisabled={
+          paused || !!game.progress.flags.starterChoice || !!game.world?.trainerChallenge
+        }
         dialogue={!!game.dialogue}
         facingWater={facingWater}
         growthPoints={

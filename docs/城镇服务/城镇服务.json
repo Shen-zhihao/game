@@ -1,5 +1,5 @@
 {
-  "contentVersion": "ch10.4",
+  "contentVersion": "ch11.1",
   "currency": "调查印记",
   "services": [
     {
@@ -9,6 +9,7 @@
       "merchant": "花园旅行商",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -21,7 +22,10 @@
         "candy",
         "respec",
         "skill_copy",
-        "growth_seed"
+        "growth_seed",
+        "held_berry",
+        "held_cleanse",
+        "held_seed"
       ],
       "quests": [
         {
@@ -81,6 +85,175 @@
             }
           },
           "cityId": "dawn"
+        },
+        {
+          "id": "dawn_district_tour",
+          "name": "晨露集市漫游手帖",
+          "client": "会馆管事晨禾",
+          "story": "从东侧晨露集市开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_dawn_market",
+                "label": "阅读东侧晨露集市导览牌"
+              },
+              {
+                "flag": "district_dawn_promenade",
+                "label": "阅读南侧新叶邻里街史牌"
+              },
+              {
+                "flag": "district_dawn_garden",
+                "label": "阅读向阳花园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_district_neighbors",
+          "name": "新叶邻里的六位邻居",
+          "client": "会馆管事晨禾",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_dawn_bakery",
+                "label": "拜访麦芽面包房的面包师麦穗"
+              },
+              {
+                "flag": "district_dawn_workshop",
+                "label": "拜访种籽手作屋的木匠芽生"
+              },
+              {
+                "flag": "district_dawn_library",
+                "label": "拜访晨光绘本馆的绘本员小叶"
+              },
+              {
+                "flag": "district_dawn_guild",
+                "label": "拜访新叶旅人会馆的会馆管事晨禾"
+              },
+              {
+                "flag": "district_dawn_teahouse",
+                "label": "拜访花蜜茶舍的茶师蜜芽"
+              },
+              {
+                "flag": "district_dawn_greenhouse",
+                "label": "拜访育苗玻璃房的育苗员青芽"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_district_craft",
+          "name": "新叶野餐会 · 筹备",
+          "client": "木匠芽生",
+          "story": "居民正在筹备新叶野餐会。进入东侧的麦芽面包房、种籽手作屋、晨光绘本馆，调查各屋东南侧的工作台。工坊需亲手完成「育苗小园」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_dawn_craft_bakery",
+                "label": "到麦芽面包房整理面团发酵记录"
+              },
+              {
+                "flag": "district_dawn_craft_workshop",
+                "label": "到种籽手作屋完成育苗小园"
+              },
+              {
+                "flag": "district_dawn_craft_library",
+                "label": "到晨光绘本馆整理花园故事页"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_district_supplies",
+          "name": "晨露集市共享补给箱",
+          "client": "会馆管事晨禾",
+          "story": "为新叶旅人会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "dawn_district_festival",
+          "name": "新叶野餐会 · 相聚",
+          "client": "茶师蜜芽",
+          "prerequisite": "dawn_district_craft",
+          "story": "交付「新叶野餐会 · 筹备」后，到南侧向阳花园环路东南角找筹备人，与居民一同见证新叶野餐会，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_dawn_festival",
+                "label": "到向阳花园与筹备人交谈，参加新叶野餐会"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "dawn"
+        },
+        {
+          "id": "activity_dawn_quest",
+          "name": "育苗小园",
+          "client": "木匠芽生",
+          "story": "进入种籽手作屋，调查屋内工作台，完成「育苗小园」。亲手播种、浇水并调整遮阳棚，照顾三盆新苗。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_dawn_done",
+            "label": "完成育苗小园"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "dawn"
         }
       ],
       "exchanges": [
@@ -121,6 +294,7 @@
       "merchant": "林间补给商",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -135,7 +309,9 @@
         "skill_copy",
         "growth_seed",
         "echo_bell",
-        "amber_drop"
+        "amber_drop",
+        "held_berry",
+        "held_cleanse"
       ],
       "quests": [
         {
@@ -195,6 +371,175 @@
             }
           },
           "cityId": "moss"
+        },
+        {
+          "id": "moss_district_tour",
+          "name": "苔香小集漫游手帖",
+          "client": "护林员苔叔",
+          "story": "从东侧苔香小集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_moss_market",
+                "label": "阅读东侧苔香小集导览牌"
+              },
+              {
+                "flag": "district_moss_promenade",
+                "label": "阅读南侧林匠街街史牌"
+              },
+              {
+                "flag": "district_moss_garden",
+                "label": "阅读萤灯庭园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_district_neighbors",
+          "name": "林匠街的六位邻居",
+          "client": "护林员苔叔",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_moss_bakery",
+                "label": "拜访榛果烘焙屋的烘焙师榛榛"
+              },
+              {
+                "flag": "district_moss_workshop",
+                "label": "拜访藤编工坊的藤匠织青"
+              },
+              {
+                "flag": "district_moss_library",
+                "label": "拜访护林书屋的书屋管理员叶笺"
+              },
+              {
+                "flag": "district_moss_guild",
+                "label": "拜访巡林会馆的护林员苔叔"
+              },
+              {
+                "flag": "district_moss_teahouse",
+                "label": "拜访苔香茶室的茶师林雾"
+              },
+              {
+                "flag": "district_moss_greenhouse",
+                "label": "拜访蕨叶温室的蕨园员青苔"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_district_craft",
+          "name": "林间萤灯夜 · 筹备",
+          "client": "藤匠织青",
+          "story": "居民正在筹备林间萤灯夜。进入东侧的榛果烘焙屋、藤编工坊、护林书屋，调查各屋东南侧的工作台。工坊需亲手完成「藤编引露架」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_moss_craft_bakery",
+                "label": "到榛果烘焙屋整理榛果配方板"
+              },
+              {
+                "flag": "district_moss_craft_workshop",
+                "label": "到藤编工坊完成藤编引露架"
+              },
+              {
+                "flag": "district_moss_craft_library",
+                "label": "到护林书屋整理萤灯巡护册"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_district_supplies",
+          "name": "苔香小集共享补给箱",
+          "client": "护林员苔叔",
+          "story": "为巡林会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "moss_district_festival",
+          "name": "林间萤灯夜 · 相聚",
+          "client": "茶师林雾",
+          "prerequisite": "moss_district_craft",
+          "story": "交付「林间萤灯夜 · 筹备」后，到南侧萤灯庭园环路东南角找筹备人，与居民一同见证林间萤灯夜，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_moss_festival",
+                "label": "到萤灯庭园与筹备人交谈，参加林间萤灯夜"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "moss"
+        },
+        {
+          "id": "activity_moss_quest",
+          "name": "藤编引露架",
+          "client": "藤匠织青",
+          "story": "进入藤编工坊，调查屋内工作台，完成「藤编引露架」。旋转九块藤编槽，把林间露水从左侧入口引到右下花盆。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_moss_done",
+            "label": "完成藤编引露架"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "moss"
         }
       ],
       "exchanges": [
@@ -249,6 +594,7 @@
       "merchant": "山城补给商",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -263,7 +609,10 @@
         "skill_copy",
         "old_inscription",
         "dragon_scale",
-        "moon_shard"
+        "moon_shard",
+        "held_berry",
+        "held_cleanse",
+        "held_shell"
       ],
       "quests": [
         {
@@ -325,6 +674,175 @@
             }
           },
           "cityId": "stone"
+        },
+        {
+          "id": "stone_district_tour",
+          "name": "矿灯集市漫游手帖",
+          "client": "矿队管事灯叔",
+          "story": "从东侧矿灯集市开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_stone_market",
+                "label": "阅读东侧矿灯集市导览牌"
+              },
+              {
+                "flag": "district_stone_promenade",
+                "label": "阅读南侧石刻巷街史牌"
+              },
+              {
+                "flag": "district_stone_garden",
+                "label": "阅读层岩纪念园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_district_neighbors",
+          "name": "石刻巷的六位邻居",
+          "client": "矿队管事灯叔",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_stone_bakery",
+                "label": "拜访炉石面包铺的烘焙师岩麦"
+              },
+              {
+                "flag": "district_stone_workshop",
+                "label": "拜访石雕工坊的石匠刻砚"
+              },
+              {
+                "flag": "district_stone_library",
+                "label": "拜访山城地质馆的地质员层岚"
+              },
+              {
+                "flag": "district_stone_guild",
+                "label": "拜访矿队会馆的矿队管事灯叔"
+              },
+              {
+                "flag": "district_stone_teahouse",
+                "label": "拜访岩泉茶舍的茶师泉砂"
+              },
+              {
+                "flag": "district_stone_greenhouse",
+                "label": "拜访高山育苗房的育苗员石苇"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_district_craft",
+          "name": "归途矿灯展 · 筹备",
+          "client": "石匠刻砚",
+          "story": "居民正在筹备归途矿灯展。进入东侧的炉石面包铺、石雕工坊、山城地质馆，调查各屋东南侧的工作台。工坊需亲手完成「岩层寻宝」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_stone_craft_bakery",
+                "label": "到炉石面包铺整理矿队炉温表"
+              },
+              {
+                "flag": "district_stone_craft_workshop",
+                "label": "到石雕工坊完成岩层寻宝"
+              },
+              {
+                "flag": "district_stone_craft_library",
+                "label": "到山城地质馆整理岩层标本签"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_district_supplies",
+          "name": "矿灯集市共享补给箱",
+          "client": "矿队管事灯叔",
+          "story": "为矿队会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "stone_district_festival",
+          "name": "归途矿灯展 · 相聚",
+          "client": "茶师泉砂",
+          "prerequisite": "stone_district_craft",
+          "story": "交付「归途矿灯展 · 筹备」后，到南侧层岩纪念园环路东南角找筹备人，与居民一同见证归途矿灯展，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_stone_festival",
+                "label": "到层岩纪念园与筹备人交谈，参加归途矿灯展"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "stone"
+        },
+        {
+          "id": "activity_stone_quest",
+          "name": "岩层寻宝",
+          "client": "石匠刻砚",
+          "story": "进入石雕工坊，调查屋内工作台，完成「岩层寻宝」。选择细凿或小锤，在岩壁坍落前完整取出带标记的三处矿晶。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_stone_done",
+            "label": "完成岩层寻宝"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "stone"
         }
       ],
       "exchanges": [
@@ -379,6 +897,7 @@
       "merchant": "潮汐港补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -392,7 +911,10 @@
         "respec",
         "skill_copy",
         "tide_pearl",
-        "frost_crystal"
+        "frost_crystal",
+        "held_berry",
+        "held_cleanse",
+        "held_pearl"
       ],
       "quests": [
         {
@@ -452,6 +974,175 @@
             }
           },
           "cityId": "city_3"
+        },
+        {
+          "id": "harbor_district_tour",
+          "name": "白帆市集漫游手帖",
+          "client": "水手长归帆",
+          "story": "从东侧白帆市集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_harbor_market",
+                "label": "阅读东侧白帆市集导览牌"
+              },
+              {
+                "flag": "district_harbor_promenade",
+                "label": "阅读南侧船匠街街史牌"
+              },
+              {
+                "flag": "district_harbor_garden",
+                "label": "阅读潮声滨园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "harbor_district_neighbors",
+          "name": "船匠街的六位邻居",
+          "client": "水手长归帆",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_harbor_bakery",
+                "label": "拜访海盐烘焙坊的面包师盐穗"
+              },
+              {
+                "flag": "district_harbor_workshop",
+                "label": "拜访帆具修造所的帆匠白索"
+              },
+              {
+                "flag": "district_harbor_library",
+                "label": "拜访旧航季书馆的航史员海笺"
+              },
+              {
+                "flag": "district_harbor_guild",
+                "label": "拜访水手会馆的水手长归帆"
+              },
+              {
+                "flag": "district_harbor_teahouse",
+                "label": "拜访贝壳茶屋的茶师贝音"
+              },
+              {
+                "flag": "district_harbor_greenhouse",
+                "label": "拜访滨海育苗室的育苗员沙青"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "harbor_district_craft",
+          "name": "白帆归港宴 · 筹备",
+          "client": "帆匠白索",
+          "story": "居民正在筹备白帆归港宴。进入东侧的海盐烘焙坊、帆具修造所、旧航季书馆，调查各屋东南侧的工作台。修好风向帆并整理其他记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_harbor_craft_bakery",
+                "label": "到海盐烘焙坊整理海盐面包订单"
+              },
+              {
+                "flag": "district_harbor_craft_workshop",
+                "label": "到帆具修造所整理破损的风向帆"
+              },
+              {
+                "flag": "district_harbor_craft_library",
+                "label": "到旧航季书馆整理旧航季索引"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "harbor_district_supplies",
+          "name": "白帆市集共享补给箱",
+          "client": "水手长归帆",
+          "story": "为水手会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "harbor_district_festival",
+          "name": "白帆归港宴 · 相聚",
+          "client": "茶师贝音",
+          "prerequisite": "harbor_district_craft",
+          "story": "交付「白帆归港宴 · 筹备」后，到南侧潮声滨园环路东南角找筹备人，与居民一同见证白帆归港宴，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_harbor_festival",
+                "label": "到潮声滨园与筹备人交谈，参加白帆归港宴"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_3"
+        },
+        {
+          "id": "activity_harbor_quest",
+          "name": "白帆垂钓",
+          "client": "垂钓员白汀",
+          "story": "到潮声滨园北岸，与垂钓员白汀交谈，完成「白帆垂钓」。选择钓点投竿，观察咬钩，再交替收线和放线控制张力。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_harbor_done",
+            "label": "完成白帆垂钓"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_3"
         }
       ],
       "exchanges": [
@@ -499,6 +1190,7 @@
       "merchant": "雷鸣市补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -511,7 +1203,10 @@
         "candy",
         "respec",
         "skill_copy",
-        "thunder_core"
+        "thunder_core",
+        "held_berry",
+        "held_cleanse",
+        "held_lens"
       ],
       "quests": [
         {
@@ -571,6 +1266,175 @@
             }
           },
           "cityId": "city_4"
+        },
+        {
+          "id": "volt_district_tour",
+          "name": "铜光夜市漫游手帖",
+          "client": "夜班管事照叔",
+          "story": "从东侧铜光夜市开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_volt_market",
+                "label": "阅读东侧铜光夜市导览牌"
+              },
+              {
+                "flag": "district_volt_promenade",
+                "label": "阅读南侧机巧街街史牌"
+              },
+              {
+                "flag": "district_volt_garden",
+                "label": "阅读回路公园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "volt_district_neighbors",
+          "name": "机巧街的六位邻居",
+          "client": "夜班管事照叔",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_volt_bakery",
+                "label": "拜访铜炉烘焙坊的烘焙师铜麦"
+              },
+              {
+                "flag": "district_volt_workshop",
+                "label": "拜访钟表修理铺的钟表师齿星"
+              },
+              {
+                "flag": "district_volt_library",
+                "label": "拜访城市电史馆的电史员流笺"
+              },
+              {
+                "flag": "district_volt_guild",
+                "label": "拜访夜班会馆的夜班管事照叔"
+              },
+              {
+                "flag": "district_volt_teahouse",
+                "label": "拜访暖灯茶室的茶师暖弧"
+              },
+              {
+                "flag": "district_volt_greenhouse",
+                "label": "拜访光合作物房的育苗员光芽"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "volt_district_craft",
+          "name": "铜光不夜集 · 筹备",
+          "client": "钟表师齿星",
+          "story": "居民正在筹备铜光不夜集。进入东侧的铜炉烘焙坊、钟表修理铺、城市电史馆，调查各屋东南侧的工作台。工坊需亲手完成「街灯回路」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_volt_craft_bakery",
+                "label": "到铜炉烘焙坊整理节电烘焙表"
+              },
+              {
+                "flag": "district_volt_craft_workshop",
+                "label": "到钟表修理铺完成街灯回路"
+              },
+              {
+                "flag": "district_volt_craft_library",
+                "label": "到城市电史馆整理公共照明档案"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "volt_district_supplies",
+          "name": "铜光夜市共享补给箱",
+          "client": "夜班管事照叔",
+          "story": "为夜班会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "volt_district_festival",
+          "name": "铜光不夜集 · 相聚",
+          "client": "茶师暖弧",
+          "prerequisite": "volt_district_craft",
+          "story": "交付「铜光不夜集 · 筹备」后，到南侧回路公园环路东南角找筹备人，与居民一同见证铜光不夜集，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_volt_festival",
+                "label": "到回路公园与筹备人交谈，参加铜光不夜集"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_4"
+        },
+        {
+          "id": "activity_volt_quest",
+          "name": "街灯回路",
+          "client": "钟表师齿星",
+          "story": "进入钟表修理铺，调查屋内工作台，完成「街灯回路」。旋转绝缘接线盘，让电流经过九个节点到达街灯。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_volt_done",
+            "label": "完成街灯回路"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_4"
         }
       ],
       "exchanges": [
@@ -611,6 +1475,7 @@
       "merchant": "风栖镇补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -624,7 +1489,10 @@
         "respec",
         "skill_copy",
         "wind_plume",
-        "frost_crystal"
+        "frost_crystal",
+        "held_berry",
+        "held_cleanse",
+        "held_boots"
       ],
       "quests": [
         {
@@ -684,6 +1552,175 @@
             }
           },
           "cityId": "city_5"
+        },
+        {
+          "id": "wind_district_tour",
+          "name": "云邮集市漫游手帖",
+          "client": "山邮员归云",
+          "story": "从东侧云邮集市开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_wind_market",
+                "label": "阅读东侧云邮集市导览牌"
+              },
+              {
+                "flag": "district_wind_promenade",
+                "label": "阅读南侧风筝巷街史牌"
+              },
+              {
+                "flag": "district_wind_garden",
+                "label": "阅读回风台地记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "wind_district_neighbors",
+          "name": "风筝巷的六位邻居",
+          "client": "山邮员归云",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_wind_bakery",
+                "label": "拜访云麦烘焙坊的面包师云麦"
+              },
+              {
+                "flag": "district_wind_workshop",
+                "label": "拜访风铃作坊的风铃匠铃羽"
+              },
+              {
+                "flag": "district_wind_library",
+                "label": "拜访候鸟书馆的鸟类记录员羽笺"
+              },
+              {
+                "flag": "district_wind_guild",
+                "label": "拜访山邮会馆的山邮员归云"
+              },
+              {
+                "flag": "district_wind_teahouse",
+                "label": "拜访云影茶舍的茶师云影"
+              },
+              {
+                "flag": "district_wind_greenhouse",
+                "label": "拜访雪绒育苗房的育苗员雪绒"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "wind_district_craft",
+          "name": "回风听铃会 · 筹备",
+          "client": "风铃匠铃羽",
+          "story": "居民正在筹备回风听铃会。进入东侧的云麦烘焙坊、风铃作坊、候鸟书馆，调查各屋东南侧的工作台。工坊需亲手完成「回风调铃」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_wind_craft_bakery",
+                "label": "到云麦烘焙坊整理高地发酵表"
+              },
+              {
+                "flag": "district_wind_craft_workshop",
+                "label": "到风铃作坊完成回风调铃"
+              },
+              {
+                "flag": "district_wind_craft_library",
+                "label": "到候鸟书馆整理候鸟来信簿"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "wind_district_supplies",
+          "name": "云邮集市共享补给箱",
+          "client": "山邮员归云",
+          "story": "为山邮会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "wind_district_festival",
+          "name": "回风听铃会 · 相聚",
+          "client": "茶师云影",
+          "prerequisite": "wind_district_craft",
+          "story": "交付「回风听铃会 · 筹备」后，到南侧回风台地环路东南角找筹备人，与居民一同见证回风听铃会，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_wind_festival",
+                "label": "到回风台地与筹备人交谈，参加回风听铃会"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_5"
+        },
+        {
+          "id": "activity_wind_quest",
+          "name": "回风调铃",
+          "client": "风铃匠铃羽",
+          "story": "进入风铃作坊，调查屋内工作台，完成「回风调铃」。观察铃片音高，再选中两枚铃片交换位置，将四枚按音高排列。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_wind_done",
+            "label": "完成回风调铃"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_5"
         }
       ],
       "exchanges": [
@@ -731,6 +1768,7 @@
       "merchant": "炉心城补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -743,7 +1781,10 @@
         "candy",
         "respec",
         "skill_copy",
-        "forged_heart"
+        "forged_heart",
+        "held_berry",
+        "held_cleanse",
+        "held_charcoal"
       ],
       "quests": [
         {
@@ -803,6 +1844,175 @@
             }
           },
           "cityId": "city_6"
+        },
+        {
+          "id": "furnace_district_tour",
+          "name": "赤陶市集漫游手帖",
+          "client": "工匠管事砚火",
+          "story": "从东侧赤陶市集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_furnace_market",
+                "label": "阅读东侧赤陶市集导览牌"
+              },
+              {
+                "flag": "district_furnace_promenade",
+                "label": "阅读南侧窑火匠街街史牌"
+              },
+              {
+                "flag": "district_furnace_garden",
+                "label": "阅读暖泉花园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "furnace_district_neighbors",
+          "name": "窑火匠街的六位邻居",
+          "client": "工匠管事砚火",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_furnace_bakery",
+                "label": "拜访余温烘焙坊的烘焙师余麦"
+              },
+              {
+                "flag": "district_furnace_workshop",
+                "label": "拜访赤陶工坊的陶匠赤纹"
+              },
+              {
+                "flag": "district_furnace_library",
+                "label": "拜访窑火记忆馆的记忆馆员火笺"
+              },
+              {
+                "flag": "district_furnace_guild",
+                "label": "拜访工匠会馆的工匠管事砚火"
+              },
+              {
+                "flag": "district_furnace_teahouse",
+                "label": "拜访暖泉茶屋的茶师泉暖"
+              },
+              {
+                "flag": "district_furnace_greenhouse",
+                "label": "拜访耐热花温室的育苗员红苇"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "furnace_district_craft",
+          "name": "余温陶灯节 · 筹备",
+          "client": "陶匠赤纹",
+          "story": "居民正在筹备余温陶灯节。进入东侧的余温烘焙坊、赤陶工坊、窑火记忆馆，调查各屋东南侧的工作台。工坊需亲手完成「余温锻造」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_furnace_craft_bakery",
+                "label": "到余温烘焙坊整理余热烘焙表"
+              },
+              {
+                "flag": "district_furnace_craft_workshop",
+                "label": "到赤陶工坊完成余温锻造"
+              },
+              {
+                "flag": "district_furnace_craft_library",
+                "label": "到窑火记忆馆整理老师傅窑记"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "furnace_district_supplies",
+          "name": "赤陶市集共享补给箱",
+          "client": "工匠管事砚火",
+          "story": "为工匠会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "furnace_district_festival",
+          "name": "余温陶灯节 · 相聚",
+          "client": "茶师泉暖",
+          "prerequisite": "furnace_district_craft",
+          "story": "交付「余温陶灯节 · 筹备」后，到南侧暖泉花园环路东南角找筹备人，与居民一同见证余温陶灯节，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_furnace_festival",
+                "label": "到暖泉花园与筹备人交谈，参加余温陶灯节"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_6"
+        },
+        {
+          "id": "activity_furnace_quest",
+          "name": "余温锻造",
+          "client": "陶匠赤纹",
+          "story": "进入赤陶工坊，调查屋内工作台，完成「余温锻造」。用添火和通风调节温度，达到本次标记温度时落锤，完成三次锻打。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_furnace_done",
+            "label": "完成余温锻造"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_6"
         }
       ],
       "exchanges": [
@@ -843,6 +2053,7 @@
       "merchant": "镜湖镇补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -856,7 +2067,10 @@
         "respec",
         "skill_copy",
         "moon_shard",
-        "dusk_veil"
+        "dusk_veil",
+        "held_berry",
+        "held_cleanse",
+        "held_scope"
       ],
       "quests": [
         {
@@ -916,6 +2130,175 @@
             }
           },
           "cityId": "city_7"
+        },
+        {
+          "id": "lake_district_tour",
+          "name": "镜水小集漫游手帖",
+          "client": "渡湖管事归舟",
+          "story": "从东侧镜水小集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_lake_market",
+                "label": "阅读东侧镜水小集导览牌"
+              },
+              {
+                "flag": "district_lake_promenade",
+                "label": "阅读南侧水彩街街史牌"
+              },
+              {
+                "flag": "district_lake_garden",
+                "label": "阅读睡莲庭园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "lake_district_neighbors",
+          "name": "水彩街的六位邻居",
+          "client": "渡湖管事归舟",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_lake_bakery",
+                "label": "拜访莲香面包房的面包师莲麦"
+              },
+              {
+                "flag": "district_lake_workshop",
+                "label": "拜访水彩装帧坊的装帧师水青"
+              },
+              {
+                "flag": "district_lake_library",
+                "label": "拜访湖岸诗书馆的诗书员涟笺"
+              },
+              {
+                "flag": "district_lake_guild",
+                "label": "拜访渡湖会馆的渡湖管事归舟"
+              },
+              {
+                "flag": "district_lake_teahouse",
+                "label": "拜访涟漪茶室的茶师镜雨"
+              },
+              {
+                "flag": "district_lake_greenhouse",
+                "label": "拜访睡莲玻璃房的育苗员莲汀"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "lake_district_craft",
+          "name": "镜湖水彩展 · 筹备",
+          "client": "装帧师水青",
+          "story": "居民正在筹备镜湖水彩展。进入东侧的莲香面包房、水彩装帧坊、湖岸诗书馆，调查各屋东南侧的工作台。工坊需亲手完成「湖光反射台」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_lake_craft_bakery",
+                "label": "到莲香面包房整理莲香食谱页"
+              },
+              {
+                "flag": "district_lake_craft_workshop",
+                "label": "到水彩装帧坊完成湖光反射台"
+              },
+              {
+                "flag": "district_lake_craft_library",
+                "label": "到湖岸诗书馆整理湖岸旧诗签"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "lake_district_supplies",
+          "name": "镜水小集共享补给箱",
+          "client": "渡湖管事归舟",
+          "story": "为渡湖会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "lake_district_festival",
+          "name": "镜湖水彩展 · 相聚",
+          "client": "茶师镜雨",
+          "prerequisite": "lake_district_craft",
+          "story": "交付「镜湖水彩展 · 筹备」后，到南侧睡莲庭园环路东南角找筹备人，与居民一同见证镜湖水彩展，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_lake_festival",
+                "label": "到睡莲庭园与筹备人交谈，参加镜湖水彩展"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_7"
+        },
+        {
+          "id": "activity_lake_quest",
+          "name": "湖光反射台",
+          "client": "装帧师水青",
+          "story": "进入水彩装帧坊，调查屋内工作台，完成「湖光反射台」。转动三块反射镜，把左侧入射的光送进左下方的莲花灯。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_lake_done",
+            "label": "完成湖光反射台"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_7"
         }
       ],
       "exchanges": [
@@ -963,6 +2346,7 @@
       "merchant": "星岚城补给行",
       "implemented": true,
       "stock": [
+        "repel",
         "ball",
         "great_ball",
         "ultra_ball",
@@ -976,7 +2360,11 @@
         "respec",
         "skill_copy",
         "old_inscription",
-        "dragon_scale"
+        "dragon_scale",
+        "held_berry",
+        "held_cleanse",
+        "held_leftovers",
+        "held_band"
       ],
       "quests": [
         {
@@ -1034,6 +2422,344 @@
             "items": {
               "respec": 1
             }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "star_district_tour",
+          "name": "星桥市集漫游手帖",
+          "client": "会馆管事星桥",
+          "story": "从东侧星桥市集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_star_market",
+                "label": "阅读东侧星桥市集导览牌"
+              },
+              {
+                "flag": "district_star_promenade",
+                "label": "阅读南侧古纹街街史牌"
+              },
+              {
+                "flag": "district_star_garden",
+                "label": "阅读双衡星园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "star_district_neighbors",
+          "name": "古纹街的六位邻居",
+          "client": "会馆管事星桥",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_star_bakery",
+                "label": "拜访星麦烘焙房的面包师星麦"
+              },
+              {
+                "flag": "district_star_workshop",
+                "label": "拜访铜星刻印坊的刻印师铜芒"
+              },
+              {
+                "flag": "district_star_library",
+                "label": "拜访双衡公共书馆的馆员衡笺"
+              },
+              {
+                "flag": "district_star_guild",
+                "label": "拜访星桥会馆的会馆管事星桥"
+              },
+              {
+                "flag": "district_star_teahouse",
+                "label": "拜访星砂茶舍的茶师砂月"
+              },
+              {
+                "flag": "district_star_greenhouse",
+                "label": "拜访夜光植园的育苗员夜芽"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "star_district_craft",
+          "name": "双衡星灯会 · 筹备",
+          "client": "刻印师铜芒",
+          "story": "居民正在筹备双衡星灯会。进入东侧的星麦烘焙房、铜星刻印坊、双衡公共书馆，调查各屋东南侧的工作台。工坊需亲手完成「双衡星盘」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_star_craft_bakery",
+                "label": "到星麦烘焙房整理双份面包签"
+              },
+              {
+                "flag": "district_star_craft_workshop",
+                "label": "到铜星刻印坊完成双衡星盘"
+              },
+              {
+                "flag": "district_star_craft_library",
+                "label": "到双衡公共书馆整理公共阅读目录"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "star_district_supplies",
+          "name": "星桥市集共享补给箱",
+          "client": "会馆管事星桥",
+          "story": "为星桥会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "star_district_festival",
+          "name": "双衡星灯会 · 相聚",
+          "client": "茶师砂月",
+          "prerequisite": "star_district_craft",
+          "story": "交付「双衡星灯会 · 筹备」后，到南侧双衡星园环路东南角找筹备人，与居民一同见证双衡星灯会，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_star_festival",
+                "label": "到双衡星园与筹备人交谈，参加双衡星灯会"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "activity_star_quest",
+          "name": "双衡星盘",
+          "client": "刻印师铜芒",
+          "story": "进入铜星刻印坊，调查屋内工作台，完成「双衡星盘」。将四枚星砝码分到两端，使两端各达到5点星重。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_star_done",
+            "label": "完成双衡星盘"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "league_district_tour",
+          "name": "巡礼市集漫游手帖",
+          "client": "会馆管事同行",
+          "story": "从东侧巡礼市集开始，阅读集市、南侧街区和花园的三块导览牌。记录会保留，顺序不限。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_league_market",
+                "label": "阅读东侧巡礼市集导览牌"
+              },
+              {
+                "flag": "district_league_promenade",
+                "label": "阅读南侧徽章工匠街街史牌"
+              },
+              {
+                "flag": "district_league_garden",
+                "label": "阅读同行纪念园记事牌"
+              }
+            ]
+          },
+          "reward": {
+            "money": 220,
+            "merit": 2,
+            "items": {
+              "ball": 3
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "league_district_neighbors",
+          "name": "徽章工匠街的六位邻居",
+          "client": "会馆管事同行",
+          "story": "走进烘焙坊、工坊、书馆、会馆、茶舍和温室，与各自的主人交谈。六份生活各有故事，认识邻居后回委托板领奖。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_league_bakery",
+                "label": "拜访金穗烘焙坊的面包师金穗"
+              },
+              {
+                "flag": "district_league_workshop",
+                "label": "拜访徽章拓印坊的拓印师印岚"
+              },
+              {
+                "flag": "district_league_library",
+                "label": "拜访巡礼纪事馆的纪事员途笺"
+              },
+              {
+                "flag": "district_league_guild",
+                "label": "拜访同行者会馆的会馆管事同行"
+              },
+              {
+                "flag": "district_league_teahouse",
+                "label": "拜访凯旋茶室的茶师归盏"
+              },
+              {
+                "flag": "district_league_greenhouse",
+                "label": "拜访四季花温室的育苗员四季"
+              }
+            ]
+          },
+          "reward": {
+            "money": 280,
+            "merit": 3,
+            "items": {
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "league_district_craft",
+          "name": "同行者纪念展 · 筹备",
+          "client": "拓印师印岚",
+          "story": "居民正在筹备同行者纪念展。进入东侧的金穗烘焙坊、徽章拓印坊、巡礼纪事馆，调查各屋东南侧的工作台。工坊需亲手完成「巡礼拼图」，其余两屋整理工作记录。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_league_craft_bakery",
+                "label": "到金穗烘焙坊整理连战补给清单"
+              },
+              {
+                "flag": "district_league_craft_workshop",
+                "label": "到徽章拓印坊完成巡礼拼图"
+              },
+              {
+                "flag": "district_league_craft_library",
+                "label": "到巡礼纪事馆整理同行者留言册"
+              }
+            ]
+          },
+          "reward": {
+            "money": 320,
+            "merit": 3,
+            "items": {
+              "ether": 1,
+              "candy": 1
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "league_district_supplies",
+          "name": "巡礼市集共享补给箱",
+          "client": "会馆管事同行",
+          "story": "为同行者会馆的共享补给箱准备草露药两份、清醒露两份；领取奖励时一次性交付，居民用这些物资照顾路过的旅人。",
+          "condition": {
+            "kind": "delivery",
+            "items": {
+              "potion": 2,
+              "antidote": 2
+            }
+          },
+          "reward": {
+            "money": 200,
+            "merit": 2,
+            "items": {
+              "great_ball": 3
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "league_district_festival",
+          "name": "同行者纪念展 · 相聚",
+          "client": "茶师归盏",
+          "prerequisite": "league_district_craft",
+          "story": "交付「同行者纪念展 · 筹备」后，到南侧同行纪念园环路东南角找筹备人，与居民一同见证同行者纪念展，再回委托板领取谢礼。",
+          "condition": {
+            "kind": "checklist",
+            "stops": [
+              {
+                "flag": "district_league_festival",
+                "label": "到同行纪念园与筹备人交谈，参加同行者纪念展"
+              }
+            ]
+          },
+          "reward": {
+            "money": 400,
+            "merit": 4,
+            "items": {
+              "skill_copy": 1,
+              "super_potion": 2
+            }
+          },
+          "cityId": "city_8"
+        },
+        {
+          "id": "activity_league_quest",
+          "name": "巡礼拼图",
+          "client": "拓印师印岚",
+          "story": "进入徽章拓印坊，调查屋内工作台，完成「巡礼拼图」。移动空格旁的徽章拓片，将八枚拓片按巡礼编号排好。首次完成还可在活动中领取专属携带道具。",
+          "condition": {
+            "kind": "flag",
+            "flag": "activity_league_done",
+            "label": "完成巡礼拼图"
+          },
+          "reward": {
+            "money": 120,
+            "merit": 2,
+            "items": {}
           },
           "cityId": "city_8"
         }

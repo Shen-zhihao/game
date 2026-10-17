@@ -69,6 +69,17 @@ export function ItemIcon({ itemId, size = 32 }: { itemId: string; size?: number 
               <Path d="m20 15 4-4 4 4-4 3Z" fill="#fff1c9" stroke="none" />
             )}
           </>
+        ) : itemId === 'repel' ? (
+          <>
+            <Rect x={13} y={17} width={22} height={25} rx={6} fill="#a6c3a2" />
+            <Path d="M18 17V9h15v6h-8v2" fill="#f1dfb0" />
+            <Path d="M26 15v6" fill="none" />
+            <Path d="M19 29q6-8 12-4-1 10-10 9m0 0 6-6" fill="#f6f1d8" />
+            <Path d="M17 22v13" stroke="#e7f0d9" />
+            <Circle cx={38} cy={10} r={1.5} fill="#d1dcb7" stroke="none" />
+            <Circle cx={42} cy={7} r={2} fill="#d1dcb7" stroke="none" />
+            <Circle cx={42} cy={14} r={1.5} fill="#d1dcb7" stroke="none" />
+          </>
         ) : bottle ? (
           <>
             <Path d="M18 13v5l-6 7v12q0 4 5 4h14q5 0 5-4V25l-6-7v-5" fill="#f9f5e9" />
@@ -150,6 +161,7 @@ export function PocketIcon({ pocket, size = 25 }: { pocket: ItemPocket | 'all'; 
     evolution: 'moon_shard',
     key: 'key_ruin_key',
     held: 'held_band',
+    field: 'repel',
   };
   return <ItemIcon itemId={ids[pocket]} size={size} />;
 }

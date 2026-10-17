@@ -93,6 +93,7 @@ export function BagBrowser({
   description,
   hint,
   actions,
+  actionWidth,
   notice = '',
   testPrefix = 'bag',
   context = '随身行装',
@@ -111,6 +112,7 @@ export function BagBrowser({
   description?: string;
   hint?: string;
   actions?: ReactNode;
+  actionWidth?: number;
   notice?: string;
   testPrefix?: string;
   context?: string;
@@ -238,11 +240,10 @@ export function BagBrowser({
         </View>
       </View>
       <View style={b.contents}>
-        <View
-          pointerEvents="none"
-          style={{ position: 'absolute', right: -50, top: 38, opacity: 0.035 }}
-        >
-          <BagIllustration size={300} />
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}>
+          <View style={{ position: 'absolute', right: -50, top: 38, opacity: 0.035 }}>
+            <BagIllustration size={300} />
+          </View>
         </View>
         <ScrollView
           horizontal
@@ -356,7 +357,13 @@ export function BagBrowser({
             </ScrollView>
           </View>
           {!!actions && (
-            <View style={{ gap: 5, maxWidth: stacked ? 94 : frame.width < 540 ? 110 : 210 }}>
+            <View
+              style={{
+                gap: 5,
+                width: actionWidth,
+                maxWidth: actionWidth ?? (stacked ? 94 : frame.width < 540 ? 110 : 210),
+              }}
+            >
               {actions}
             </View>
           )}

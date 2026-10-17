@@ -19,6 +19,7 @@ import {
   npcDefeated,
   npcVictoryFlag,
   PRACTICE_TRAINERS,
+  terrainPassable,
   TOWN_REST,
 } from '../../content/world';
 import {
@@ -49,6 +50,8 @@ import { CALENDAR_DAY_SECONDS, MAX_CALENDAR_DAY } from '../../game/calendar';
 import { HELD_ITEMS } from '../../content/battleTraits';
 import { ACTIVITY_FLAGS, FIELD_ACTIVITIES } from '../../content/fieldActivities';
 import { validActivityLocation, validActivityBoard } from '../../game/activities';
+import { isSightTrainer, validTrainerChallenge } from '../../game/trainerChallenges';
+import { REPEL_STEPS } from '../../game/fieldItems';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -223,6 +226,25 @@ const worldSchema = z.strictObject({
     }),
   ),
   activeFind: idSchema.nullable(),
+  trainerPositions: z
+    .record(
+      z.string().max(100),
+      z.strictObject({
+        x: integer(255),
+        y: integer(255),
+        facing: z.enum(['up', 'down', 'left', 'right']),
+        steps: integer(1000000000),
+      }),
+    )
+    .optional(),
+  trainerChallenge: z
+    .strictObject({
+      map: mapId,
+      npcId: idSchema,
+      phase: z.enum(['alert', 'approach']),
+    })
+    .nullable()
+    .optional(),
 });
 const weatherId = z.enum(['clear', 'sun', 'rain', 'storm', 'fog', 'snow', 'sand']);
 const activityRunSchema = z.strictObject({
@@ -350,6 +372,7 @@ const gameSchema = z.strictObject({
   sequence: integer(999999999),
   steps: integer(999999999),
   encounterCooldown: integer(20),
+  repelSteps: integer(REPEL_STEPS).optional(),
   playTimeSeconds: integer(315360000),
   battle: z
     .strictObject({
@@ -932,6 +955,31 @@ export function validateGame(input: unknown): GameState {
       const npc = patrolDefinitions.get(key);
       invariant(npc?.patrol && patrol.index < npc.patrol.length, '巡走记录无效');
     }
+    const trainerDefinitions = new Map<string, { map: GameState['player']['map']; npc: Npc }>(
+      Object.values(MAPS).flatMap((map) =>
+        map.npcs
+          .filter(isSightTrainer)
+          .map((npc) => [`${map.id}:${npc.id}`, { map: map.id, npc }] as const),
+      ),
+    );
+    invariant(
+      Object.keys(game.world.trainerPositions ?? {}).length <= trainerDefinitions.size,
+      '训练师位置记录超限',
+    );
+    for (const [key, position] of Object.entries(game.world.trainerPositions ?? {})) {
+      const definition = trainerDefinitions.get(key);
+      invariant(!!definition, '训练师位置记录无效');
+      const map = definition!.map;
+      invariant(
+        generated.includes(map) &&
+          terrainPassable(map, position.x, position.y, effectiveAccessFlags(game)) &&
+          !['W', '~', 'K', 'E'].includes(MAPS[map].rows[position.y]?.[position.x] ?? '') &&
+          !MAPS[map].portals.some((p) => p.x === position.x && p.y === position.y),
+        '训练师停留位置无效',
+      );
+    }
+    if (game.world.trainerChallenge)
+      invariant(validTrainerChallenge(game), '训练师发现与接近状态无效');
     for (const find of Object.values(game.world.finds)) {
       invariant(
         generated.includes(find.map) &&

@@ -126,6 +126,8 @@ export function worldNpcs(game: GameState, mapId = game.player.map): Npc[] {
   const npcs = MAPS[mapId].npcs.map((npc) => {
     if (npc.defeatedPosition && npcDefeated(game.progress.flags, npc))
       return { ...npc, x: npc.defeatedPosition[0], y: npc.defeatedPosition[1] };
+    const approached = game.world?.trainerPositions?.[`${mapId}:${npc.id}`];
+    if (approached) return { ...npc, ...approached };
     const patrol = game.world?.patrols[`${mapId}:${npc.id}`];
     const point = npc.patrol?.[patrol?.index ?? 0];
     return point && patrol
@@ -166,16 +168,29 @@ export function facingNpc(game: GameState): Npc | undefined {
   );
 }
 export function faceTraveler(game: GameState, npc: Npc): void {
+  const approached = game.world?.trainerPositions?.[`${game.player.map}:${npc.id}`];
+  if (approached) approached.facing = facing(game.player.x - npc.x, game.player.y - npc.y);
   const patrol = ensureExploration(game).patrols[`${game.player.map}:${npc.id}`];
   if (patrol) patrol.facing = facing(game.player.x - npc.x, game.player.y - npc.y);
 }
 export function advanceExploration(game: GameState): void {
-  if (game.dialogue || game.battle || game.pending.length || game.progress.flags.starterChoice)
+  if (
+    game.dialogue ||
+    game.battle ||
+    game.pending.length ||
+    game.progress.flags.starterChoice ||
+    game.world?.trainerChallenge
+  )
     return;
   const world = ensureExploration(game);
   if (game.playTimeSeconds % 2 !== 0) return;
   for (const npc of MAPS[game.player.map].npcs) {
-    if (!npc.patrol || !npcVisible(game, npc)) continue;
+    if (
+      !npc.patrol ||
+      !npcVisible(game, npc) ||
+      world.trainerPositions?.[`${game.player.map}:${npc.id}`]
+    )
+      continue;
     const patrol = world.patrols[`${game.player.map}:${npc.id}`]!;
     const current = npc.patrol[patrol.index]!;
     if (Math.abs(current[0] - game.player.x) + Math.abs(current[1] - game.player.y) <= 1) {

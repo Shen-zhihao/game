@@ -36,7 +36,9 @@ import {
 } from '../league';
 import { journalQuests, recordQuestContact } from '../../content/quests';
 import { interactCityDistrict } from '../cityDistricts';
-import { buyItem, exchangeItem, transactQuest } from '../cityServices';
+import { buyItem, sellItem, exchangeItem, transactQuest } from '../cityServices';
+import { consumeRepelStep, repelsEncounter, applyFieldItem } from '../fieldItems';
+import { advanceTrainerChallenge, detectTrainer } from '../trainerChallenges';
 import {
   allocatePoints,
   availablePoints,
@@ -107,6 +109,7 @@ export function newGame(
     environment: createEnvironment(seed),
     masterBalls: { claimed: [], used: 0 },
     cityServices: { merit: 0, quests: {}, exchanges: {} },
+    repelSteps: 0,
     player: {
       name: name.trim().slice(0, 12) || '旅人',
       avatar,
@@ -510,7 +513,7 @@ function interact(state: GameState): void {
       break;
     case 'shop':
       talk(state, npc.name, [
-        '完成捕捉入门后，打开「背包与商店」可购买星纹球和补给品，也能用调查印记兑换特殊道具。',
+        '完成捕捉入门后，打开「背包与商店」可购买星纹球、驱避喷雾和补给品，出售多余道具，也能用调查印记兑换特殊道具。',
         '菜单的「任务管理」有本地居民委托。药物交付和奖励只在确认领取时结算，每份委托领取一次。',
       ]);
       flags.shop = true;
@@ -755,6 +758,7 @@ function walk(state: GameState, direction: WalkDirection): void {
       return;
     }
     if (p.map === 'leagueHall' && portal.map === 'league') resetLeague(state);
+    consumeRepelStep(state);
     p.map = portal.map;
     p.x = portal.toX;
     p.y = portal.toY;
@@ -779,6 +783,8 @@ function walk(state: GameState, direction: WalkDirection): void {
   p.x = x;
   p.y = y;
   state.steps += 1;
+  const protectedStep = consumeRepelStep(state);
+  if (detectTrainer(state)) return;
   if (state.encounterCooldown > 0) {
     state.encounterCooldown -= 1;
     return;
@@ -798,9 +804,11 @@ function walk(state: GameState, direction: WalkDirection): void {
   ) {
     let choice = random(state) * encounters.reduce((sum, e) => sum + e.weight, 0);
     const encounter = encounters.find((e) => (choice -= e.weight) < 0) ?? encounters[0]!;
+    const level = encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1));
+    if (repelsEncounter(state, level, protectedStep)) return;
     startBattle(state, null, {
       speciesId: encounter.speciesId,
-      level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
+      level,
     });
   }
 }
@@ -814,6 +822,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
   state.masterBalls ??= { claimed: [], used: 0 };
   Object.values(state.creatures).forEach(ensureTraining);
   state.battle?.enemies.forEach(ensureTraining);
+  if (state.world?.trainerChallenge && command.kind !== 'tick') return current;
   if (command.kind === 'cheat') {
     redeemCheat(state, command.code);
     return state;
@@ -823,7 +832,12 @@ function reduceCommand(current: GameState, command: Command): GameState {
     for (let i = 0; i < Math.max(0, Math.min(10, Math.floor(command.seconds))); i++) {
       advanceCalendar(state);
       state.playTimeSeconds++;
-      advanceExploration(state);
+      if (state.world?.trainerChallenge) {
+        if (advanceTrainerChallenge(state)) interact(state);
+      } else {
+        advanceExploration(state);
+        detectTrainer(state);
+      }
       advanceWeather(state);
     }
     return state;
@@ -1004,6 +1018,12 @@ function reduceCommand(current: GameState, command: Command): GameState {
   }
   if (state.pending.length) return current;
   switch (command.kind) {
+    case 'useFieldItem':
+      applyFieldItem(state, command.itemId);
+      break;
+    case 'sell':
+      sellItem(state, command.itemId, command.quantity);
+      break;
     case 'equip':
       equipItem(state, command.creatureId, command.itemId);
       break;
@@ -1200,6 +1220,7 @@ export function safeForTransfer(state: GameState | null): boolean {
     !state ||
     (!state.battle &&
       !state.activities?.active &&
+      !state.world?.trainerChallenge &&
       !state.dialogue &&
       !state.progress.flags.starterChoice &&
       state.pending.length === 0)

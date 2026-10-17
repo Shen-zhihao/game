@@ -110,7 +110,13 @@ export class SaveSession {
     }
     this.dirty++;
     this.publish({ game: next, saveStatus: '有新进度' });
-    if (!['walk', 'tick'].includes(command.kind)) void this.save().catch(() => undefined);
+    const trainerChanged =
+      JSON.stringify(current.world?.trainerChallenge) !==
+        JSON.stringify(next.world?.trainerChallenge) ||
+      JSON.stringify(current.world?.trainerPositions) !==
+        JSON.stringify(next.world?.trainerPositions);
+    if (!['walk', 'tick'].includes(command.kind) || trainerChanged)
+      void this.save().catch(() => undefined);
   }
   unload(): Promise<void> {
     return this.transition(async () => {
