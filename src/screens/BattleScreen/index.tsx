@@ -74,8 +74,8 @@ export function BattleScreen({
   const enemyActionTotal = b.actionRound?.enemyTotal ?? pace.enemyActions;
   const compact = height < 450;
   const narrow = width - insets.left - insets.right < 600;
-  const defaultFooterHeight = compact ? 124 : narrow ? 236 : 176;
-  const [field, setField] = useState({ width, height: height - defaultFooterHeight });
+  const [field, setField] = useState({ width, height });
+  const [dockHeight, setDockHeight] = useState(64);
   const [page, setPage] = useState<Page>('commands');
   const [busy, setBusy] = useState(false);
   const [showLog, setShowLog] = useState(false);
@@ -332,13 +332,19 @@ export function BattleScreen({
       if (Platform.OS === 'web') window.removeEventListener('keydown', key);
     };
   });
-  const size = Math.min(190, Math.max(104, field.height * 0.4));
+  const size = Math.min(190, field.width * 0.3, Math.max(104, field.height * 0.4));
   const theme = battleTheme(game.player.map, b.event);
-  const { player: playerAnchor, enemy: enemyAnchor } = battleAnchors(
-    theme,
-    field.width,
-    field.height,
-  );
+  const anchors = battleAnchors(theme, field.width, field.height);
+  // Portrait crops must still keep both partners inside the full-screen stage.
+  const fitAnchor = (anchor: { x: number; y: number }) => ({
+    ...anchor,
+    x: Math.max(
+      size * 0.6 + insets.left,
+      Math.min(field.width - size * 0.6 - insets.right, anchor.x),
+    ),
+  });
+  const playerAnchor = fitAnchor(anchors.player);
+  const enemyAnchor = fitAnchor(anchors.enemy);
   const maxPlayer = scene.player.maxHp;
   const maxEnemy = scene.enemy.maxHp;
   const choosingParty =
@@ -346,20 +352,12 @@ export function BattleScreen({
   const ended = b.phase === 'ended';
   const choosingMoves =
     page === 'moves' && !presenting && !ended && !busy && b.phase !== 'forcedSwitch';
-  const moveColumns = width - insets.left - insets.right >= 600 ? 4 : 2;
-  const footerHeight = choosingMoves
-    ? Math.min(moveColumns === 4 ? (compact ? 160 : 180) : 300, Math.round(height * 0.65))
-    : presenting || ended
-      ? compact
-        ? 124
-        : narrow
-          ? 196
-          : 160
-      : defaultFooterHeight;
+  const moveDockHeight = Math.min(156, Math.round(height * 0.65));
   return (
     <View testID="battle-screen" style={{ flex: 1, backgroundColor: palette.canvas }}>
       <View
-        style={{ flex: 1, overflow: 'hidden' }}
+        testID="battle-stage"
+        style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}
         onLayout={(e) => {
           const { width: w, height: h } = e.nativeEvent.layout;
           setField((old) => (old.width === w && old.height === h ? old : { width: w, height: h }));
@@ -383,8 +381,9 @@ export function BattleScreen({
           style={{
             position: 'absolute',
             alignSelf: 'center',
-            top: insets.top + 42,
-            maxWidth: '36%',
+            top: insets.top + (narrow ? 60 : 42),
+            right: narrow ? insets.right + 12 : undefined,
+            maxWidth: narrow ? '40%' : '36%',
             paddingHorizontal: 10,
             paddingVertical: 4,
             borderRadius: 8,
@@ -484,14 +483,17 @@ export function BattleScreen({
             s.statusCard,
             {
               left: (compact ? 14 : 24) + insets.left,
-              top: (compact ? 15 : 24) + insets.top,
-              width: Math.min(260, field.width * 0.32),
-              padding: compact ? 10 : 14,
+              top: (narrow ? 60 : compact ? 15 : 24) + insets.top,
+              width: Math.min(260, field.width * (narrow ? 0.44 : 0.32)),
+              padding: compact || narrow ? 10 : 14,
             },
           ]}
         >
           <View style={s.nameRow}>
-            <Text numberOfLines={1} style={[s.creatureName, compact && { fontSize: 15 }]}>
+            <Text
+              numberOfLines={1}
+              style={[s.creatureName, (compact || narrow) && { fontSize: 15 }]}
+            >
               {creatureName(scene.enemy)}
             </Text>
             <Text style={s.level}>Lv.{scene.enemy.level}</Text>
@@ -517,7 +519,10 @@ export function BattleScreen({
             />
           </View>
           {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
-          <Text testID="enemy-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
+          <Text
+            testID="enemy-pace"
+            style={{ color: palette.muted, fontSize: compact || narrow ? 10 : 12 }}
+          >
             速度 {Number(displayedPace.enemySpeed.toFixed(1))} · 行动 {enemyActionTotal} 次 / 回合
           </Text>
         </View>
@@ -527,14 +532,18 @@ export function BattleScreen({
             s.statusCard,
             {
               right: (compact ? 14 : 24) + insets.right,
-              bottom: compact ? 13 : 22,
-              width: Math.min(285, field.width * 0.34),
-              padding: compact ? 10 : 14,
+              bottom: dockHeight + insets.bottom + 24,
+              display: choosingMoves ? 'none' : 'flex',
+              width: Math.min(285, field.width * (narrow ? 0.44 : 0.34)),
+              padding: compact || narrow ? 10 : 14,
             },
           ]}
         >
           <View style={s.nameRow}>
-            <Text numberOfLines={1} style={[s.creatureName, compact && { fontSize: 15 }]}>
+            <Text
+              numberOfLines={1}
+              style={[s.creatureName, (compact || narrow) && { fontSize: 15 }]}
+            >
               {creatureName(scene.player)}
             </Text>
             <Text style={s.level}>Lv.{scene.player.level}</Text>
@@ -567,19 +576,29 @@ export function BattleScreen({
           {scene.player.status && (
             <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
           )}
-          <Text testID="player-pace" style={{ color: palette.muted, fontSize: compact ? 10 : 12 }}>
+          <Text
+            testID="player-pace"
+            style={{ color: palette.muted, fontSize: compact || narrow ? 10 : 12 }}
+          >
             速度 {Number(displayedPace.playerSpeed.toFixed(1))} · 行动 {actionTotal} 次 / 回合
           </Text>
           {!ended && (
             <Text
               testID="battle-actions-remaining"
-              style={{ color: palette.muted, fontSize: compact ? 10 : 12, fontWeight: '700' }}
+              style={{
+                color: palette.muted,
+                fontSize: compact || narrow ? 10 : 12,
+                fontWeight: '700',
+              }}
             >
               本回合剩余 {actionsRemaining}/{actionTotal} 次操作 · 每次重新选择
             </Text>
           )}
         </View>
-        <View pointerEvents="none" style={[s.battleTag, { top: 7 + insets.top }]}>
+        <View
+          pointerEvents="none"
+          style={[s.battleTag, { top: 7 + insets.top, display: narrow ? 'none' : 'flex' }]}
+        >
           <Text style={{ color: palette.text, fontSize: 11 }}>
             {b.name} ·{' '}
             {b.kind === 'wild' ? '野生遭遇' : `训练师 ${b.enemyIndex + 1}/${b.enemies.length}`}
@@ -696,20 +715,27 @@ export function BattleScreen({
         )}
       </View>
       <View
+        testID="battle-controls-overlay"
+        pointerEvents="box-none"
+        onLayout={(e) => {
+          const nextHeight = e.nativeEvent.layout.height;
+          setDockHeight((old) => (old === nextHeight ? old : nextHeight));
+        }}
         style={[
           s.footer,
           {
-            height: footerHeight + insets.bottom,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-            paddingBottom: insets.bottom,
+            left: insets.left + 12,
+            right: insets.right + 12,
+            bottom: insets.bottom + 10,
+            height: choosingMoves ? moveDockHeight : undefined,
+            display: showLog || showCombatStats ? 'none' : 'flex',
           },
         ]}
       >
         {choosingMoves ? (
           <BattleMoves
             game={game}
-            columns={moveColumns}
+            narrow={narrow}
             actionsRemaining={actionsRemaining}
             actionTotal={actionTotal}
             onMove={(index) => act({ kind: 'move', index })}
@@ -752,7 +778,6 @@ export function BattleScreen({
                       ? '选择下一位上场的伙伴'
                       : `${creatureName(player)}，准备怎么做？`
             }
-            detail={b.logs.at(-1)}
             progress={presenting && !opening ? `${line + 1} / ${presentation.length}` : undefined}
             stopped={playbackStopped}
             paused={playbackPaused}
@@ -830,16 +855,7 @@ export function statusName(status: string) {
   return { poison: '中毒', burn: '灼伤', paralysis: '麻痹', sleep: '睡眠' }[status] ?? status;
 }
 const s = StyleSheet.create({
-  footer: {
-    flexDirection: 'row',
-    flexShrink: 0,
-    backgroundColor: '#fbf7ed',
-    borderTopWidth: 2,
-    borderColor: '#e2d2b2',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-    overflow: 'hidden',
-  },
+  footer: { position: 'absolute' },
   statusCard: {
     position: 'absolute',
     backgroundColor: `${palette.panel}f5`,
