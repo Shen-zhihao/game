@@ -1,5 +1,5 @@
 import { MAPS, mapSize } from '../world';
-import { battleTheme } from '../battleScenes';
+import { battleTheme, type BattleTheme } from '../battleScenes';
 import { isIndoor } from '../../game/environment';
 import { sceneInk as ink } from '../sceneArt';
 import type { MapId } from '../../game/model';
@@ -94,6 +94,234 @@ function installation(kind: string, w: number, h: number) {
   return art + plant(w * 0.7, h - 17);
 }
 
+function emblem(theme: BattleTheme, size = 24) {
+  const drawing =
+    theme === 'electric'
+      ? path('M3-22-13 3H0l-3 19L14-6H1Z', '#e3c18a')
+      : theme === 'furnace'
+        ? path('M0 22C-27 9-9-8-3-22-1-6 10-9 9-17 30 9 17 22 0 22Z', '#dfb08d')
+        : theme === 'coast' || theme === 'lake'
+          ? path(
+              'M-25 4q12-17 24 0t25 0M-25 15q12-17 24 0t25 0',
+              'none',
+              'stroke="#94b3b1" stroke-width="3"',
+            ) + circle(0, -13, 7, '#d5d8b9')
+          : theme === 'wind'
+            ? path(
+                'M-23 4C-26-15 8-26 23-19 23 0 5 19-23 4Zm-9 20L15-13m-27 23V-7m13 9 13-1',
+                '#c6d6d0',
+              )
+            : theme === 'star'
+              ? path('M0-24 7-8 24-7 11 5l4 19L0 15-16 9l4-13-11-11 17-1Z', '#dacaac') +
+                ellipse(0, 0, 31, 12, 'none')
+              : theme === 'league'
+                ? path(
+                    'M-13-18h26v15Q0 21-13-3ZM-13-14q-24-2-5 16m31-16q24-2 5 16M0 10v12m-11 0h22',
+                    '#e2c68d',
+                  )
+                : theme === 'highlands'
+                  ? path('M-26 19-10-15 0 2 9-22 27 19Z', '#c6bea8') +
+                    path('m9-22-8 18 9-4 9 7Z', '#f0e6ce')
+                  : path(
+                      'M0 23C-30 7-16-18 0-24 17-18 29 7 0 23Zm0-37v37M-11-5 0 6 12-4',
+                      '#c3ceab',
+                    );
+  return `<g transform="scale(${size / 24})">${drawing}</g>`;
+}
+
+/** Additional architecture stays on solid cells; floor decoration is deliberately flat. */
+function regionalDetails(map: MapId) {
+  const data = MAPS[map],
+    theme = battleTheme(map),
+    indoor = isIndoor(map);
+  const cave = map === 'mine' || map === 'mineDepths';
+  let art = '';
+  data.rows.forEach((row, y) =>
+    [...row].forEach((tile, x) => {
+      const xx = x * 32,
+        yy = y * 32,
+        n = (x * 17 + y * 29) % 19;
+      if (indoor && tile === '#' && data.rows[y + 1]?.[x] !== '#') {
+        if (cave) {
+          if (n % 3 === 0)
+            art += `<g transform="translate(${xx + 16},${yy + 15})">${path('M-9 8-6-6 0-11 4 0 9-4 11 8Z', map === 'mineDepths' ? '#b4ccca' : '#d9c397')}${path('M0-10V8m-6-14L0 0l4 0', 'none', 'stroke="#f1e8d0"')}</g>`;
+          if (n % 7 === 0)
+            art +=
+              rect(xx + 1, yy + 4, 5, 27, '#b59b79', 1) +
+              path(`M${xx + 3} ${yy + 4}h27`, 'none', 'stroke="#b59b79" stroke-width="5"') +
+              rect(xx + 19, yy + 11, 8, 11, '#e5c58d', 2);
+        } else if (x % 4 === 1) {
+          art += `<g transform="translate(${xx + 16},${yy + 15})">${path('M-11-10h22V9l-11 6-11-6Z', ['#c8d2b8', '#ddc5a8', '#bfcfca'][n % 3]!)}${emblem(theme, 7)}</g>`;
+        }
+      }
+      if (
+        indoor &&
+        tile === '#' &&
+        data.rows[y + 1]?.[x] !== '#' &&
+        !cave &&
+        map !== 'gym' &&
+        y > 0 &&
+        x > 0 &&
+        x < row.length - 1 &&
+        x % 5 === 2
+      ) {
+        const kind =
+          map === 'mirrorArchive'
+            ? 'archive'
+            : theme === 'electric'
+              ? 'power'
+              : theme === 'furnace'
+                ? 'forge'
+                : map === 'windObservatory'
+                  ? 'weather'
+                  : theme === 'star'
+                    ? 'star'
+                    : 'column';
+        art += `<g transform="translate(${xx + 2},${yy + 1})">${installation(kind, 28, 30)}</g>`;
+      }
+      // Larger, thematic floor mosaics require an entirely clear 3 × 3 area.
+      if (
+        indoor &&
+        !data.interior &&
+        x % 10 === 5 &&
+        y % 8 === 4 &&
+        [-1, 0, 1].every((dy) =>
+          [-1, 0, 1].every((dx) => ':.'.includes(data.rows[y + dy]?.[x + dx] ?? ' ')),
+        )
+      ) {
+        art += `<g transform="translate(${xx + 16},${yy + 16})" opacity=".52">${ellipse(0, 0, 39, 28, '#f5ecd5')}${ellipse(0, 0, 34, 23, 'none')}${emblem(theme, 19)}</g>`;
+      }
+      if (cave && tile === ':' && data.rows[y]?.[x - 1] === ':' && data.rows[y]?.[x + 1] === ':') {
+        // Embedded rail tracks are walkable floor markings, without loose carts or blockers.
+        art += path(
+          `M${xx} ${yy + 10}h32m-32 12h32`,
+          'none',
+          'stroke="#a49274" stroke-width="1.6"',
+        );
+        art += path(
+          `M${xx + 8} ${yy + 6}v20m16-20v20`,
+          'none',
+          'stroke="#baa385" stroke-width="2"',
+        );
+      }
+      if (!indoor && tile === '.' && n < 2) {
+        const tint =
+          theme === 'wind'
+            ? '#d6dfcf'
+            : theme === 'furnace' || theme === 'highlands'
+              ? '#dac8ac'
+              : '#ccd8b6';
+        art += `<g opacity=".65">${path(`M${xx + 2} ${yy + 23}q-2-10 8-10 3-9 10-4 12-1 10 10-10 10-28 4Z`, tint, 'stroke="none"')}</g>`;
+        if (theme === 'coast' || theme === 'furnace' || theme === 'highlands')
+          art +=
+            ellipse(xx + 10, yy + 22, 4, 2, '#c8b99b') + ellipse(xx + 23, yy + 13, 3, 2, '#e7dcc3');
+        else
+          art += path(
+            `M${xx + 12} ${yy + 24}v-12m0 6q-9-1-7-7 7 0 7 7m1 1q8-1 7-8-7 1-7 8`,
+            '#b3c49d',
+            'stroke="#8fa27b" stroke-width=".65"',
+          );
+      }
+      // Shoreline tufts lie on land, while floating leaves stay in the water footprint.
+      if (
+        !indoor &&
+        tile === '.' &&
+        n % 4 === 0 &&
+        [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+        ].some(([dx, dy]) => '~W'.includes(data.rows[y + dy!]?.[x + dx!] ?? ' '))
+      )
+        art += path(
+          `M${xx + 10} ${yy + 27}q-4-15-1-21m1 21q4-18 8-22m-4 22q9-13 10-12`,
+          'none',
+          'stroke="#8fa68e" stroke-width="1.2"',
+        );
+    }),
+  );
+  return art;
+}
+
+/** Detail is grouped behind the creatures' clear battle platforms. */
+export function illustratedBattleDetails(theme: BattleTheme) {
+  let art = '';
+  const tint = theme === 'furnace' ? '#bba08b' : theme === 'highlands' ? '#b7ae95' : '#b5c3aa';
+  // Varied foreground pebbles, leaves and border plants break up broad empty floor shapes.
+  for (let i = 0; i < 44; i++) {
+    const x = (i * 179 + 41) % 1510,
+      y = 565 + ((i * 113) % 430);
+    if (
+      ((x - 390) / 340) ** 2 + ((y - 750) / 120) ** 2 < 1 ||
+      ((x - 1120) / 270) ** 2 + ((y - 460) / 110) ** 2 < 1
+    )
+      continue;
+    art += `<g opacity=".65">${ellipse(x, y, 7 + (i % 5), 3, tint)}${path(`M${x + 19} ${y - 3}l8-3m-3 8 8-1`, 'none', 'stroke="#aa9d80" stroke-width="1.6"')}</g>`;
+    if (i % 5 === 0)
+      art += `<g transform="translate(${x},${y - 5}) scale(1.5)">${plant(0, 0, theme === 'lake')}</g>`;
+  }
+  if (theme === 'electric') {
+    for (let i = 0; i < 7; i++) {
+      const x = 25 + i * 235,
+        y = 130 + (i % 2) * 50;
+      art += rect(x + 27, y + 13, 71, 44, '#b2c5bc', 7);
+      art += circle(x + 63, y + 34, 14, '#f1e7cc') + path(`M${x + 63} ${y + 34}l7-7`);
+      for (let k = 0; k < 4; k++)
+        art += path(
+          `M${x + 32} ${y + 78 + k * 11}h62`,
+          'none',
+          'stroke="#a8aa95" stroke-width="2"',
+        );
+      art += `<g transform="translate(${x + 63},${y + 184})">${emblem(theme, 15)}</g>`;
+    }
+    art += path('M0 419h550v27h260v-27h726', 'none', 'stroke="#b49e7b" stroke-width="7"');
+  } else if (theme === 'furnace') {
+    for (const [x, y, s] of [
+      [35, 286, 2.5],
+      [1260, 282, 2.9],
+      [238, 393, 1.6],
+    ])
+      art += `<g transform="translate(${x},${y}) scale(${s})">${installation('forge', 72, 80)}</g>`;
+    art += path(
+      'M86 290q-24-54 5-83m22 52q-11-28 6-53m1260 80q27-51 1-81',
+      'none',
+      'stroke="#e8d4b8" stroke-width="12" opacity=".7"',
+    );
+  } else if (theme === 'highlands') {
+    art += path(
+      'M0 460q180-65 370-20m820 20q180-65 346-27M0 492q180-65 370-20m820 20q180-65 346-27',
+      'none',
+      'stroke="#998c73" stroke-width="3"',
+    );
+    art += `<g transform="translate(90,300) scale(2.4)">${installation('column', 60, 66)}</g>`;
+    art += path(
+      'M1370 449V267h90m-90 28 73 115m-73-143 73 40m17-40v126',
+      'none',
+      'stroke="#8f7e66" stroke-width="8"',
+    );
+    art += rect(1434, 393, 54, 35, '#c6ab80', 6);
+  } else if (theme === 'league' || theme === 'star') {
+    for (let i = 0; i < 7; i++) {
+      const x = 20 + i * 240;
+      art += rect(x - 8, 416, 188, 19, '#d4c4a3', 5) + rect(x - 1, 284, 30, 14, '#e5d8bc', 3);
+      art += path(`M${x + 8} 308v94m7-94v94`, 'none', 'stroke="#aa9c81" stroke-width="2"');
+      if (theme === 'league')
+        art += `<g transform="translate(${x + 86},216)">${emblem(theme, 20)}</g>`;
+      else if (i % 2 === 0)
+        art += path(
+          `M${x + 18} 410q-23-50 0-84m-3 43q-27-1-21-22m20 6q24-9 19-26`,
+          'none',
+          'stroke="#9eaf8d" stroke-width="6"',
+        );
+    }
+    art += `<g transform="translate(770,606)" opacity=".4">${ellipse(0, 0, 175, 61, '#f7edd5')}${ellipse(0, 0, 160, 52, 'none')}<g transform="scale(2.1,1)">${emblem(theme, 35)}</g></g>`;
+    for (const x of [60, 1440])
+      art += `<g transform="translate(${x},363) scale(1.7)">${installation(theme === 'star' ? 'star' : 'column', 55, 75)}</g>`;
+  }
+  return `<g data-battle-detail="${theme}">${art}</g>`;
+}
+
 /** Furniture lives inside existing solid rectangles; medallions and rugs are flat floor art. */
 export function illustratedSceneDetails(map: MapId) {
   const data = MAPS[map],
@@ -111,6 +339,9 @@ export function illustratedSceneDetails(map: MapId) {
     art += path('M207 180l17-15 17 15-17 15Z', '#f3e7c9');
     // Wall lamps and potted plants give each room a furnished edge without introducing blockers.
     for (const x of [48, width - 48]) art += plant(x, 22, room.style === 'greenhouse');
+    // Small wall pictures identify the parent region in all 102 enterable rooms.
+    for (const x of [112, width - 112])
+      art += `<g transform="translate(${x},17)">${rect(-21, -12, 42, 24, '#f2e5c9', 3)}${emblem(theme, 9)}</g>`;
     return art;
   }
   if (indoor && map !== 'gym' && map !== 'mine' && map !== 'mineDepths') {
@@ -201,5 +432,5 @@ export function illustratedSceneDetails(map: MapId) {
     }),
   );
   // Map bounds are kept explicit for the SVG renderer; details never redefine world geometry.
-  return `<g data-scene-detail="${map}" data-world-size="${width}x${height}">${art}</g>`;
+  return `<g data-scene-detail="${map}" data-world-size="${width}x${height}">${art}${regionalDetails(map)}</g>`;
 }

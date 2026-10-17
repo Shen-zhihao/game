@@ -1,13 +1,15 @@
 import { useId } from 'react';
-import Svg, { Circle, Defs, Ellipse, G, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, G, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { MAPS, mapSize } from '../../content/world';
+import { streetLampAnchors } from '../../content/cityDistricts';
 import { isIndoor } from '../../game/environment';
 import type { MapId } from '../../game/model';
 
 /** Lamps follow the same doorway anchors as the painted map and opening doors. */
 export function NightBuildingLights({ map, scale }: { map: MapId; scale: number }) {
   const glowId = `night-lamp-${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
-  if (isIndoor(map) || !MAPS[map].entrances?.length) return null;
+  const lamps = (MAPS[map].scenery ?? []).filter((prop) => prop.kind === 'lamp');
+  if (isIndoor(map) || (!MAPS[map].entrances?.length && !lamps.length)) return null;
   const { width, height } = mapSize(map);
   return (
     <Svg width={width * scale} height={height * scale} viewBox={`0 0 ${width} ${height}`}>
@@ -18,21 +20,18 @@ export function NightBuildingLights({ map, scale }: { map: MapId; scale: number 
           <Stop offset="100%" stopColor="#ffc96b" stopOpacity={0} />
         </RadialGradient>
       </Defs>
-      {(MAPS[map].scenery ?? [])
-        .filter((prop) => prop.kind === 'lamp')
-        .map((lamp) => (
-          <G key={`street-${lamp.x}-${lamp.y}`}>
-            <Ellipse
-              cx={lamp.x * 32 + 10}
-              cy={lamp.y * 32 + 8}
-              rx={35}
-              ry={33}
-              fill={`url(#${glowId})`}
-            />
-            <Circle cx={lamp.x * 32 + 10} cy={lamp.y * 32 + 3} r={3} fill="#ffeab1" />
+      {lamps.map((lamp) => {
+        const a = streetLampAnchors(lamp);
+        return (
+          <G key={`street-${lamp.x}-${lamp.y}`} testID={`street-lamp-${lamp.x}-${lamp.y}`}>
+            <Ellipse cx={a.groundX} cy={a.groundY} rx={48} ry={21} fill={`url(#${glowId})`} />
+            <Ellipse cx={a.bulbX} cy={a.bulbY + 4} rx={25} ry={31} fill={`url(#${glowId})`} />
+            <Rect x={a.bulbX - 3.5} y={a.bulbY - 5} width={7} height={10} rx={2} fill="#ffe1a0" />
+            <Circle cx={a.bulbX} cy={a.bulbY - 1} r={2.1} fill="#fff5cd" />
           </G>
-        ))}
-      {MAPS[map].entrances!.map((entrance) => {
+        );
+      })}
+      {(MAPS[map].entrances ?? []).map((entrance) => {
         const d = entrance.doorway;
         const x = d.x + d.width / 2;
         const y = d.y + d.height;

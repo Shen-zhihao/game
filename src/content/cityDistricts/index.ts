@@ -33,6 +33,15 @@ export interface CityScenery {
   width: number;
   height: number;
 }
+/** Shared source-pixel anchors keep the illustrated glass and night glow aligned. */
+export function streetLampAnchors(lamp: Pick<CityScenery, 'x' | 'y'>) {
+  return {
+    bulbX: lamp.x * 32 + 9.5,
+    bulbY: lamp.y * 32 - 20,
+    groundX: lamp.x * 32 + 16,
+    groundY: lamp.y * 32 + 29,
+  };
+}
 interface CityIdentity {
   size: [number, number];
   quarters: [string, string, string];
@@ -400,6 +409,67 @@ export function expandCityDistricts(maps: Record<string, GameMap>) {
       },
     ];
     for (const npc of landmarkNpcs) cells[npc.y]![npc.x] = ':';
+    // Furnish both the original quarter and the new streets, beside rather than on roads.
+    // Keep door approaches, NPC conversations, patrol routes and incoming save positions clear.
+    const reserved = [...map.npcs, ...landmarkNpcs, ...map.portals].map((p) => [p.x, p.y]);
+    for (const npc of map.npcs) reserved.push(...(npc.patrol ?? []));
+    for (const other of Object.values(maps))
+      for (const portal of other.portals)
+        if (portal.map === town) reserved.push([portal.toX, portal.toY]);
+    const placeAmenity = (kind: CityScenery['kind'], x: number, y: number, w = 1, h = 1) => {
+      if (x < 2 || y < 2 || x + w > l.width - 2 || y + h > l.height - 2) return false;
+      if (
+        reserved.some(
+          ([rx, ry]) => rx! >= x - 2 && rx! <= x + w + 1 && ry! >= y - 2 && ry! <= y + h + 1,
+        )
+      )
+        return false;
+      for (let yy = y - 1; yy <= y + h; yy++)
+        for (let xx = x - 1; xx <= x + w; xx++)
+          if ('HCSG'.includes(cells[yy]?.[xx] ?? ' ')) return false;
+      if (
+        Array.from({ length: h }, (_, dy) =>
+          Array.from({ length: w }, (_, dx) => cells[y + dy]?.[x + dx]),
+        )
+          .flat()
+          .some((t) => t !== '.')
+      )
+        return false;
+      if (
+        scenery.some(
+          (p) =>
+            Math.abs(p.x - x) + Math.abs(p.y - y) <
+            (kind === 'fountain' && p.kind === 'fountain' ? 12 : 4),
+        )
+      )
+        return false;
+      prop(kind, x, y, w, h);
+      return true;
+    };
+    // Additional public fountain courts connect to existing streets through clear lawn.
+    for (
+      let y = 3;
+      y < l.height - 4 && scenery.filter((p) => p.kind === 'fountain').length < 3;
+      y++
+    )
+      for (
+        let x = 3;
+        x < l.width - 4 && scenery.filter((p) => p.kind === 'fountain').length < 3;
+        x++
+      ) {
+        if (cells[y + 2]?.[x] !== ':' || cells[y + 2]?.[x + 1] !== ':') continue;
+        if (placeAmenity('fountain', x, y, 2, 2)) {
+          placeAmenity('bench', x - 4, y + 1, 2);
+          placeAmenity('lamp', x + 5, y + 1);
+        }
+      }
+    for (let y = 3; y < l.height - 3; y++)
+      for (let x = 3; x < l.width - 3; x++) {
+        const besideRoad = cells[y + 1]?.[x] === ':' || cells[y - 1]?.[x] === ':';
+        if (!besideRoad) continue;
+        if ((x + y * 3) % 9 === 0) placeAmenity('lamp', x, y);
+        else if ((x * 3 + y) % 17 === 0) placeAmenity('bench', x, y, 2);
+      }
     map.rows = cells.map((row) => row.join(''));
     map.scenery = scenery;
     map.npcs.push(...landmarkNpcs);

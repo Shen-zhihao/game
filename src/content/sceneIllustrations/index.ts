@@ -1,11 +1,11 @@
-import { illustratedPine, illustratedSceneDetails } from './details';
+import { illustratedBattleDetails, illustratedPine, illustratedSceneDetails } from './details';
 import { MAPS, mapSize } from '../world';
 import { battleTheme, type BattleTheme } from '../battleScenes';
 import { isIndoor } from '../../game/environment';
 import { sceneInk as c } from '../sceneArt';
 import type { MapId } from '../../game/model';
 import type { BuildingEntrance } from '../buildings';
-import type { CityScenery } from '../cityDistricts';
+import { streetLampAnchors, type CityScenery } from '../cityDistricts';
 
 const rect = (x: number, y: number, w: number, h: number, fill: string, extra = '') =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" ${extra}/>`;
@@ -436,6 +436,50 @@ function building(entrance: BuildingEntrance, theme: BattleTheme) {
     art += rect(x + 8, bottom - 9, 25, 8, '#c6b18a', `rx="2" ${line}`);
     for (let i = 0; i < 3; i++) art += flower(x + 12 + i * 8, bottom - 12, i + x);
   }
+  // Regional craft details also reach the older houses, shops and healing centres.
+  if (theme === 'coast') {
+    art += path(
+      `M${x + 10},${roofBottom + 9}q${(w - 20) / 2},16 ${w - 20},0`,
+      'none',
+      'stroke="#b29572" stroke-width="1.8"',
+    );
+    for (const dx of [15, w - 15]) art += ellipse(x + dx, bottom - 20, 5, 7, '#eee0bd', line);
+  } else if (theme === 'electric') {
+    art += path(
+      `M${x + 17},${roofBottom + 9}v${bottom - roofBottom - 18}h13`,
+      'none',
+      'stroke="#af9572" stroke-width="2.5"',
+    );
+    art += rect(x + 10, roofBottom + 14, 14, 12, '#b9c9c1', `rx="3" ${line}`);
+    art += ellipse(x + 17, roofBottom + 20, 3, 3, '#f8e8bc', line);
+  } else if (theme === 'wind') {
+    const vx = x + w * 0.67,
+      vy = roofTop - 12;
+    art += path(`M${vx},${vy + 12}v-27m-15,9h30m-4,-4 4,4-4,4m-26,-8 7,4-7,4Z`, '#d8c797', line);
+  } else if (theme === 'lake' || theme === 'meadow') {
+    art += path(
+      `M${x + w - 9},${roofBottom + 8}q-9,16 0,34m-2,-19q-14,-3-12,-11m12,24q-13,1-12,-10`,
+      'none',
+      'stroke="#94a981" stroke-width="1.6"',
+    );
+  } else if (theme === 'highlands' || theme === 'furnace') {
+    for (let dx = 7; dx < w - 12; dx += 16)
+      if (x + dx + 13 < d.x - 4 || x + dx > d.x + d.width + 4)
+        art += rect(
+          x + dx,
+          bottom - 13,
+          13,
+          6,
+          theme === 'furnace' ? '#cfad92' : '#c7bca3',
+          `rx="2" ${line} opacity=".65"`,
+        );
+  } else {
+    art += path(
+      `M${x + 7},${roofBottom + 12}h${w - 14}`,
+      'none',
+      'stroke="#d8bf8a" stroke-width="2.5"',
+    );
+  }
   return art;
 }
 function boulder(x: number, y: number, fill: string, small = false) {
@@ -534,19 +578,21 @@ function cityScenery(prop: CityScenery, theme: BattleTheme) {
   if (prop.kind === 'bench')
     return (
       art +
-      `<g ${line}>${rect(x + 3, y + 9, 26, 12, '#d8bb8e', 'rx="3"')}${path(`M${x + 6},${y + 21}v9m20,-9v9m-24,-16h24m-24,5h24`, 'none')}</g>`
+      `<g ${line}>${rect(x + 3, y + 9, w - 6, 12, '#d8bb8e', 'rx="3"')}${path(`M${x + 6},${y + 21}v9m${w - 12},-9v9M${x + 4},${y + 14}h${w - 8}m-${w - 8},5h${w - 8}`, 'none')}</g>`
     );
-  if (prop.kind === 'lamp')
+  if (prop.kind === 'lamp') {
+    const bulb = streetLampAnchors(prop);
     return (
       art +
       path(
-        `M${x + 16},${y + 31}V9m-5,21h10m-5,-21q-15,1-7,-8`,
+        `M${x + 16},${y + 31}V${y - 22}q-6,-12-6,-5M${x + 10},${y + 31}h12`,
         'none',
         `stroke="${c.outline}" stroke-width="2" stroke-linecap="round"`,
       ) +
-      rect(x + 4, y - 4, 11, 14, '#f3d58f', `rx="3" ${line}`) +
-      path(`M${x + 9},${y - 2}v10`, 'none', 'stroke="#fff8de" stroke-width="2"')
+      rect(bulb.bulbX - 5.5, bulb.bulbY - 7, 11, 14, '#ece4c8', `rx="3" ${line}`) +
+      path(`M${bulb.bulbX},${bulb.bulbY - 5}v10`, 'none', 'stroke="#f8f4e4" stroke-width="2"')
     );
+  }
   if (prop.kind === 'planter') {
     art += rect(x + 3, y + 18, w - 6, 12, '#c5ad88', `rx="4" ${line}`);
     for (let i = 0; i < prop.width * 3; i++) art += flower(x + 8 + i * 8, y + 14, i);
@@ -708,7 +754,7 @@ export function illustratedMap(map: MapId) {
     );
   }
   art += path(
-    contour(rows, (t) => t === 'g'),
+    contour(rows, (t) => t === 'g', 10),
     indoor && !forest ? '#d4d8b9' : '#c1d0a4',
     'fill-rule="evenodd" stroke="#a9bc8c" stroke-width="1"',
   );
@@ -719,7 +765,7 @@ export function illustratedMap(map: MapId) {
       `fill-rule="evenodd" stroke="${p.edge}" stroke-width="1.1"`,
     );
   art += path(
-    contour(rows, (t) => t === '~' || t === 'W', 7),
+    contour(rows, (t) => t === '~' || t === 'W', 12),
     p.water,
     'fill-rule="evenodd" stroke="#f8efda" stroke-width="6"',
   );
@@ -972,6 +1018,7 @@ export function illustratedBattle(theme: BattleTheme) {
     for (let y = 520; y < 1024; y += 100)
       art += path(`M0 ${y}h1536`, 'none', 'stroke="#c7bea8" stroke-width="1.2"');
   }
+  art += illustratedBattleDetails(theme);
   // Painted platforms stay at the exact coordinates used by battleAnchors and move effects.
   const platform =
     theme === 'wind'
@@ -995,6 +1042,16 @@ export function illustratedBattle(theme: BattleTheme) {
   if (theme === 'lake' || theme === 'coast' || theme === 'wind') {
     art += meadowTree(-25, 320, 1.65, theme === 'wind' ? '#c4d1bd' : '#adbf9d');
     art += meadowTree(1560, 260, 1.65, theme === 'wind' ? '#c4d1bd' : '#adbf9d');
+  }
+  if (['electric', 'furnace', 'highlands', 'star', 'league'].includes(theme)) {
+    const leaf = theme === 'furnace' ? '#c2af91' : theme === 'star' ? '#aebcad' : '#aebf99';
+    art += meadowTree(-130, 750, 1.6, leaf);
+    art += meadowTree(1640, 720, 1.45, leaf);
+    art += path(
+      'M-20 1000q30-110 115-70 53-60 112-2 59-19 94 96H-20Z M1245 1024q39-79 101-61 45-80 115-27 42-37 95 1v87Z',
+      leaf,
+      'stroke="#8d9d7c" stroke-width="2.5"',
+    );
   }
   return svg(1536, 1024, art);
 }

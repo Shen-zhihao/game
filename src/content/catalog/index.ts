@@ -5,9 +5,10 @@ import { CombatStage, Curve, Species, TypeId } from '../../game/model';
 import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 
-export const CONTENT_VERSION = 'ch10.5';
+export const CONTENT_VERSION = 'ch10.6';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch10.5' ||
   version === 'ch10.4' ||
   version === 'ch10.3' ||
   version === 'ch10.2' ||

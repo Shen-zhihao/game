@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { Image, View } from 'react-native';
 import { GameState, MapId } from '../../game/model';
-import { MAP_IMAGES } from '../sceneAssets';
+import { MAP_IMAGES, MAP_IMAGE_REVISIONS } from '../sceneAssets';
+import { mapImageSource } from '../sceneAssets/mapSource';
 import { TileMap } from '../TileMap';
 import { useSceneReady } from '../../hooks/useSceneReady';
 
@@ -24,9 +25,8 @@ export function MapCanvas({
     <View style={{ width, height }}>
       {source ? (
         <RasterMap
-          key={map}
+          key={`${map}:${MAP_IMAGE_REVISIONS[map]}`}
           map={map}
-          source={source}
           width={width}
           height={height}
           onReady={onReady ? notifyReady : undefined}
@@ -40,13 +40,11 @@ export function MapCanvas({
 
 function RasterMap({
   map,
-  source,
   width,
   height,
   onReady,
 }: {
   map: MapId;
-  source: number;
   width: number;
   height: number;
   onReady?: () => void;
@@ -58,7 +56,7 @@ function RasterMap({
     <TileMap map={map} width={width} height={height} />
   ) : (
     <Image
-      source={source}
+      source={mapImageSource(map)}
       resizeMode="stretch"
       style={{ width, height }}
       onLoad={() => setLoaded(true)}

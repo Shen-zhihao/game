@@ -11,10 +11,16 @@ export interface SpriteFrame {
   y: number;
   width: number;
   height: number;
+  clipPath?: string;
 }
 const atlases = regions as Record<
   string,
-  { width: number; height: number; frames: Record<string, number[]> }
+  {
+    width: number;
+    height: number;
+    frames: Record<string, number[]>;
+    clips?: Record<string, string>;
+  }
 >;
 export function spriteFrame(sprite: SpriteReference): SpriteFrame {
   const atlas = atlases[sprite.atlas];
@@ -28,6 +34,7 @@ export function spriteFrame(sprite: SpriteReference): SpriteFrame {
     y: frame[1]!,
     width: frame[2]!,
     height: frame[3]!,
+    clipPath: atlas.clips?.[String(sprite.cell)],
   };
 }
 export function spriteLayout(sprite: SpriteReference, size: number) {

@@ -7,6 +7,7 @@ import { ILLUSTRATED_MAPS } from '../src/content/sceneArt';
 import { illustratedBattle, illustratedMap } from '../src/content/sceneIllustrations';
 import type { BattleTheme } from '../src/content/battleScenes';
 import type { MapId } from '../src/game/model';
+import { compressPng, PNG_COMPRESSION } from './png-compression';
 
 const originals: Partial<Record<MapId, string>> = {
   dawn: 'dawn-expanded.png',
@@ -51,19 +52,20 @@ for (const map of ILLUSTRATED_MAPS) {
     roomImages.set(hash, file);
     reservedRoomNames.add(file);
   }
-  writeFileSync(`assets/maps/${file}`, png);
-  imageDigests.set(file, hash);
+  const compressed = compressPng(png);
+  writeFileSync(`assets/maps/${file}`, compressed);
+  imageDigests.set(file, createHash('sha256').update(compressed).digest('hex'));
   files.set(map, file);
 }
 for (const theme of Object.keys(BATTLE_SCENES) as BattleTheme[])
   writeFileSync(
     `assets/maps/${BATTLE_SCENES[theme].file}`,
-    new Resvg(illustratedBattle(theme)).render().asPng(),
+    compressPng(new Resvg(illustratedBattle(theme)).render().asPng()),
   );
 if (files.size !== Object.keys(MAPS).length) throw new Error('场景插画覆盖不完整');
 writeFileSync(
   'src/components/sceneAssets/index.ts',
-  `import type { MapId } from '../../game/model';\n\n/** Generated from every final playable grid by tools/generate-scene-art.ts. */\nexport const MAP_IMAGES: Record<MapId, number> = {\n${[...files].map(([map, file]) => `  ${map}: require('../../../assets/maps/${file}'),`).join('\n')}\n};\nexport const TRAVELER_ATLAS = require('../../../assets/characters/traveler-walk.png');\nexport const NPC_ATLAS = require('../../../assets/characters/npcs.png');\nexport const RANGER_ATLAS = require('../../../assets/characters/ranger-walk.png');\n`,
+  `import type { MapId } from '../../game/model';\n\n/** Generated from every final playable grid by tools/generate-scene-art.ts. */\nexport const MAP_IMAGES: Record<MapId, number> = {\n${[...files].map(([map, file]) => `  ${map}: require('../../../assets/maps/${file}'),`).join('\n')}\n};\n/** Content revisions refresh mutable development URLs after illustration edits. */\nexport const MAP_IMAGE_REVISIONS: Record<MapId, string> = {\n${[...files].map(([map, file]) => `  ${map}: '${imageDigests.get(file)!.slice(0, 16)}',`).join('\n')}\n};\nexport const TRAVELER_ATLAS = require('../../../assets/characters/traveler-walk.png');\nexport const NPC_ATLAS = require('../../../assets/characters/npcs.png');\nexport const RANGER_ATLAS = require('../../../assets/characters/ranger-walk.png');\n`,
 );
 const provenancePath = 'docs/美术资源/美术来源.json';
 const provenance = JSON.parse(readFileSync(provenancePath, 'utf8'));
@@ -131,6 +133,7 @@ for (const record of sceneRecords) {
     sourceFile: 'src/content/sceneIllustrations/index.ts',
     generationTool: 'tools/generate-scene-art.ts',
     transparentBackgroundRequested: false,
+    compression: PNG_COMPRESSION,
     ...(previous?.sourceGenerator === generator
       ? previous.previousGenerations
         ? { previousGenerations: previous.previousGenerations }

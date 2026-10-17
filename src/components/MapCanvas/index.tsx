@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { Canvas, Image, useImage, FilterMode, MipmapMode } from '@shopify/react-native-skia';
 import { GameState, MapId } from '../../game/model';
-import { MAP_IMAGES } from '../sceneAssets';
+import { MAP_IMAGES, MAP_IMAGE_REVISIONS } from '../sceneAssets';
 import { TileMap } from '../TileMap';
 import { useSceneReady } from '../../hooks/useSceneReady';
 
@@ -23,7 +23,7 @@ export function MapCanvas({
   return source ? (
     <View style={{ width, height }}>
       <RasterMap
-        key={state.player.map}
+        key={`${state.player.map}:${MAP_IMAGE_REVISIONS[state.player.map]}`}
         map={state.player.map}
         source={source}
         width={width}

@@ -1,5 +1,6 @@
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import { ITEMS, type ItemPocket } from '../../content/catalog';
+import { EvolutionMaterial } from './EvolutionMaterial';
 
 const outline = '#554536';
 export function BagIllustration({ size = 128 }: { size?: number }) {
@@ -96,16 +97,7 @@ export function ItemIcon({ itemId, size = 32 }: { itemId: string; size?: number 
             <Path d="M15 25q-2 6 2 8" stroke="#fff8df" />
           </>
         ) : pocket === 'evolution' ? (
-          <>
-            <Path d="m16 8 16 2 9 19-17 12L7 28Z" fill="#b6b0d7" />
-            <Path
-              d="m16 8 7 15 9-13M7 28l16-5 1 18m17-12-18-6"
-              fill="none"
-              stroke="#f7f0ff"
-              strokeWidth={1.4}
-            />
-            <Path d="m20 15 7 2-4 7-6-3Z" fill="#fff6cf" stroke="none" />
-          </>
+          <EvolutionMaterial itemId={itemId} />
         ) : itemId.includes('manual') ? (
           <>
             <Path d="M11 9h22q5 0 5 5v27H15q-5 0-5-5Z" fill="#ceab80" />
@@ -151,20 +143,8 @@ export function PocketIcon({ pocket, size = 25 }: { pocket: ItemPocket | 'all'; 
     balls: 'ball',
     medicine: 'potion',
     training: 'candy',
-    evolution: 'evolution_stone',
+    evolution: 'moon_shard',
     key: 'key_ruin_key',
   };
-  if (pocket === 'evolution')
-    return (
-      <Svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
-        <Path d="m15 7 18 3 9 19-19 13L6 27Z" fill="#b6b0d7" stroke={outline} strokeWidth={2} />
-        <Path
-          d="m15 7 8 16 10-13M6 27l17-4v19m19-13-19-6"
-          stroke="#f5edff"
-          fill="none"
-          strokeWidth={1.5}
-        />
-      </Svg>
-    );
   return <ItemIcon itemId={ids[pocket]} size={size} />;
 }

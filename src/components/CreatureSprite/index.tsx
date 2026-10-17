@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { spriteFor } from '../../content/catalog';
-import { spriteLayout } from '../../content/spriteFrames';
+import { spriteFrame, spriteLayout } from '../../content/spriteFrames';
+import { AtlasFrameImage } from '../AtlasFrameImage';
 
 const atlas = require('../../../assets/creatures-ch1.png');
 const coastAtlas = require('../../../assets/creatures-coast.png');
@@ -83,6 +84,7 @@ export function CreatureSprite({
       </View>
     );
   const layout = spriteLayout(sprite!, size);
+  const frame = spriteFrame(sprite!);
   return (
     <Animated.View
       style={{
@@ -93,19 +95,29 @@ export function CreatureSprite({
       }}
     >
       <View style={{ position: 'absolute', overflow: 'hidden', ...layout.crop }}>
-        <Image
-          accessible={false}
-          source={regionalAtlases[sprite!.atlas]}
-          resizeMode="stretch"
-          style={[
-            {
-              position: 'absolute',
-              ...layout.image,
-              tintColor: unknown ? '#263e42' : undefined,
-              opacity: unknown ? 0.65 : 1,
-            },
-          ]}
-        />
+        {frame.clipPath ? (
+          <AtlasFrameImage
+            frame={frame}
+            source={regionalAtlases[sprite!.atlas]!}
+            width={layout.crop.width}
+            height={layout.crop.height}
+            unknown={unknown}
+          />
+        ) : (
+          <Image
+            accessible={false}
+            source={regionalAtlases[sprite!.atlas]}
+            resizeMode="stretch"
+            style={[
+              {
+                position: 'absolute',
+                ...layout.image,
+                tintColor: unknown ? '#263e42' : undefined,
+                opacity: unknown ? 0.65 : 1,
+              },
+            ]}
+          />
+        )}
       </View>
     </Animated.View>
   );

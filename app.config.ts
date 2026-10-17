@@ -27,7 +27,7 @@ const config: ExpoConfig = {
     versionCode: 1,
     adaptiveIcon: {
       foregroundImage: './assets/brand/adaptive-icon.png',
-      backgroundColor: '#087dc1',
+      backgroundColor: '#f2ead5',
     },
     permissions: [
       'android.permission.INTERNET',

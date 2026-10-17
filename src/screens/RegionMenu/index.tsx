@@ -2,7 +2,8 @@ import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G, Image, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
-import { MAP_IMAGES } from '../../components/sceneAssets';
+import { MAP_IMAGES, MAP_IMAGE_REVISIONS } from '../../components/sceneAssets';
+import { mapImageSource } from '../../components/sceneAssets/mapSource';
 import { Button, Label, palette } from '../../components/ui';
 import {
   localMapPoint,
@@ -38,7 +39,12 @@ function LocalMap({ game, map }: { game: GameState; map: MapId }) {
       accessibilityLabel={`${data.name}完整地图${game.player.map === map ? '，红色箭头为你的位置' : ''}`}
     >
       {MAP_IMAGES[map] ? (
-        <Image href={MAP_IMAGES[map]} width={width} height={height} />
+        <Image
+          key={MAP_IMAGE_REVISIONS[map]}
+          href={mapImageSource(map)}
+          width={width}
+          height={height}
+        />
       ) : (
         <TileMapLayers map={map} />
       )}

@@ -889,6 +889,34 @@ export function validateGame(input: unknown): GameState {
       );
     if (landing) Object.assign(game.player, landing);
   }
+  // Public furniture added to a city may now occupy an older save's lawn position.
+  // Recover only known scenery footprints, keeping progress and the current neighbourhood.
+  if (
+    MAPS[game.player.map].scenery?.some(
+      (prop) =>
+        game.player.x >= prop.x &&
+        game.player.x < prop.x + prop.width &&
+        game.player.y >= prop.y &&
+        game.player.y < prop.y + prop.height,
+    )
+  ) {
+    let landing: { x: number; y: number } | undefined;
+    for (let radius = 1; radius <= 4 && !landing; radius++)
+      for (let dy = -radius; dy <= radius && !landing; dy++)
+        for (let dx = -radius; dx <= radius && !landing; dx++) {
+          if (Math.abs(dx) + Math.abs(dy) !== radius) continue;
+          const x = game.player.x + dx,
+            y = game.player.y + dy;
+          if (
+            safePosition(game.player.map, x, y, effectiveAccessFlags(game)) &&
+            !['~', 'W'].includes(MAPS[game.player.map].rows[y]?.[x] ?? '') &&
+            !MAPS[game.player.map].portals.some((p) => p.x === x && p.y === y) &&
+            !worldNpcs(game).some((npc) => npc.x === x && npc.y === y && npcVisible(game, npc))
+          )
+            landing = { x, y };
+        }
+    if (landing) Object.assign(game.player, landing);
+  }
   invariant(
     safePosition(game.player.map, game.player.x, game.player.y, effectiveAccessFlags(game)),
     '位置不可站立',

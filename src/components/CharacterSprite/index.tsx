@@ -1,9 +1,80 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import { Animated, Image, ImageSourcePropType, View } from 'react-native';
 import { Direction } from '../../game/model';
 import { Npc } from '../../content/world';
 import { NPC_ATLAS, RANGER_ATLAS, TRAVELER_ATLAS } from '../sceneAssets';
 import { playerAppearance } from '../../content/appearances';
+import characterFrames from '../../../docs/美术资源/角色取图区.json';
+import { AtlasFrameImage } from '../AtlasFrameImage';
+
+function CroppedCharacter({
+  atlas,
+  cell,
+  size,
+  source,
+  testID,
+  label,
+}: {
+  atlas: keyof typeof characterFrames;
+  cell: number;
+  size: number;
+  source: ImageSourcePropType;
+  testID?: string;
+  label?: string;
+}) {
+  const data = characterFrames[atlas];
+  const frames = data.frames as Record<string, number[]>;
+  const [x, y, width, height] = frames[String(cell)]!;
+  const clipPath = (data.clips as Record<string, string>)[String(cell)];
+  // One scale per atlas prevents a walking hand or boot from changing the character's size.
+  const scale = Math.min(
+    (size * 0.84) / Math.max(...Object.values(frames).map((r) => r[3]!)),
+    (size * 0.9) / Math.max(...Object.values(frames).map((r) => r[2]!)),
+  );
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        left: (size - width! * scale) / 2,
+        top: size * 0.94 - height! * scale,
+        width: width! * scale,
+        height: height! * scale,
+        overflow: 'hidden',
+      }}
+    >
+      {clipPath ? (
+        <AtlasFrameImage
+          frame={{
+            x: x!,
+            y: y!,
+            width: width!,
+            height: height!,
+            atlasWidth: data.width,
+            atlasHeight: data.height,
+            clipPath,
+          }}
+          source={source}
+          width={width! * scale}
+          height={height! * scale}
+        />
+      ) : (
+        <Image
+          source={source}
+          testID={testID}
+          accessibilityLabel={label}
+          resizeMode="stretch"
+          style={{
+            position: 'absolute',
+            width: data.width * scale,
+            height: data.height * scale,
+            left: -x! * scale,
+            top: -y! * scale,
+          }}
+        />
+      )}
+    </View>
+  );
+}
 
 const DIRECTION_ROW: Record<Direction, number> = { down: 0, left: 1, right: 2, up: 3 };
 export function TravelerSprite({
@@ -49,19 +120,30 @@ export function TravelerSprite({
   const source = atlas ?? (appearance.atlas === 'ranger' ? RANGER_ATLAS : TRAVELER_ATLAS);
   return (
     <View testID={testID} style={{ width: size, height: size, overflow: 'hidden' }}>
-      <Image
-        source={source}
-        testID={testID ? `${testID}-image` : undefined}
-        accessibilityLabel={atlas ? undefined : `旅行者：${appearance.name}`}
-        resizeMode="stretch"
-        style={{
-          position: 'absolute',
-          width: size * 4,
-          height: size * 4,
-          top: -DIRECTION_ROW[facing] * size,
-          left: -(frame % 4) * size,
-        }}
-      />
+      {source === RANGER_ATLAS ? (
+        <CroppedCharacter
+          atlas="ranger"
+          cell={DIRECTION_ROW[facing] * 4 + (frame % 4)}
+          size={size}
+          source={source}
+          testID={testID ? `${testID}-image` : undefined}
+          label={atlas ? undefined : `旅行者：${appearance.name}`}
+        />
+      ) : (
+        <Image
+          source={source}
+          testID={testID ? `${testID}-image` : undefined}
+          accessibilityLabel={atlas ? undefined : `旅行者：${appearance.name}`}
+          resizeMode="stretch"
+          style={{
+            position: 'absolute',
+            width: size * 4,
+            height: size * 4,
+            top: -DIRECTION_ROW[facing] * size,
+            left: -(frame % 4) * size,
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -133,19 +215,7 @@ export function NpcSprite({
             : [{ translateY: distress }],
       }}
     >
-      <Image
-        source={NPC_ATLAS}
-        resizeMode="stretch"
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            width: size * 4,
-            height: size * 2,
-            left: -(cell % 4) * size,
-            top: -Math.floor(cell / 4) * size,
-          },
-        ]}
-      />
+      <CroppedCharacter atlas="npcs" cell={cell} size={size} source={NPC_ATLAS} />
     </Animated.View>
   );
 }
