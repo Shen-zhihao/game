@@ -8,6 +8,7 @@ import {
 } from '../../content/catalog';
 import { SIGNATURE_BY_SPECIES } from '../../content/signatures';
 import { equipItem } from '../heldItems';
+import { boxTransferReason, reorderParty } from '../party';
 import { activityAtNpc, applyActivity, openActivity } from '../activities';
 import { HABITAT_SITES } from '../../content/habitats';
 import {
@@ -56,7 +57,7 @@ import {
 } from '../environment';
 import { redeemCheat } from '../cheats';
 import { advanceCalendar, calendarFor, createCalendar } from '../calendar';
-import { effectiveAccessFlags, hasFieldAccess } from '../../content/keyItems';
+import { effectiveAccessFlags } from '../../content/keyItems';
 import {
   atCenter,
   canSurf,
@@ -1127,14 +1128,12 @@ function reduceCommand(current: GameState, command: Command): GameState {
       break;
     }
     case 'lead': {
-      const index = state.party.indexOf(command.creatureId);
-      if (index >= 0) {
-        state.party.splice(index, 1);
-        state.party.unshift(command.creatureId);
-        state.notice = '已设为队伍首位。';
-      }
+      reorderParty(state, command.creatureId, 0);
       break;
     }
+    case 'reorderParty':
+      reorderParty(state, command.creatureId, command.toIndex);
+      break;
     case 'release': {
       if (
         !isTownLocation(state.player.map) ||
@@ -1154,36 +1153,19 @@ function reduceCommand(current: GameState, command: Command): GameState {
       break;
     }
     case 'box': {
-      if (!isTownLocation(state.player.map)) {
-        state.notice = '仓库只能在城镇使用。';
-        break;
-      }
-      if (
-        !command.withdraw &&
-        ['~', 'W'].includes(MAPS[state.player.map].rows[state.player.y]?.[state.player.x] ?? '') &&
-        !hasFieldAccess(state, 'waterRig') &&
-        state.creatures[command.creatureId]?.moves.some((m) => m.id === 'surf') &&
-        !state.party.some(
-          (id) =>
-            id !== command.creatureId && state.creatures[id]!.moves.some((m) => m.id === 'surf'),
-        )
-      ) {
-        state.notice = '请先回到岸上，再让最后一位会冲浪的伙伴入库。';
+      const reason = boxTransferReason(state, command.creatureId, command.withdraw);
+      if (reason) {
+        state.notice = reason;
         break;
       }
       const from = command.withdraw ? state.box : state.party;
       const to = command.withdraw ? state.party : state.box;
-      if (
-        from.includes(command.creatureId) &&
-        to.length < (command.withdraw ? 6 : 360) &&
-        (command.withdraw ||
-          (from.length > 1 &&
-            from.some((id) => id !== command.creatureId && state.creatures[id]!.hp > 0)))
-      ) {
-        from.splice(from.indexOf(command.creatureId), 1);
-        to.push(command.creatureId);
-        state.notice = command.withdraw ? '伙伴回到队伍。' : '伙伴已在仓库休息。';
-      } else state.notice = '请为队伍保留一只可以战斗的伙伴，并检查容量。';
+      from.splice(from.indexOf(command.creatureId), 1);
+      to.push(command.creatureId);
+      const name = creatureName(state.creatures[command.creatureId]!);
+      state.notice = command.withdraw
+        ? `${name}已回到队伍第${to.length}位。`
+        : `${name}已送入仓库，可以随时在城镇取回。`;
       break;
     }
     case 'recall': {

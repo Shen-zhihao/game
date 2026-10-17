@@ -46,6 +46,7 @@ import { recallOptions } from '../../game/skills';
 import { SkillCopyMenu } from '../SkillCopyMenu';
 import { HabitatDetails } from '../../components/HabitatDetails';
 import { atCenter, fieldSkill, fieldSkillUnlocked } from '../../game/fieldSkills';
+import { boxTransferReason } from '../../game/party';
 export { RegionMenu } from '../RegionMenu';
 export { BagMenu } from '../CityMenus';
 
@@ -223,6 +224,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   const [potentialId, setPotentialId] = useState('');
   const [moveDetail, setMoveDetail] = useState<string | null>(null);
   const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null);
+  const detailRef = useRef<ScrollView>(null);
   const ids = showBox ? game.box : game.party;
   const c =
     game.creatures[ids.includes(selected) ? selected : ids[0]!] ?? game.creatures[game.party[0]!]!;
@@ -242,15 +244,23 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   const xpStart = xpAt(c.level, species.experienceCurve);
   const xpNext = xpAt(Math.min(100, c.level + 1), species.experienceCurve);
   const inParty = game.party.includes(c.id);
-  const boxReason = !isTownLocation(game.player.map)
-    ? '在城镇可使用仓库与技能回忆。'
-    : inParty && !game.party.some((id) => id !== c.id && game.creatures[id]!.hp > 0)
-      ? '队伍需要保留至少一位可以战斗的伙伴。'
-      : !inParty && game.party.length >= 6
-        ? '队伍已满，请先让一位伙伴进入仓库。'
-        : inParty && game.box.length >= 360
-          ? '仓库已满。'
-          : null;
+  const partyIndex = game.party.indexOf(c.id);
+  const firstReady = game.party.find((id) => game.creatures[id]!.hp > 0);
+  const boxReason = boxTransferReason(game, c.id, !inParty);
+  const transferMember = () => {
+    if (boxReason) return;
+    const index = ids.indexOf(c.id);
+    const remaining = ids.filter((id) => id !== c.id);
+    if (!inParty && !remaining.length) {
+      setShowBox(false);
+      setSelected(c.id);
+    } else setSelected(remaining[Math.min(index, remaining.length - 1)]!);
+    setRecall(null);
+    setMoveDetail(null);
+    setReleaseConfirm(null);
+    detailRef.current?.scrollTo({ y: 0, animated: false });
+    dispatch({ kind: 'box', creatureId: c.id, withdraw: !inParty });
+  };
   const move =
     moveDetail && c.moves.some((known) => known.id === moveDetail) ? MOVES[moveDetail] : null;
   return (
@@ -269,6 +279,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
         <View style={[styles.row, { gap: 6, marginBottom: 10 }]}>
           <Button
             small
+            testID="party-show-team"
             accent={!showBox}
             selected={!showBox}
             style={{ flex: 1, paddingHorizontal: 6 }}
@@ -277,6 +288,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
               if (!game.party.includes(selected)) setSelected(game.party[0]!);
               setRecall(null);
               setMoveDetail(null);
+              detailRef.current?.scrollTo({ y: 0, animated: false });
             }}
           >
             队伍 {game.party.length}
@@ -284,6 +296,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
           </Button>
           <Button
             small
+            testID="party-show-box"
             accent={showBox}
             selected={showBox}
             style={{ flex: 1, paddingHorizontal: 6 }}
@@ -292,6 +305,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
               if (game.box[0]) setSelected(game.box[0]);
               setRecall(null);
               setMoveDetail(null);
+              detailRef.current?.scrollTo({ y: 0, animated: false });
             }}
           >
             仓库 {game.box.length}
@@ -304,14 +318,14 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
           contentContainerStyle={{ gap: 8, paddingBottom: 3 }}
         >
           {!ids.length && <Label muted>仓库里暂时没有伙伴。</Label>}
-          {ids.map((id) => {
+          {ids.map((id, index) => {
             const member = game.creatures[id]!;
             return (
               <Pressable
                 key={id}
                 testID={`party-member-${id}`}
                 accessibilityRole="button"
-                accessibilityLabel={`${creatureName(member)}，等级${member.level}，HP ${member.hp}/${statsFor(member).hp}`}
+                accessibilityLabel={`${showBox ? '仓库' : '队伍'}第${index + 1}位，${creatureName(member)}，等级${member.level}，HP ${member.hp}/${statsFor(member).hp}${!showBox && id === firstReady ? '，首发' : ''}`}
                 accessibilityState={{ selected: c.id === id }}
                 style={({ pressed }) => [
                   s.partnerCard,
@@ -323,9 +337,19 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                   setSelected(id);
                   setRecall(null);
                   setMoveDetail(null);
+                  setReleaseConfirm(null);
+                  detailRef.current?.scrollTo({ y: 0, animated: false });
                 }}
               >
-                <CreatureSprite speciesId={member.speciesId} size={small ? 32 : 40} />
+                <View style={{ alignItems: 'center', gap: 2 }}>
+                  {!showBox && (
+                    <Label style={{ fontSize: 10, lineHeight: 12, color: palette.gold }}>
+                      {String(index + 1).padStart(2, '0')}
+                      {id === firstReady ? ' · 首发' : ''}
+                    </Label>
+                  )}
+                  <CreatureSprite speciesId={member.speciesId} size={small ? 32 : 40} />
+                </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text
                     numberOfLines={1}
@@ -350,6 +374,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
         </ScrollView>
       </View>
       <ScrollView
+        ref={detailRef}
         testID="party-details"
         style={{ flex: 1, minHeight: 0 }}
         contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
@@ -402,6 +427,79 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                   </>
                 )}
               </View>
+            </Panel>
+            <Panel testID="party-management" style={{ padding: 12, gap: 8 }}>
+              <Label style={{ fontWeight: '700' }}>
+                {inParty ? `队伍整理 · 当前第${partyIndex + 1}位` : '仓库管理'}
+              </Label>
+              <View style={styles.wrap}>
+                <Button
+                  small
+                  accent
+                  testID={inParty ? 'party-deposit' : 'party-withdraw'}
+                  disabled={!!boxReason}
+                  onPress={transferMember}
+                >
+                  {inParty ? '送入仓库' : '带入队伍'}
+                </Button>
+                {inParty && (
+                  <>
+                    <Button
+                      small
+                      testID="party-move-up"
+                      accessibilityLabel={`将${creatureName(c)}在队伍中上移一位`}
+                      disabled={partyIndex <= 0}
+                      onPress={() =>
+                        dispatch({
+                          kind: 'reorderParty',
+                          creatureId: c.id,
+                          toIndex: partyIndex - 1,
+                        })
+                      }
+                    >
+                      ↑ 上移
+                    </Button>
+                    <Button
+                      small
+                      testID="party-move-down"
+                      accessibilityLabel={`将${creatureName(c)}在队伍中下移一位`}
+                      disabled={partyIndex >= game.party.length - 1}
+                      onPress={() =>
+                        dispatch({
+                          kind: 'reorderParty',
+                          creatureId: c.id,
+                          toIndex: partyIndex + 1,
+                        })
+                      }
+                    >
+                      ↓ 下移
+                    </Button>
+                    <Button
+                      small
+                      testID="party-set-lead"
+                      disabled={partyIndex === 0}
+                      onPress={() => dispatch({ kind: 'lead', creatureId: c.id })}
+                    >
+                      设为首位
+                    </Button>
+                  </>
+                )}
+              </View>
+              <Label muted style={{ fontSize: 11 }}>
+                {inParty
+                  ? '战斗按队伍顺序选择首位可以战斗的伙伴。调整顺序后自动保存。'
+                  : '取回的伙伴会加入队尾，可以在队伍页继续调整顺序。'}
+              </Label>
+              {boxReason && (
+                <Label muted testID="party-storage-reason" style={{ fontSize: 12 }}>
+                  {boxReason}
+                </Label>
+              )}
+              {!!game.notice && (
+                <View testID="party-operation-notice" accessibilityLiveRegion="polite">
+                  <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
+                </View>
+              )}
             </Panel>
             <View style={styles.wrap}>
               <Button
@@ -490,26 +588,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                   >
                     复刻技能 · 持有 {game.inventory.skill_copy ?? 0}
                   </Button>
-                  <Button
-                    small
-                    disabled={!game.party.includes(c.id) || game.party[0] === c.id}
-                    onPress={() => dispatch({ kind: 'lead', creatureId: c.id })}
-                  >
-                    设为首位
-                  </Button>
-                  <Button
-                    small
-                    disabled={!!boxReason}
-                    onPress={() => dispatch({ kind: 'box', creatureId: c.id, withdraw: !inParty })}
-                  >
-                    {inParty ? '放入仓库' : '带入队伍'}
-                  </Button>
                 </View>
-                {boxReason && (
-                  <Label muted style={{ fontSize: 12 }}>
-                    {boxReason}
-                  </Label>
-                )}
                 {!inParty && isTownLocation(game.player.map) && (
                   <Panel>
                     {releaseConfirm === c.id ? (
@@ -539,11 +618,6 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                       </Button>
                     )}
                   </Panel>
-                )}
-                {!!game.notice && (
-                  <View testID="party-operation-notice" accessibilityLiveRegion="polite">
-                    <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
-                  </View>
                 )}
                 <Label style={{ fontWeight: '700' }}>
                   {recall
@@ -988,7 +1062,7 @@ export function HelpMenu() {
         '拖动摇杆：八向移动与转身，松手停止；A：面向相邻人物或物体交谈、调查。电脑可同时按 WASD / 箭头组合斜走，Enter / Z 交谈。',
         '草丛会遇到野生精灵。捕捉时先削弱对方；睡眠、麻痹等异常会提高捕获率。',
         '精灵按生境出没：林冠有萤灯蛾、湿岸有荷叶蛙、矿山暗河有滴石鲶。站在岸边面向水面按 A 调查；图鉴与地区地图可查栖息地。',
-        '队伍最多 6 只，多出的精灵进入仓库。在城镇打开伙伴页面管理仓库、免费回忆技能。',
+        '队伍最多 6 只，多出的精灵进入仓库。伙伴详情顶部可以主动送入仓库或取回，城镇及其室内均可使用；上移、下移或设为首位可调整出场顺序，整理后自动保存。技能可在城镇免费回忆。',
         '进化可以暂缓，在伙伴详情里再次进化。成长果可升一级；石壳虫 Lv.10、初始伙伴 Lv.16 有进化机会。',
         '满级 100 级，每次升级随机获得 1–10 能力点，精灵成长强度越高越容易获得高点数；伙伴详情可手动加点或自动培养，1 点直接增加对应能力 1 点。',
         '默认有效速度快者先出手，首次技能仍比较优先度。速度达到对手 2 倍可操作 2 次，3 倍及以上 3 次；每条指令只执行一次，结算后重新选择技能、道具或换人。',

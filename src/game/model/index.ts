@@ -412,6 +412,7 @@ export type Command =
   | { kind: 'allocate'; creatureId: string; points: Stats }
   | { kind: 'trainingMode'; creatureId: string; mode: 'manual' | 'auto' }
   | { kind: 'lead'; creatureId: string }
+  | { kind: 'reorderParty'; creatureId: string; toIndex: number }
   | { kind: 'box'; creatureId: string; withdraw: boolean }
   | { kind: 'release'; creatureId: string }
   | { kind: 'recall'; creatureId: string; moveId: string; replace: number | null }
