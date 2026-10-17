@@ -43,7 +43,7 @@ export function BattleFooter({
   const playback = mode === 'playback' || mode === 'result';
   if (mode === 'commands')
     return (
-      <View testID="battle-footer" style={[s.commands, !narrow && s.wideCommands]}>
+      <View testID="battle-footer" style={s.commands}>
         {commands.map((command) => (
           <Pressable
             key={command.id}
@@ -54,7 +54,6 @@ export function BattleFooter({
             onPress={command.onPress}
             style={({ pressed }) => [
               s.tile,
-              narrow && s.narrowTile,
               command.id === 'fight' && s.fight,
               command.disabled && s.disabled,
               pressed && s.pressed,
@@ -137,12 +136,19 @@ export function BattleFooter({
 }
 
 const s = StyleSheet.create({
-  commands: { flexDirection: 'row', alignSelf: 'flex-end', width: '100%', gap: 7 },
-  wideCommands: { width: '64%', maxWidth: 560 },
+  commands: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignSelf: 'flex-end',
+    width: '100%',
+    maxWidth: 300,
+    gap: 7,
+  },
   tile: {
-    flex: 1,
+    flexBasis: '46%',
+    flexGrow: 1,
     minWidth: 0,
-    height: 56,
+    height: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -153,7 +159,6 @@ const s = StyleSheet.create({
     borderRadius: 17,
     boxShadow: '0 3px 12px #46371e14',
   },
-  narrowTile: { flexDirection: 'column', height: 64, gap: 1 },
   fight: { borderColor: '#dfc398', backgroundColor: '#fbeddaf5' },
   icon: { width: 30, height: 30, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   tileTitle: { fontSize: 14, fontWeight: '800', lineHeight: 19, color: '#55442f' },

@@ -532,10 +532,10 @@ export function BattleScreen({
             s.statusCard,
             {
               right: (compact ? 14 : 24) + insets.right,
-              bottom: dockHeight + insets.bottom + 24,
+              bottom: dockHeight + insets.bottom + (compact ? 14 : 24),
               display: choosingMoves ? 'none' : 'flex',
               width: Math.min(285, field.width * (narrow ? 0.44 : 0.34)),
-              padding: compact || narrow ? 10 : 14,
+              padding: compact ? 6 : narrow ? 10 : 14,
             },
           ]}
         >
