@@ -1,0 +1,1453 @@
+{
+  "核对日期": "2026-10-17",
+  "核对入口": "背包 → 地区地图；逐地点放大；城市详情另点开道馆",
+  "范围": {
+    "地区地点": 38,
+    "城市详情道馆": 8,
+    "实际点击主地图": 46,
+    "建筑室内资源": 102,
+    "全部地图资源": 148
+  },
+  "已完成": [
+    "逐项点击38个地区地点和8个道馆入口，保存每项浏览器截图。",
+    "核对每张地图的SVG图片地址和内容哈希版本，预览、放大图与同名游戏场景使用同一资源。",
+    "46张主地图更新；移除旧室内重复徽记分支，19处道馆、设施及洞窟使用新的连续地面、墙体与实物陈设。",
+    "城市与野外补充绘制的林木、岩簇和遗迹石作，水体改为连续岸线与层次波纹。",
+    "9张新物件图经无损压缩，解码后逐像素RGBA完全一致。",
+    "全部148张地图的图片尺寸、引用、哈希及资源存在性通过检查，未发现无引用资源。",
+    "碰撞格、出入口、NPC和任务位置数据未修改；浏览器在星核调度庭行走及接近NPC通过检查。",
+    "修复切换地点时详情栏保留上一地点滚动位置的问题；浏览器复查滚动位置由135回到0，地图预览可见。"
+  ],
+  "验证界限": [
+    "逐项点击与截图来自独立网页验收环境；没有覆盖用户正在使用的存档。",
+    "102个建筑室内完成资源覆盖与尺寸检查，未逐个在真机步行验收。",
+    "本次未重新打包、安装或验证Android；先前APK内容版本未随源码改图更新。",
+    "地形通路仍沿用既有布局；本次针对画风、材质及物件表现更新。"
+  ],
+  "地点": [
+    {
+      "菜单地点": "晨芽镇",
+      "地图名称": "晨芽镇",
+      "地图ID": "dawn",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/dawn-expanded.png",
+      "内容哈希": "b4efa68e2fb2baee4e7e557b16bd6f6399826fee47fc8a3bc11520efa51b7a7a",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/dawn-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "晨光一号路",
+      "地图名称": "晨光一号路",
+      "地图ID": "route",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/route-expanded.png",
+      "内容哈希": "7ae3f72f95e198fcd9914299f1c90a22f77ddc4b6157b45ddfcd94c02ee08c31",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/route-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "苔丘镇",
+      "地图名称": "苔丘镇",
+      "地图ID": "moss",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/moss-expanded.png",
+      "内容哈希": "c986a9569497b540a96f8f4e46fe49809c59dcade36f9d0e69645113374b1530",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/moss-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：苔丘镇",
+      "地图名称": "苔丘道馆",
+      "地图ID": "gym",
+      "城市详情入口": "moss",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/gym.png",
+      "内容哈希": "436146644cb2adcf594ab74b9399cbdcff63cac2d014348d33e712a3924a065d",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["greenhouse"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/gym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "石脊城",
+      "地图名称": "石脊城",
+      "地图ID": "stone",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/stone-city-coast-v2.png",
+      "内容哈希": "268842d9d298c745348572d254394aa0f5d9255263389acdb5eb2bd6c08df9ae",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/stone-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：石脊城",
+      "地图名称": "砾岩道馆",
+      "地图ID": "rockGym",
+      "城市详情入口": "town-2",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/rock-gym.png",
+      "内容哈希": "d469ef67d7561b99ffa7287c6c6cff9dc6c9efc40eb05361e0773282f69ee463",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/rockGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "潮汐港",
+      "地图名称": "潮汐港",
+      "地图ID": "harbor",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/harbor-city-v2.png",
+      "内容哈希": "2aadfc908ce0e4afa7168b259ba5affb97abe1af29198cba9a53b509ab615963",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/harbor-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：潮汐港",
+      "地图名称": "潮汐道馆",
+      "地图ID": "waterGym",
+      "城市详情入口": "town-3",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/water-gym-v2.png",
+      "内容哈希": "179b1b39be1734150a2792d49f9b038ca022452b703611dd4643a21de281388d",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/waterGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "雷鸣市",
+      "地图名称": "雷鸣市",
+      "地图ID": "volt",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/volt.png",
+      "内容哈希": "0016618073c8b42c209abfed3f313c61766ef000c98babe152279425b986a22e",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/volt-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：雷鸣市",
+      "地图名称": "霆光道馆",
+      "地图ID": "electricGym",
+      "城市详情入口": "town-4",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/electricGym.png",
+      "内容哈希": "8efc947ca981112f4872f59da473f7eb4ad3522eba7e17b60ad60fbbe3c3fe4f",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["generator"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/electricGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "风栖镇",
+      "地图名称": "风栖镇",
+      "地图ID": "wind",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/wind.png",
+      "内容哈希": "2ba0023a14dd25853471a95ea799383783fadb6f396be86fa037cb1349007b31",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/wind-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：风栖镇",
+      "地图名称": "流羽道馆",
+      "地图ID": "windGym",
+      "城市详情入口": "town-5",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/windGym.png",
+      "内容哈希": "8ab95901908b2a02ff6b8b31dc37cd3bbd8b7cb91e4b51b20da8e7b898c12725",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["observatory"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/windGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "炉心城",
+      "地图名称": "炉心城",
+      "地图ID": "furnace",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/furnace.png",
+      "内容哈希": "94214f8c7b86f077df5ea709bb72f98ce485def03c421e04ebab6a4c42a39dc0",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/furnace-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：炉心城",
+      "地图名称": "炉心道馆",
+      "地图ID": "fireGym",
+      "城市详情入口": "town-6",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/fireGym.png",
+      "内容哈希": "dc025ec96bc54789268adad7974bfbfad164c1a0ea0a13e012f71d3e955e1373",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["kiln"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/fireGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "镜湖镇",
+      "地图名称": "镜湖镇",
+      "地图ID": "lake",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/lake.png",
+      "内容哈希": "a0663f3a78c2638a75a64b4a473a768bfba3143e12407613c1d7456e716fb521",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/lake-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：镜湖镇",
+      "地图名称": "镜心道馆",
+      "地图ID": "psychicGym",
+      "城市详情入口": "town-7",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/psychicGym.png",
+      "内容哈希": "81b92cf6a0464027fa73e5c4972d7d06792442ff3c7598586215f05a06ca432c",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/psychicGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "星岚城",
+      "地图名称": "星岚城",
+      "地图ID": "star",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/star.png",
+      "内容哈希": "23b9f4919b5690d18e939811b6cc021cb55a4e2f7e97a146d2711c0b235af0e8",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/star-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "道馆：星岚城",
+      "地图名称": "星岚道馆",
+      "地图ID": "starGym",
+      "城市详情入口": "town-8",
+      "缩略图已核对": false,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/starGym.png",
+      "内容哈希": "5b8afede35c59fa4a5ea6eb613002d165fc5fd232b5180088488291f589d585f",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/starGym-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "苔影森林",
+      "地图名称": "苔影森林",
+      "地图ID": "forest",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/forest-expanded.png",
+      "内容哈希": "862a037f6b08e62f2f8db8e7c45557ccd75ef3af578c252e987b8fa5116ec71e",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/forest-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "二号碎石道",
+      "地图名称": "二号碎石道",
+      "地图ID": "stoneRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/stone-route.png",
+      "内容哈希": "ac6ccc940c2451bc7f6d98aa4c28e385ac8d4f8c58283361f00d1a823180e667",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/stoneRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "旧矿山",
+      "地图名称": "石脊旧矿山",
+      "地图ID": "mine",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/old-mine.png",
+      "内容哈希": "23aa4b2c010b09ca30be38cdb051808d6212f7f5642286e0038818dcc497cf38",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/mine-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "三号矿港道",
+      "地图名称": "三号矿港道",
+      "地图ID": "coastRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/coast-route.png",
+      "内容哈希": "cf6ab66405964d5b48c678ab9a2ab2039df606048597ceb8b0fdaf5d6929fc24",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/coastRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "潮间闸与旧灯塔",
+      "地图名称": "潮间闸与旧灯塔",
+      "地图ID": "tideworks",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/tideworks-v2.png",
+      "内容哈希": "789ae836fad54dd4297260fc56aa9df99a7b56bb59d5d11ecd947489dd707d75",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/tideworks-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "星核调度庭",
+      "地图名称": "星核调度庭",
+      "地图ID": "starCore",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/starCore.png",
+      "内容哈希": "211903facee47b6a9870d8b8842def05cff3a88f43953e8dc47731aa25e5b922",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["reactor", "generator", "cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/starCore-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "四号滨海栈道",
+      "地图名称": "四号滨海栈道",
+      "地图ID": "powerRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/powerRoute.png",
+      "内容哈希": "5b33402116542ca8d336ae8f990c21e49f2507d3e9b2e293fd7baece06c28012",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/powerRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "E-04 能源站",
+      "地图名称": "E-04 能源站",
+      "地图ID": "powerStation",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/powerStation.png",
+      "内容哈希": "d6e0de24ccfd1dc5776fdf01cecb459c379378e244bb78826c77a6f5a941974a",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["generator"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/powerStation-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "星苔联盟",
+      "地图名称": "星苔联盟",
+      "地图ID": "league",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/league.png",
+      "内容哈希": "e4f35f84c50f5a5eadd9f5bafc9ad1a15056d70de061d3542c5ea7c5f596fdce",
+      "同一版本图片引用": true,
+      "画风处理": "沿用参考图的建筑风格，补绘林木或岩岸及水体",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/league-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "幽苔保育林",
+      "地图名称": "幽苔保育林",
+      "地图ID": "deepwood",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/deepwood.png",
+      "内容哈希": "c6fc40ee8a7424d9d87d3bb27f140e43fe9f08efd59dd25f4c586242788b71c1",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/deepwood-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "回声原野",
+      "地图名称": "回声原野",
+      "地图ID": "echoMeadow",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/echoMeadow.png",
+      "内容哈希": "51edad5a5ec3193e890d099d2d73bbf208c57aa04fcb126acdee805309cc5a06",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/echoMeadow-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "回声深矿",
+      "地图名称": "回声深矿",
+      "地图ID": "mineDepths",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/mineDepths.png",
+      "内容哈希": "def7c89eac9270108f7bfe6a841e00dbd36df3306d6c91266a380758bd55a6e5",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/mineDepths-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "回潮海藻湾",
+      "地图名称": "回潮海藻湾",
+      "地图ID": "kelpCove",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/kelpCove.png",
+      "内容哈希": "c3008aa798d1883ca1f0bf0692922d63676d3f271f826571799d09ca55d37300",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/kelpCove-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "十一号冠军路",
+      "地图名称": "十一号冠军路",
+      "地图ID": "championRoad",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/championRoad.png",
+      "内容哈希": "d95f5ea1821b95d3e780aacd6747f4154f45a7f21f16c52d103b0e50f501b9d3",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/championRoad-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "联盟五重回廊",
+      "地图名称": "联盟五重回廊",
+      "地图ID": "leagueHall",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/leagueHall.png",
+      "内容哈希": "9f48b8926ddf60bf5965c48591dc56221ae0a138d9d4e769368b06e89d54dd7c",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/leagueHall-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "星苔冠军名录",
+      "地图名称": "星苔冠军名录",
+      "地图ID": "hallOfFame",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/hallOfFame.png",
+      "内容哈希": "c777574968bb724c8814d899ca325fbbbe10935e80d8f16f76940b3939d27383",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["shelves"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/hallOfFame-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "五号回风山道",
+      "地图名称": "五号回风山道",
+      "地图ID": "windRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/windRoute.png",
+      "内容哈希": "617f4f497872a79537b9977dc4818a0a970bf2b392e897751d344e43bb041978",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/windRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "山脊气象站",
+      "地图名称": "山脊气象站",
+      "地图ID": "windObservatory",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/windObservatory.png",
+      "内容哈希": "335279cf7f7e2d77fffda38666b61e410c5fb57c4f442feda068d07d81be6357",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["observatory"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/windObservatory-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "断风岭保护地",
+      "地图名称": "断风岭保护地",
+      "地图ID": "windSanctuary",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/windSanctuary.png",
+      "内容哈希": "5eb92230e6146164c26380d6fda5da88acea780a5f03d1ca31d8cd76b193bdd3",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/windSanctuary-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "六号熔脊回廊",
+      "地图名称": "六号熔脊回廊",
+      "地图ID": "furnaceRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/furnaceRoute.png",
+      "内容哈希": "a2b2f1d60137ab20931ca797e2befd3c914235ad53de1445c75a73a5bce36dfa",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/furnaceRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "熔炉校准站",
+      "地图名称": "熔炉校准站",
+      "地图ID": "foundry",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/foundry.png",
+      "内容哈希": "9ca3934a6096261e9540befaadbe74b755cf35bc6e079ed29fcb190d1be4193a",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["kiln"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/foundry-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "温泉冷石谷",
+      "地图名称": "温泉冷石谷",
+      "地图ID": "hotSprings",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/hotSprings.png",
+      "内容哈希": "7769e870cf49af061499d884613f409d82d3328998e2e504a975f1a9737c9e42",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["rocks"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/hotSprings-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "九号镜河路",
+      "地图名称": "九号镜河路",
+      "地图ID": "lakeRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/lakeRoute.png",
+      "内容哈希": "e2c9818160949de643838153eb9485d478998d4e670bbda68c00bc7b23c6239b",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/lakeRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "镜湖公开档案馆",
+      "地图名称": "镜湖公开档案馆",
+      "地图ID": "mirrorArchive",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/mirrorArchive.png",
+      "内容哈希": "918fb06a2e26a039717702685df15f385a7c2bda53cad532a86d41f3a640a205",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["shelves"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/mirrorArchive-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "回镜遗庭",
+      "地图名称": "回镜遗庭",
+      "地图ID": "mirrorRuins",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/mirrorRuins.png",
+      "内容哈希": "f847b944d70d55dd9baa4d3184cd62ed94b3885330b73276d2059c778d382b2a",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/mirrorRuins-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "十号星辉环道",
+      "地图名称": "十号星辉环道",
+      "地图ID": "starRoute",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/starRoute.png",
+      "内容哈希": "cbd6cab93f13dd3c2b8259b88c07d0ba6c4be5e03cdbb8ab58fde8c2593b40b0",
+      "同一版本图片引用": true,
+      "画风处理": "连续水岸、林木或岩簇；遗迹使用石作插画",
+      "场景物件": ["grove"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/starRoute-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "双衡古庙",
+      "地图名称": "双衡古庙",
+      "地图ID": "ancientTemple",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/ancientTemple.png",
+      "内容哈希": "178f6d2c6d929c4b163d46a52fdc886e22028d06757d777ec70c1a21adbdddea",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/ancientTemple-菜单核对.jpg"
+    },
+    {
+      "菜单地点": "终宵厅",
+      "地图名称": "终宵厅",
+      "地图ID": "nightHall",
+      "缩略图已核对": true,
+      "放大图已核对": true,
+      "资源": "assets/maps/illustrated/nightHall.png",
+      "内容哈希": "62c1f2f549416a1909c99ec95a8039d06cbc43d4c6375f0476e4d64f3fa6fdd2",
+      "同一版本图片引用": true,
+      "画风处理": "连续地坪、墙体及实物插画；删除旧室内徽记模板",
+      "场景物件": ["cloister"],
+      "浏览器验收截图": "/Users/shenzhihao/.codex/visualizations/2026/10/17/01a14553-ff5d-7770-8852-b4d2fea7f67e/地图插画/nightHall-菜单核对.jpg"
+    }
+  ],
+  "建筑室内资源": [
+    {
+      "地图ID": "interior_dawn_3_2",
+      "名称": "旅人的家",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_15_2",
+      "名称": "岚博士研究所",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_bakery",
+      "名称": "麦芽面包房",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_workshop",
+      "名称": "种籽手作屋",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_3_9",
+      "名称": "晨芽镇精灵中心",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_library",
+      "名称": "晨光绘本馆",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_guild",
+      "名称": "新叶旅人会馆",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_teahouse",
+      "名称": "花蜜茶舍",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_dawn_greenhouse",
+      "名称": "育苗玻璃房",
+      "所属地区": "dawn",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_3_2",
+      "名称": "苔丘镇精灵中心",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_bakery",
+      "名称": "榛果烘焙屋",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_workshop",
+      "名称": "藤编工坊",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_3_8",
+      "名称": "苔丘镇补给商店",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_15_8",
+      "名称": "森林研究室",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_library",
+      "名称": "护林书屋",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_guild",
+      "名称": "巡林会馆",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_teahouse",
+      "名称": "苔香茶室",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_moss_greenhouse",
+      "名称": "蕨叶温室",
+      "所属地区": "moss",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_3_2",
+      "名称": "石脊城精灵中心",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_bakery",
+      "名称": "炉石面包铺",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_workshop",
+      "名称": "石雕工坊",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_4_9",
+      "名称": "石脊城补给商店",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_18_10",
+      "名称": "矿工之家",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_library",
+      "名称": "山城地质馆",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_guild",
+      "名称": "矿队会馆",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_teahouse",
+      "名称": "岩泉茶舍",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_stone_greenhouse",
+      "名称": "高山育苗房",
+      "所属地区": "stone",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_2_2",
+      "名称": "潮汐港精灵中心",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_bakery",
+      "名称": "海盐烘焙坊",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_workshop",
+      "名称": "帆具修造所",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_28_7",
+      "名称": "港口仓库",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_4_10",
+      "名称": "潮汐港补给商店",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_13_10",
+      "名称": "港务所",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_library",
+      "名称": "旧航季书馆",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_guild",
+      "名称": "水手会馆",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_2_18",
+      "名称": "青帆的家",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_teahouse",
+      "名称": "贝壳茶屋",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_harbor_greenhouse",
+      "名称": "滨海育苗室",
+      "所属地区": "harbor",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_tideworks_2_2",
+      "名称": "旧灯塔检修室",
+      "所属地区": "tideworks",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_2_2",
+      "名称": "星苔联盟精灵中心",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_13_2",
+      "名称": "星苔联盟接待大厅",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior-lobby.png",
+      "内容哈希": "b152512d6ea6cbb3b64331eec4ad37c258de5d25bea304aef10027f87a1a5e37",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_bakery",
+      "名称": "金穗烘焙坊",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_workshop",
+      "名称": "徽章拓印坊",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_2_12",
+      "名称": "星苔联盟补给商店",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_library",
+      "名称": "巡礼纪事馆",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_guild",
+      "名称": "同行者会馆",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_29_22",
+      "名称": "星苔联盟民居",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_teahouse",
+      "名称": "凯旋茶室",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_league_greenhouse",
+      "名称": "四季花温室",
+      "所属地区": "league",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_2_2",
+      "名称": "雷鸣市精灵中心",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_bakery",
+      "名称": "铜炉烘焙坊",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_workshop",
+      "名称": "钟表修理铺",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_19_10",
+      "名称": "电桥事务所",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_3_11",
+      "名称": "雷鸣市补给商店",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_library",
+      "名称": "城市电史馆",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_guild",
+      "名称": "夜班会馆",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_29_19",
+      "名称": "值班员休息室",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_teahouse",
+      "名称": "暖灯茶室",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_volt_greenhouse",
+      "名称": "光合作物房",
+      "所属地区": "volt",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_3_2",
+      "名称": "风栖镇精灵中心",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_bakery",
+      "名称": "云麦烘焙坊",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_workshop",
+      "名称": "风铃作坊",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_3_12",
+      "名称": "风栖镇补给商店",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_7_12",
+      "名称": "风栖镇补给商店",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_library",
+      "名称": "候鸟书馆",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_guild",
+      "名称": "山邮会馆",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_22_19",
+      "名称": "气象员的家",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_2_22",
+      "名称": "风筝工坊",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_teahouse",
+      "名称": "云影茶舍",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_wind_greenhouse",
+      "名称": "雪绒育苗房",
+      "所属地区": "wind",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_2_2",
+      "名称": "炉心城精灵中心",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_bakery",
+      "名称": "余温烘焙坊",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_workshop",
+      "名称": "赤陶工坊",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_2_12",
+      "名称": "炉心城补给商店",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_6_12",
+      "名称": "炉心城补给商店",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_library",
+      "名称": "窑火记忆馆",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_guild",
+      "名称": "工匠会馆",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_24_21",
+      "名称": "温泉休息所",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_3_23",
+      "名称": "工匠之家",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_teahouse",
+      "名称": "暖泉茶屋",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_furnace_greenhouse",
+      "名称": "耐热花温室",
+      "所属地区": "furnace",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_2_2",
+      "名称": "镜湖镇精灵中心",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_bakery",
+      "名称": "莲香面包房",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_workshop",
+      "名称": "水彩装帧坊",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_2_12",
+      "名称": "镜湖镇补给商店",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_6_12",
+      "名称": "镜湖镇补给商店",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_library",
+      "名称": "湖岸诗书馆",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_guild",
+      "名称": "渡湖会馆",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_11_22",
+      "名称": "湖岸画室",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_25_22",
+      "名称": "拓片研究室",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_teahouse",
+      "名称": "涟漪茶室",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_lake_greenhouse",
+      "名称": "睡莲玻璃房",
+      "所属地区": "lake",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_3_2",
+      "名称": "星岚城精灵中心",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior-center.png",
+      "内容哈希": "da984cd022650d4880fc2e6da9560b16bb56546a65c3182c96478477f9820afe",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_bakery",
+      "名称": "星麦烘焙房",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_bakery.png",
+      "内容哈希": "6e4886c82112398951609c9c4ee4f30bc283e44e11b55c63fe03884e73a5b533",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_workshop",
+      "名称": "铜星刻印坊",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_workshop.png",
+      "内容哈希": "ed819cf66648366d2b6da0bd4883c5d11ea04aef7182c2f21d65ca82137d5e24",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_3_12",
+      "名称": "星岚城补给商店",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior-shop.png",
+      "内容哈希": "3dbcb86cc490db92a16073e4fe61932f5cecd395d30365cd3abd4c1df97e74e3",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_library",
+      "名称": "双衡公共书馆",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_library.png",
+      "内容哈希": "5bc4e43983a98c1f2533cffb606f717cf0d0a29e003d6458038034efa34cb238",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_guild",
+      "名称": "星桥会馆",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_guild.png",
+      "内容哈希": "33fb072f2b58573a849e832ffc428fc8299b098675ba4bd3b247b8fe339576f5",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_26_22",
+      "名称": "星岚城民居",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_4_24",
+      "名称": "星岚城民居",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior-home.png",
+      "内容哈希": "57ebc65329241bd6801d2cfc0ed0a254a589a23f8f34db894c0ee28a72c80bcd",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_teahouse",
+      "名称": "星砂茶舍",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_teahouse.png",
+      "内容哈希": "fabd9b414426e20acb13587616bf6dbf42217d032e28ff13f18c9a31ce69eb8c",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    },
+    {
+      "地图ID": "interior_star_greenhouse",
+      "名称": "夜光植园",
+      "所属地区": "star",
+      "资源": "assets/maps/illustrated/interior_dawn_greenhouse.png",
+      "内容哈希": "2fd1b5f0a52a6f2a474a2513c231f64069c437af814f828ab351a9d9f978f4c9",
+      "核对方式": "资源、尺寸、哈希检查；并按共用室内图片检查画面"
+    }
+  ]
+}

@@ -1,9 +1,18 @@
 import { illustratedBattleDetails, illustratedPine, illustratedSceneDetails } from './details';
+import {
+  architecturalFixtures,
+  architecturalFloor,
+  hasArchitecturalScene,
+  landscapeFixtures,
+  landscapeCoveredCells,
+  illustratedWaterDepth,
+} from './architecture';
 import { MAPS, mapSize } from '../world';
 import { battleTheme, type BattleTheme } from '../battleScenes';
 import { isIndoor } from '../../game/environment';
 import { sceneInk as c } from '../sceneArt';
 import type { MapId } from '../../game/model';
+import { sceneSpriteDefinitions, type SceneSpriteSources } from './sprites';
 import type { BuildingEntrance } from '../buildings';
 import { streetLampAnchors, type CityScenery } from '../cityDistricts';
 
@@ -676,7 +685,7 @@ function cityScenery(prop: CityScenery, theme: BattleTheme) {
 }
 
 /** Every path, shore, building and exit is authored from the final playable grid. */
-export function illustratedMap(map: MapId) {
+export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
   const data = MAPS[map],
     { rows } = data,
     { width, height } = mapSize(map);
@@ -684,6 +693,8 @@ export function illustratedMap(map: MapId) {
     p = themes[theme],
     room = data.interior?.kind,
     indoor = isIndoor(map);
+  const architectural = hasArchitecturalScene(map);
+  const landscapeCells = landscapeCoveredCells(map);
   const cave = ['mine', 'mineDepths'].includes(map);
   const forest = ['forest', 'deepwood', 'gym'].includes(map);
   const floor = room
@@ -764,6 +775,7 @@ export function illustratedMap(map: MapId) {
       p.road,
       `fill-rule="evenodd" stroke="${p.edge}" stroke-width="1.1"`,
     );
+  art += architecturalFloor(map);
   art += path(
     contour(rows, (t) => t === '~' || t === 'W', 12),
     p.water,
@@ -840,7 +852,20 @@ export function illustratedMap(map: MapId) {
           'stroke="#9e8668" stroke-width=".8"',
         );
       }
-      if (tile === 'g')
+      if (tile === 'g' && cave) {
+        for (let i = 0; i < 3; i++) {
+          const gx = xx + 5 + i * 9,
+            gy = yy + 13 + ((i + n) % 2) * 11;
+          art +=
+            path(`M${gx},${gy}v-6`, 'none', 'stroke="#ddd2b3" stroke-width="2.2"') +
+            path(
+              `M${gx - 5},${gy - 5}q1-10 7-7l3 7Z`,
+              i % 2 ? '#a6bab2' : '#c4b49c',
+              'stroke="#998e77" stroke-width=".7"',
+            );
+        }
+      }
+      if (tile === 'g' && !cave)
         for (let i = 0; i < 3; i++) {
           const gx = xx + 5 + i * 10,
             gy = yy + 12 + ((i + n) % 2) * 13;
@@ -855,13 +880,13 @@ export function illustratedMap(map: MapId) {
           art += flower(xx + 7 + i * 9, yy + 9 + ((i + n) % 2) * 13, n + i);
       if (tile === 'T')
         art += `<g transform="translate(${xx - 1},${yy - 8}) scale(1.05,1.3)">${tree(0, 0, n, false)}</g>`;
-      if (tile === '~' || tile === 'W')
+      if ((tile === '~' || tile === 'W') && room)
         art += path(
           `M${xx + 5},${yy + 12}q4,2 9,0m4,10h6`,
           'none',
           'stroke="#edf3df" stroke-width="1.3" stroke-linecap="round"',
         );
-      if (tile === 'L')
+      if (tile === 'L' && room)
         art += path(
           `M${xx + 3},${yy + 10}q12,8 25,1m-20,12 13,-1`,
           'none',
@@ -872,7 +897,7 @@ export function illustratedMap(map: MapId) {
         art +=
           rect(xx + 2, yy + 1, 28, 30, '#d8c193', 'rx="3"') +
           path(`M${xx + 10},${yy + 13}l6,6 6,-6`, 'none', `stroke="${c.paper}" stroke-width="2"`);
-      if (tile === '#') {
+      if (tile === '#' && !architectural && !landscapeCells.has(`${x},${y}`)) {
         if (room || (indoor && !cave && !forest)) {
           art += rect(xx, yy, 32, 32, room ? '#c7bba2' : p.wall);
           if (rows[y + 1]?.[x] !== '#') art += rect(xx, yy + 27, 32, 5, '#9c8d72', 'rx="1"');
@@ -891,10 +916,18 @@ export function illustratedMap(map: MapId) {
       }
     }),
   );
-  if (!data.interior) art += illustratedSceneDetails(map);
+  if (!data.interior) {
+    art += illustratedWaterDepth(
+      map,
+      contour(rows, (t) => '~WL'.includes(t), 12),
+    );
+    art += architectural
+      ? architecturalFixtures(map, sources)
+      : illustratedSceneDetails(map) + landscapeFixtures(map, sources);
+  }
   for (const prop of data.scenery ?? []) art += cityScenery(prop, theme);
   for (const entrance of data.entrances ?? []) art += building(entrance, theme);
-  return svg(width, height, art);
+  return svg(width, height, sceneSpriteDefinitions(sources, art) + art);
 }
 
 /** Backgrounds retain the shared participant anchors and use region-specific silhouettes. */

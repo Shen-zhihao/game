@@ -377,6 +377,7 @@ export function RegionMenu({ game }: { game: GameState }) {
         )}
         {(!narrow || showDetails) && (
           <ScrollView
+            key={place.id}
             testID="region-place-details"
             style={[s.detail, narrow && { width: '100%', maxWidth: undefined, minWidth: 0 }]}
             contentContainerStyle={{ gap: 9, paddingBottom: 16 }}

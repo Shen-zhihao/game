@@ -134,76 +134,12 @@ function regionalDetails(map: MapId) {
   const data = MAPS[map],
     theme = battleTheme(map),
     indoor = isIndoor(map);
-  const cave = map === 'mine' || map === 'mineDepths';
   let art = '';
   data.rows.forEach((row, y) =>
     [...row].forEach((tile, x) => {
       const xx = x * 32,
         yy = y * 32,
         n = (x * 17 + y * 29) % 19;
-      if (indoor && tile === '#' && data.rows[y + 1]?.[x] !== '#') {
-        if (cave) {
-          if (n % 3 === 0)
-            art += `<g transform="translate(${xx + 16},${yy + 15})">${path('M-9 8-6-6 0-11 4 0 9-4 11 8Z', map === 'mineDepths' ? '#b4ccca' : '#d9c397')}${path('M0-10V8m-6-14L0 0l4 0', 'none', 'stroke="#f1e8d0"')}</g>`;
-          if (n % 7 === 0)
-            art +=
-              rect(xx + 1, yy + 4, 5, 27, '#b59b79', 1) +
-              path(`M${xx + 3} ${yy + 4}h27`, 'none', 'stroke="#b59b79" stroke-width="5"') +
-              rect(xx + 19, yy + 11, 8, 11, '#e5c58d', 2);
-        } else if (x % 4 === 1) {
-          art += `<g transform="translate(${xx + 16},${yy + 15})">${path('M-11-10h22V9l-11 6-11-6Z', ['#c8d2b8', '#ddc5a8', '#bfcfca'][n % 3]!)}${emblem(theme, 7)}</g>`;
-        }
-      }
-      if (
-        indoor &&
-        tile === '#' &&
-        data.rows[y + 1]?.[x] !== '#' &&
-        !cave &&
-        map !== 'gym' &&
-        y > 0 &&
-        x > 0 &&
-        x < row.length - 1 &&
-        x % 5 === 2
-      ) {
-        const kind =
-          map === 'mirrorArchive'
-            ? 'archive'
-            : theme === 'electric'
-              ? 'power'
-              : theme === 'furnace'
-                ? 'forge'
-                : map === 'windObservatory'
-                  ? 'weather'
-                  : theme === 'star'
-                    ? 'star'
-                    : 'column';
-        art += `<g transform="translate(${xx + 2},${yy + 1})">${installation(kind, 28, 30)}</g>`;
-      }
-      // Larger, thematic floor mosaics require an entirely clear 3 × 3 area.
-      if (
-        indoor &&
-        !data.interior &&
-        x % 10 === 5 &&
-        y % 8 === 4 &&
-        [-1, 0, 1].every((dy) =>
-          [-1, 0, 1].every((dx) => ':.'.includes(data.rows[y + dy]?.[x + dx] ?? ' ')),
-        )
-      ) {
-        art += `<g transform="translate(${xx + 16},${yy + 16})" opacity=".52">${ellipse(0, 0, 39, 28, '#f5ecd5')}${ellipse(0, 0, 34, 23, 'none')}${emblem(theme, 19)}</g>`;
-      }
-      if (cave && tile === ':' && data.rows[y]?.[x - 1] === ':' && data.rows[y]?.[x + 1] === ':') {
-        // Embedded rail tracks are walkable floor markings, without loose carts or blockers.
-        art += path(
-          `M${xx} ${yy + 10}h32m-32 12h32`,
-          'none',
-          'stroke="#a49274" stroke-width="1.6"',
-        );
-        art += path(
-          `M${xx + 8} ${yy + 6}v20m16-20v20`,
-          'none',
-          'stroke="#baa385" stroke-width="2"',
-        );
-      }
       if (!indoor && tile === '.' && n < 2) {
         const tint =
           theme === 'wind'
@@ -344,70 +280,6 @@ export function illustratedSceneDetails(map: MapId) {
       art += `<g transform="translate(${x},17)">${rect(-21, -12, 42, 24, '#f2e5c9', 3)}${emblem(theme, 9)}</g>`;
     return art;
   }
-  if (indoor && map !== 'gym' && map !== 'mine' && map !== 'mineDepths') {
-    // Connected islands touching the rim are walls. Freestanding blocks become real installations.
-    const seen = new Set<string>();
-    rows.forEach((row, y) =>
-      [...row].forEach((tile, x) => {
-        if (tile !== '#' || seen.has(`${x},${y}`)) return;
-        const stack: [[number, number]] | [number, number][] = [[x, y]],
-          cells: [number, number][] = [];
-        while (stack.length) {
-          const [xx, yy] = stack.pop()!,
-            key = `${xx},${yy}`;
-          if (seen.has(key) || rows[yy]?.[xx] !== '#') continue;
-          seen.add(key);
-          cells.push([xx, yy]);
-          stack.push([xx - 1, yy], [xx + 1, yy], [xx, yy - 1], [xx, yy + 1]);
-        }
-        if (
-          cells.some(
-            ([xx, yy]) => xx === 0 || yy === 0 || xx === row.length - 1 || yy === rows.length - 1,
-          )
-        )
-          return;
-        const left = Math.min(...cells.map((c) => c[0])),
-          right = Math.max(...cells.map((c) => c[0]));
-        const top = Math.min(...cells.map((c) => c[1])),
-          bottom = Math.max(...cells.map((c) => c[1]));
-        // Irregular and hollow ruin walls keep their masonry instead of covering the interior court.
-        if (cells.length !== (right - left + 1) * (bottom - top + 1) || cells.length < 4) return;
-        const w = (right - left + 1) * 32,
-          h = (bottom - top + 1) * 32;
-        const kind =
-          map === 'mirrorArchive'
-            ? 'archive'
-            : theme === 'electric'
-              ? 'power'
-              : theme === 'furnace'
-                ? 'forge'
-                : map === 'windObservatory'
-                  ? 'weather'
-                  : theme === 'star'
-                    ? 'star'
-                    : 'column';
-        for (let yy = 0; yy < h; yy += 96)
-          art += `<g transform="translate(${left * 32 + 4},${top * 32 + yy + 3})">${installation(kind, w - 8, Math.min(96, h - yy) - 6)}</g>`;
-      }),
-    );
-    // Subtle floor inlay distinguishes arenas and halls while keeping every path visible.
-    for (let y = 3; y < rows.length - 3; y += 7)
-      for (let x = 4; x < rows[0]!.length - 4; x += 9) {
-        if (
-          ![-1, 0, 1].every((dy) =>
-            [-1, 0, 1].every((dx) => ':.'.includes(rows[y + dy]?.[x + dx] ?? ' ')),
-          )
-        )
-          continue;
-        const xx = x * 32 + 16,
-          yy = y * 32 + 16;
-        art += `<g opacity=".32">${ellipse(xx, yy, 32, 22, 'none')}${path(`M${xx - 22} ${yy}h44m-22-16v32`, 'none')}</g>`;
-      }
-    if (map === 'hallOfFame' || map === 'leagueHall')
-      for (let x = 3; x < rows[0]!.length - 3; x += 4) {
-        art += `<g transform="translate(${x * 32},2)">${rect(3, 3, 26, 21, '#e6cf99')}${path('M9 7h14v6q-7 11-14 0Z', '#f7e3aa')}${path('M16 19v5m-5 0h10')}</g>`;
-      }
-  }
   // Shores use the same restrained ink, low reeds and petal shapes as the supplied screenshot.
   rows.forEach((row, y) =>
     [...row].forEach((tile, x) => {
@@ -417,17 +289,6 @@ export function illustratedSceneDetails(map: MapId) {
       if ((tile === '~' || tile === 'W') && !indoor && n < 5) {
         art += ellipse(xx + 13, yy + 19, 8, 3, '#aebf98');
         if (n === 0) art += path(`M${xx + 13} ${yy + 18}q-10-9 0-15 10 6 0 15Z`, '#e2bfb2');
-      }
-      if (
-        tile === '#' &&
-        indoor &&
-        map !== 'mine' &&
-        map !== 'mineDepths' &&
-        n % 5 === 0 &&
-        rows[y + 1]?.[x] !== '#'
-      ) {
-        art += rect(xx + 7, yy + 9, 18, 15, '#d9d5bb', 3);
-        art += path(`M${xx + 12} ${yy + 15}l4-3 4 3-4 4Z`, '#e9ddbc');
       }
     }),
   );

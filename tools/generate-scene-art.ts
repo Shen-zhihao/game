@@ -7,7 +7,18 @@ import { ILLUSTRATED_MAPS } from '../src/content/sceneArt';
 import { illustratedBattle, illustratedMap } from '../src/content/sceneIllustrations';
 import type { BattleTheme } from '../src/content/battleScenes';
 import type { MapId } from '../src/game/model';
+import {
+  SCENE_SPRITE_FILES,
+  type SceneSpriteSources,
+} from '../src/content/sceneIllustrations/sprites';
 import { compressPng, PNG_COMPRESSION } from './png-compression';
+
+const spriteSources = Object.fromEntries(
+  Object.entries(SCENE_SPRITE_FILES).map(([kind, file]) => [
+    kind,
+    `data:image/png;base64,${readFileSync(file).toString('base64')}`,
+  ]),
+) as SceneSpriteSources;
 
 const originals: Partial<Record<MapId, string>> = {
   dawn: 'dawn-expanded.png',
@@ -27,11 +38,20 @@ const originals: Partial<Record<MapId, string>> = {
 mkdirSync('assets/maps/illustrated', { recursive: true });
 const files = new Map<MapId, string>();
 const imageDigests = new Map<string, string>();
+const imagePropSources = new Map<string, string[]>();
 const roomImages = new Map<string, string>();
 const reservedRoomNames = new Set<string>();
 for (const map of ILLUSTRATED_MAPS) {
   if (!MAPS[map]) throw new Error(`不存在的插画地图：${map}`);
-  const png = new Resvg(illustratedMap(map), {
+  const illustration = illustratedMap(map, spriteSources);
+  const propFiles = [
+    ...new Set(
+      [...illustration.matchAll(/data-scene-sprite="([a-z]+)"/g)].map(
+        (match) => SCENE_SPRITE_FILES[match[1] as keyof typeof SCENE_SPRITE_FILES],
+      ),
+    ),
+  ];
+  const png = new Resvg(illustration, {
     fitTo: { mode: 'width', value: mapSize(map).width * 2 },
   })
     .render()
@@ -54,6 +74,7 @@ for (const map of ILLUSTRATED_MAPS) {
   }
   const compressed = compressPng(png);
   writeFileSync(`assets/maps/${file}`, compressed);
+  imagePropSources.set(file, propFiles);
   imageDigests.set(file, createHash('sha256').update(compressed).digest('hex'));
   files.set(map, file);
 }
@@ -69,7 +90,8 @@ writeFileSync(
 );
 const provenancePath = 'docs/美术资源/美术来源.json';
 const provenance = JSON.parse(readFileSync(provenancePath, 'utf8'));
-const generator = 'code-native SVG + @resvg/resvg-js';
+const vectorGenerator = 'code-native SVG + @resvg/resvg-js';
+const propGenerator = 'illustrated scene props + code-native SVG + @resvg/resvg-js';
 const sceneRecords = [
   ...[...new Set(files.values())].map((file) => {
     const mapIds = [...files].filter(([, image]) => image === file).map(([map]) => map);
@@ -77,6 +99,9 @@ const sceneRecords = [
     return {
       file: `assets/maps/${file}`,
       mapIds,
+      ...((imagePropSources.get(file)?.length ?? 0) > 0
+        ? { scenePropSources: imagePropSources.get(file)! }
+        : {}),
       usage:
         mapIds.length > 1
           ? `${mapIds.length}个相同室内共用的插画；各自NPC、入口和存档地图ID保持独立。`
@@ -127,6 +152,7 @@ for (const record of sceneRecords) {
     (asset: { file: string }) => asset.file === record.file,
   );
   const previous = provenance.assets[index];
+  const generator = 'scenePropSources' in record ? propGenerator : vectorGenerator;
   const updated = {
     ...record,
     sourceGenerator: generator,
@@ -149,7 +175,7 @@ for (const record of sceneRecords) {
 if (changedProvenance) {
   provenance.version += 1;
   provenance.date = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
-  provenance.sceneStyle = `全部${files.size}张地图与${Object.keys(BATTLE_SCENES).length}套战斗背景统一使用参考截图的奶油纸色、低饱和青绿、柔和棕色描边与圆润造型；城市包含扩建街区、地域地标及不同用途的室内，后续地图补充同风格的设备、书柜、窑炉、观测仪与遗迹雕饰，相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。`;
+  provenance.sceneStyle = `全部${files.size}张地图与${Object.keys(BATTLE_SCENES).length}套战斗背景统一使用参考截图的奶油纸色、低饱和青绿、柔和棕色描边与圆润造型；城市包含扩建街区、地域地标及不同用途的室内，后段场景以新绘制的玻璃铜管设备、变压器、书柜、窑炉、望远镜、温室、石拱、岩簇及林木替换重复徽记，地面、墙体和水岸按连续材质绘制，相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。`;
   writeFileSync(provenancePath, `${JSON.stringify(provenance, null, 2)}\n`);
 }
 console.log(
