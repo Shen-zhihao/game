@@ -1,3 +1,10 @@
+import { trainerTactic } from '../../content/trainerTactics';
+import {
+  chooseEnemyMove,
+  chooseEnemySwitch,
+  curateTrainerTeam,
+  recordEnemySupport,
+} from './strategy';
 import { coastEncounter } from '../coastStory';
 import { adventureEncounter } from '../../content/adventure';
 import { finishLeagueBattle } from '../league';
@@ -75,6 +82,8 @@ export function healParty(state: GameState): void {
 }
 function aiMove(state: GameState): number {
   const b = state.battle!;
+  if (b.kind === 'trainer' && (b.ruleChallenge || trainerTactic(b.event)))
+    return chooseEnemyMove(state);
   const enemy = b.enemies[b.enemyIndex]!;
   const player = state.creatures[b.playerId]!;
   let best = -1;
@@ -167,6 +176,7 @@ export function startBattle(
     enemies[0] = makeCreature(state, STARTERS[(Math.max(0, starter) + 1) % STARTERS.length]!, 5);
     enemies[0]!.moves = ['tackle', 'growl'].map((id) => ({ id, pp: MOVES[id]!.pp }));
   }
+  if (!wild) curateTrainerTeam(event, enemies);
   for (const c of enemies)
     if (!state.dex.seen.includes(c.speciesId)) state.dex.seen.push(c.speciesId);
   if (!wild && event !== 'rival')
@@ -203,6 +213,8 @@ export function startBattle(
     weather: { kind: weatherAt(state), ambient: weatherAt(state), turns: null },
     rewards: { defeated: [], experience: 0, money: 0, completion: false },
   };
+  const tactic = !wild ? trainerTactic(event) : null;
+  if (tactic) state.battle.logs.push(`对手战术：${tactic.name}。换人会消耗对手整轮行动。`);
   if (state.battle.weather!.kind !== 'clear')
     state.battle.logs.push(
       `场地天气：${WEATHER[state.battle.weather!.kind].name}。${WEATHER[state.battle.weather!.kind].battle}`,
@@ -217,6 +229,11 @@ function finish(state: GameState, result: Battle['result']): void {
   ensureRewards(b);
   b.phase = 'ended';
   b.result = result;
+  if (b.ruleChallenge) {
+    ensureRewards(b).completion = true;
+    b.logs.push(result === 'win' ? '规则挑战获胜！' : '本轮规则挑战结束。');
+    return;
+  }
   if (result === 'caught')
     distributeExperience(state, Math.floor(b.enemies[b.enemyIndex]!.level * 16));
   if (result === 'win' && b.event === 'openingRescue') {
@@ -358,6 +375,7 @@ function attack(
   const attackerStages = player ? b.playerStages : b.enemyStages;
   const defenderStages = player ? b.enemyStages : b.playerStages;
   if (slot) slot.pp -= 1;
+  if (!player) recordEnemySupport(b, move.id);
   const visual: BattleMoveEvent = {
     kind: 'move',
     logIndex: b.logs.length,
@@ -530,11 +548,12 @@ function resolveFaints(state: GameState): boolean {
   }
   if (enemy.hp <= 0) {
     b.logs.push(`${creatureName(enemy)}失去了战斗能力。`);
-    if (b.enemyIndex === b.enemies.length - 1) {
+    const replacement = b.enemies.findIndex((candidate) => candidate.hp > 0);
+    if (replacement < 0) {
       finish(state, 'win');
       return true;
     }
-    b.enemyIndex += 1;
+    b.enemyIndex = replacement;
     b.enemyStages = emptyStages();
     (b.visualEvents ??= []).push({
       kind: 'scene',
@@ -553,6 +572,8 @@ function resolveFaints(state: GameState): boolean {
 export function battleActionReason(state: GameState, action: BattleAction): string | null {
   const b = state.battle;
   if (!b || b.phase === 'ended') return '这场对战已经结束。';
+  if (b.ruleChallenge && action.kind !== 'move' && action.kind !== 'switch')
+    return '规则挑战仅可使用技能与切换伙伴。';
   if (b.event === 'openingRescue' && (action.kind === 'run' || action.kind === 'ball'))
     return '岚博士还在危险中，先用借来的伙伴把绒团鼠赶开！';
   if (
@@ -626,6 +647,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
         playerRemaining: pace.playerActions,
         enemyRemaining: pace.enemyActions,
         enemyFirst,
+        enemySwitchIndex: chooseEnemySwitch(state),
         immobility: {},
       };
     }
@@ -663,8 +685,42 @@ export function battleAction(state: GameState, action: BattleAction): void {
       }
     }
     const player = state.creatures[b.playerId]!;
-    const enemy = b.enemies[b.enemyIndex]!;
+    let enemy = b.enemies[b.enemyIndex]!;
     if (action.kind !== 'switch') b.logs = [];
+    const switchIndex = b.actionRound?.enemySwitchIndex;
+    if (switchIndex !== undefined) {
+      delete b.actionRound!.enemySwitchIndex;
+      const incoming = b.enemies[switchIndex];
+      if (incoming && incoming.hp > 0 && switchIndex !== b.enemyIndex) {
+        const outgoing = enemy;
+        b.logs.push(`${b.name}收回了${creatureName(outgoing)}，派出${creatureName(incoming)}！`);
+        const trait = abilityFor(outgoing);
+        if (outgoing.hp > 0 && trait.switchHeal && outgoing.hp < statsFor(outgoing).hp) {
+          const before = outgoing.hp;
+          outgoing.hp = Math.min(
+            statsFor(outgoing).hp,
+            outgoing.hp + Math.max(1, Math.floor(statsFor(outgoing).hp * trait.switchHeal)),
+          );
+          b.logs.push(
+            `${creatureName(outgoing)}的${trait.name}恢复了${outgoing.hp - before}点体力。`,
+          );
+        }
+        b.enemyIndex = switchIndex;
+        b.enemyStages = emptyStages();
+        b.aiTactics ??= { lastSwitchTurn: -10, switches: 0, lastSupportTurn: -10 };
+        b.aiTactics.lastSwitchTurn = b.turn;
+        b.aiTactics.switches++;
+        b.actionRound!.enemyRemaining = 0;
+        enemy = incoming;
+        triggerHeldItem(enemy, b.logs);
+        b.visualEvents.push({
+          kind: 'scene',
+          logIndex: b.logs.length - 1,
+          scene: battleScene(state),
+        });
+        b.aiMove = aiMove(state);
+      }
+    }
     if (action.kind === 'ball') {
       const ballId = action.ballId ?? 'ball';
       const scene = battleScene(state);

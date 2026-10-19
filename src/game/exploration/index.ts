@@ -3,6 +3,7 @@ import { Direction, ExplorationState, GameState, MapId } from '../model';
 import { encounterSiteAt, landEncounters } from '../../content/habitats';
 import { weightedEcology } from '../environment';
 import { ADVENTURE_FINDS } from '../../content/adventure';
+import { scheduledCityNpcs } from '../schedules';
 
 export const FIND_SITES: Partial<Record<MapId, [number, number][]>> = {
   ...ADVENTURE_FINDS,
@@ -144,7 +145,7 @@ export function worldNpcs(game: GameState, mapId = game.player.map): Npc[] {
         role: 'discovery',
       });
   }
-  return npcs;
+  return [...npcs, ...scheduledCityNpcs(game, mapId, npcs)];
 }
 function facing(dx: number, dy: number): Direction {
   return dx > 0 ? 'right' : dx < 0 ? 'left' : dy > 0 ? 'down' : 'up';

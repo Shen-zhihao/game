@@ -7,6 +7,7 @@ import { HELD_ITEMS } from '../../content/battleTraits';
 import { MAPS } from '../../content/world';
 import { npcInReach } from '../exploration';
 import type { GameState } from '../model';
+import { awardProductionMaterials } from '../production';
 import type { ActivityAction, ActivityRun } from './types';
 
 const DIRS = [
@@ -462,6 +463,8 @@ export function applyActivity(
     run.feedback = d.reward
       ? `完成了${d.title}！首次奖励可领取，重玩记录最佳步数。`
       : '机关接通了，地图上的通道已经打开。';
+    const materials = awardProductionMaterials(game, d.id);
+    if (materials) run.feedback += ` ${materials}`;
     game.notice = run.feedback;
   }
 }

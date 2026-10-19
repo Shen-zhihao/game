@@ -28,6 +28,7 @@ function canChallenge(game: GameState): boolean {
     !game.battle &&
     !game.pending.length &&
     !game.activities?.active &&
+    !game.challenge?.active &&
     !game.progress.flags.starterChoice &&
     game.party.some((id) => game.creatures[id]!.hp > 0)
   );

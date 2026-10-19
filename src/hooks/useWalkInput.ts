@@ -111,6 +111,12 @@ export function useWalkInput({
         }
         return;
       }
+      if (key === 'r' && !event.repeat && !input.current.blocked) {
+        event.preventDefault();
+        stop();
+        input.current.dispatch({ kind: 'setRunning', running: !input.current.game.player.running });
+        return;
+      }
       if (!event.repeat && ['enter', ' ', 'z'].includes(key)) {
         event.preventDefault();
         stop();

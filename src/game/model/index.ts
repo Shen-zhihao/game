@@ -277,6 +277,9 @@ export type BattleVisualEvent =
 export interface Battle {
   id: string;
   npcId?: string;
+  ruleChallenge?: boolean;
+  challengeSettled?: boolean;
+  aiTactics?: { lastSwitchTurn: number; switches: number; lastSupportTurn: number };
   kind: 'wild' | 'trainer';
   event: StoryEvent | null;
   name: string;
@@ -289,6 +292,7 @@ export interface Battle {
   aiMove: number;
   /** Locked for a round; each player command consumes one independently chosen action. */
   actionRound?: {
+    enemySwitchIndex?: number;
     playerTotal: number;
     enemyTotal: number;
     playerRemaining: number;
@@ -332,6 +336,8 @@ export interface ExplorationState {
   trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
+  production?: import('../production').ProductionState;
+  challenge?: import('../challenge').ChallengeLedger;
   activities?: import('../activities/types').ActivityLedger;
   cheats?: { redemptions: number; masterBallsGranted: number; masterBallsUsed: number };
   league?: {
@@ -362,6 +368,7 @@ export interface GameState {
     y: number;
     facing: Direction;
     healMap: TownId;
+    running?: boolean;
   };
   progress: { chapter: number; badges: number; flags: Record<string, boolean> };
   creatures: Record<string, Creature>;
@@ -389,6 +396,11 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'production'; action: import('../production').ProductionAction }
+  | { kind: 'rest'; target: 'morning' | 'night' }
+  | { kind: 'challenge'; action: import('../challenge').ChallengeAction }
+  | { kind: 'setRunning'; running: boolean }
+  | { kind: 'fastTravel'; town: TownId }
   | { kind: 'activity'; action: import('../activities/types').ActivityAction }
   | { kind: 'equip'; creatureId: string; itemId: string | null }
   | { kind: 'cheat'; code: string }

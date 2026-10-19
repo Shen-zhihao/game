@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import { ITEMS, SPECIES } from '../../content/catalog';
 import { habitatSite, SPECIES_HABITATS } from '../../content/habitats';
+import { dayNightHabitatHint } from '../../game/environment';
 import { Label, palette, Panel } from '../ui';
 
 export function HabitatDetails({ speciesId }: { speciesId: string }) {
@@ -20,6 +21,9 @@ export function HabitatDetails({ speciesId }: { speciesId: string }) {
         {profile.description}
       </Label>
       <Label style={{ fontSize: 12 }}>获得方式：{method}</Label>
+      <Label testID="habitat-day-night-hint" muted style={{ fontSize: 12 }}>
+        活动时段：{dayNightHabitatHint(speciesId)}
+      </Label>
       {!profile.obtainableNow && (
         <Label muted style={{ fontSize: 11 }}>
           该物种的获取内容尚未开放，以下为已安排的自然栖地。

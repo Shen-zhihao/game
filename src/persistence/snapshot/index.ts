@@ -1,3 +1,9 @@
+import { validateProduction } from '../../game/production';
+import {
+  PRODUCTION_MATERIALS,
+  PRODUCTION_PRODUCTS,
+  PRODUCTION_KEEPSAKES,
+} from '../../content/production';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { Buffer } from 'buffer';
 import { z } from 'zod';
@@ -259,6 +265,51 @@ const activityRunSchema = z.strictObject({
   feedback: z.string().max(500),
 });
 const gameSchema = z.strictObject({
+  challenge: z
+    .strictObject({
+      points: integer(999999),
+      best: integer(999999),
+      streak: integer(999999),
+      active: z
+        .strictObject({
+          selected: z.array(idSchema).length(3),
+          originalParty: z.array(idSchema).min(3).max(6),
+          originalBox: z.array(idSchema).max(360),
+          originals: z.record(idSchema, creatureSchema),
+        })
+        .nullable(),
+    })
+    .optional(),
+  production: z
+    .strictObject({
+      materials: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_MATERIALS) as [string, ...string[]]),
+        integer(999),
+      ),
+      products: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        integer(999),
+      ),
+      crafted: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        integer(999999),
+      ),
+      activityClaims: z.partialRecord(
+        z.enum(['activity_dawn', 'activity_stone', 'activity_harbor']),
+        z.strictObject({ day: integer(MAX_CALENDAR_DAY, 1), count: integer(999999, 1) }),
+      ),
+      orders: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        z.strictObject({ day: integer(MAX_CALENDAR_DAY, 1), count: integer(999999, 1) }),
+      ),
+      collection: z.strictObject({
+        stamps: integer(5999994),
+        keepsakes: z
+          .array(z.enum(PRODUCTION_KEEPSAKES.map((k) => k.id) as [string, ...string[]]))
+          .max(PRODUCTION_KEEPSAKES.length),
+      }),
+    })
+    .optional(),
   activities: z
     .strictObject({
       active: activityRunSchema.nullable(),
@@ -346,6 +397,7 @@ const gameSchema = z.strictObject({
   player: z.strictObject({
     name: z.string().min(1).max(12),
     avatar: integer(1),
+    running: z.boolean().optional(),
     money: integer(9999999),
     map: mapId,
     x: integer(255),
@@ -379,6 +431,15 @@ const gameSchema = z.strictObject({
       id: idSchema,
       kind: z.enum(['wild', 'trainer']),
       npcId: idSchema.optional(),
+      ruleChallenge: z.boolean().optional(),
+      challengeSettled: z.boolean().optional(),
+      aiTactics: z
+        .strictObject({
+          lastSwitchTurn: integer(100000, -100000),
+          switches: integer(100000),
+          lastSupportTurn: integer(100000, -100000),
+        })
+        .optional(),
       event: event.nullable(),
       name: z.string().max(40),
       enemies: z.array(creatureSchema).min(1).max(6),
@@ -390,6 +451,7 @@ const gameSchema = z.strictObject({
       aiMove: integer(3, -1),
       actionRound: z
         .strictObject({
+          enemySwitchIndex: integer(5).optional(),
           playerTotal: integer(3, 1),
           enemyTotal: integer(3, 1),
           playerRemaining: integer(3),
@@ -539,6 +601,7 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  invariant(!game.production || validateProduction(game.production, game), '城市生产记录无效');
   if (game.activities) {
     const ledger = game.activities;
     invariant(
@@ -654,6 +717,52 @@ export function validateGame(input: unknown): GameState {
     }
   };
   Object.values(game.creatures).forEach(checkCreature);
+  if (game.challenge) {
+    const challenge = game.challenge;
+    invariant(challenge.best >= challenge.streak, '挑战连胜记录无效');
+    const active = challenge.active;
+    if (active) {
+      const originalIds = [...active.originalParty, ...active.originalBox];
+      invariant(
+        game.progress.flags.champion &&
+          !game.league?.active &&
+          !game.activities?.active &&
+          !game.pending.length &&
+          !game.dialogue &&
+          active.selected.length === 3 &&
+          new Set(active.selected).size === 3 &&
+          active.selected.every(
+            (id, i) => game.party[i] === id && active.originalParty.includes(id),
+          ) &&
+          game.party.length === 3 &&
+          new Set(originalIds).size === originalIds.length &&
+          originalIds.length === Object.keys(game.creatures).length &&
+          originalIds.every((id) => !!game.creatures[id]) &&
+          Object.keys(active.originals).length === 3 &&
+          active.selected.every(
+            (id) =>
+              active.originals[id]?.id === id &&
+              active.originals[id]?.speciesId === game.creatures[id]?.speciesId &&
+              game.creatures[id]?.level === 50,
+          ),
+        '挑战队伍或还原记录无效',
+      );
+      Object.values(active.originals).forEach(checkCreature);
+      invariant(!game.battle || !!game.battle.ruleChallenge, '挑战期间不能进行普通战斗');
+    } else invariant(challenge.streak === 0, '退出挑战后连胜未重置');
+  }
+  if (game.battle?.ruleChallenge) {
+    invariant(
+      !!game.challenge?.active &&
+        game.battle.kind === 'trainer' &&
+        game.battle.event === null &&
+        game.battle.enemies.length === 3 &&
+        game.battle.enemies.every((c) => c.level === 50) &&
+        !game.battle.challengeSettled &&
+        (game.battle.result === null || ['win', 'lose'].includes(game.battle.result)),
+      '规则挑战战斗无效',
+    );
+  }
   invariant(
     Object.keys(game.inventory).every((id) => Object.hasOwn(ITEMS, id)),
     '未知道具',
@@ -1206,7 +1315,7 @@ export function validateGame(input: unknown): GameState {
       invariant(
         new Set(b.rewards.defeated).size === b.rewards.defeated.length &&
           b.rewards.defeated.every((id) => b.enemies.some((e) => e.id === id && e.hp === 0)) &&
-          b.enemies.slice(0, b.enemyIndex).every((e) => b.rewards!.defeated.includes(e.id)) &&
+          b.enemies.filter((e) => e.hp === 0).every((e) => b.rewards!.defeated.includes(e.id)) &&
           b.rewards.completion === (b.phase === 'ended'),
         '击败奖励结算记录无效',
       );

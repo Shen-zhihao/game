@@ -123,13 +123,13 @@ export function SettingsMenu({
         <SettingSection title="旅途与节奏" icon="map" wide={contentWidth >= 650}>
           <SettingToggle
             testID="settings-day-night"
-            title="白天黑夜循环"
+            title="昼夜光照效果"
             enabled={dayNightEnabled}
             onPress={() => setDayNightEnabled(!dayNightEnabled)}
           />
           <Label testID="day-night-setting-description" muted style={settingsStyles.description}>
-            白天、夜晚各约 30
-            分钟，午夜日期自动前进。夜晚露天场景变暗、建筑亮灯，战斗和室内保持正常亮度。关闭后保持白天亮度，日期仍会推进。
+            只调整画面亮度。开启后，夜晚露天场景变暗、建筑亮灯，战斗和室内保持正常亮度。
+            白天、夜晚各约 30 分钟，关闭光照效果不会暂停日历，也不会改变精灵昼夜分布或居民作息。
           </Label>
           <View style={settingsStyles.divider} />
           <Label testID="battle-playback-setting" style={{ fontWeight: '700', fontSize: 13 }}>
