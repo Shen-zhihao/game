@@ -29,9 +29,10 @@ export function equipItem(game: GameState, creatureId: string, itemId: string | 
 export function triggerHeldItem(c: Creature, logs: string[]) {
   const effect = heldEffect(c);
   if (!effect || c.hp <= 0) return;
-  if (effect.cureStatus && c.status) {
+  if (effect.cureStatus && (c.status || c.confusionTurns)) {
     c.status = null;
     c.sleepTurns = 0;
+    delete c.confusionTurns;
     logs.push(`${creatureName(c)}的${effect.name}解除了异常状态，果实已消耗。`);
     c.heldItem = null;
   } else if (effect.berryHeal && c.hp <= statsFor(c).hp / 2) {

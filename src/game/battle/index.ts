@@ -1,10 +1,13 @@
 import { trainerTactic } from '../../content/trainerTactics';
 import {
   chooseEnemyMove,
+  chooseEnemyItem,
+  trainerMedicine,
   chooseEnemySwitch,
   curateTrainerTeam,
   recordEnemySupport,
 } from './strategy';
+import { statusName } from '../statusLabels';
 import { coastEncounter } from '../coastStory';
 import { adventureEncounter } from '../../content/adventure';
 import { finishLeagueBattle } from '../league';
@@ -53,6 +56,7 @@ import {
   nextId,
   random,
   statsFor,
+  effectiveStat,
   typeMultiplier,
 } from '../rules';
 
@@ -75,6 +79,7 @@ export function healParty(state: GameState): void {
     c.hp = statsFor(c).hp;
     c.status = null;
     c.sleepTurns = 0;
+    delete c.confusionTurns;
     c.moves.forEach((m) => {
       m.pp = MOVES[m.id]!.pp;
     });
@@ -107,14 +112,26 @@ function aiMove(state: GameState): number {
       : 3;
     if (move.weather) score = move.weather === b.weather?.kind ? 0 : 5;
     if (move.effect?.heal) score = enemy.hp < statsFor(enemy).hp / 2 ? 18 : 0;
-    if (move.effect?.status) score = player.status ? 0 : 7;
-    if (move.effect?.status && abilityFor(player).immuneStatus === move.effect.status) score = 0;
+    if (move.effect?.status && !move.power) score = player.status ? 0 : 7;
+    if (
+      move.effect?.status &&
+      !move.power &&
+      abilityFor(player).immuneStatus === move.effect.status
+    )
+      score = 0;
+    if (move.effect?.confusion && !move.power) score = player.confusionTurns ? 0 : 7;
+    if (
+      move.effect?.status === 'freeze' &&
+      (SPECIES[player.speciesId]!.types.includes('ice') || b.weather?.kind === 'sun')
+    )
+      score = move.power ? score : 0;
     if (move.effect?.stage) {
       const { stage, amount = 0, target } = move.effect;
       const current = (target === 'self' ? b.enemyStages : b.playerStages)[stage] ?? 0;
       const limit = stageLimit(stage);
       score = Math.max(-limit, Math.min(limit, current + amount)) === current ? 0 : 4;
     }
+    if (enemy.status === 'freeze' && !(move.type === 'fire' && move.power > 0)) score *= 0.2;
     if (score > bestScore) {
       best = i;
       bestScore = score;
@@ -212,9 +229,14 @@ export function startBattle(
     tutorialCatch: wild?.tutorial ?? false,
     weather: { kind: weatherAt(state), ambient: weatherAt(state), turns: null },
     rewards: { defeated: [], experience: 0, money: 0, completion: false },
+    ...(!wild && trainerMedicine(event) ? { enemyMedicine: trainerMedicine(event) } : {}),
   };
   const tactic = !wild ? trainerTactic(event) : null;
   if (tactic) state.battle.logs.push(`对手战术：${tactic.name}。换人会消耗对手整轮行动。`);
+  if (state.battle.enemyMedicine)
+    state.battle.logs.push(
+      `对手携带${ITEMS[state.battle.enemyMedicine.itemId]!.name} ×${state.battle.enemyMedicine.remaining}；低体力用药会消耗对手整轮行动。`,
+    );
   if (state.battle.weather!.kind !== 'clear')
     state.battle.logs.push(
       `场地天气：${WEATHER[state.battle.weather!.kind].name}。${WEATHER[state.battle.weather!.kind].battle}`,
@@ -226,6 +248,7 @@ function finish(state: GameState, result: Battle['result']): void {
   const b = state.battle!;
   if (b.phase === 'ended') return;
   delete b.actionRound;
+  for (const c of [...Object.values(state.creatures), ...b.enemies]) delete c.confusionTurns;
   ensureRewards(b);
   b.phase = 'ended';
   b.result = result;
@@ -337,6 +360,15 @@ function immobilized(state: GameState, creature: Creature): boolean {
     creature.status = null;
     state.battle!.logs.push(`${creatureName(creature)}醒来了！`);
   }
+  if (creature.status === 'freeze') {
+    if (random(state) < 0.2) {
+      creature.status = null;
+      state.battle!.logs.push(`${creatureName(creature)}解冻了！`);
+    } else {
+      state.battle!.logs.push(`${creatureName(creature)}被冻住了，没能行动。`);
+      return true;
+    }
+  }
   if (creature.status === 'paralysis' && random(state) < 0.25) {
     state.battle!.logs.push(`${creatureName(creature)}麻痹了，没能行动。`);
     return true;
@@ -360,14 +392,51 @@ function attack(
     b.logs.push(`${creatureName(attacker)}所选技能的 PP 已耗尽，后续出手取消。`);
     return false;
   }
+  const move = MOVES[slot?.id ?? 'struggle']!;
+  // A selected damaging fire move thaws its user even after a previous blocked fast action.
+  if (attacker.status === 'freeze' && move.type === 'fire' && move.power > 0) {
+    attacker.status = null;
+    b.logs.push(`${creatureName(attacker)}借助火焰解冻了！`);
+  }
   let condition = blocked[attacker.id];
   if (!condition || condition.status !== attacker.status) {
     const unable = immobilized(state, attacker);
-    condition = { status: attacker.status, blocked: unable };
+    condition = { ...condition, status: attacker.status, blocked: unable };
     blocked[attacker.id] = condition;
   }
   if (condition.blocked) return false;
-  const move = MOVES[slot?.id ?? 'struggle']!;
+  // Separate from major-status checks: neither repeated actions nor a new status rerolls confusion.
+  if (condition.confusionTurns !== (attacker.confusionTurns ?? 0)) {
+    condition.confusionBlocked = false;
+    let remaining = attacker.confusionTurns ?? 0;
+    if (attacker.confusionTurns) {
+      attacker.confusionTurns--;
+      remaining = attacker.confusionTurns;
+      b.logs.push(`${creatureName(attacker)}正处于混乱中！`);
+      if (random(state) < 1 / 3) {
+        const stages = player ? b.playerStages : b.enemyStages;
+        const damage = Math.max(
+          1,
+          Math.floor(
+            (((2 * attacker.level) / 5 + 2) *
+              40 *
+              effectiveStat(attacker, 'attack', stages, b.weather?.kind)) /
+              effectiveStat(attacker, 'defense', stages, b.weather?.kind) /
+              50,
+          ) + 2,
+        );
+        const loss = Math.min(attacker.hp, damage);
+        attacker.hp -= loss;
+        condition.confusionBlocked = true;
+        b.logs.push(`${creatureName(attacker)}因混乱伤到了自己，损失 ${loss} 点体力，没能行动。`);
+        triggerHeldItem(attacker, b.logs);
+      }
+      if (!attacker.confusionTurns) b.logs.push(`${creatureName(attacker)}恢复了清醒。`);
+    }
+    // Keep the pre-cure token so a cleansing berry re-enables later fast actions.
+    condition.confusionTurns = remaining;
+  }
+  if (condition.confusionBlocked) return false;
   if (!canLearnMove(attacker.speciesId, move.id)) {
     b.logs.push(`${creatureName(attacker)}无法使用其他精灵的专属技能。`);
     return false;
@@ -399,7 +468,12 @@ function attack(
     }
     const multiplier = typeMultiplier(move.type, SPECIES[defender.speciesId]!.types);
     const trait = abilityFor(defender);
-    if (move.type && trait.immuneType === move.type && move.effect?.target !== 'self') {
+    if (
+      move.type &&
+      trait.immuneType === move.type &&
+      move.effect?.target !== 'self' &&
+      !move.effect?.confusion
+    ) {
       visual.outcome = 'immune';
       if (trait.immuneType === 'electric' && defender.hp > 0) {
         const before = defender.hp;
@@ -413,7 +487,10 @@ function attack(
       } else b.logs.push(`${creatureName(defender)}的${trait.name}挡住了这个招式。`);
       return true;
     }
-    if (multiplier === 0 && (move.power || move.effect?.target !== 'self')) {
+    if (
+      multiplier === 0 &&
+      (move.power || (move.effect?.target !== 'self' && !move.effect?.confusion))
+    ) {
       visual.outcome = 'immune';
       b.logs.push('对方免疫这个属性。');
       return true;
@@ -439,6 +516,10 @@ function attack(
       b.logs.push(
         `造成 ${dealt} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
       );
+      if (dealt > 0 && move.type === 'fire' && defender.status === 'freeze' && defender.hp > 0) {
+        defender.status = null;
+        b.logs.push(`${creatureName(defender)}被火焰解冻了！`);
+      }
       if (move.id === 'struggle')
         attacker.hp = Math.max(0, attacker.hp - Math.max(1, Math.floor(statsFor(attacker).hp / 4)));
     }
@@ -519,15 +600,30 @@ function attack(
         trait.immuneStatus === effect.status ||
         (effect.status === 'burn' && types.includes('fire')) ||
         (effect.status === 'poison' && (types.includes('poison') || types.includes('steel'))) ||
-        (effect.status === 'paralysis' && types.includes('electric'));
+        (effect.status === 'paralysis' && types.includes('electric')) ||
+        (effect.status === 'freeze' && (types.includes('ice') || b.weather?.kind === 'sun'));
       if (!immune) {
         defender.status = effect.status;
         defender.sleepTurns = effect.status === 'sleep' ? 1 + Math.floor(random(state) * 3) : 0;
-        b.logs.push(`${creatureName(defender)}陷入异常状态。`);
+        b.logs.push(`${creatureName(defender)}陷入${statusName(effect.status)}状态。`);
       } else
         b.logs.push(
-          `${creatureName(defender)}${trait.immuneStatus === effect.status ? `的${trait.name}` : '的属性'}避免了异常状态。`,
+          `${creatureName(defender)}${effect.status === 'freeze' && b.weather?.kind === 'sun' ? '在晴天下' : trait.immuneStatus === effect.status ? `的${trait.name}` : '的属性'}避免了异常状态。`,
         );
+    }
+    if (
+      effect?.confusion &&
+      !defender.confusionTurns &&
+      defender.hp > 0 &&
+      random(state) < (effect.chance ?? 1)
+    ) {
+      defender.confusionTurns = 2 + Math.floor(random(state) * 4);
+      const cached = blocked[defender.id];
+      if (cached) {
+        delete cached.confusionTurns;
+        delete cached.confusionBlocked;
+      }
+      b.logs.push(`${creatureName(defender)}陷入混乱！`);
     }
     return true;
   } finally {
@@ -540,6 +636,8 @@ function attack(
 function resolveFaints(state: GameState): boolean {
   const b = state.battle!;
   const enemy = b.enemies[b.enemyIndex]!;
+  for (const c of [...state.party.map((id) => state.creatures[id]!), ...b.enemies])
+    if (c.hp <= 0) delete c.confusionTurns;
   // Pay each defeated opponent before advancing or handling simultaneous recoil loss.
   if (enemy.hp <= 0) settleKnockout(state);
   if (!state.party.some((id) => state.creatures[id]!.hp > 0)) {
@@ -641,13 +739,15 @@ export function battleAction(state: GameState, action: BattleAction): void {
           : pace.playerSpeed !== pace.enemySpeed
             ? pace.enemySpeed > pace.playerSpeed
             : random(state) >= 0.5);
+      const enemyItem = chooseEnemyItem(state);
       b.actionRound = {
         playerTotal: pace.playerActions,
         enemyTotal: pace.enemyActions,
         playerRemaining: pace.playerActions,
         enemyRemaining: pace.enemyActions,
         enemyFirst,
-        enemySwitchIndex: chooseEnemySwitch(state),
+        enemyItem,
+        enemySwitchIndex: enemyItem ? undefined : chooseEnemySwitch(state),
         immobility: {},
       };
     }
@@ -668,6 +768,8 @@ export function battleAction(state: GameState, action: BattleAction): void {
         );
         b.logs.push(`${previous}的${trait.name}恢复了${outgoing.hp - old}点体力。`);
       }
+      delete outgoing.confusionTurns;
+      delete b.actionRound?.immobility[outgoing.id];
       triggerHeldItem(c, b.logs);
       b.playerId = c.id;
       b.visualEvents.push({
@@ -705,6 +807,8 @@ export function battleAction(state: GameState, action: BattleAction): void {
             `${creatureName(outgoing)}的${trait.name}恢复了${outgoing.hp - before}点体力。`,
           );
         }
+        delete outgoing.confusionTurns;
+        delete b.actionRound!.immobility[outgoing.id];
         b.enemyIndex = switchIndex;
         b.enemyStages = emptyStages();
         b.aiTactics ??= { lastSwitchTurn: -10, switches: 0, lastSupportTurn: -10 };
@@ -719,6 +823,27 @@ export function battleAction(state: GameState, action: BattleAction): void {
           scene: battleScene(state),
         });
         b.aiMove = aiMove(state);
+      }
+    }
+    const enemyItem = b.actionRound?.enemyItem;
+    if (enemyItem) {
+      delete b.actionRound!.enemyItem;
+      const beforeHeal = enemy.hp;
+      if (
+        b.enemyMedicine?.itemId === enemyItem &&
+        b.enemyMedicine.remaining > 0 &&
+        applySupply(enemy, enemyItem)
+      ) {
+        b.enemyMedicine.remaining--;
+        b.actionRound!.enemyRemaining = 0;
+        b.logs.push(
+          `${b.name}对${creatureName(enemy)}使用了${ITEMS[enemyItem]!.name}，恢复 ${enemy.hp - beforeHeal} 点体力！剩余 ${b.enemyMedicine.remaining} 次用药；本轮不再攻击或换人。`,
+        );
+        b.visualEvents.push({
+          kind: 'scene',
+          logIndex: b.logs.length - 1,
+          scene: battleScene(state),
+        });
       }
     }
     if (action.kind === 'ball') {
@@ -784,6 +909,13 @@ export function battleAction(state: GameState, action: BattleAction): void {
       const target = state.creatures[action.creatureId]!;
       const before = target.hp;
       applySupply(target, action.kind);
+      if (action.kind === 'antidote' || action.kind === 'revive') {
+        const cached = b.actionRound?.immobility[target.id];
+        if (cached) {
+          delete cached.confusionTurns;
+          delete cached.confusionBlocked;
+        }
+      }
       b.logs.push(
         `对${creatureName(target)}使用了${ITEMS[action.kind]!.name}${['potion', 'super_potion', 'hyper_potion', 'revive'].includes(action.kind) ? `，恢复 ${target.hp - before} 点 HP` : action.kind === 'ether' ? '，各技能恢复最多 10 PP' : '，异常状态解除了'}。`,
       );

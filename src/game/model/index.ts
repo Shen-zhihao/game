@@ -48,7 +48,7 @@ export interface Species {
   evolvesFromId: string | null;
   evolutions: Evolution[];
 }
-export type Status = 'poison' | 'burn' | 'paralysis' | 'sleep';
+export type Status = 'poison' | 'burn' | 'paralysis' | 'sleep' | 'freeze';
 export type WeatherId = 'clear' | 'sun' | 'rain' | 'storm' | 'fog' | 'snow' | 'sand';
 export const CLIMATE_IDS = [
   'garden',
@@ -110,6 +110,8 @@ export interface Creature {
   hp: number;
   status: Status | null;
   sleepTurns: number;
+  /** Volatile confusion; absent or zero means clear. Cleared when leaving the field. */
+  confusionTurns?: number;
   moves: { id: string; pp: number }[];
   taughtMoves?: string[];
   history: { kind: 'caught' | 'evolved' | 'learned'; label: string; level: number }[];
@@ -245,6 +247,7 @@ export interface BattleFigure {
   hp: number;
   maxHp: number;
   status: Status | null;
+  confusionTurns?: number;
   experience?: number;
   growthPoints?: number;
 }
@@ -279,6 +282,8 @@ export interface Battle {
   npcId?: string;
   ruleChallenge?: boolean;
   challengeSettled?: boolean;
+  /** Created once per new eligible battle; never refilled by loading a checkpoint. */
+  enemyMedicine?: { itemId: 'super_potion' | 'hyper_potion'; remaining: number };
   aiTactics?: { lastSwitchTurn: number; switches: number; lastSupportTurn: number };
   kind: 'wild' | 'trainer';
   event: StoryEvent | null;
@@ -293,12 +298,21 @@ export interface Battle {
   /** Locked for a round; each player command consumes one independently chosen action. */
   actionRound?: {
     enemySwitchIndex?: number;
+    enemyItem?: 'super_potion' | 'hyper_potion';
     playerTotal: number;
     enemyTotal: number;
     playerRemaining: number;
     enemyRemaining: number;
     enemyFirst: boolean;
-    immobility: Record<string, { status: Status | null; blocked: boolean }>;
+    immobility: Record<
+      string,
+      {
+        status: Status | null;
+        blocked: boolean;
+        confusionTurns?: number;
+        confusionBlocked?: boolean;
+      }
+    >;
   };
   playerStages: Stages;
   enemyStages: Stages;

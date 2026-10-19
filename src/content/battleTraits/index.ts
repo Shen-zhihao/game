@@ -121,7 +121,7 @@ export const HELD_ITEMS = {
   held_cleanse: {
     name: '清露果',
     price: 220,
-    description: '携带后，陷入异常时自动解除一次，触发后消耗。',
+    description: '携带后，自动解除一次异常状态（含冰冻）与混乱，触发后消耗。',
     color: '#aab99a',
     cureStatus: true,
   },

@@ -28,7 +28,11 @@ const profiles: Record<string, TrainerTactic> = {
     weather: 'sun',
     switchBudget: 2,
   },
-  psychic: { name: '凝神破阵', support: ['focus', 'aim', 'steady'], switchBudget: 2 },
+  psychic: {
+    name: '凝神破阵',
+    support: ['confuse_ray', 'focus', 'aim', 'steady'],
+    switchBudget: 2,
+  },
   star: { name: '守心反击', support: ['steady', 'recover', 'focus'], switchBudget: 2 },
   leagueIce: {
     name: '雪幕攻势',
@@ -38,7 +42,7 @@ const profiles: Record<string, TrainerTactic> = {
   },
   leagueGhost: {
     name: '迷雾牵制',
-    support: ['fog_call', 'shadow_step', 'sleep'],
+    support: ['fog_call', 'confuse_ray', 'shadow_step', 'sleep'],
     weather: 'fog',
     switchBudget: 4,
   },

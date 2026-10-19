@@ -21,7 +21,7 @@ export function supplyReason(c: Creature, id: SupplyId): string | null {
     c.hp === statsFor(c).hp
   )
     return '体力已满，无需使用。';
-  if (id === 'antidote' && !c.status) return '没有异常状态，无需使用。';
+  if (id === 'antidote' && !c.status && !c.confusionTurns) return '没有异常状态，无需使用。';
   if (id === 'ether' && c.moves.every((m) => m.pp === MOVES[m.id]!.pp))
     return '全部技能 PP 已满，无需使用。';
   return null;
@@ -37,10 +37,12 @@ export function applySupply(c: Creature, id: SupplyId): boolean {
     c.hp = Math.max(1, Math.floor(statsFor(c).hp / 2));
     c.status = null;
     c.sleepTurns = 0;
+    delete c.confusionTurns;
   }
   if (id === 'antidote') {
     c.status = null;
     c.sleepTurns = 0;
+    delete c.confusionTurns;
   }
   if (id === 'ether') for (const m of c.moves) m.pp = Math.min(MOVES[m.id]!.pp, m.pp + 10);
   return true;

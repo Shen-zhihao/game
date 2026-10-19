@@ -57,7 +57,9 @@ function expectedDamage(
   return (
     calculateDamage(attacker, defender, id, a, d, 1, false, weather).damage *
     hitChance(id, a, d, weather, attacker) *
-    (1 + criticalChance(id, a, d, attacker))
+    (1 + criticalChance(id, a, d, attacker)) *
+    (attacker.status === 'freeze' && move.type !== 'fire' ? 0.2 : 1) *
+    (attacker.confusionTurns ? 2 / 3 : 1)
   );
 }
 function bestDamage(
@@ -84,8 +86,47 @@ function statusImmune(defender: Creature, id: string): boolean {
     abilityFor(defender).immuneStatus === status ||
     (status === 'burn' && types.includes('fire')) ||
     (status === 'poison' && (types.includes('poison') || types.includes('steel'))) ||
-    (status === 'paralysis' && types.includes('electric'))
+    (status === 'paralysis' && types.includes('electric')) ||
+    (status === 'freeze' && types.includes('ice'))
   );
+}
+/** Only leaders and league opponents carry active medicine, never apprentices or rule challenges. */
+export function trainerMedicine(event: string | null): Battle['enemyMedicine'] {
+  if (
+    [
+      'leader',
+      'rockLeader',
+      'waterLeader',
+      'electricLeader',
+      'windLeader',
+      'fireLeader',
+      'psychicLeader',
+      'starLeader',
+    ].includes(event ?? '')
+  )
+    return { itemId: 'super_potion', remaining: 1 };
+  if (
+    ['leagueIce', 'leagueGhost', 'leagueDark', 'leagueDragon', 'leagueChampion'].includes(
+      event ?? '',
+    )
+  )
+    return { itemId: 'hyper_potion', remaining: 2 };
+  return undefined;
+}
+export function chooseEnemyItem(state: GameState): NonNullable<Battle['actionRound']>['enemyItem'] {
+  const b = state.battle!,
+    medicine = b.enemyMedicine;
+  if (
+    b.kind !== 'trainer' ||
+    b.ruleChallenge ||
+    !trainerMedicine(b.event) ||
+    !medicine ||
+    medicine.remaining <= 0
+  )
+    return;
+  const enemy = b.enemies[b.enemyIndex]!;
+  if (enemy.hp > 0 && enemy.hp <= statsFor(enemy).hp / 3) return medicine.itemId;
+  return undefined;
 }
 export function chooseEnemyMove(state: GameState): number {
   const b = state.battle!,
@@ -111,6 +152,7 @@ export function chooseEnemyMove(state: GameState): number {
     );
     const immune =
       effect?.target !== 'self' &&
+      !effect?.confusion &&
       (abilityFor(player).immuneType === move.type ||
         typeMultiplier(move.type, SPECIES[player.speciesId]!.types) === 0);
     if (immune) score = 0;
@@ -132,7 +174,12 @@ export function chooseEnemyMove(state: GameState): number {
           missing > statsFor(enemy).hp * 0.35 && enemy.hp > incoming
             ? Math.min(missing, heal) * 1.2
             : 0;
-      } else if (effect?.status && !statusImmune(player, slot.id)) {
+      } else if (
+        (effect?.status &&
+          !statusImmune(player, slot.id) &&
+          !(effect.status === 'freeze' && b.weather?.kind === 'sun')) ||
+        (effect?.confusion && !player.confusionTurns)
+      ) {
         score =
           safe && player.hp > damage * 1.3
             ? Math.max(8, damage * 1.35) *
@@ -165,8 +212,15 @@ export function chooseEnemyMove(state: GameState): number {
       }
     }
     // Damaging secondary effects add value without replacing the actual attack damage.
-    if (move.power && !immune && effect?.status && !statusImmune(player, slot.id))
-      score += 3 * (effect.chance ?? 1);
+    if (
+      move.power &&
+      !immune &&
+      ((effect?.status &&
+        !statusImmune(player, slot.id) &&
+        !(effect.status === 'freeze' && b.weather?.kind === 'sun')) ||
+        (effect?.confusion && !player.confusionTurns))
+    )
+      score += 3 * (effect!.chance ?? 1);
     if (score > bestScore) {
       bestScore = score;
       best = index;
@@ -193,7 +247,18 @@ export function chooseEnemySwitch(state: GameState): number | undefined {
     bestDamage(current, player, b.enemyStages, b.playerStages, b.weather?.kind) /
     Math.max(1, player.hp);
   // Never surrender an available knockout or pivot merely because another member is marginally better.
-  if (offense >= 1 || (threat < 0.45 && offense > 0.1 && current.status !== 'sleep')) return;
+  if (
+    (offense >= 1 &&
+      current.status !== 'sleep' &&
+      current.status !== 'freeze' &&
+      !current.confusionTurns) ||
+    (threat < 0.45 &&
+      offense > 0.1 &&
+      current.status !== 'sleep' &&
+      current.status !== 'freeze' &&
+      !current.confusionTurns)
+  )
+    return;
   let best: number | undefined,
     bestGain = 0.4;
   b.enemies.forEach((candidate, index) => {

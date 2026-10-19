@@ -8,6 +8,7 @@ import { BattleAction, GameState } from '../../game/model';
 import { captureChance, creatureName, statsFor } from '../../game/rules';
 import { isSupply, SupplyId } from '../../game/items';
 import { chanceLabel } from '../../game/combat';
+import { conditionLabels } from '../../game/statusLabels';
 import { BALLS, isBall } from '../../game/capture';
 import { CreatureSprite } from '../CreatureSprite';
 import { Button, HpBar, Label, palette, TypeBadges } from '../ui';
@@ -21,10 +22,8 @@ const POCKETS: { id: Pocket; name: string; mark: string }[] = [
 ];
 const pocketOf = (id: string): Pocket =>
   isBall(id) ? 'balls' : isSupply(id) ? 'medicine' : 'items';
-const condition = (hp: number, status: string | null) =>
-  hp === 0
-    ? '昏厥'
-    : ({ poison: '中毒', burn: '灼伤', paralysis: '麻痹', sleep: '睡眠' }[status ?? ''] ?? '正常');
+const condition = (hp: number, status: string | null, confusionTurns?: number) =>
+  hp === 0 ? '昏厥' : conditionLabels({ status, confusionTurns }).join(' · ') || '正常';
 
 export function BattleMenus({
   game,
@@ -195,7 +194,7 @@ export function BattleMenus({
               ? '伙伴失去了战斗能力，选择下一位上场。'
               : mode === 'targets'
                 ? '选择精灵后确认用药；取消不会消耗道具。'
-                : '选择精灵后确认换人；主动换人会消耗本回合。'}
+                : '选择精灵后确认换人；主动换人会消耗一次操作。'}
           </Text>
         </View>
         {!forced &&
@@ -228,7 +227,7 @@ export function BattleMenus({
             <Pressable
               key={id}
               accessibilityRole="button"
-              accessibilityLabel={`选择${creatureName(c)}，等级${c.level}，HP ${c.hp}/${max}，${condition(c.hp, c.status)}${active ? '，正在出战' : ''}`}
+              accessibilityLabel={`选择${creatureName(c)}，等级${c.level}，HP ${c.hp}/${max}，${condition(c.hp, c.status, c.confusionTurns)}${active ? '，正在出战' : ''}`}
               accessibilityState={{ selected: selected.id === id }}
               onPress={() => setCreatureId(id!)}
               style={[
@@ -260,12 +259,14 @@ export function BattleMenus({
                     style={[
                       s.condition,
                       mode === 'targets' && { color: bagColors.muted },
-                      c.status || c.hp === 0
+                      c.status || (c.confusionTurns ?? 0) > 0 || c.hp === 0
                         ? { color: mode === 'targets' ? bagColors.red : '#edb694' }
                         : null,
                     ]}
                   >
-                    {active && c.hp > 0 ? '出战中' : condition(c.hp, c.status)}
+                    {active && c.hp > 0
+                      ? ['出战中', ...conditionLabels(c)].join(' · ')
+                      : condition(c.hp, c.status, c.confusionTurns)}
                   </Text>
                   <Text style={[s.cardHp, mode === 'targets' && { color: bagColors.muted }]}>
                     {c.hp}/{max}
@@ -409,7 +410,7 @@ const s = StyleSheet.create({
   partyName: { fontSize: 14, fontWeight: '800', color: palette.text, flexShrink: 1 },
   cardLevel: { fontSize: 11, color: palette.muted },
   cardHp: { fontSize: 11, color: palette.muted },
-  condition: { fontSize: 10, color: palette.accent },
+  condition: { fontSize: 10, color: palette.accent, flexShrink: 1 },
   partyFooter: {
     flexDirection: 'row',
     gap: 18,

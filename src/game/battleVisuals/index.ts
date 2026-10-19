@@ -66,6 +66,7 @@ export const battleFigure = (c: Creature): BattleFigure => ({
   hp: c.hp,
   maxHp: statsFor(c).hp,
   status: c.status,
+  confusionTurns: c.confusionTurns ?? 0,
   experience: c.experience,
   growthPoints: earnedPoints(c),
 });

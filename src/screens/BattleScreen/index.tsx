@@ -48,6 +48,7 @@ import { createBattlePlaybackClock } from '../../game/battlePlayback';
 import { useBattleMessageDelay } from '../../hooks/useBattleMessageDelay';
 import { useAppActivity } from '../../hooks/useAppActivity';
 import { CreatureTraits } from '../../components/CreatureTraits';
+import { conditionLabels } from '../../game/statusLabels';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
 export function BattleScreen({
@@ -215,6 +216,17 @@ export function BattleScreen({
     setLine(0);
     setBusy(false);
   }, [b]);
+  useEffect(() => {
+    if (!busy || !pendingTurn.current) return;
+    // Upstream input guards may reject a rapid command without changing the battle.
+    // Release only the local waiting state; never retry or spend a second action.
+    const timer = setTimeout(() => {
+      if (!pendingTurn.current) return;
+      pendingTurn.current = false;
+      setBusy(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [busy, b]);
   const playbackKey = presenting
     ? effectKey
     : b.phase === 'ended' && !busy
@@ -518,7 +530,11 @@ export function BattleScreen({
               style={s.hpNumber}
             />
           </View>
-          {scene.enemy.status && <Text style={s.statusText}>{statusName(scene.enemy.status)}</Text>}
+          {conditionLabels(scene.enemy).length > 0 && (
+            <Text testID="enemy-conditions" style={s.statusText}>
+              {conditionLabels(scene.enemy).join(' · ')}
+            </Text>
+          )}
           <Text
             testID="enemy-pace"
             style={{ color: palette.muted, fontSize: compact || narrow ? 10 : 12 }}
@@ -573,8 +589,10 @@ export function BattleScreen({
             figure={scene.player}
             paused={playbackStopped}
           />
-          {scene.player.status && (
-            <Text style={s.statusText}>{statusName(scene.player.status)}</Text>
+          {conditionLabels(scene.player).length > 0 && (
+            <Text testID="player-conditions" style={s.statusText}>
+              {conditionLabels(scene.player).join(' · ')}
+            </Text>
           )}
           <Text
             testID="player-pace"
@@ -853,9 +871,7 @@ export function BattleScreen({
     </View>
   );
 }
-export function statusName(status: string) {
-  return { poison: '中毒', burn: '灼伤', paralysis: '麻痹', sleep: '睡眠' }[status] ?? status;
-}
+export { statusName } from '../../game/statusLabels';
 const s = StyleSheet.create({
   footer: { position: 'absolute' },
   statusCard: {

@@ -60,6 +60,7 @@ import { ACTIVITY_FLAGS, FIELD_ACTIVITIES } from '../../content/fieldActivities'
 import { validActivityLocation, validActivityBoard } from '../../game/activities';
 import { isSightTrainer, validTrainerChallenge } from '../../game/trainerChallenges';
 import { REPEL_STEPS } from '../../game/fieldItems';
+import { trainerMedicine } from '../../game/battle/strategy';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -111,8 +112,9 @@ const creatureSchema = z.strictObject({
   training: trainingSchema.optional(),
   taughtMoves: z.array(idSchema).max(128).optional(),
   hp: integer(9999),
-  status: z.enum(['poison', 'burn', 'paralysis', 'sleep']).nullable(),
+  status: z.enum(['poison', 'burn', 'paralysis', 'sleep', 'freeze']).nullable(),
   sleepTurns: integer(3),
+  confusionTurns: integer(5).optional(),
   moves: z
     .array(z.strictObject({ id: idSchema, pp: integer(50) }))
     .min(1)
@@ -134,7 +136,8 @@ const figureSchema = z.strictObject({
   level: integer(100, 1),
   hp: integer(9999),
   maxHp: integer(9999, 1),
-  status: z.enum(['poison', 'burn', 'paralysis', 'sleep']).nullable(),
+  status: z.enum(['poison', 'burn', 'paralysis', 'sleep', 'freeze']).nullable(),
+  confusionTurns: integer(5).optional(),
   experience: integer(999999999).optional(),
   growthPoints: integer(990).optional(),
 });
@@ -474,9 +477,16 @@ const gameSchema = z.strictObject({
       phase: z.enum(['choose', 'forcedSwitch', 'ended']),
       turn: integer(100000, 1),
       aiMove: integer(3, -1),
+      enemyMedicine: z
+        .strictObject({
+          itemId: z.enum(['super_potion', 'hyper_potion']),
+          remaining: integer(2),
+        })
+        .optional(),
       actionRound: z
         .strictObject({
           enemySwitchIndex: integer(5).optional(),
+          enemyItem: z.enum(['super_potion', 'hyper_potion']).optional(),
           playerTotal: integer(3, 1),
           enemyTotal: integer(3, 1),
           playerRemaining: integer(3),
@@ -485,8 +495,10 @@ const gameSchema = z.strictObject({
           immobility: z.record(
             idSchema,
             z.strictObject({
-              status: z.enum(['poison', 'burn', 'paralysis', 'sleep']).nullable(),
+              status: z.enum(['poison', 'burn', 'paralysis', 'sleep', 'freeze']).nullable(),
               blocked: z.boolean(),
+              confusionTurns: integer(5).optional(),
+              confusionBlocked: z.boolean().optional(),
             }),
           ),
         })
@@ -715,6 +727,15 @@ export function validateGame(input: unknown): GameState {
     for (const m of c.moves)
       invariant(canLearnMove(c.speciesId, m.id) && m.pp <= MOVES[m.id]!.pp, '技能归属或 PP 无效');
     invariant(c.status === 'sleep' || c.sleepTurns === 0, '睡眠回合无效');
+    invariant(
+      !c.confusionTurns ||
+        (c.hp > 0 &&
+          game.battle &&
+          game.battle.phase !== 'ended' &&
+          ((game.creatures[c.id] === c && game.battle.playerId === c.id) ||
+            game.battle.enemies[game.battle.enemyIndex] === c)),
+      '混乱状态只能保留在当前场上精灵身上',
+    );
     if (c.taughtMoves)
       invariant(
         new Set(c.taughtMoves).size === c.taughtMoves.length && c.taughtMoves.every(copyableMove),
@@ -1318,8 +1339,34 @@ export function validateGame(input: unknown): GameState {
       '战斗引用无效',
     );
     invariant((b.phase === 'ended') === (b.result !== null), '战斗结算状态冲突');
+    if (b.enemyMedicine) {
+      const allowance = trainerMedicine(b.event);
+      invariant(
+        b.kind === 'trainer' &&
+          !b.ruleChallenge &&
+          allowance &&
+          b.enemyMedicine.itemId === allowance.itemId &&
+          b.enemyMedicine.remaining <= allowance.remaining,
+        '对手回复道具额度无效',
+      );
+    }
     if (b.actionRound) {
       const round = b.actionRound;
+      invariant(
+        Object.values(round.immobility).every(
+          (cached) =>
+            (cached.confusionTurns === undefined) === (cached.confusionBlocked === undefined),
+        ),
+        '混乱回合检查记录不完整',
+      );
+      invariant(
+        round.enemyItem === undefined ||
+          (round.enemySwitchIndex === undefined &&
+            !!b.enemyMedicine &&
+            b.enemyMedicine.remaining > 0 &&
+            round.enemyItem === b.enemyMedicine.itemId),
+        '对手本回合道具选择无效',
+      );
       invariant(
         b.phase === 'choose' &&
           round.playerRemaining > 0 &&

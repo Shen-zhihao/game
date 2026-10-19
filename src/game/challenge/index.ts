@@ -58,6 +58,7 @@ function heal(c: Creature) {
   c.hp = statsFor(c).hp;
   c.status = null;
   c.sleepTurns = 0;
+  delete c.confusionTurns;
   c.moves.forEach((m) => {
     m.pp = MOVES[m.id]!.pp;
   });

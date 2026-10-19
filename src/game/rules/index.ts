@@ -282,7 +282,8 @@ export function calculateDamage(
   };
 }
 export function captureChance(creature: Creature, ballMultiplier = 1): number {
-  const statusMultiplier = creature.status === 'sleep' ? 2 : creature.status ? 1.5 : 1;
+  const statusMultiplier =
+    creature.status === 'sleep' || creature.status === 'freeze' ? 2 : creature.status ? 1.5 : 1;
   return Math.min(
     0.95,
     Math.max(

@@ -39,7 +39,7 @@ import {
   typeMultiplier,
   xpAt,
 } from '../../game/rules';
-import { statusName } from '../BattleScreen';
+import { conditionLabels } from '../../game/statusLabels';
 import { TrainingPanel, TrainingPlanView } from '../TrainingPanel';
 import { availablePoints, trainingFor } from '../../game/growth';
 import { STAT_NAMES } from '../../content/training';
@@ -447,7 +447,9 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                 </Label>
                 <Label muted>
                   #{species.dexNumber.toString().padStart(3, '0')}　Lv.{c.level}{' '}
-                  {c.status ? `· ${statusName(c.status)}` : ''}
+                  {conditionLabels(c)
+                    .map((label) => `· ${label}`)
+                    .join(' ')}
                 </Label>
                 {detailTab === 'overview' && (
                   <>
@@ -1107,6 +1109,8 @@ export function HelpMenu() {
         '满级 100 级，每次升级随机获得 1–10 能力点，精灵成长强度越高越容易获得高点数；伙伴详情可手动加点或自动培养，1 点直接增加对应能力 1 点。',
         '默认有效速度快者先出手，首次技能仍比较优先度。速度达到对手 2 倍可操作 2 次，3 倍及以上 3 次；每条指令只执行一次，结算后重新选择技能、道具或换人。',
         '双方行动额度在第一次操作前固定，速度变化影响下一回合，换人不补次数。用药、主动换人、投球和逃跑各占一次操作；昏厥取消本轮剩余行动，强制补位免费。异常与天气每轮结算一次，读档保留剩余额度。',
+        '冰冻时除伤害类火属性技能外无法出招，每轮仅有一次 20% 的自然解冻机会；使用伤害类火属性技能或受到火属性技能伤害时解冻。冰属性精灵免疫冰冻，晴天不会新增冰冻。',
+        '混乱可与其他异常并存，持续 2–5 个可行动回合；每回合仅判定一次，1/3 概率自伤并阻止本轮后续出招（用药或果实解除后可恢复），被睡眠、冰冻或麻痹阻止行动时不扣持续回合。换下或战斗结束时解除。清醒露和解除全部异常的果实可同时清除冰冻及混乱。',
         '隐藏战斗属性有命中、闪避、要害率与抗要害。凝神提高要害率，鹰眼提高命中，影步提升闪避，守心降低受到要害攻击的概率，轻身提升速度；破绽突刺自带更高要害率。',
         '普通技能基础要害率 6.25%，要害等级 1 / 2 / 3 为 12.5% / 25% / 50%；守心每级使概率减半。要害造成普通伤害 ×2，不翻倍治疗或异常伤害；换人会重置战斗强化。',
         '城市任务日志可以接受居民委托，领奖获得调查印记。背包里的商店可购买星纹球和补给，印记可兑换特殊道具。',

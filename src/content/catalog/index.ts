@@ -6,9 +6,10 @@ import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 import { HELD_ITEMS } from '../battleTraits';
 
-export const CONTENT_VERSION = 'ch11.1';
+export const CONTENT_VERSION = 'ch11.2';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch11.1' ||
   version === 'ch11.0' ||
   version === 'ch10.6' ||
   version === 'ch10.5' ||
@@ -204,7 +205,7 @@ export const ITEMS: Record<
   antidote: {
     name: '清醒露',
     price: 60,
-    description: '解除一只精灵的异常状态。',
+    description: '解除一只精灵的中毒、灼伤、麻痹、睡眠、冰冻及混乱；可同时清除异常与混乱。',
     pocket: 'medicine',
   },
   candy: {
@@ -271,7 +272,8 @@ export interface Move {
   criticalStage?: number;
   weather?: import('../../game/model').WeatherId;
   effect?: {
-    status?: 'poison' | 'burn' | 'paralysis' | 'sleep';
+    status?: 'poison' | 'burn' | 'paralysis' | 'sleep' | 'freeze';
+    confusion?: boolean;
     chance?: number;
     heal?: number;
     stage?: CombatStage;
@@ -374,6 +376,17 @@ export const MOVES: Record<string, Move> = {
     pp: 15,
     priority: 0,
     effect: { status: 'poison', chance: 1 },
+  },
+  confuse_ray: {
+    id: 'confuse_ray',
+    name: '奇异光线',
+    type: 'ghost',
+    category: 'status',
+    power: 0,
+    accuracy: 100,
+    pp: 10,
+    priority: 0,
+    effect: { confusion: true, chance: 1 },
   },
   focus: {
     id: 'focus',
@@ -491,11 +504,18 @@ for (const type of TYPE_IDS) {
       accuracy: 100,
       pp: rank === 1 ? 25 : 15,
       priority: 0,
-      ...(['fire', 'electric', 'poison'].includes(type)
+      ...(['fire', 'electric', 'poison', 'ice'].includes(type)
         ? {
             effect: {
-              status: type === 'fire' ? 'burn' : type === 'electric' ? 'paralysis' : 'poison',
-              chance: 0.12,
+              status:
+                type === 'fire'
+                  ? 'burn'
+                  : type === 'electric'
+                    ? 'paralysis'
+                    : type === 'ice'
+                      ? 'freeze'
+                      : 'poison',
+              chance: type === 'ice' ? 0.1 : 0.12,
             } as Move['effect'],
           }
         : {}),
@@ -561,6 +581,9 @@ export function learnset(speciesId: string): { level: number; moveId: string }[]
     },
     { level: 10, moveId: `${species.types[1] ?? species.types[0]}_1` },
     { level: 12, moveId: `${species.types[0]}_2` },
+    ...(species.types.some((type) => type === 'psychic' || type === 'ghost')
+      ? [{ level: 14, moveId: 'confuse_ray' }]
+      : []),
     { level: 16, moveId: species.types.includes('grass') ? 'sleep' : 'guard' },
     ...species.types.slice(1).map((type, i) => ({ level: 18 + i * 4, moveId: `${type}_2` })),
     { level: 9, moveId: 'focus' },
