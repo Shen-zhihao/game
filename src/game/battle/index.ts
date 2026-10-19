@@ -1,5 +1,11 @@
 import { trainerTactic } from '../../content/trainerTactics';
 import {
+  gymRematch,
+  gymRematchEntryReason,
+  registerGymRematch,
+  finishGymRematch,
+} from '../gymRematches';
+import {
   chooseEnemyMove,
   chooseEnemyItem,
   trainerMedicine,
@@ -144,10 +150,21 @@ export function startBattle(
   event: StoryEvent | null,
   wild?: { speciesId: string; level: number; tutorial?: boolean },
 ): void {
+  const rematch = !wild ? gymRematch(event) : undefined;
+  if (rematch) {
+    const reason = gymRematchEntryReason(state, rematch);
+    if (reason) {
+      state.notice = reason;
+      return;
+    }
+  }
   rememberRecoveryTowns(state);
-  const npc = event ? MAPS[state.player.map].npcs.find((n) => n.event === event) : undefined;
+  const npc = event
+    ? MAPS[state.player.map].npcs.find((n) => n.event === (rematch?.leader ?? event))
+    : undefined;
   if (
     !wild &&
+    !rematch &&
     event &&
     (npc
       ? npcDefeated(state.progress.flags, npc)
@@ -162,7 +179,8 @@ export function startBattle(
     state.notice = '伙伴需要休息，已恢复体力。';
     return;
   }
-  const trainer = event && event in TRAINERS ? TRAINERS[event as keyof typeof TRAINERS] : null;
+  const trainer =
+    rematch ?? (event && event in TRAINERS ? TRAINERS[event as keyof typeof TRAINERS] : null);
   const enemies = wild
     ? [makeCreature(state, wild.speciesId, wild.level, event !== 'openingRescue')]
     : trainer!.team.map(([speciesId, level]) =>
@@ -198,13 +216,15 @@ export function startBattle(
     if (!state.dex.seen.includes(c.speciesId)) state.dex.seen.push(c.speciesId);
   if (!wild && event !== 'rival')
     enemies.forEach((c, i) => {
-      c.heldItem =
-        GYM_TRAINERS.has(event!) || event?.startsWith('league')
+      c.heldItem = rematch
+        ? rematch.heldItems[i]!
+        : GYM_TRAINERS.has(event!) || event?.startsWith('league')
           ? i % 2 === 0
             ? 'held_berry'
             : 'held_shell'
           : null;
     });
+  if (rematch) registerGymRematch(state, rematch.event);
   state.battle = {
     id: nextId(state, 'battle'),
     ...(npc && !wild ? { npcId: npc.id } : {}),
@@ -305,6 +325,8 @@ function finish(state: GameState, result: Battle['result']): void {
       }
     }
   }
+  const rematch = gymRematch(b.event);
+  if (result === 'win' && rematch) addBattleMoney(state, rematch.reward, '道馆再战胜利奖励');
   if (result === 'lose') {
     if (b.event === 'openingRescue') {
       b.logs.push('岚博士躲到篱笆后暂避。先回镇子让伙伴休整，再去入口的背包旁帮他。');
@@ -346,6 +368,7 @@ function finish(state: GameState, result: Battle['result']): void {
     } else b.logs.push(`${regional.name}回到栖地。记录仍在，可随时回来再次相遇。`);
   }
   if (result === 'caught' && b.event === 'catchTutorial') state.progress.flags.catchTutorial = true;
+  finishGymRematch(state);
   finishLeagueBattle(state, result, b.event);
   ensureRewards(b).completion = true;
   state.encounterCooldown = 7;

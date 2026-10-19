@@ -231,6 +231,7 @@ export type StoryEvent =
   | 'islandEncounter'
   | 'tideEncounter'
   | AdventureBattleEvent
+  | import('../gymRematches').GymRematchEvent
   | AdventureEncounterEvent
   | 'leagueCredits'
   | 'journeyCredits';
@@ -385,6 +386,10 @@ export interface GameState {
     healMap: TownId;
     running?: boolean;
   };
+  /** Absent in old champion saves; created only when a rematch starts. */
+  gymRematches?: Partial<
+    Record<import('../gymRematches').GymRematchEvent, import('../gymRematches').GymRematchRecord>
+  >;
   progress: { chapter: number; badges: number; flags: Record<string, boolean> };
   creatures: Record<string, Creature>;
   party: string[];

@@ -52,7 +52,11 @@ export function BattleFaintIllustration({
               ],
         }}
       >
-        <CreatureSprite speciesId={visual.figure.speciesId} size={spriteSize} flip={player} />
+        <CreatureSprite
+          speciesId={visual.figure.speciesId}
+          size={spriteSize}
+          view={player ? 'back' : 'front'}
+        />
       </Animated.View>
     </View>
   );

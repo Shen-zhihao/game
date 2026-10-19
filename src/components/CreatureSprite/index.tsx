@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Animated, Easing, Image, View } from 'react-native';
 import { spriteFor } from '../../content/catalog';
+import { backSpriteFor } from '../../content/backSprites';
 import { spriteFrame, spriteLayout } from '../../content/spriteFrames';
 import { AtlasFrameImage } from '../AtlasFrameImage';
 
@@ -27,17 +28,20 @@ const regionalAtlases: Record<string, number> = {
   wind_b: require('../../../assets/creatures-wind_b.png'),
   forest_a: require('../../../assets/creatures-forest_a.png'),
   forest_b: require('../../../assets/creatures-forest_b.png'),
+  starters_back: require('../../../assets/creatures-starters-back.png'),
 };
 export function CreatureSprite({
   speciesId,
   size = 100,
   flip = false,
+  view = 'front',
   animate = false,
   unknown = false,
 }: {
   speciesId: string;
   size?: number;
   flip?: boolean;
+  view?: 'front' | 'back';
   animate?: boolean;
   unknown?: boolean;
 }) {
@@ -66,7 +70,10 @@ export function CreatureSprite({
       bob.setValue(0);
     };
   }, [animate, bob]);
-  const sprite = spriteFor(speciesId),
+  const backSprite = view === 'back' ? backSpriteFor(speciesId) : null;
+  // Preserve the old mirrored-front appearance for species without rear artwork.
+  const mirrored = backSprite ? false : view === 'back' || flip;
+  const sprite = backSprite ?? spriteFor(speciesId),
     cell = sprite?.cell;
   if (cell === undefined)
     return (
@@ -87,11 +94,12 @@ export function CreatureSprite({
   const frame = spriteFrame(sprite!);
   return (
     <Animated.View
+      testID={`creature-sprite-${speciesId}-${backSprite ? 'back' : mirrored ? 'front-mirrored' : 'front'}`}
       style={{
         width: size,
         height: size,
         overflow: 'hidden',
-        transform: [{ translateY: bob }, { scaleX: flip ? -1 : 1 }],
+        transform: [{ translateY: bob }, { scaleX: mirrored ? -1 : 1 }],
       }}
     >
       <View style={{ position: 'absolute', overflow: 'hidden', ...layout.crop }}>

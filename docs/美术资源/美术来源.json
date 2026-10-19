@@ -1,7 +1,7 @@
 {
-  "version": 26,
-  "date": "2026-10-17",
-  "notes": "2026-10-17 全部17张精灵图集、NPC、巡林员及两个品牌图标使用内置 image_gen 对照现有圆润棕线插画重新绘制；主角保留用户确认的造型。12种进化材料分别绘制SVG图标。地图、战斗背景和公共设施继续从可行走几何生成统一SVG插画，覆盖全部城市、乡下、设施和建筑室内。历史来源与提示词保留在previousGenerations，旧位图由Git历史保留，不作为运行资源。未制作独立背面或攻击逐帧图集。",
+  "version": 27,
+  "date": "2026-10-19",
+  "notes": "2026-10-17 全部17张精灵图集、NPC、巡林员及两个品牌图标使用内置 image_gen 对照现有圆润棕线插画重新绘制；主角保留用户确认的造型。12种进化材料分别绘制SVG图标。地图、战斗背景和公共设施继续从可行走几何生成统一SVG插画，覆盖全部城市、乡下、设施和建筑室内。历史来源与提示词保留在previousGenerations，旧位图由Git历史保留，不作为运行资源。2026-10-19 新增三条初始伙伴家族共9个形态（001～009）的独立背面图，其他形态继续沿用正面显示回退；尚未制作攻击逐帧图集。",
   "assets": [
     {
       "file": "assets/creatures-ch1.png",
@@ -3359,6 +3359,45 @@
         "tool": "oxipng",
         "options": ["-o", "2", "--strip", "safe"],
         "lossless": true
+      }
+    },
+    {
+      "file": "assets/creatures-starters-back.png",
+      "sourceGenerator": "built-in image_gen",
+      "sourceFile": "exec-c04e59b7-adc2-4ee8-9809-aeee77ecc057.png",
+      "transparentBackgroundRequested": true,
+      "usage": "3×3 初始伙伴家族独立背面图集，行优先编号001～009，仅用于我方战斗出场、换人与倒下显示；不替换任何正面图。",
+      "style": "对照现有正面图独立生成的右上朝向后侧三分之四视图，延续暖棕描边、柔和色块与浅层阴影；不是正面图的翻转、旋转或变形。",
+      "sourceDimensions": [1254, 1254],
+      "dimensions": [1536, 1536],
+      "sha256": "91289563ce66ab1c1fe49425ab1c5965e17ffc38dc22a6a98c5619ae0f7d9ed7",
+      "finalPrompt": "Use case: style-transfer. Asset type: ONE production creature battle BACK-SPRITE ATLAS. The reference image is ONLY a front-view identity and line/color reference. Create ONE square PNG atlas with EXACTLY 3 columns and 3 rows, nine equal cells, in precisely the reference's row-major order. Redraw all nine original creatures in genuinely NEW rear three-quarter views: camera sees their BACKS and left rear flanks as they face AWAY from us toward upper-right. Backs of heads, shoulders, bodies, rump and rear legs dominate; chest/belly/front face mostly hidden. Never mirror the front designs. Each complete body is visible, no cropping. Row1: 1 small sage-green fawn with small branching sprout antlers, cream spots and short leaf tail; 2 larger moss-antlered green deer with leafy flower collar, white flower antlers and leaf tail; 3 majestic forest stag with massive leaf-draped branching brown antlers, leafy mane, white flowers and two broad green leaf-wings. Row2: 4 small warm charcoal fire ferret on four paws, coral markings and a single large orange-yellow flame tail; 5 red/coral athletic ferret with BOTH wing-shaped flame forearms spread and a fiery tail; 6 tall charcoal mature fire ferret with orange flame mane along back of head and neck, long downward flame forearms and fiery tail. Row3: 7 round blue otter with fin ears and a bubble-tipped blue tail; 8 sturdy blue river otter with gray rock shoulder and limb armor, broad tail and sparse blue water ribbons; 9 taller sleek blue mature otter with gray ridge armor on back/neck/tail, pale blue/lavender fin panels and a few flowing pale water ribbons. Exactly match each identity from its corresponding reference cell; no extra creatures or intermixing forms. Style: same friendly smooth warm-brown outlines, matte sage/cream/coral/dusty-blue flat color areas, max two flat shadow tones, coherent original RPG storybook art, not pixel art, not 3D. Genuine transparent alpha background. No scenery, ground, cast shadow, text, numbers, borders or visible grid lines. Each creature entirely within its own 1/3 by 1/3 cell; use at least 15% transparent margin on all four sides, large clear gutters so forms NEVER touch neighboring cells. Feet on a common local cell baseline at 85%; consistent scale. Critical: all nine clearly face upper-right and away from viewer; no eye contact, no front-facing chest, no front view.",
+      "assembly": {
+        "operation": "仅对新生成图集裁切并重排到512×512等分格，不缩放、不描画、不修改生成图像的颜色或alpha。裁切框包含可见轮廓及10像素余量。",
+        "cellSize": [512, 512],
+        "cellOrder": [
+          "creature_001",
+          "creature_002",
+          "creature_003",
+          "creature_004",
+          "creature_005",
+          "creature_006",
+          "creature_007",
+          "creature_008",
+          "creature_009"
+        ],
+        "sourceCropBoxes": [
+          [91, 119, 313, 442],
+          [486, 42, 795, 449],
+          [879, 46, 1217, 450],
+          [31, 538, 359, 843],
+          [422, 495, 856, 846],
+          [872, 511, 1232, 844],
+          [51, 967, 399, 1229],
+          [447, 897, 801, 1231],
+          [867, 900, 1216, 1231]
+        ],
+        "frameMetadata": "docs/美术资源/精灵取图区.json#starters_back"
       }
     }
   ],

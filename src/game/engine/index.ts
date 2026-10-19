@@ -31,6 +31,7 @@ import { interactHighlands } from '../highlandStory';
 import { coastEncounter, interactCoast } from '../coastStory';
 import { adventureEncounter, PHOTO_TOWNS } from '../../content/adventure';
 import { interactAdventure } from '../adventureStory';
+import { interactGymRematch } from '../gymRematches';
 import { interactConservation } from '../conservation';
 import {
   interactLeague,
@@ -340,6 +341,8 @@ function interact(state: GameState): void {
     talk(state, npc.name, ['欢迎参观道馆。先完成基础对战与捕捉练习，再来参加本馆的考验。']);
     return;
   }
+  if (interactGymRematch(state, npc, (speaker, lines, after) => talk(state, speaker, lines, after)))
+    return;
   if (npc.role === 'trainer' && npcDefeated(flags, npc)) {
     talk(state, npc.name, [
       npc.id === 'forestScout'

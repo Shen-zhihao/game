@@ -437,7 +437,7 @@ export function BattleStage({
             <CreatureSprite
               speciesId={scene.player.speciesId}
               size={size * 1.2}
-              flip
+              view="back"
               animate={!ended && !playing}
             />
           </Animated.View>

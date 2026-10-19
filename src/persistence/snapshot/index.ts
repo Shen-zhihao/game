@@ -61,6 +61,7 @@ import { validActivityLocation, validActivityBoard } from '../../game/activities
 import { isSightTrainer, validTrainerChallenge } from '../../game/trainerChallenges';
 import { REPEL_STEPS } from '../../game/fieldItems';
 import { trainerMedicine } from '../../game/battle/strategy';
+import { GYM_REMATCH_EVENTS, gymRematch } from '../../game/gymRematches';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -208,6 +209,7 @@ const event = z.enum([
   'islandEncounter',
   'tideEncounter',
   ...ADVENTURE_EVENTS,
+  ...GYM_REMATCH_EVENTS,
 ]);
 const mapId = z.enum(
   Object.keys(MAPS) as [GameState['player']['map'], ...GameState['player']['map'][]],
@@ -358,6 +360,12 @@ const gameSchema = z.strictObject({
       masterBallsGranted: integer(999999999),
       masterBallsUsed: integer(999999999),
     })
+    .optional(),
+  gymRematches: z
+    .partialRecord(
+      z.enum(GYM_REMATCH_EVENTS),
+      z.strictObject({ attempts: integer(999999999, 1), wins: integer(999999999) }),
+    )
     .optional(),
   league: z
     .strictObject({
@@ -819,6 +827,26 @@ export function validateGame(input: unknown): GameState {
     '未知剧情标记',
   );
   const flags = game.progress.flags;
+  for (const [event, record] of Object.entries(game.gymRematches ?? {})) {
+    const gym = gymRematch(event);
+    invariant(
+      gym && flags.champion && flags[gym.leader] && record.wins <= record.attempts,
+      '道馆再战记录或解锁条件无效',
+    );
+  }
+  const dialogueRematch = gymRematch(game.dialogue?.after);
+  if (dialogueRematch)
+    invariant(
+      flags.champion &&
+        flags[dialogueRematch.leader] &&
+        game.player.map === dialogueRematch.map &&
+        !game.battle &&
+        !game.league?.active &&
+        !game.challenge?.active &&
+        !game.activities?.active &&
+        !game.pending.length,
+      '道馆再战对话缺少前置条件',
+    );
   for (const [flag, requires] of Object.entries(ADVENTURE_PREREQUISITES))
     invariant(
       !flags[flag] || requires.every((f) => hasFieldAccess(game, f)),
@@ -1271,11 +1299,37 @@ export function validateGame(input: unknown): GameState {
   if (game.dialogue) invariant(game.dialogue.index < game.dialogue.lines.length, '对话位置越界');
   if (game.battle) {
     const b = game.battle;
+    const rematch = gymRematch(b.event);
+    if (rematch) {
+      const record = game.gymRematches?.[rematch.event];
+      invariant(
+        flags.champion &&
+          flags[rematch.leader] &&
+          record &&
+          (b.result === 'win'
+            ? record.wins > 0
+            : record.attempts > record.wins || record.attempts === 999999999) &&
+          !game.league?.active &&
+          !game.challenge?.active &&
+          !game.activities?.active &&
+          b.kind === 'trainer' &&
+          !b.ruleChallenge &&
+          (b.result === null || b.result === 'win' || b.result === 'lose') &&
+          (b.result === 'lose' || game.player.map === rematch.map) &&
+          b.npcId === MAPS[rematch.map].npcs.find((npc) => npc.event === rematch.leader)?.id &&
+          b.enemies.length === rematch.team.length &&
+          b.enemies.every(
+            (enemy, i) =>
+              enemy.speciesId === rematch.team[i]![0] && enemy.level === rematch.team[i]![1],
+          ),
+        '道馆再战战斗或记录无效',
+      );
+    }
     if (b.npcId)
       invariant(
         b.kind === 'trainer' &&
           Object.values(MAPS).some((m) =>
-            m.npcs.some((n) => n.id === b.npcId && n.event === b.event),
+            m.npcs.some((n) => n.id === b.npcId && n.event === (rematch?.leader ?? b.event)),
           ),
         '训练师对战来源无效',
       );

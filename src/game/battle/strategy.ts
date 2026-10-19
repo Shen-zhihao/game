@@ -1,5 +1,6 @@
 import { canLearnMove, learnset, MOVES, SPECIES } from '../../content/catalog';
 import { trainerTactic } from '../../content/trainerTactics';
+import { gymRematch } from '../gymRematches';
 import type { Battle, Creature, GameState, Stages, WeatherId } from '../model';
 import { criticalChance, hitChance, roundPace, stageLimit } from '../combat';
 import { abilityFor, calculateDamage, statsFor, typeMultiplier } from '../rules';
@@ -92,6 +93,7 @@ function statusImmune(defender: Creature, id: string): boolean {
 }
 /** Only leaders and league opponents carry active medicine, never apprentices or rule challenges. */
 export function trainerMedicine(event: string | null): Battle['enemyMedicine'] {
+  if (gymRematch(event)) return { itemId: 'hyper_potion', remaining: 2 };
   if (
     [
       'leader',

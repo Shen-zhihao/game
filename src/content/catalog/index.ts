@@ -6,9 +6,10 @@ import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 import { HELD_ITEMS } from '../battleTraits';
 
-export const CONTENT_VERSION = 'ch11.2';
+export const CONTENT_VERSION = 'ch11.3';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch11.2' ||
   version === 'ch11.1' ||
   version === 'ch11.0' ||
   version === 'ch10.6' ||

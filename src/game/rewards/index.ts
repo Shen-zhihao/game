@@ -1,4 +1,5 @@
 import { MOVES, SPECIES } from '../../content/catalog';
+import { gymRematch } from '../gymRematches';
 import { TRAINERS, GYM_REWARDS, PRACTICE_TRAINERS } from '../../content/world';
 import { Battle, Creature, GameState } from '../model';
 import { earnedPoints, ensureTraining } from '../growth';
@@ -8,7 +9,7 @@ import { battleScene } from '../battleVisuals';
 export const GYM_LEADERS = new Set<string>(GYM_REWARDS.map((g) => g.leader));
 export const REPEAT_TRAINERS = PRACTICE_TRAINERS;
 export function rewardTier(b: Battle): 'wild' | 'trainer' | 'leader' {
-  return GYM_LEADERS.has(b.event ?? '') ? 'leader' : b.kind;
+  return GYM_LEADERS.has(b.event ?? '') || gymRematch(b.event) ? 'leader' : b.kind;
 }
 export function knockoutReward(b: Battle, enemy: Creature) {
   if (b.event === 'openingRescue') return { experience: 16, money: 8 };

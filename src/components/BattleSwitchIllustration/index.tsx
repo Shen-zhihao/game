@@ -164,7 +164,7 @@ export function BattleSwitchIllustration({
         <CreatureSprite
           speciesId={visual.figure.speciesId}
           size={spriteSize}
-          flip={player}
+          view={player ? 'back' : 'front'}
           animate={completed && !paused && !ended && !reduced && sending}
         />
       </Animated.View>

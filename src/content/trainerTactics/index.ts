@@ -1,3 +1,4 @@
+import { gymRematch } from '../../game/gymRematches';
 import type { WeatherId } from '../../game/model';
 
 export interface TrainerTactic {
@@ -56,6 +57,8 @@ const profiles: Record<string, TrainerTactic> = {
 };
 export function trainerTactic(event: string | null): TrainerTactic | null {
   if (!event) return null;
+  const rematch = gymRematch(event);
+  if (rematch) return { ...trainerTactic(rematch.leader)!, switchBudget: 4 };
   if (profiles[event]) return profiles[event]!;
   if (['leader', 'gymScout', 'gymKeeper'].includes(event)) return profiles.grass!;
   const prefix = ['rock', 'water', 'electric', 'wind', 'fire', 'psychic', 'star'].find((key) =>
