@@ -19,7 +19,6 @@ import {
 } from '../../platform/controlLayout/controller';
 import { SCENE_TRANSITION } from '../../sceneTransition';
 import { calendarDetails } from '../../game/calendar';
-import { useDayNightEnabled } from '../../hooks/useDayNightEnabled';
 import { useNightLighting } from '../../hooks/useNightLighting';
 import { useMapPassage } from '../../hooks/useMapPassage';
 import { useWalkInput } from '../../hooks/useWalkInput';
@@ -47,7 +46,6 @@ export function Explore({
   const passage = useMapPassage(currentGame, coveredTransition, screenPaused);
   const { game, door, transition } = useBuildingPassage(passage.game);
   const night = useNightLighting(game, coveredTransition || !!transition || !!passage.transition);
-  const dayNightEnabled = useDayNightEnabled();
   const calendar = calendarDetails(game);
   const paused = screenPaused || !!transition || !!passage.transition;
   const passageReady = passage.onReady;
@@ -123,8 +121,7 @@ export function Explore({
             {!tiny && <Text style={s.smallText}>◈ {game.progress.badges}/8</Text>}
           </View>
           <Text testID="calendar-status" numberOfLines={1} style={s.smallText}>
-            星苔历 {calendar.date} · {calendar.clock}{' '}
-            {dayNightEnabled ? (calendar.night ? '夜晚' : '白天') : '常昼'}
+            星苔历 {calendar.date} · {calendar.clock} {calendar.night ? '夜晚' : '白天'}
           </Text>
           {!isIndoor(game.player.map) && (
             <Text testID="weather-status" numberOfLines={1} style={s.smallText}>

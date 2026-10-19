@@ -728,7 +728,7 @@ export function BattleScreen({
             right: insets.right + 12,
             bottom: insets.bottom + 10,
             height: choosingMoves ? moveDockHeight : undefined,
-            display: showLog || showCombatStats ? 'none' : 'flex',
+            display: showLog ? 'none' : 'flex',
           },
         ]}
       >
