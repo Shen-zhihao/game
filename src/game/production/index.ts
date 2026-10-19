@@ -1,6 +1,6 @@
-import { observationProgress } from '../ecology';
 import { cityFor, servicesUnlocked } from '../../content/cities';
 import {
+  ADVANCED_PRODUCTION_RECIPES,
   BASIC_PRODUCTION_RECIPES,
   PRODUCTION_CHAINS,
   PRODUCTION_KEEPSAKES,
@@ -14,7 +14,7 @@ import {
   type ProductionRecipe,
   type ProductionTown,
 } from '../../content/production';
-import { calendarDetails, calendarFor } from '../calendar';
+import { calendarDetails, calendarFor, dayPeriodFor, type DayPeriod } from '../calendar';
 import type { GameState } from '../model';
 
 export const PRODUCTION_STOCK_LIMIT = 999;
@@ -85,7 +85,7 @@ export function awardProductionMaterials(game: GameState, activityId: string): s
 
 /** Unlocks are derived from permanent ledgers, so old saves gain no invented observations. */
 export function advancedRecipeProgress(game: GameState, town: ProductionTown) {
-  const observed = observationProgress(game, town);
+  const observed = game.ecology?.[town];
   const orders = BASIC_PRODUCTION_RECIPES.filter((recipe) => recipe.town === town).reduce(
     (sum, recipe) => sum + (game.production?.orders[recipe.id]?.count ?? 0),
     0,
@@ -93,17 +93,44 @@ export function advancedRecipeProgress(game: GameState, town: ProductionTown) {
   const requiredOrders = 3;
   const missing = [
     orders < requiredOrders ? `本城基础订单 ${orders}/${requiredOrders}` : '',
-    !observed.day ? '白天野外观察 0/1' : '',
-    !observed.night ? '夜晚野外观察 0/1' : '',
+    !observed?.day ? '白天野外观察 0/1' : '',
+    !observed?.night ? '夜晚野外观察 0/1' : '',
   ].filter(Boolean);
   return {
     orders,
     requiredOrders,
-    observedDay: !!observed.day,
-    observedNight: !!observed.night,
+    observedDay: !!observed?.day,
+    observedNight: !!observed?.night,
     unlocked: !missing.length,
     reason: missing.length ? `进阶配方未解锁：${missing.join('；')}。` : '',
   };
+}
+
+/** Prefer an observation that is possible now; tracking never creates a second ledger. */
+export function productionNextGoal(
+  game: GameState,
+  town: ProductionTown,
+): DayPeriod | 'order' | null {
+  const progress = advancedRecipeProgress(game, town);
+  const period = dayPeriodFor(game);
+  const missingDay = !progress.observedDay;
+  const missingNight = !progress.observedNight;
+  if (period === 'day' && missingDay) return 'day';
+  if (period === 'night' && missingNight) return 'night';
+  if (missingDay) return 'day';
+  if (missingNight) return 'night';
+  return progress.orders < progress.requiredOrders ? 'order' : null;
+}
+
+/** Called around an actual ledger mutation, not menu reads or save loading. */
+export function advancedRecipeUnlockNotice(
+  game: GameState,
+  town: ProductionTown,
+  previouslyUnlocked: boolean,
+): string {
+  if (previouslyUnlocked || !advancedRecipeProgress(game, town).unlocked) return '';
+  const recipes = ADVANCED_PRODUCTION_RECIPES.filter((recipe) => recipe.town === town);
+  return `进阶配方已解锁：${recipes.map((recipe) => PRODUCTION_PRODUCTS[recipe.id].name).join('、')}。可到${PRODUCTION_CHAINS[town].venue}制作。`;
 }
 
 export function productionAvailability(game: GameState, recipe: ProductionRecipe) {
@@ -171,6 +198,8 @@ export function applyProduction(game: GameState, action: ProductionAction): void
     return;
   }
   const state = (game.production ??= createProduction());
+  const previouslyUnlocked = advancedRecipeProgress(game, recipe.town).unlocked;
+  const previousOrders = state.orders[recipe.id]?.count ?? 0;
   const name = PRODUCTION_PRODUCTS[recipe.id].name;
   const previousKeepsakes = state.collection.keepsakes;
   if (action.kind === 'craft') {
@@ -186,10 +215,18 @@ export function applyProduction(game: GameState, action: ProductionAction): void
     // Consume exactly one product and save the daily order claim before any collection reward.
     state.orders[recipe.id] = {
       day: calendarFor(game).day,
-      count: (state.orders[recipe.id]?.count ?? 0) + 1,
+      count: previousOrders + 1,
     };
     state.products[recipe.id] = (state.products[recipe.id] ?? 0) - 1;
     game.notice = `已交付「${recipe.order}」：${name}×1，获得手作印花×1。明天仍可来交付。`;
+    if (recipe.advanced && previousOrders === 0) {
+      const display = {
+        dawn: '晨芽镇花园已布置好野餐',
+        stone: '石脊城已摆放昼夜矿晶灯',
+        harbor: '白帆港已展出潮汐星光画',
+      }[recipe.town];
+      game.notice += ` ${display}，回到街区看看你的手作吧。`;
+    }
   }
   state.collection = productionCollection(state);
   const added = PRODUCTION_KEEPSAKES.filter(
@@ -198,6 +235,10 @@ export function applyProduction(game: GameState, action: ProductionAction): void
   );
   if (added.length)
     game.notice += ` 新收藏：${added.map((keepsake) => keepsake.name).join('、')}。`;
+  if (action.kind === 'order' && !recipe.advanced) {
+    const unlocked = advancedRecipeUnlockNotice(game, recipe.town, previouslyUnlocked);
+    if (unlocked) game.notice += ` ${unlocked}`;
+  }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>

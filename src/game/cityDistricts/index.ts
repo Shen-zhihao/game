@@ -2,12 +2,47 @@ import {
   CITY_BUILDING_KINDS,
   CITY_IDENTITIES,
   CITY_TOWNS,
+  cityLayout,
   districtFlag,
   districtQuestId,
 } from '../../content/cityDistricts';
 import { CITY_QUESTS, servicesUnlocked } from '../../content/cities';
+import { PRODUCTION_PRODUCTS } from '../../content/production';
 import type { Npc } from '../../content/world';
-import type { GameState } from '../model';
+import { dayPeriodFor } from '../calendar';
+import type { GameState, TownId } from '../model';
+
+const CITY_PRODUCTION_MILESTONES = {
+  dawn: {
+    id: 'dawn_picnic',
+    feedback:
+      '你送来的晨露野餐篮已经摆在向阳花园的长椅旁。观察员们可以一边野餐，一边分享晨夜见闻了，谢谢你！',
+  },
+  stone: {
+    id: 'echo_lamp',
+    feedback:
+      '你送来的昼夜矿晶灯已经摆在层岩纪念园的长椅旁。晶光陪着观察员整理矿山见闻，大家都记得你的帮助。',
+  },
+  harbor: {
+    id: 'tide_mosaic',
+    feedback:
+      '你送来的潮汐星光画已经展在潮声滨园的长椅旁。居民们从空贝壳与海玻璃里，看到了你记录的昼夜潮汐。',
+  },
+} as const;
+
+/** The display is earned by delivery, never by crafting, opening a menu, or talking again. */
+export function cityProductionMilestone(game: GameState, town: TownId) {
+  const milestone = CITY_PRODUCTION_MILESTONES[town as keyof typeof CITY_PRODUCTION_MILESTONES];
+  if (!milestone || (game.production?.orders[milestone.id]?.count ?? 0) <= 0) return null;
+  const layout = cityLayout(town);
+  return {
+    ...milestone,
+    name: PRODUCTION_PRODUCTS[milestone.id].name,
+    // This lawn cell is beside the garden bench, not a path, doorway or NPC position.
+    x: layout.gardenX - 2,
+    y: layout.gardenY - 2,
+  };
+}
 
 /** Street and indoor interactions feed the same persistent ledger as the quest board. */
 export function interactCityDistrict(
@@ -34,8 +69,10 @@ export function interactCityDistrict(
         : 'tour';
   const questId = districtQuestId(town, quest);
   const task = CITY_QUESTS[questId]!;
+  const milestone = cityProductionMilestone(game, town);
   if (task.prerequisite && ledger.quests[task.prerequisite] !== 'claimed') {
     talk(npc.name, [
+      ...(milestone ? [milestone.feedback] : []),
       `${identity.celebration}还在筹备。先帮烘焙坊、工坊和书馆整理工作记录，再交付筹备委托；我会在这里等大家。`,
     ]);
     return true;
@@ -80,6 +117,15 @@ export function interactCityDistrict(
       );
     }
   }
+  if (milestone) lines.push(milestone.feedback);
+  if (town === 'dawn' && point === 'bakery')
+    lines.push('交谈后可在这里制作与交付晨芽烘焙；育苗小园得到的麦穗和香草，都能派上用场。');
+  else if (town === 'stone' && point === 'workshop')
+    lines.push('交谈后可在这里制作与交付石脊手作；把岩层寻宝得到的石料与矿晶带来吧。');
+  else if (town === 'harbor' && point === 'market')
+    lines.push(
+      `潮声夜市每日 18:00 至次日 06:00 营业，${dayPeriodFor(game) === 'night' ? '现在已开市' : '现在正在备摊'}。交谈后可在这里查看配方，夜间制作与交付；材料和订单不会过期。`,
+    );
   lines.push(
     ledger.quests[questId] === 'claimed'
       ? '这份委托已完成，欢迎常来。'

@@ -1,6 +1,10 @@
+import type { MapId } from '../src/game/model';
+import type { ProductionTown } from '../src/content/production';
+import { facingNpc } from '../src/game/exploration';
+import { servicesUnlocked } from '../src/content/cities';
 import { ProductionMenu } from '../src/screens/ProductionMenu';
 import { ChallengeMenu } from '../src/screens/ChallengeMenu';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -64,6 +68,11 @@ function GameApp() {
   const [bootError, setBootError] = useState('');
   const [screen, setScreen] = useState<'title' | 'create' | 'play'>('title');
   const [menu, setMenu] = useState<MenuName | null>(null);
+  const [facilityTown, setFacilityTown] = useState<ProductionTown | undefined>();
+  const [regionTarget, setRegionTarget] = useState<MapId | undefined>();
+  const pendingFacility = useRef<{ town: ProductionTown; sawDialogue: boolean } | undefined>(
+    undefined,
+  );
   const [editingControls, setEditingControls] = useState(false);
   const [slots, setSlots] = useState<Slots>([]);
   const [error, setError] = useState('');
@@ -77,6 +86,18 @@ function GameApp() {
   const presentation = useJourneyPresentation(game, session.dispatch);
   const dispatch = presentation.dispatch;
   const resetPresentation = presentation.reset;
+  useEffect(() => {
+    const pending = pendingFacility.current;
+    if (!pending || !game) return;
+    if (game.dialogue) pending.sawDialogue = true;
+    else if (pending.sawDialogue) {
+      pendingFacility.current = undefined;
+      if (!game.battle && !game.pending.length && !game.activities?.active) {
+        setFacilityTown(pending.town);
+        setMenu('production');
+      }
+    }
+  }, [game]);
   const [playingBattleId, setPlayingBattleId] = useState<string | null>(null);
   const onBattlePlayback = useCallback((id: string, playing: boolean) => {
     setPlayingBattleId((current) => (playing ? id : current === id ? null : current));
@@ -142,6 +163,7 @@ function GameApp() {
   }, []);
   const load = useCallback(
     async (slot: number) => {
+      pendingFacility.current = undefined;
       resetPresentation();
       await loadSession(slot);
       setScreen('play');
@@ -166,6 +188,9 @@ function GameApp() {
           await saveSession();
           await repository?.drain();
         }
+        pendingFacility.current = undefined;
+        setFacilityTown(undefined);
+        setRegionTarget(undefined);
         setMenu(m);
       });
     },
@@ -455,6 +480,23 @@ function GameApp() {
             key={session.slot}
             game={presentation.game!}
             dispatch={(command) => {
+              // Preserve existing district dialogue and quest records, then open its actual counter.
+              if (
+                command.kind === 'interact' &&
+                !game.dialogue &&
+                !game.battle &&
+                !game.pending.length &&
+                !game.activities?.active &&
+                servicesUnlocked(game)
+              ) {
+                const facilities: Record<string, ProductionTown> = {
+                  district_dawn_bakery: 'dawn',
+                  district_stone_workshop: 'stone',
+                  district_harbor_market: 'harbor',
+                };
+                const town = facilities[facingNpc(game)?.id ?? ''];
+                pendingFacility.current = town ? { town, sawDialogue: false } : undefined;
+              }
               dispatch(command);
               if (command.kind === 'closeBattle' && game.battle?.ruleChallenge)
                 setMenu('challenge');
@@ -508,7 +550,18 @@ function GameApp() {
             />
           ) : game ? (
             <>
-              {menu === 'production' && <ProductionMenu game={game} dispatch={dispatch} />}
+              {menu === 'production' && (
+                <ProductionMenu
+                  key={facilityTown ?? 'all'}
+                  game={game}
+                  dispatch={dispatch}
+                  facilityTown={facilityTown}
+                  onOpenRegion={(map) => {
+                    setRegionTarget(map);
+                    setMenu('map');
+                  }}
+                />
+              )}
               {menu === 'party' && <PartyMenu game={game} dispatch={dispatch} />}
               {menu === 'center' && <CenterMenu game={game} dispatch={dispatch} />}
               {menu === 'bag' && <BagMenu game={game} dispatch={dispatch} />}
@@ -527,6 +580,7 @@ function GameApp() {
               {menu === 'map' && (
                 <RegionMenu
                   game={game}
+                  initialMap={regionTarget}
                   onTravel={(town) => {
                     dispatch({ kind: 'fastTravel', town });
                     setMenu(null);

@@ -299,17 +299,19 @@ function WorldMap({
 
 export function RegionMenu({
   game,
+  initialMap,
   onTravel,
 }: {
   game: GameState;
+  initialMap?: MapId;
   onTravel: (town: TownId) => void;
 }) {
   const [contentWidth, setContentWidth] = useState(600);
   const [showDetails, setShowDetails] = useState(false);
   const narrow = contentWidth < 540;
   const current = regionPlaceForMap(game.player.map);
-  const [selected, setSelected] = useState(current.id);
-  const [local, setLocal] = useState<MapId | null>(null);
+  const [selected, setSelected] = useState(regionPlaceForMap(initialMap ?? game.player.map).id);
+  const [local, setLocal] = useState<MapId | null>(initialMap ?? null);
   const place = REGION_PLACES.find((p) => p.id === selected)!;
   const town = place.map && isTown(place.map) ? place.map : null;
   const travelBlocked = town ? fastTravelBlockedReason(game, town) : null;

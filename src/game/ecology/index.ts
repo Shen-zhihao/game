@@ -3,6 +3,7 @@ import { HABITAT_SITES } from '../../content/habitats';
 import { PRODUCTION_TOWNS, type ProductionTown } from '../../content/production';
 import { calendarFor, dayPeriodFor, type DayPeriod } from '../calendar';
 import type { GameState, MapId } from '../model';
+import { advancedRecipeProgress, advancedRecipeUnlockNotice } from '../production';
 
 /** First genuine field encounter in each time period; never reconstructed from the Pokédex. */
 export interface ObservationRecord {
@@ -76,10 +77,13 @@ export function recordWildObservation(game: GameState, map: MapId): void {
   const period = dayPeriodFor(game);
   const records = ((game.ecology ??= {})[town] ??= {});
   if (records[period]) return;
+  const previouslyUnlocked = advancedRecipeProgress(game, town).unlocked;
   records[period] = { speciesId, map, ...calendarFor(game) };
   battle.logs.push(
     `观察手册：${OBSERVATION_AREAS[town].title} · ${period === 'day' ? '白天' : '夜晚'}已记录。`,
   );
+  const unlocked = advancedRecipeUnlockNotice(game, town, previouslyUnlocked);
+  if (unlocked) battle.logs.push(unlocked);
 }
 
 /** Structural validation is handled by the strict save schema; validate provenance and chronology. */

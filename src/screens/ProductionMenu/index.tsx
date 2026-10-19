@@ -18,23 +18,43 @@ import {
 } from '../../content/production';
 import { calendarDetails, calendarFor, restBlockedReason } from '../../game/calendar';
 import { observationProgress } from '../../game/ecology';
-import type { Command, GameState } from '../../game/model';
-import { advancedRecipeProgress, productionAvailability } from '../../game/production';
+import type { Command, GameState, MapId } from '../../game/model';
+import {
+  advancedRecipeProgress,
+  productionAvailability,
+  productionNextGoal,
+} from '../../game/production';
 
 export function ProductionMenu({
   game,
   dispatch,
+  facilityTown,
+  onOpenRegion,
 }: {
   game: GameState;
   dispatch: (command: Command) => void;
+  facilityTown?: ProductionTown;
+  onOpenRegion?: (map: MapId) => void;
 }) {
   const here = cityFor(game.player.map)?.map;
-  const [selected, setSelected] = useState<ProductionTown>(
-    PRODUCTION_TOWNS.find((town) => town === here) ?? 'dawn',
+  const [selectedTown, setSelected] = useState<ProductionTown>(
+    facilityTown ?? PRODUCTION_TOWNS.find((town) => town === here) ?? 'dawn',
   );
+  const selected = facilityTown ?? selectedTown;
   const chain = PRODUCTION_CHAINS[selected];
   const state = game.production;
   const calendar = calendarDetails(game);
+  const observation = observationProgress(game, selected);
+  const progress = advancedRecipeProgress(game, selected);
+  const nextGoal = productionNextGoal(game, selected);
+  const observationGoal = nextGoal === 'day' || nextGoal === 'night';
+  const goalMap = observationGoal
+    ? observation.maps.includes(game.player.map)
+      ? game.player.map
+      : (observation.maps.find((map) => map !== selected) ?? observation.maps[0]!)
+    : selected;
+  const goalPeriod = nextGoal === 'night' ? '夜晚' : '白天';
+  const periodReady = observationGoal && (nextGoal === 'night') === calendar.night;
   const collectedToday =
     (state?.activityClaims[chain.activityId]?.day ?? 0) >= calendarFor(game).day;
   const morningBlock = restBlockedReason(game, 'morning');
@@ -51,7 +71,9 @@ export function ProductionMenu({
   return (
     <ScrollView testID="production-menu" contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
       <View style={{ gap: 4 }}>
-        <Label style={{ fontSize: 22, fontWeight: '800' }}>城市手作与夜市</Label>
+        <Label style={{ fontSize: 22, fontWeight: '800' }}>
+          {facilityTown ? chain.venue : '城市手作与夜市'}
+        </Label>
         <Label muted>活动采集 → 制作成品 → 交付订单 → 收藏纪念章</Label>
         <Label muted style={{ fontSize: 12 }}>
           手作材料、成品与印花独立保存，不消耗伙伴，不改变战斗背包或旅费。
@@ -88,8 +110,52 @@ export function ProductionMenu({
           </Label>
         )}
       </Panel>
+      {!facilityTown && (
+        <View style={[styles.wrap, { gap: 6 }]}>
+          {PRODUCTION_TOWNS.map((town) => (
+            <Button
+              small
+              key={town}
+              selected={selected === town}
+              testID={`production-town-${town}`}
+              onPress={() => setSelected(town)}
+            >
+              {PRODUCTION_CHAINS[town].title}
+              {here === town ? ' · 所在地' : ''}
+            </Button>
+          ))}
+        </View>
+      )}
+      <Panel testID={`production-next-goal-${selected}`} style={{ padding: 12, gap: 8 }}>
+        <Label style={{ fontWeight: '800' }}>当前追踪 · {chain.title}</Label>
+        <Label testID="production-next-goal-title" style={{ color: palette.gold }}>
+          {observationGoal
+            ? `下一步：完成${goalPeriod}野外观察`
+            : nextGoal === 'order'
+              ? `下一步：再交付 ${progress.requiredOrders - progress.orders} 份本城基础订单`
+              : '进阶配方已解锁，可以开始制作'}
+        </Label>
+        <Label muted style={{ fontSize: 12 }}>
+          {progress.observedDay ? '✓' : '○'} 白天观察 · {progress.observedNight ? '✓' : '○'}{' '}
+          夜晚观察 · 基础订单 {progress.orders}/{progress.requiredOrders}
+        </Label>
+        <Label testID="production-next-goal-detail" muted style={{ fontSize: 12 }}>
+          {observationGoal
+            ? `${observation.location}：${goalPeriod}真实遇见一次野生精灵即可，无需捕捉。${periodReady ? '当前时段符合条件。' : `当前是${calendar.night ? '夜晚' : '白天'}，可在安全城镇选择「休息到${nextGoal === 'night' ? '夜晚' : '清晨'}」。`}`
+            : nextGoal === 'order'
+              ? `完成${chain.source}领取材料，在${chain.venue}制作并交付基础成品。每种订单每天可交付一次${chain.nightOnly ? '，夜市仅 18:00 至次日 06:00 营业' : ''}。`
+              : `昼夜观察和基础订单条件均已完成。前往${chain.venue}，使用手作材料制作本城进阶配方。`}
+        </Label>
+        {onOpenRegion && (
+          <Button small testID="production-next-goal-map" onPress={() => onOpenRegion(goalMap)}>
+            在地图中查看 · {MAPS[goalMap].name}
+          </Button>
+        )}
+      </Panel>
       <Panel testID="production-observation-checklist" style={{ padding: 12, gap: 10 }}>
-        <Label style={{ fontWeight: '800' }}>三城昼夜观察手账</Label>
+        <Label style={{ fontWeight: '800' }}>
+          {facilityTown ? '本城昼夜观察手账' : '三城昼夜观察手账'}
+        </Label>
         <Label muted style={{ fontSize: 12 }}>
           每城在指定区域白天、夜晚各真实遇见一次野生精灵，并累计交付 3
           份本城基础订单，即可解锁本城进阶配方。无需捕捉，不消耗伙伴。
@@ -97,7 +163,7 @@ export function ProductionMenu({
         <Label muted style={{ fontSize: 12 }}>
           仅记录真实野外相遇的首次物种、地点与游戏日历时间；旧图鉴、训练家战斗不会补记。昼夜以世界日历为准，与画面明暗设置无关。
         </Label>
-        {PRODUCTION_TOWNS.map((town) => {
+        {(facilityTown ? [facilityTown] : PRODUCTION_TOWNS).map((town) => {
           const observation = observationProgress(game, town);
           const progress = advancedRecipeProgress(game, town);
           return (
@@ -137,20 +203,6 @@ export function ProductionMenu({
           );
         })}
       </Panel>
-      <View style={[styles.wrap, { gap: 6 }]}>
-        {PRODUCTION_TOWNS.map((town) => (
-          <Button
-            small
-            key={town}
-            selected={selected === town}
-            testID={`production-town-${town}`}
-            onPress={() => setSelected(town)}
-          >
-            {PRODUCTION_CHAINS[town].title}
-            {here === town ? ' · 所在地' : ''}
-          </Button>
-        ))}
-      </View>
       <Panel testID={`production-source-${selected}`} style={{ padding: 12, gap: 6 }}>
         <Label style={{ fontWeight: '800' }}>
           {chain.venue}
