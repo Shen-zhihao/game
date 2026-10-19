@@ -14,13 +14,14 @@ import {
   REGION_SIZE,
   RegionPlace,
 } from '../../content/region';
-import { MAPS } from '../../content/world';
-import { GameState, MapId } from '../../game/model';
+import { MAPS, isTown } from '../../content/world';
+import { GameState, MapId, TownId } from '../../game/model';
 import { HABITAT_SITES } from '../../content/habitats';
 import { TileMapLayers } from '../../components/TileMap';
 import { layoutRegionLabels } from '../../content/regionLabels';
 import { ADVENTURE_GYMS } from '../../content/adventure';
 import { CITY_TOWNS, CITY_IDENTITIES, cityLayout } from '../../content/cityDistricts';
+import { fastTravelBlockedReason, hasVisitedTown } from '../../game/travel';
 import { CITY_ACTIVITIES } from '../../content/fieldActivities';
 
 function LocalMap({ game, map }: { game: GameState; map: MapId }) {
@@ -296,7 +297,13 @@ function WorldMap({
   );
 }
 
-export function RegionMenu({ game }: { game: GameState }) {
+export function RegionMenu({
+  game,
+  onTravel,
+}: {
+  game: GameState;
+  onTravel: (town: TownId) => void;
+}) {
   const [contentWidth, setContentWidth] = useState(600);
   const [showDetails, setShowDetails] = useState(false);
   const narrow = contentWidth < 540;
@@ -304,6 +311,8 @@ export function RegionMenu({ game }: { game: GameState }) {
   const [selected, setSelected] = useState(current.id);
   const [local, setLocal] = useState<MapId | null>(null);
   const place = REGION_PLACES.find((p) => p.id === selected)!;
+  const town = place.map && isTown(place.map) ? place.map : null;
+  const travelBlocked = town ? fastTravelBlockedReason(game, town) : null;
   const selectPlace = (p: RegionPlace) => {
     setSelected(p.id);
     setLocal(null);
@@ -388,6 +397,21 @@ export function RegionMenu({ game }: { game: GameState }) {
                 ? `${current.id === place.id ? '你在这里 · ' : ''}已开放 · 可探索`
                 : '后续旅程 · 尚未开放'}
             </Label>
+            {town && (
+              <View style={{ gap: 5 }}>
+                <Button
+                  small
+                  testID={`fast-travel-${town}`}
+                  disabled={!!travelBlocked}
+                  onPress={() => onTravel(town)}
+                >
+                  {hasVisitedTown(game, town) ? '快速旅行至精灵中心' : '尚未到访'}
+                </Button>
+                <Label muted style={{ fontSize: 11, lineHeight: 16 }}>
+                  {travelBlocked ?? '抵达已到访城市，不恢复伙伴 HP 或 PP。'}
+                </Label>
+              </View>
+            )}
             {place.map && (
               <Pressable
                 testID="map-local-preview"

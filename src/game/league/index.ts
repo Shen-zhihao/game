@@ -154,6 +154,7 @@ export function presentCompleteJourney(g: GameState): GameState {
     !f.creditsViewed ||
     f.journeyComplete ||
     g.battle ||
+    g.challenge?.active ||
     g.dialogue ||
     g.pending.length
   )

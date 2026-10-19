@@ -1,3 +1,5 @@
+import { applyChallenge, finishChallengeBattle } from '../challenge';
+import { applyFastTravel } from '../travel';
 import {
   canLearnMove,
   ITEMS,
@@ -814,6 +816,13 @@ function reduceCommand(current: GameState, command: Command): GameState {
   state.masterBalls ??= { claimed: [], used: 0 };
   Object.values(state.creatures).forEach(ensureTraining);
   state.battle?.enemies.forEach(ensureTraining);
+  if (
+    state.challenge?.active &&
+    !['battle', 'closeBattle', 'challenge', 'tick'].includes(command.kind)
+  ) {
+    state.notice = '规则挑战进行中，请先完成或退出挑战。';
+    return state;
+  }
   if (command.kind === 'cheat') {
     redeemCheat(state, command.code);
     return state;
@@ -882,6 +891,11 @@ function reduceCommand(current: GameState, command: Command): GameState {
   if (command.kind === 'closeBattle') {
     const b = state.battle;
     if (b?.phase === 'ended') {
+      if (b.ruleChallenge) {
+        finishChallengeBattle(state);
+        state.battle = null;
+        return state;
+      }
       const leagueEnding = leagueVictoryPresentation(state, (speaker, lines, after) =>
         talk(state, speaker, lines, after),
       );
@@ -922,6 +936,19 @@ function reduceCommand(current: GameState, command: Command): GameState {
     return state;
   }
   if (state.battle) return current;
+  if (command.kind === 'challenge') {
+    applyChallenge(state, command.action);
+    return state;
+  }
+  if (command.kind === 'setRunning') {
+    if (state.pending.length) return current;
+    state.player.running = command.running;
+    return state;
+  }
+  if (command.kind === 'fastTravel') {
+    applyFastTravel(state, command.town);
+    return state;
+  }
   if (command.kind === 'chooseStarter') {
     const f = state.progress.flags;
     if (
@@ -1199,6 +1226,7 @@ export function safeForTransfer(state: GameState | null): boolean {
   return (
     !state ||
     (!state.battle &&
+      !state.challenge?.active &&
       !state.activities?.active &&
       !state.dialogue &&
       !state.progress.flags.starterChoice &&

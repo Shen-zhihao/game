@@ -6,7 +6,7 @@ import { MAPS, objective } from '../../content/world';
 import { Command, GameState, MapId } from '../../game/model';
 import { WorldViewport } from '../../components/WorldViewport';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Label, palette } from '../../components/ui';
+import { Button, Label, palette } from '../../components/ui';
 import { availablePoints } from '../../game/growth';
 import { isIndoor, localWeather, WEATHER, weatherAt } from '../../game/environment';
 import { useBuildingPassage } from '../../hooks/useBuildingPassage';
@@ -62,6 +62,8 @@ export function Explore({
     paused ||
     !!game.dialogue ||
     !!game.battle ||
+    !!game.activities?.active ||
+    !!game.challenge?.active ||
     !!game.pending.length ||
     !!game.progress.flags.starterChoice;
   const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu });
@@ -240,6 +242,22 @@ export function Explore({
               </Text>
             </Pressable>
           </ScrollView>
+        </View>
+      )}
+      {!game.dialogue && (
+        <View style={{ position: 'absolute', top: insets.top + 58, right: insets.right + 14 }}>
+          <Button
+            small
+            testID="toggle-running"
+            disabled={blocked}
+            selected={!!game.player.running}
+            onPress={() => {
+              stop();
+              dispatch({ kind: 'setRunning', running: !game.player.running });
+            }}
+          >
+            {game.player.running ? '奔跑中' : '步行'} · R
+          </Button>
         </View>
       )}
       <GameControls

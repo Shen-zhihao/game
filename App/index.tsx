@@ -1,3 +1,4 @@
+import { ChallengeMenu } from '../src/screens/ChallengeMenu';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -159,7 +160,8 @@ function GameApp() {
       void run(async () => {
         if (menu === 'transfer' && game) await loadSession(activeSlot);
         if (m === 'transfer') {
-          if (!safeForTransfer(game)) throw new Error('请先完成战斗、对话与成长选择，再进行传档');
+          if (!safeForTransfer(game))
+            throw new Error('请先结束规则挑战、战斗、对话与成长选择，再进行传档');
           await saveSession();
           await repository?.drain();
         }
@@ -451,7 +453,11 @@ function GameApp() {
             coveredByEvent={!!presentation.view}
             key={session.slot}
             game={presentation.game!}
-            dispatch={dispatch}
+            dispatch={(command) => {
+              dispatch(command);
+              if (command.kind === 'closeBattle' && game.battle?.ruleChallenge)
+                setMenu('challenge');
+            }}
             width={width}
             height={height}
             paused={!!menu || editingControls || !!presentation.view || !session.active || busy}
@@ -516,7 +522,28 @@ function GameApp() {
                   <DexMenu game={game} />
                 ))}
               {menu === 'quests' && <QuestMenu game={game} dispatch={dispatch} />}
-              {menu === 'map' && <RegionMenu game={game} />}
+              {menu === 'map' && (
+                <RegionMenu
+                  game={game}
+                  onTravel={(town) => {
+                    dispatch({ kind: 'fastTravel', town });
+                    setMenu(null);
+                  }}
+                />
+              )}
+              {menu === 'challenge' && (
+                <ChallengeMenu
+                  game={game}
+                  dispatch={(command) => {
+                    dispatch(command);
+                    if (
+                      command.kind === 'challenge' &&
+                      ['start', 'next'].includes(command.action.kind)
+                    )
+                      setMenu(null);
+                  }}
+                />
+              )}
             </>
           ) : (
             <HelpMenu />

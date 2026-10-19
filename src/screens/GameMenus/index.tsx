@@ -51,8 +51,18 @@ export { RegionMenu } from '../RegionMenu';
 export { BagMenu } from '../CityMenus';
 
 export type MenuName =
-  'party' | 'center' | 'bag' | 'dex' | 'quests' | 'map' | 'save' | 'transfer' | 'settings';
+  | 'challenge'
+  | 'party'
+  | 'center'
+  | 'bag'
+  | 'dex'
+  | 'quests'
+  | 'map'
+  | 'save'
+  | 'transfer'
+  | 'settings';
 export const MENU_NAMES: Record<MenuName, string> = {
+  challenge: '规则挑战',
   party: '伙伴',
   center: '精灵中心',
   bag: '背包与商店',
@@ -70,6 +80,7 @@ const MENU_SECTIONS = [
   'dex',
   'quests',
   'map',
+  'challenge',
   'save',
   'transfer',
   'settings',

@@ -2,6 +2,8 @@ import Svg, { Path } from 'react-native-svg';
 import { palette } from '../ui';
 
 const paths = {
+  challenge:
+    'M6 3h12v7a6 6 0 0 1-12 0ZM6 5H3v3a5 5 0 0 0 5 5m10-8h3v3a5 5 0 0 1-5 5M12 16v5m-5 0h10',
   party:
     'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20v-3a5 5 0 0 1 10 0v3M16 5a3 3 0 0 1 0 6m1 3a5 5 0 0 1 4 5v1',
   center: 'M9 3h6v6h6v6h-6v6H9v-6H3V9h6Z',

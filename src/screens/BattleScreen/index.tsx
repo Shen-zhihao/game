@@ -856,9 +856,13 @@ export function BattleScreen({
                   <BattleTile
                     title="背包"
                     icon
-                    detail={`精灵球 ${Object.keys(BALLS).reduce((n, id) => n + (game.inventory[id] ?? 0), 0)}`}
+                    detail={
+                      b.ruleChallenge
+                        ? '规则禁止使用道具'
+                        : `精灵球 ${Object.keys(BALLS).reduce((n, id) => n + (game.inventory[id] ?? 0), 0)}`
+                    }
                     color="#ceae65"
-                    disabled={busy || choosingParty}
+                    disabled={busy || choosingParty || !!b.ruleChallenge}
                     onPress={() => setPage('bag')}
                   />
                   <BattleTile

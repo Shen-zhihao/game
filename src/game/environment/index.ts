@@ -228,7 +228,9 @@ export function travelProfile(game: GameState, x = game.player.x, y = game.playe
     if (weather === 'fog') modifier = 0.9;
     if (weather === 'sand') modifier = 0.85;
   }
-  const speed = Math.max(0.5, TERRAIN_SPEEDS[terrain].speed * modifier);
+  // Running scales the existing terrain/weather pace, never the water pace.
+  const running = !!game.player.running && terrain !== 'water';
+  const speed = Math.max(0.5, TERRAIN_SPEEDS[terrain].speed * modifier) * (running ? 1.6 : 1);
   return {
     terrain,
     weather,

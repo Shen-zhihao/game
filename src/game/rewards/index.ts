@@ -26,9 +26,7 @@ export function knockoutReward(b: Battle, enemy: Creature) {
 /** Missing ledger marks prior opponents settled, without retroactively paying legacy battles. */
 export function ensureRewards(b: Battle) {
   return (b.rewards ??= {
-    defeated: b.enemies
-      .filter((e, i) => e.hp === 0 && (i < b.enemyIndex || b.phase === 'ended'))
-      .map((e) => e.id),
+    defeated: b.enemies.filter((e) => e.hp === 0).map((e) => e.id),
     experience: 0,
     money: 0,
     completion: b.phase === 'ended',
@@ -85,6 +83,7 @@ export function settleKnockout(game: GameState): void {
   const ledger = ensureRewards(b);
   if (enemy.hp > 0 || ledger.defeated.includes(enemy.id)) return;
   ledger.defeated.push(enemy.id);
+  if (b.ruleChallenge) return;
   // Completed one-off NPC encounters cannot become repeatable reward sources.
   if (
     b.event &&
