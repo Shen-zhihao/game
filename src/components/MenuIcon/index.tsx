@@ -2,6 +2,7 @@ import Svg, { Path } from 'react-native-svg';
 import { palette } from '../ui';
 
 const paths = {
+  production: 'M3 21h18M5 21V9l7-6 7 6v12M9 21v-7h6v7M9 9h6',
   challenge:
     'M6 3h12v7a6 6 0 0 1-12 0ZM6 5H3v3a5 5 0 0 0 5 5m10-8h3v3a5 5 0 0 1-5 5M12 16v5m-5 0h10',
   party:

@@ -1,3 +1,4 @@
+import { applyProduction } from '../production';
 import { applyChallenge, finishChallengeBattle } from '../challenge';
 import { applyFastTravel } from '../travel';
 import {
@@ -58,7 +59,7 @@ import {
   weightedEcology,
 } from '../environment';
 import { redeemCheat } from '../cheats';
-import { advanceCalendar, calendarFor, createCalendar } from '../calendar';
+import { advanceCalendar, calendarFor, createCalendar, dayPeriodFor, applyRest } from '../calendar';
 import { effectiveAccessFlags } from '../../content/keyItems';
 import {
   atCenter,
@@ -292,7 +293,10 @@ function interact(state: GameState): void {
   if (!npc) {
     if (MAPS[player.map].rows[y]?.[x] === '~') {
       const site = encountersAt(player.map, x, y, 'water');
-      const water = { ...site, encounters: weightedEcology(site.encounters, weatherAt(state)) };
+      const water = {
+        ...site,
+        encounters: weightedEcology(site.encounters, weatherAt(state), dayPeriodFor(state)),
+      };
       if (!flags.catchTutorial) {
         state.notice = '完成捕捉入门后，可以站在岸边朝向水面调查精灵。';
         return;
@@ -790,6 +794,7 @@ function walk(state: GameState, direction: WalkDirection): void {
       (e) => isOrdinarySpecies(e.speciesId),
     ),
     weatherAt(state),
+    dayPeriodFor(state),
   );
   if (
     (map.rows[y]?.[x] === 'g' || tile === '~' || tile === 'W') &&
@@ -872,6 +877,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
       const choices = weightedEcology(
         (site?.encounters ?? []).filter((e) => isOrdinarySpecies(e.speciesId)),
         weatherAt(state),
+        dayPeriodFor(state),
       );
       if (choices.length) {
         let roll = random(state) * choices.reduce((sum, e) => sum + e.weight, 0);
@@ -938,6 +944,14 @@ function reduceCommand(current: GameState, command: Command): GameState {
   if (state.battle) return current;
   if (command.kind === 'challenge') {
     applyChallenge(state, command.action);
+    return state;
+  }
+  if (command.kind === 'rest') {
+    applyRest(state, command.target);
+    return state;
+  }
+  if (command.kind === 'production') {
+    applyProduction(state, command.action);
     return state;
   }
   if (command.kind === 'setRunning') {

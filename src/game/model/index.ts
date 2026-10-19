@@ -334,6 +334,7 @@ export interface ExplorationState {
   activeFind: string | null;
 }
 export interface GameState {
+  production?: import('../production').ProductionState;
   challenge?: import('../challenge').ChallengeLedger;
   activities?: import('../activities/types').ActivityLedger;
   cheats?: { redemptions: number; masterBallsGranted: number; masterBallsUsed: number };
@@ -392,6 +393,8 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'production'; action: import('../production').ProductionAction }
+  | { kind: 'rest'; target: 'morning' | 'night' }
   | { kind: 'challenge'; action: import('../challenge').ChallengeAction }
   | { kind: 'setRunning'; running: boolean }
   | { kind: 'fastTravel'; town: TownId }

@@ -1,3 +1,4 @@
+import { ProductionMenu } from '../src/screens/ProductionMenu';
 import { ChallengeMenu } from '../src/screens/ChallengeMenu';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -507,6 +508,7 @@ function GameApp() {
             />
           ) : game ? (
             <>
+              {menu === 'production' && <ProductionMenu game={game} dispatch={dispatch} />}
               {menu === 'party' && <PartyMenu game={game} dispatch={dispatch} />}
               {menu === 'center' && <CenterMenu game={game} dispatch={dispatch} />}
               {menu === 'bag' && <BagMenu game={game} dispatch={dispatch} />}

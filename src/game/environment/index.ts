@@ -13,6 +13,14 @@ import {
 } from '../model';
 import { climateFor, naturalWeatherChoices } from '../../content/climates';
 import { citySurfaceFor } from '../../content/surfaces';
+import type { DayPeriod } from '../calendar';
+import { dayNightEncounterMultiplier } from './dayNightEcology';
+
+export {
+  dayNightEncounterMultiplier,
+  dayNightHabitatHint,
+  speciesActivity,
+} from './dayNightEcology';
 
 export const WEATHER: Record<
   WeatherId,
@@ -158,12 +166,18 @@ export function strengthEncounterMultiplier(speciesId: string): number {
 export function weightedEcology<T extends { speciesId: string; weight: number }>(
   entries: readonly T[],
   weather: WeatherId,
+  period?: DayPeriod,
 ): T[] {
-  return entries.map((e) => ({
-    ...e,
-    weight:
-      e.weight * ecologyMultiplier(e.speciesId, weather) * strengthEncounterMultiplier(e.speciesId),
-  }));
+  return entries
+    .map((e) => ({
+      ...e,
+      weight:
+        e.weight *
+        ecologyMultiplier(e.speciesId, weather) *
+        strengthEncounterMultiplier(e.speciesId) *
+        (period ? dayNightEncounterMultiplier(e.speciesId, period) : 1),
+    }))
+    .filter((e) => e.weight > 0);
 }
 export function weatherDamage(type: TypeId | null, weather: WeatherId): number {
   if (weather === 'sun') return type === 'fire' ? 1.5 : type === 'water' ? 0.5 : 1;

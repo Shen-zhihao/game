@@ -1,3 +1,9 @@
+import { validateProduction } from '../../game/production';
+import {
+  PRODUCTION_MATERIALS,
+  PRODUCTION_PRODUCTS,
+  PRODUCTION_KEEPSAKES,
+} from '../../content/production';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { Buffer } from 'buffer';
 import { z } from 'zod';
@@ -250,6 +256,36 @@ const gameSchema = z.strictObject({
           originals: z.record(idSchema, creatureSchema),
         })
         .nullable(),
+    })
+    .optional(),
+  production: z
+    .strictObject({
+      materials: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_MATERIALS) as [string, ...string[]]),
+        integer(999),
+      ),
+      products: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        integer(999),
+      ),
+      crafted: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        integer(999999),
+      ),
+      activityClaims: z.partialRecord(
+        z.enum(['activity_dawn', 'activity_stone', 'activity_harbor']),
+        z.strictObject({ day: integer(MAX_CALENDAR_DAY, 1), count: integer(999999, 1) }),
+      ),
+      orders: z.partialRecord(
+        z.enum(Object.keys(PRODUCTION_PRODUCTS) as [string, ...string[]]),
+        z.strictObject({ day: integer(MAX_CALENDAR_DAY, 1), count: integer(999999, 1) }),
+      ),
+      collection: z.strictObject({
+        stamps: integer(5999994),
+        keepsakes: z
+          .array(z.enum(PRODUCTION_KEEPSAKES.map((k) => k.id) as [string, ...string[]]))
+          .max(PRODUCTION_KEEPSAKES.length),
+      }),
     })
     .optional(),
   activities: z
@@ -542,6 +578,7 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  invariant(!game.production || validateProduction(game.production, game), '城市生产记录无效');
   if (game.activities) {
     const ledger = game.activities;
     invariant(
