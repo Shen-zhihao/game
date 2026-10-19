@@ -1,8 +1,9 @@
 import { canLearnMove, learnset, MOVES, SPECIES } from '../../content/catalog';
 import { trainerTactic } from '../../content/trainerTactics';
+import { heldEffect } from '../../content/battleTraits';
 import { gymRematch } from '../gymRematches';
 import type { Battle, Creature, GameState, Stages, WeatherId } from '../model';
-import { criticalChance, hitChance, roundPace, stageLimit } from '../combat';
+import { criticalChance, hitChance, protectSuccessChance, roundPace, stageLimit } from '../combat';
 import { abilityFor, calculateDamage, statsFor, typeMultiplier } from '../rules';
 
 /** Keep authored teams and level curves; give every member a legal, purposeful loadout. */
@@ -24,8 +25,11 @@ export function curateTrainerTeam(event: string | null, team: Creature[]): void 
         return value(b) - value(a);
       });
     const selected = attacks.slice(0, 1);
+    // Keep a real draining attack alongside stronger damage, rather than disguising recovery as drain.
+    const drain = attacks.find((id) => MOVES[id]!.effect?.drain && !selected.includes(id));
     const coverage = attacks.find((id) => MOVES[id]!.type !== MOVES[selected[0] ?? 'tackle']!.type);
-    if (coverage) selected.push(coverage);
+    if (drain) selected.push(drain);
+    else if (coverage) selected.push(coverage);
     // The lead enables weather/control; later members alternate sustain and setup roles.
     const preferences =
       index === 0
@@ -91,6 +95,80 @@ function statusImmune(defender: Creature, id: string): boolean {
     (status === 'freeze' && types.includes('ice'))
   );
 }
+/** Tactical effects share the same scoring for wild encounters and curated trainer teams. */
+export function tacticalMoveScore(
+  state: GameState,
+  id: string,
+  score: number,
+  damage: number,
+  incoming: number,
+): number {
+  const b = state.battle!,
+    enemy = b.enemies[b.enemyIndex]!,
+    player = state.creatures[b.playerId]!;
+  const move = MOVES[id]!,
+    effect = move.effect;
+  const missing = statsFor(enemy).hp - enemy.hp;
+  const chance = hitChance(id, b.enemyStages, b.playerStages, b.weather?.kind, enemy);
+  const shielded = b.actionRound?.protected?.includes(player.id);
+  if (effect?.target !== 'self' && shielded) return 0;
+  if (effect?.drain && score > 0) {
+    const actual = Math.min(
+      player.hp,
+      calculateDamage(enemy, player, id, b.enemyStages, b.playerStages, 1, false, b.weather?.kind)
+        .damage,
+    );
+    return (
+      score + Math.min(missing, Math.max(1, Math.floor(actual * effect.drain))) * chance * 1.25
+    );
+  }
+  if (effect?.seed) {
+    if (b.volatiles?.[player.id]?.seededBy || SPECIES[player.speciesId]!.types.includes('grass'))
+      return 0;
+    if (player.hp <= damage || enemy.hp <= incoming) return 0;
+    const tick = Math.min(player.hp, Math.max(1, Math.floor(statsFor(player).hp / 8)));
+    return (tick * 3 + Math.min(missing, tick * 2)) * chance;
+  }
+  if (!effect?.protect) return score;
+  // A late extra action cannot become a free full-round shield; avoid consecutive shield spam.
+  if (
+    (b.actionRound && b.actionRound.enemyRemaining < b.actionRound.enemyTotal) ||
+    b.volatiles?.[enemy.id]?.lastProtectTurn === b.turn - 1
+  )
+    return 0;
+  const residual = (c: Creature) => {
+    let loss =
+      c.status === 'poison'
+        ? Math.max(1, Math.floor(statsFor(c).hp / 8))
+        : c.status === 'burn'
+          ? Math.max(1, Math.floor(statsFor(c).hp / 16))
+          : 0;
+    if (b.volatiles?.[c.id]?.seededBy) loss += Math.max(1, Math.floor(statsFor(c).hp / 8));
+    if (
+      b.weather?.kind === 'sand' &&
+      !SPECIES[c.speciesId]!.types.some((t) => ['rock', 'ground', 'steel'].includes(t))
+    )
+      loss += Math.max(1, Math.floor(statsFor(c).hp / 16));
+    return loss;
+  };
+  const foeResidual = residual(player),
+    selfResidual = residual(enemy);
+  const seededHeal =
+    b.volatiles?.[player.id]?.seededBy === 'enemy'
+      ? Math.min(player.hp, Math.max(1, Math.floor(statsFor(player).hp / 8)))
+      : 0;
+  const healing = Math.min(
+    missing,
+    seededHeal + Math.floor(statsFor(enemy).hp * (heldEffect(enemy)?.endHeal ?? 0)),
+  );
+  if (enemy.hp <= selfResidual || (!foeResidual && !healing) || incoming <= 0) return 0;
+  const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
+  const value =
+    player.hp <= foeResidual
+      ? Math.max(damage * 3, player.hp + incoming)
+      : (foeResidual + healing) * 2 + incoming * pace.playerActions * 0.35 - selfResidual * 2;
+  return (Math.max(0, value) * protectSuccessChance(b, enemy.id)) / pace.enemyActions;
+}
 /** Only leaders and league opponents carry active medicine, never apprentices or rule challenges. */
 export function trainerMedicine(event: string | null): Battle['enemyMedicine'] {
   if (gymRematch(event)) return { itemId: 'hyper_potion', remaining: 2 };
@@ -144,6 +222,8 @@ export function chooseEnemyMove(state: GameState): number {
     if (slot.pp <= 0 || !canLearnMove(enemy.speciesId, slot.id)) return;
     const move = MOVES[slot.id]!,
       effect = move.effect;
+    if (effect?.protect && b.actionRound && b.actionRound.enemyRemaining < b.actionRound.enemyTotal)
+      return;
     let score = expectedDamage(
       enemy,
       player,
@@ -223,6 +303,7 @@ export function chooseEnemyMove(state: GameState): number {
         (effect?.confusion && !player.confusionTurns))
     )
       score += 3 * (effect!.chance ?? 1);
+    score = tacticalMoveScore(state, slot.id, score, damage, incoming);
     if (score > bestScore) {
       bestScore = score;
       best = index;
@@ -283,7 +364,11 @@ export function chooseEnemySwitch(state: GameState): number | undefined {
   return best;
 }
 export function recordEnemySupport(b: Battle, moveId: string): void {
-  if (!MOVES[moveId]!.power && trainerTactic(b.ruleChallenge ? 'leagueChampion' : b.event)) {
+  if (
+    !MOVES[moveId]!.power &&
+    !MOVES[moveId]!.effect?.protect &&
+    trainerTactic(b.ruleChallenge ? 'leagueChampion' : b.event)
+  ) {
     b.aiTactics ??= { lastSwitchTurn: -10, switches: 0, lastSupportTurn: -10 };
     b.aiTactics.lastSupportTurn = b.turn;
   }

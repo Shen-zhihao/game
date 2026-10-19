@@ -155,7 +155,7 @@ export function battleScene(game: GameState): BattleScene {
 
 export interface MoveFeedback {
   side: 'player' | 'enemy';
-  kind: 'damage' | 'heal' | 'miss' | 'immune' | 'recoil';
+  kind: 'damage' | 'heal' | 'miss' | 'immune' | 'blocked' | 'recoil';
   label: string;
 }
 /** Uses the resolved HP delta, including capped damage and healing, without rolling again. */
@@ -166,7 +166,12 @@ export function moveFeedback(event: BattleMoveEvent): MoveFeedback[] {
       {
         side: target,
         kind: event.outcome,
-        label: event.outcome === 'miss' ? '未命中' : '属性免疫',
+        label:
+          event.outcome === 'miss'
+            ? '未命中'
+            : event.outcome === 'blocked'
+              ? '守住挡下'
+              : '属性免疫',
       },
     ];
   const result: MoveFeedback[] = [];

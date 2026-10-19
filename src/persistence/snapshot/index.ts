@@ -62,6 +62,11 @@ import { isSightTrainer, validTrainerChallenge } from '../../game/trainerChallen
 import { REPEL_STEPS } from '../../game/fieldItems';
 import { trainerMedicine } from '../../game/battle/strategy';
 import { GYM_REMATCH_EVENTS, gymRematch } from '../../game/gymRematches';
+import {
+  FRIENDSHIP_MAX,
+  FRIENDSHIP_WALK_STEPS,
+  FRIENDSHIP_INTERACTION_STEPS,
+} from '../../game/friendship';
 
 export const MAX_SAVE_BYTES = 8 * 1024 * 1024;
 export const GAME_ID = 'stargrove-expedition';
@@ -111,6 +116,14 @@ const creatureSchema = z.strictObject({
   experience: integer(1250000),
   iv: statsSchema,
   training: trainingSchema.optional(),
+  friendship: z
+    .strictObject({
+      points: integer(FRIENDSHIP_MAX),
+      walkingSteps: integer(FRIENDSHIP_WALK_STEPS - 1),
+      interactionSteps: integer(FRIENDSHIP_INTERACTION_STEPS),
+      lastInteractionAt: integer(999999999).nullable(),
+    })
+    .optional(),
   taughtMoves: z.array(idSchema).max(128).optional(),
   hp: integer(9999),
   status: z.enum(['poison', 'burn', 'paralysis', 'sleep', 'freeze']).nullable(),
@@ -150,7 +163,7 @@ const visualEventSchema = z.discriminatedUnion('kind', [
     endLogIndex: integer(99),
     side: z.enum(['player', 'enemy']),
     moveId: idSchema,
-    outcome: z.enum(['hit', 'miss', 'immune']),
+    outcome: z.enum(['hit', 'miss', 'immune', 'blocked']),
     critical: z.boolean(),
     before: sceneSchema,
     after: sceneSchema,
@@ -491,8 +504,19 @@ const gameSchema = z.strictObject({
           remaining: integer(2),
         })
         .optional(),
+      volatiles: z
+        .record(
+          idSchema,
+          z.strictObject({
+            seededBy: z.enum(['player', 'enemy']).optional(),
+            lastProtectTurn: integer(100000, 1).optional(),
+            protectChain: integer(6, 1).optional(),
+          }),
+        )
+        .optional(),
       actionRound: z
         .strictObject({
+          protected: z.array(idSchema).max(2).optional(),
           enemySwitchIndex: integer(5).optional(),
           enemyItem: z.enum(['super_potion', 'hyper_potion']).optional(),
           playerTotal: integer(3, 1),
@@ -531,6 +555,10 @@ const gameSchema = z.strictObject({
         .optional(),
     })
     .nullable(),
+  deferredEvolutions: z
+    .array(z.strictObject({ creatureId: idSchema, toId: idSchema }))
+    .max(366)
+    .optional(),
   pending: z
     .array(
       z.discriminatedUnion('kind', [
@@ -731,6 +759,19 @@ export function validateGame(input: unknown): GameState {
       '等级与经验不一致',
     );
     invariant(c.hp <= statsFor(c).hp, '体力超过上限');
+    if (c.friendship) {
+      const friendship = c.friendship;
+      invariant(
+        friendship.lastInteractionAt === null ||
+          friendship.lastInteractionAt <= game.playTimeSeconds,
+        '亲密互动时间不能晚于游玩时间',
+      );
+      invariant(
+        friendship.lastInteractionAt !== null ||
+          friendship.interactionSteps === FRIENDSHIP_INTERACTION_STEPS,
+        '尚未互动的伙伴不应有互动冷却',
+      );
+    }
     invariant(new Set(c.moves.map((m) => m.id)).size === c.moves.length, '技能重复');
     for (const m of c.moves)
       invariant(canLearnMove(c.speciesId, m.id) && m.pp <= MOVES[m.id]!.pp, '技能归属或 PP 无效');
@@ -1296,6 +1337,23 @@ export function validateGame(input: unknown): GameState {
             )),
       '成长选项引用无效',
     );
+  if (game.deferredEvolutions) {
+    invariant(
+      new Set(game.deferredEvolutions.map((choice) => `${choice.creatureId}:${choice.toId}`))
+        .size === game.deferredEvolutions.length,
+      '延后进化提示重复',
+    );
+    for (const choice of game.deferredEvolutions) {
+      const creature = game.creatures[choice.creatureId];
+      invariant(
+        creature &&
+          SPECIES[creature.speciesId]!.evolutions.some(
+            (edge) => edge.toId === choice.toId && !!edge.alternatives?.length,
+          ),
+        '延后进化提示引用无效',
+      );
+    }
+  }
   if (game.dialogue) invariant(game.dialogue.index < game.dialogue.lines.length, '对话位置越界');
   if (game.battle) {
     const b = game.battle;
@@ -1393,6 +1451,25 @@ export function validateGame(input: unknown): GameState {
       '战斗引用无效',
     );
     invariant((b.phase === 'ended') === (b.result !== null), '战斗结算状态冲突');
+    for (const [id, volatile] of Object.entries(b.volatiles ?? {})) {
+      const side =
+        id === b.playerId ? 'player' : id === b.enemies[b.enemyIndex]?.id ? 'enemy' : null;
+      const creature = side === 'player' ? game.creatures[id] : b.enemies[b.enemyIndex];
+      invariant(
+        b.phase !== 'ended' && side !== null && creature && creature.hp > 0,
+        '战斗临时状态只能属于当前在场且存活的伙伴',
+      );
+      invariant(
+        (volatile.lastProtectTurn === undefined) === (volatile.protectChain === undefined) &&
+          (volatile.lastProtectTurn === undefined || volatile.lastProtectTurn <= b.turn),
+        '守住连续回合记录无效',
+      );
+      invariant(
+        volatile.seededBy === undefined ||
+          (volatile.seededBy !== side && !SPECIES[creature.speciesId]!.types.includes('grass')),
+        '寄生来源或草属性免疫记录无效',
+      );
+    }
     if (b.enemyMedicine) {
       const allowance = trainerMedicine(b.event);
       invariant(
@@ -1406,6 +1483,18 @@ export function validateGame(input: unknown): GameState {
     }
     if (b.actionRound) {
       const round = b.actionRound;
+      const protectedIds = round.protected ?? [];
+      invariant(
+        new Set(protectedIds).size === protectedIds.length &&
+          protectedIds.every(
+            (id) =>
+              (id === b.playerId
+                ? game.creatures[id]!.hp > 0
+                : id === b.enemies[b.enemyIndex]?.id && b.enemies[b.enemyIndex]!.hp > 0) &&
+              b.volatiles?.[id]?.lastProtectTurn === b.turn,
+          ),
+        '守住状态只能属于本回合使用守住的当前在场伙伴',
+      );
       invariant(
         Object.values(round.immobility).every(
           (cached) =>

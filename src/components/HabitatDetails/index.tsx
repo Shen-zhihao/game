@@ -1,5 +1,6 @@
 import { View } from 'react-native';
-import { ITEMS, SPECIES } from '../../content/catalog';
+import { SPECIES } from '../../content/catalog';
+import { evolutionRequirementsLabel } from '../../game/evolutionRequirements';
 import { habitatSite, SPECIES_HABITATS } from '../../content/habitats';
 import { dayNightHabitatHint } from '../../game/environment';
 import { Label, palette, Panel } from '../ui';
@@ -10,7 +11,7 @@ export function HabitatDetails({ speciesId }: { speciesId: string }) {
   const edge = source?.evolutions.find((e) => e.toId === speciesId);
   const method =
     source && edge
-      ? `${source.name}${edge.condition.kind === 'level' ? ` Lv.${edge.condition.level}` : ` Lv.${edge.condition.minLevel}＋${ITEMS[edge.condition.itemId]!.name}`}进化获得`
+      ? `${source.name}满足「${evolutionRequirementsLabel(edge)}」后进化获得`
       : profile.method === 'wild'
         ? '普通野生精灵 · 按生境遇见'
         : profile.storyBeat;

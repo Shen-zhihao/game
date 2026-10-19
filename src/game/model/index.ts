@@ -28,11 +28,20 @@ export type TypeId =
   | 'steel'
   | 'fairy';
 export type Curve = 'fast' | 'medium_fast' | 'medium_slow' | 'slow';
+export interface SpecialEvolutionCondition {
+  minLevel: number;
+  friendship?: number;
+  period?: 'day' | 'night';
+  maps?: MapId[];
+  moveId?: string;
+}
 export type Evolution = {
   toId: string;
   condition:
     | { kind: 'level'; level: number }
     | { kind: 'item'; itemId: string; minLevel: number; consumeItem: boolean };
+  /** Optional, item-free routes. The original level/item route remains available. */
+  alternatives?: SpecialEvolutionCondition[];
 };
 export interface Species {
   id: string;
@@ -107,6 +116,13 @@ export interface Creature {
   experience: number;
   iv: Stats;
   training?: Training;
+  /** Absent in old saves; starts at the same baseline as a newly met partner. */
+  friendship?: {
+    points: number;
+    walkingSteps: number;
+    interactionSteps: number;
+    lastInteractionAt: number | null;
+  };
   hp: number;
   status: Status | null;
   sleepTurns: number;
@@ -262,7 +278,7 @@ export interface BattleMoveEvent {
   endLogIndex: number;
   side: 'player' | 'enemy';
   moveId: string;
-  outcome: 'hit' | 'miss' | 'immune';
+  outcome: 'hit' | 'miss' | 'immune' | 'blocked';
   critical: boolean;
   before: BattleScene;
   after: BattleScene;
@@ -278,6 +294,12 @@ export interface BattleCaptureEvent {
 }
 export type BattleVisualEvent =
   BattleMoveEvent | BattleCaptureEvent | { kind: 'scene'; logIndex: number; scene: BattleScene };
+/** Field-only effects; never copied to captured creatures or carried between battles. */
+export interface BattleVolatile {
+  seededBy?: 'player' | 'enemy';
+  lastProtectTurn?: number;
+  protectChain?: number;
+}
 export interface Battle {
   id: string;
   npcId?: string;
@@ -286,6 +308,7 @@ export interface Battle {
   /** Created once per new eligible battle; never refilled by loading a checkpoint. */
   enemyMedicine?: { itemId: 'super_potion' | 'hyper_potion'; remaining: number };
   aiTactics?: { lastSwitchTurn: number; switches: number; lastSupportTurn: number };
+  volatiles?: Record<string, BattleVolatile>;
   kind: 'wild' | 'trainer';
   event: StoryEvent | null;
   name: string;
@@ -298,6 +321,8 @@ export interface Battle {
   aiMove: number;
   /** Locked for a round; each player command consumes one independently chosen action. */
   actionRound?: {
+    /** Shields expire at round end, not between a fast creature's actions. */
+    protected?: string[];
     enemySwitchIndex?: number;
     enemyItem?: 'super_potion' | 'hyper_potion';
     playerTotal: number;
@@ -404,6 +429,8 @@ export interface GameState {
   playTimeSeconds: number;
   battle: Battle | null;
   pending: PendingChoice[];
+  /** Special routes reached during a battle/cutscene wait for a safe checkpoint. */
+  deferredEvolutions?: { creatureId: string; toId: string }[];
   dialogue: { speaker: string; lines: string[]; index: number; after: StoryEvent | null } | null;
   notice: string;
 }
@@ -416,6 +443,7 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'befriend'; creatureId: string }
   | { kind: 'production'; action: import('../production').ProductionAction }
   | { kind: 'rest'; target: 'morning' | 'night' }
   | { kind: 'challenge'; action: import('../challenge').ChallengeAction }

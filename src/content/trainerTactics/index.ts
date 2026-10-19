@@ -8,16 +8,20 @@ export interface TrainerTactic {
   switchBudget: number;
 }
 const profiles: Record<string, TrainerTactic> = {
-  grass: { name: '眠香与续航', support: ['sleep', 'recover', 'focus'], switchBudget: 2 },
+  grass: {
+    name: '寄生守护',
+    support: ['leech_seed', 'protect', 'recover', 'sleep'],
+    switchBudget: 2,
+  },
   rock: {
     name: '坚守与扬沙',
-    support: ['sand_call', 'guard', 'steady'],
+    support: ['sand_call', 'protect', 'guard', 'steady'],
     weather: 'sand',
     switchBudget: 2,
   },
   water: {
     name: '雨幕接力',
-    support: ['rain_call', 'agility', 'guard'],
+    support: ['rain_call', 'protect', 'agility', 'guard'],
     weather: 'rain',
     switchBudget: 2,
   },
@@ -34,16 +38,16 @@ const profiles: Record<string, TrainerTactic> = {
     support: ['confuse_ray', 'focus', 'aim', 'steady'],
     switchBudget: 2,
   },
-  star: { name: '守心反击', support: ['steady', 'recover', 'focus'], switchBudget: 2 },
+  star: { name: '守心反击', support: ['protect', 'steady', 'recover', 'focus'], switchBudget: 2 },
   leagueIce: {
     name: '雪幕攻势',
-    support: ['snow_call', 'agility', 'guard'],
+    support: ['snow_call', 'protect', 'agility', 'guard'],
     weather: 'snow',
     switchBudget: 4,
   },
   leagueGhost: {
-    name: '迷雾牵制',
-    support: ['fog_call', 'confuse_ray', 'shadow_step', 'sleep'],
+    name: '汲魂迷雾',
+    support: ['confuse_ray', 'protect', 'fog_call', 'shadow_step', 'sleep'],
     weather: 'fog',
     switchBudget: 4,
   },
@@ -51,7 +55,7 @@ const profiles: Record<string, TrainerTactic> = {
   leagueDragon: { name: '蓄势强攻', support: ['agility', 'focus', 'guard'], switchBudget: 4 },
   leagueChampion: {
     name: '均衡轮转',
-    support: ['recover', 'agility', 'focus', 'steady'],
+    support: ['leech_seed', 'protect', 'recover', 'agility', 'focus', 'steady'],
     switchBudget: 5,
   },
 };

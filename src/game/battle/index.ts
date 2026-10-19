@@ -1,4 +1,5 @@
 import { trainerTactic } from '../../content/trainerTactics';
+import { clearFieldEffects, endSeedTurn } from './volatile';
 import {
   gymRematch,
   gymRematchEntryReason,
@@ -12,6 +13,7 @@ import {
   chooseEnemySwitch,
   curateTrainerTeam,
   recordEnemySupport,
+  tacticalMoveScore,
 } from './strategy';
 import { statusName } from '../statusLabels';
 import { coastEncounter } from '../coastStory';
@@ -50,6 +52,8 @@ import {
   COMBAT_STAGE_NAMES,
   criticalChance,
   hitChance,
+  MAX_PROTECT_CHAIN,
+  protectSuccessChance,
   roundPace,
   stageLimit,
 } from '../combat';
@@ -97,11 +101,30 @@ function aiMove(state: GameState): number {
     return chooseEnemyMove(state);
   const enemy = b.enemies[b.enemyIndex]!;
   const player = state.creatures[b.playerId]!;
+  const estimate = (attacker: Creature, defender: Creature, ours: Stages, theirs: Stages) =>
+    Math.max(
+      0,
+      ...attacker.moves
+        .filter((m) => m.pp > 0 && MOVES[m.id]!.power > 0)
+        .map(
+          (m) =>
+            calculateDamage(attacker, defender, m.id, ours, theirs, 1, false, b.weather?.kind)
+              .damage * hitChance(m.id, ours, theirs, b.weather?.kind, attacker),
+        ),
+    );
+  const damage = estimate(enemy, player, b.enemyStages, b.playerStages);
+  const incoming = estimate(player, enemy, b.playerStages, b.enemyStages);
   let best = -1;
   let bestScore = -1;
   enemy.moves.forEach((m, i) => {
     if (m.pp <= 0) return;
     const move = MOVES[m.id]!;
+    if (
+      move.effect?.protect &&
+      b.actionRound &&
+      b.actionRound.enemyRemaining < b.actionRound.enemyTotal
+    )
+      return;
     let score = move.power
       ? calculateDamage(
           enemy,
@@ -138,6 +161,7 @@ function aiMove(state: GameState): number {
       score = Math.max(-limit, Math.min(limit, current + amount)) === current ? 0 : 4;
     }
     if (enemy.status === 'freeze' && !(move.type === 'fire' && move.power > 0)) score *= 0.2;
+    score = tacticalMoveScore(state, move.id, score, damage, incoming);
     if (score > bestScore) {
       best = i;
       bestScore = score;
@@ -268,6 +292,7 @@ function finish(state: GameState, result: Battle['result']): void {
   const b = state.battle!;
   if (b.phase === 'ended') return;
   delete b.actionRound;
+  delete b.volatiles;
   for (const c of [...Object.values(state.creatures), ...b.enemies]) delete c.confusionTurns;
   ensureRewards(b);
   b.phase = 'ended';
@@ -482,6 +507,29 @@ function attack(
   (b.visualEvents ??= []).push(visual);
   try {
     b.logs.push(`${creatureName(attacker)}使用了${move.name}！`);
+    if (move.effect?.protect) {
+      const chance = protectSuccessChance(b, attacker.id);
+      const previous = b.volatiles?.[attacker.id];
+      const chain = previous?.lastProtectTurn === b.turn - 1 ? (previous.protectChain ?? 0) : 0;
+      (b.volatiles ??= {})[attacker.id] = {
+        ...previous,
+        lastProtectTurn: b.turn,
+        protectChain: Math.min(MAX_PROTECT_CHAIN, chain + 1),
+      };
+      if (random(state) < chance) {
+        (b.actionRound!.protected ??= []).push(attacker.id);
+        b.logs.push(`${creatureName(attacker)}守住了！本轮抵挡所有对手招式，但仍受到持续伤害。`);
+      } else {
+        visual.outcome = 'miss';
+        b.logs.push(`连续使用守住失败了（本次成功率 ${chanceLabel(chance)}）。`);
+      }
+      return true;
+    }
+    if (move.effect?.target !== 'self' && b.actionRound?.protected?.includes(defender.id)) {
+      visual.outcome = 'blocked';
+      b.logs.push(`${creatureName(defender)}的守住挡下了招式！`);
+      return true;
+    }
     if (
       random(state) >= hitChance(move.id, attackerStages, defenderStages, b.weather?.kind, attacker)
     ) {
@@ -545,8 +593,28 @@ function attack(
       }
       if (move.id === 'struggle')
         attacker.hp = Math.max(0, attacker.hp - Math.max(1, Math.floor(statsFor(attacker).hp / 4)));
+      if (move.effect?.drain && dealt > 0 && attacker.hp > 0) {
+        const healed = Math.min(
+          statsFor(attacker).hp - attacker.hp,
+          Math.max(1, Math.floor(dealt * move.effect.drain)),
+        );
+        attacker.hp += healed;
+        b.logs.push(`按实际造成的 ${dealt} 点伤害，吸取恢复 ${healed} 点体力。`);
+      }
     }
     const effect = move.effect;
+    if (effect?.seed && defender.hp > 0) {
+      if (SPECIES[defender.speciesId]!.types.includes('grass')) {
+        visual.outcome = 'immune';
+        b.logs.push(`${creatureName(defender)}的草属性使寄生种子无法生效。`);
+      } else if (b.volatiles?.[defender.id]?.seededBy) {
+        b.logs.push(`${creatureName(defender)}已经被寄生，不能重复播种。`);
+      } else {
+        const record = ((b.volatiles ??= {})[defender.id] ??= {});
+        record.seededBy = player ? 'player' : 'enemy';
+        b.logs.push(`${creatureName(defender)}被种下寄生种子！每轮结束时吸取体力，换下场可解除。`);
+      }
+    }
     if (move.weather) {
       b.weather = { kind: move.weather, ambient: b.weather?.ambient ?? 'clear', turns: 5 };
       b.logs.push(
@@ -660,7 +728,10 @@ function resolveFaints(state: GameState): boolean {
   const b = state.battle!;
   const enemy = b.enemies[b.enemyIndex]!;
   for (const c of [...state.party.map((id) => state.creatures[id]!), ...b.enemies])
-    if (c.hp <= 0) delete c.confusionTurns;
+    if (c.hp <= 0) {
+      delete c.confusionTurns;
+      clearFieldEffects(b, c);
+    }
   // Pay each defeated opponent before advancing or handling simultaneous recoil loss.
   if (enemy.hp <= 0) settleKnockout(state);
   if (!state.party.some((id) => state.creatures[id]!.hp > 0)) {
@@ -732,6 +803,14 @@ export function battleActionReason(state: GameState, action: BattleAction): stri
       return '技能 PP 已耗尽。';
     const selected = c.moves[action.index];
     if (selected && !canLearnMove(c.speciesId, selected.id)) return '这招专属技能不属于当前精灵。';
+    if (
+      selected &&
+      c.moves.some((m) => m.pp > 0) &&
+      MOVES[selected.id]!.effect?.protect &&
+      b.actionRound &&
+      b.actionRound.playerRemaining < b.actionRound.playerTotal
+    )
+      return '守住只能在本轮第一次行动使用，并消耗本轮全部行动。';
   }
   return null;
 }
@@ -755,13 +834,13 @@ export function battleAction(state: GameState, action: BattleAction): void {
           ? MOVES[player.moves.some((m) => m.pp > 0) ? player.moves[action.index]!.id : 'struggle']!
           : null;
       const enemyMove = MOVES[enemy.moves[b.aiMove]?.id ?? 'struggle']!;
-      const enemyFirst =
-        !!playerMove &&
-        (playerMove.priority !== enemyMove.priority
+      const enemyFirst = !playerMove
+        ? !!enemyMove.effect?.protect
+        : playerMove.priority !== enemyMove.priority
           ? enemyMove.priority > playerMove.priority
           : pace.playerSpeed !== pace.enemySpeed
             ? pace.enemySpeed > pace.playerSpeed
-            : random(state) >= 0.5);
+            : random(state) >= 0.5;
       const enemyItem = chooseEnemyItem(state);
       b.actionRound = {
         playerTotal: pace.playerActions,
@@ -792,6 +871,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
         b.logs.push(`${previous}的${trait.name}恢复了${outgoing.hp - old}点体力。`);
       }
       delete outgoing.confusionTurns;
+      clearFieldEffects(b, outgoing);
       delete b.actionRound?.immobility[outgoing.id];
       triggerHeldItem(c, b.logs);
       b.playerId = c.id;
@@ -831,6 +911,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
           );
         }
         delete outgoing.confusionTurns;
+        clearFieldEffects(b, outgoing);
         delete b.actionRound!.immobility[outgoing.id];
         b.enemyIndex = switchIndex;
         b.enemyStages = emptyStages();
@@ -949,6 +1030,8 @@ export function battleAction(state: GameState, action: BattleAction): void {
       while (round.enemyRemaining > 0 && player.hp > 0 && enemy.hp > 0) {
         const struggle = !enemy.moves.some((m) => m.pp > 0);
         round.enemyRemaining--;
+        if (!struggle && MOVES[enemy.moves[b.aiMove]?.id ?? 'struggle']!.effect?.protect)
+          round.enemyRemaining = 0;
         if (!attack(state, false, b.aiMove, round.immobility, struggle)) {
           round.enemyRemaining = 0;
           break;
@@ -959,8 +1042,14 @@ export function battleAction(state: GameState, action: BattleAction): void {
     if (round.enemyFirst) performEnemy();
     if (player.hp > 0 && enemy.hp > 0) {
       round.playerRemaining--;
-      if (action.kind === 'move')
+      if (action.kind === 'move') {
+        if (
+          player.moves.some((m) => m.pp > 0) &&
+          MOVES[player.moves[action.index]!.id]!.effect?.protect
+        )
+          round.playerRemaining = 0;
         attack(state, true, action.index, round.immobility, !player.moves.some((m) => m.pp > 0));
+      }
     }
     if (round.playerRemaining <= 0) performEnemy();
     if (player.hp > 0 && enemy.hp > 0 && round.playerRemaining > 0) {
@@ -989,6 +1078,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
         c.hp = Math.max(0, c.hp - loss);
         b.logs.push(`${creatureName(c)}受到扬沙伤害 ${loss}。`);
       }
+    endSeedTurn(state);
     for (const c of [player, enemy]) endHeldTurn(c, b.logs);
     if (b.weather?.turns !== null && b.weather?.turns !== undefined && --b.weather.turns === 0) {
       b.weather.kind = b.weather.ambient;

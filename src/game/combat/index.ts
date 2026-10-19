@@ -1,10 +1,18 @@
 import { MOVES } from '../../content/catalog';
-import { CombatStage, Creature, Stages, WeatherId } from '../model';
+import { Battle, CombatStage, Creature, Stages, WeatherId } from '../model';
 import { weatherAccuracy } from '../environment';
 import { abilityFor, effectiveStat } from '../rules';
 import { heldEffect } from '../../content/battleTraits';
 
 export const MAX_SPEED_ACTIONS = 3;
+export const MAX_PROTECT_CHAIN = 6;
+/** Consecutive attempts, including failures, cannot reroll a full-strength shield. */
+export function protectSuccessChance(battle: Battle, creatureId: string): number {
+  const previous = battle.volatiles?.[creatureId];
+  return previous?.lastProtectTurn === battle.turn - 1
+    ? 3 ** -Math.min(MAX_PROTECT_CHAIN, previous.protectChain ?? 0)
+    : 1;
+}
 export { CRITICAL_MULTIPLIER } from '../model';
 export const CRITICAL_RATES = [1 / 16, 1 / 8, 1 / 4, 1 / 2] as const;
 export const COMBAT_STAGE_NAMES: Record<CombatStage, string> = {

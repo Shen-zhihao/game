@@ -8,6 +8,18 @@ export function battleMoveDetails(moveId: string, weather: WeatherId = 'clear') 
   const move = MOVES[moveId]!;
   const effects: string[] = [];
   const effect = move.effect;
+  if (effect?.protect)
+    effects.push(
+      '本轮首次行动可用，消耗整轮行动；挡下本轮所有对手招式，不挡持续伤害；连续轮使用成功率降为1/3、1/9…',
+    );
+  if (effect?.seed)
+    effects.push(
+      '草属性免疫；每轮结束吸取目标1/8最大HP，按实际扣血治疗施术方当前在场伙伴；目标换下解除',
+    );
+  if (effect?.drain)
+    effects.push(
+      `按实际造成伤害的${chanceLabel(effect.drain)}恢复自身HP（向下取整，伤害大于0时至少1点）`,
+    );
   if (effect?.heal) {
     const amount =
       moveId === 'recover'
@@ -49,6 +61,20 @@ export function moveEffectLines(moveId: string): string[] {
         : '特殊伤害：自身特攻对抗对手特防，实际伤害受属性克制等影响。',
     );
   else lines.push('不造成直接伤害。');
+  if (move.effect?.protect)
+    lines.push(
+      '仅能在己方本轮第一次行动选择。无论成功、失败或无法行动，均消耗本轮全部行动，不能先攻击再守住；成功后持续到本轮结束，抵挡所有对手针对自身的伤害与变化招式，不妨碍对手自我强化、恢复或改变天气。',
+      '不能阻挡中毒、灼伤、天气、混乱自伤或已经生效的寄生种子。连续轮尝试的成功率依次为100%、1/3、1/9…，最低1/729；间隔一轮或换下后重置。',
+    );
+  if (move.effect?.seed)
+    lines.push(
+      '草属性精灵免疫，已寄生时不能重复播种，守住可以挡下播种。每轮结束在异常与天气伤害后，扣除目标最大HP的1/8（向下取整，至少1点），按实际扣除量回复施术方当前在场且存活的伙伴，回复不超过最大HP。',
+      '目标换下、倒下或战斗结束时解除；施术者换下不解除，后来上场的伙伴也可接收治疗。寄生不属于可用解毒药或清醒果解除的异常状态。',
+    );
+  if (move.effect?.drain)
+    lines.push(
+      `恢复实际扣除对手HP的 ${chanceLabel(move.effect.drain)}（向下取整，有伤害时至少1点），不超过自身最大HP。超过对手剩余HP或被岩心避免的伤害不计入吸取；未命中、免疫或被守住挡下时不回血。`,
+    );
   if (move.effect?.heal)
     lines.push(
       `恢复自身最大体力的 ${Math.round(move.effect.heal * 100)}%${move.id === 'recover' ? '（晴天 2/3，雨天、雷暴、沙暴或冰雹 1/4）' : ''}。`,

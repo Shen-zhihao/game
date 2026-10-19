@@ -27,6 +27,11 @@ import {
 import { isTownLocation } from '../../content/world';
 import { CreatureSprite } from '../../components/CreatureSprite';
 import { CreatureTraits } from '../../components/CreatureTraits';
+import { FriendshipPanel } from '../../components/FriendshipPanel';
+import {
+  evolutionProgressLabel,
+  evolutionRequirementsLabel,
+} from '../../game/evolutionRequirements';
 import { MoveDetails, MoveLearningPanel } from '../../components/MoveDetails';
 import { Button, HpBar, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
 import { Command, GameState, STAT_KEYS, TypeId } from '../../game/model';
@@ -569,6 +574,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                   creature={c}
                   onUnequip={() => dispatch({ kind: 'equip', creatureId: c.id, itemId: null })}
                 />
+                <FriendshipPanel creature={c} game={game} dispatch={dispatch} />
                 <View style={styles.wrap}>
                   {STAT_KEYS.map((k) => (
                     <Panel key={k} style={{ padding: 10, minWidth: 80, flexGrow: 1 }}>
@@ -606,19 +612,33 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                     </Label>
                   </Panel>
                 )}
-                <Label style={{ color: palette.gold }}>{evolutionLabel(species)}</Label>
-                <View style={styles.wrap}>
+                <Label style={{ color: palette.gold }}>
+                  进化路线{species.evolutions.length ? '' : ' · 最终形态'}
+                </Label>
+                <View style={{ gap: 10 }}>
                   {species.evolutions.map((e) => (
-                    <Button
-                      key={e.toId}
-                      small
-                      disabled={!canEvolve(c, e.toId, game.inventory)}
-                      onPress={() =>
-                        dispatch({ kind: 'evolve', creatureId: c.id, toId: e.toId, accept: true })
-                      }
-                    >
-                      进化为{SPECIES[e.toId]!.name}
-                    </Button>
+                    <Panel key={e.toId} style={{ padding: 12, gap: 8 }}>
+                      <Label style={{ fontSize: 12 }}>{evolutionRequirementsLabel(e)}</Label>
+                      {!!e.alternatives?.length && (
+                        <Label
+                          muted
+                          testID={`evolution-progress-${e.toId}`}
+                          style={{ fontSize: 11 }}
+                        >
+                          {evolutionProgressLabel(c, e, game)}
+                        </Label>
+                      )}
+                      <Button
+                        small
+                        testID={`evolve-${e.toId}`}
+                        disabled={!canEvolve(c, e.toId, game.inventory, game)}
+                        onPress={() =>
+                          dispatch({ kind: 'evolve', creatureId: c.id, toId: e.toId, accept: true })
+                        }
+                      >
+                        进化为{SPECIES[e.toId]!.name}
+                      </Button>
+                    </Panel>
                   ))}
                 </View>
                 <View style={styles.wrap}>
@@ -1172,10 +1192,20 @@ export function PendingScreen({
                   <TypeBadges types={SPECIES[choice.toId]!.types} />
                 </View>
               </View>
-              <Label muted>等级、经验、能力点与成长记录会保留。也可以稍后在伙伴详情中进化。</Label>
+              <Label muted>
+                等级、经验、能力点、亲密度与成长记录会保留。也可以稍后在伙伴详情中进化。
+              </Label>
+              <Label muted style={{ fontSize: 12 }}>
+                {evolutionProgressLabel(
+                  c,
+                  SPECIES[c.speciesId]!.evolutions.find((edge) => edge.toId === choice.toId)!,
+                  game,
+                )}
+              </Label>
               <View style={styles.row}>
                 <Button
                   accent
+                  disabled={!canEvolve(c, choice.toId, game.inventory, game)}
                   onPress={() =>
                     dispatch({ kind: 'evolve', creatureId: c.id, toId: choice.toId, accept: true })
                   }

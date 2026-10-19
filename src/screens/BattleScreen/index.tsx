@@ -132,6 +132,11 @@ export function BattleScreen({
     completedEffect === effectKey || impactedEffect === effectKey,
   );
   const scene = presenting ? playback.scene : busy ? initialScene : battleScene(game);
+  const fieldConditions = (figure: typeof scene.player) => [
+    ...conditionLabels(figure),
+    ...(!presenting && !busy && b.volatiles?.[figure.id]?.seededBy ? ['寄生'] : []),
+    ...(!presenting && !busy && b.actionRound?.protected?.includes(figure.id) ? ['守住中'] : []),
+  ];
   const displayedPace = roundPace(
     game.creatures[scene.player.id] ?? player,
     b.enemies.find((creature) => creature.id === scene.enemy.id) ?? enemy,
@@ -530,9 +535,9 @@ export function BattleScreen({
               style={s.hpNumber}
             />
           </View>
-          {conditionLabels(scene.enemy).length > 0 && (
+          {fieldConditions(scene.enemy).length > 0 && (
             <Text testID="enemy-conditions" style={s.statusText}>
-              {conditionLabels(scene.enemy).join(' · ')}
+              {fieldConditions(scene.enemy).join(' · ')}
             </Text>
           )}
           <Text
@@ -589,9 +594,9 @@ export function BattleScreen({
             figure={scene.player}
             paused={playbackStopped}
           />
-          {conditionLabels(scene.player).length > 0 && (
+          {fieldConditions(scene.player).length > 0 && (
             <Text testID="player-conditions" style={s.statusText}>
-              {conditionLabels(scene.player).join(' · ')}
+              {fieldConditions(scene.player).join(' · ')}
             </Text>
           )}
           <Text

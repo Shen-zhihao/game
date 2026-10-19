@@ -487,7 +487,7 @@ export function BattleStage({
       {playing && visual && event && (
         <View
           testID="battle-skill-effect"
-          accessibilityLabel={`${MOVES[event.moveId]!.name} · ${event.outcome === 'miss' ? '未命中' : event.outcome === 'immune' ? '免疫' : '技能特效'}`}
+          accessibilityLabel={`${MOVES[event.moveId]!.name} · ${event.outcome === 'miss' ? '未命中' : event.outcome === 'blocked' ? '守住挡下' : event.outcome === 'immune' ? '免疫' : '技能特效'}`}
           style={StyleSheet.absoluteFill}
         >
           {visual.signature && (

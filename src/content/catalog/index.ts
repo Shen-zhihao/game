@@ -5,10 +5,12 @@ import { CombatStage, Curve, Species, TypeId } from '../../game/model';
 import { KEY_ITEMS } from '../keyItems';
 import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 import { HELD_ITEMS } from '../battleTraits';
+import { SPECIAL_EVOLUTIONS } from '../specialEvolutions';
 
-export const CONTENT_VERSION = 'ch11.3';
+export const CONTENT_VERSION = 'ch11.4';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch11.3' ||
   version === 'ch11.2' ||
   version === 'ch11.1' ||
   version === 'ch11.0' ||
@@ -69,6 +71,13 @@ for (const family of design.families) {
       familyId: family.id,
     } as Species;
   }
+}
+for (const [speciesId, route] of Object.entries(SPECIAL_EVOLUTIONS)) {
+  const species = SPECIES[speciesId]!;
+  // Do not mutate the imported design data, used by the archive/export tooling too.
+  species.evolutions = species.evolutions.map((edge) =>
+    edge.toId === route.toId ? { ...edge, alternatives: [route.condition] } : edge,
+  );
 }
 export const ALL_SPECIES = Object.values(SPECIES).sort((a, b) => a.dexNumber - b.dexNumber);
 const STORY_FAMILIES = new Set(acquisition.families.map((f) => f.familyId));
@@ -277,6 +286,10 @@ export interface Move {
     confusion?: boolean;
     chance?: number;
     heal?: number;
+    /** Fraction of HP actually removed from the target, not calculated overkill damage. */
+    drain?: number;
+    protect?: boolean;
+    seed?: boolean;
     stage?: CombatStage;
     amount?: number;
     target?: 'self' | 'enemy';
@@ -344,6 +357,28 @@ export const MOVES: Record<string, Move> = {
     pp: 20,
     priority: 0,
     effect: { stage: 'defense', amount: 1, target: 'self' },
+  },
+  protect: {
+    id: 'protect',
+    name: '守住',
+    type: 'normal',
+    category: 'status',
+    power: 0,
+    accuracy: 100,
+    pp: 10,
+    priority: 4,
+    effect: { protect: true, target: 'self' },
+  },
+  leech_seed: {
+    id: 'leech_seed',
+    name: '寄生种子',
+    type: 'grass',
+    category: 'status',
+    power: 0,
+    accuracy: 90,
+    pp: 10,
+    priority: 0,
+    effect: { seed: true, target: 'enemy' },
   },
   recover: {
     id: 'recover',
@@ -486,6 +521,26 @@ const attackNames: Record<TypeId, [string, string]> = {
   steel: ['铁爪', '钢羽'],
   fairy: ['星粉', '月辉'],
 };
+for (const [id, name, type, power, pp, category] of [
+  ['absorb', '吸取', 'grass', 20, 25, 'special'],
+  ['mega_drain', '超级吸取', 'grass', 40, 15, 'special'],
+  ['giga_drain', '终极吸取', 'grass', 75, 10, 'special'],
+  ['leech_life', '吸血', 'bug', 60, 10, 'physical'],
+  ['drain_punch', '吸收拳', 'fighting', 65, 10, 'physical'],
+  ['draining_kiss', '吸取之吻', 'fairy', 50, 10, 'special'],
+  ['shadow_drain', '汲魂', 'ghost', 60, 10, 'special'],
+] as const)
+  MOVES[id] = {
+    id,
+    name,
+    type,
+    power,
+    pp,
+    category,
+    accuracy: 100,
+    priority: 0,
+    effect: { drain: 0.5 },
+  };
 for (const type of TYPE_IDS) {
   for (const [rank, power] of [
     [1, 40],
@@ -581,6 +636,25 @@ export function learnset(speciesId: string): { level: number; moveId: string }[]
               : 'quick',
     },
     { level: 10, moveId: `${species.types[1] ?? species.types[0]}_1` },
+    { level: 10, moveId: 'protect' },
+    ...(species.types.includes('grass')
+      ? [
+          { level: 5, moveId: 'absorb' },
+          { level: 9, moveId: 'leech_seed' },
+          { level: 12, moveId: 'mega_drain' },
+          { level: 35, moveId: 'giga_drain' },
+        ]
+      : []),
+    ...(
+      [
+        ['bug', 'leech_life', 24],
+        ['fighting', 'drain_punch', 26],
+        ['fairy', 'draining_kiss', 21],
+        ['ghost', 'shadow_drain', 25],
+      ] as const
+    )
+      .filter(([type]) => species.types.includes(type))
+      .map(([, moveId, level]) => ({ level, moveId })),
     { level: 12, moveId: `${species.types[0]}_2` },
     ...(species.types.some((type) => type === 'psychic' || type === 'ghost')
       ? [{ level: 14, moveId: 'confuse_ray' }]

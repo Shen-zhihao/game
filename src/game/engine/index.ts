@@ -12,6 +12,8 @@ import {
 } from '../../content/catalog';
 import { SIGNATURE_BY_SPECIES } from '../../content/signatures';
 import { equipItem } from '../heldItems';
+import { friendshipInteractionReason, interactWithPartner, walkWithPartners } from '../friendship';
+import { specialEvolutionMet } from '../evolutionRequirements';
 import { boxTransferReason, reorderParty } from '../party';
 import { activityAtNpc, applyActivity, openActivity } from '../activities';
 import { HABITAT_SITES } from '../../content/habitats';
@@ -777,6 +779,7 @@ function walk(state: GameState, direction: WalkDirection): void {
     else if (map.interior) p.facing = 'down';
     state.notice = `到达${MAPS[p.map].name}`;
     state.encounterCooldown = 5;
+    walkWithPartners(state);
     if (p.map === 'route' && f.opening && !f.professorCall) {
       talk(
         state,
@@ -794,6 +797,7 @@ function walk(state: GameState, direction: WalkDirection): void {
   p.x = x;
   p.y = y;
   state.steps += 1;
+  walkWithPartners(state);
   const protectedStep = consumeRepelStep(state);
   if (detectTrainer(state)) return;
   if (state.encounterCooldown > 0) {
@@ -1010,8 +1014,13 @@ function reduceCommand(current: GameState, command: Command): GameState {
       (p) =>
         !(p.kind === 'evolution' && p.creatureId === command.creatureId && p.toId === command.toId),
     );
-    if (!c || !command.accept || !canEvolve(c, command.toId, state.inventory)) return state;
+    if (!c || !command.accept) return state;
+    if (!canEvolve(c, command.toId, state.inventory, state)) {
+      state.notice = '当前尚未满足进化条件，请在伙伴详情查看等级、道具与特殊路线。';
+      return state;
+    }
     const edge = SPECIES[c.speciesId]!.evolutions.find((e) => e.toId === command.toId)!;
+    const specialRoute = edge.alternatives?.some((route) => specialEvolutionMet(c, route, state));
     const oldMax = statsFor(c).hp;
     const oldName = creatureName(c);
     c.speciesId = command.toId;
@@ -1024,10 +1033,10 @@ function reduceCommand(current: GameState, command: Command): GameState {
         : [];
     });
     state.pending = state.pending.filter(
-      (p) => p.kind !== 'move' || p.creatureId !== c.id || canLearnMove(c.speciesId, p.moveId),
+      (p) => p.creatureId !== c.id || (p.kind === 'move' && canLearnMove(c.speciesId, p.moveId)),
     );
     changeMaxHp(c, oldMax);
-    if (edge.condition.kind === 'item' && edge.condition.consumeItem)
+    if (!specialRoute && edge.condition.kind === 'item' && edge.condition.consumeItem)
       state.inventory[edge.condition.itemId]! -= 1;
     record(c, 'evolved', `${oldName} → ${SPECIES[c.speciesId]!.name}`);
     if (!state.dex.seen.includes(c.speciesId)) state.dex.seen.push(c.speciesId);
@@ -1066,6 +1075,17 @@ function reduceCommand(current: GameState, command: Command): GameState {
   }
   if (state.pending.length) return current;
   switch (command.kind) {
+    case 'befriend': {
+      const creature = state.creatures[command.creatureId];
+      if (!creature) break;
+      const reason = friendshipInteractionReason(state, creature);
+      if (reason) state.notice = reason;
+      else {
+        const gained = interactWithPartner(state, creature);
+        state.notice = `你轻轻陪伴${creatureName(creature)}，它安心地靠了过来。亲密度 +${gained}。`;
+      }
+      break;
+    }
     case 'useFieldItem':
       applyFieldItem(state, command.itemId);
       break;
@@ -1288,6 +1308,71 @@ export function reduceGame(current: GameState, command: Command): GameState {
   if (next !== current) {
     syncWeather(next);
     rememberRecoveryTowns(next);
+    if (next.deferredEvolutions) {
+      next.deferredEvolutions = next.deferredEvolutions.filter((choice) => {
+        const creature = next.creatures[choice.creatureId];
+        return (
+          creature &&
+          SPECIES[creature.speciesId]!.evolutions.some(
+            (edge) => edge.toId === choice.toId && !!edge.alternatives?.length,
+          )
+        );
+      });
+      if (!next.deferredEvolutions.length) delete next.deferredEvolutions;
+    }
+    // Record only eligibility transitions, including ones reached during a battle/cutscene.
+    // A persisted deferred queue avoids both losing a prompt and interrupting a trainer approach.
+    if (!next.challenge?.active) {
+      for (const id of next.party) {
+        const creature = next.creatures[id]!;
+        const before = current.creatures[id];
+        if (!before || before.speciesId !== creature.speciesId) continue;
+        for (const edge of SPECIES[creature.speciesId]!.evolutions) {
+          if (
+            edge.alternatives?.some((route) => specialEvolutionMet(creature, route, next)) &&
+            !edge.alternatives.some((route) => specialEvolutionMet(before, route, current)) &&
+            !next.pending.some(
+              (choice) =>
+                choice.kind === 'evolution' &&
+                choice.creatureId === id &&
+                choice.toId === edge.toId,
+            ) &&
+            !next.deferredEvolutions?.some(
+              (choice) => choice.creatureId === id && choice.toId === edge.toId,
+            )
+          )
+            (next.deferredEvolutions ??= []).push({ creatureId: id, toId: edge.toId });
+        }
+      }
+    }
+    if (
+      !next.battle &&
+      !next.dialogue &&
+      !next.activities?.active &&
+      !next.challenge?.active &&
+      !next.league?.active &&
+      !next.world?.trainerChallenge &&
+      !next.progress.flags.starterChoice
+    ) {
+      for (const choice of next.deferredEvolutions ?? []) {
+        const creature = next.creatures[choice.creatureId];
+        const edge =
+          creature &&
+          SPECIES[creature.speciesId]!.evolutions.find((edge) => edge.toId === choice.toId);
+        if (
+          creature &&
+          edge?.alternatives?.some((route) => specialEvolutionMet(creature, route, next)) &&
+          !next.pending.some(
+            (pending) =>
+              pending.kind === 'evolution' &&
+              pending.creatureId === choice.creatureId &&
+              pending.toId === choice.toId,
+          )
+        )
+          next.pending.push({ kind: 'evolution', ...choice });
+      }
+      delete next.deferredEvolutions;
+    }
     const full = Object.keys(next.inventory).filter(
       (id) => id !== 'master_ball' && next.inventory[id]! > 999,
     );

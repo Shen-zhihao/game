@@ -13,6 +13,8 @@ import {
 } from '../model';
 import { weatherDamage, weatherStat } from '../environment';
 import { captureDifficulty } from '../capture';
+import { createFriendship } from '../friendship';
+import { evolutionRequirementsLabel, specialEvolutionMet } from '../evolutionRequirements';
 import {
   ABILITIES,
   speciesAbility,
@@ -110,6 +112,7 @@ export function makeCreature(
     level,
     experience: xpAt(level, species.experienceCurve),
     iv,
+    friendship: createFriendship(),
     hp: 1,
     status: null,
     sleepTurns: 0,
@@ -132,9 +135,12 @@ export function canEvolve(
   creature: Creature,
   toId: string,
   inventory: Record<string, number>,
+  state?: GameState,
 ): boolean {
   const edge = SPECIES[creature.speciesId]!.evolutions.find((e) => e.toId === toId);
   if (!edge) return false;
+  if (state && edge.alternatives?.some((route) => specialEvolutionMet(creature, route, state)))
+    return true;
   return edge.condition.kind === 'level'
     ? creature.level >= edge.condition.level
     : creature.level >= edge.condition.minLevel && (inventory[edge.condition.itemId] ?? 0) > 0;
@@ -142,7 +148,7 @@ export function canEvolve(
 export function queueEvolution(state: GameState, creature: Creature): void {
   for (const edge of SPECIES[creature.speciesId]!.evolutions) {
     if (
-      canEvolve(creature, edge.toId, state.inventory) &&
+      canEvolve(creature, edge.toId, state.inventory, state) &&
       !state.pending.some(
         (p) => p.kind === 'evolution' && p.creatureId === creature.id && p.toId === edge.toId,
       )
@@ -299,9 +305,6 @@ export function captureChance(creature: Creature, ballMultiplier = 1): number {
 export function evolutionLabel(species: Species): string {
   if (!species.evolutions.length) return '最终形态';
   return species.evolutions
-    .map(
-      (e) =>
-        `${e.condition.kind === 'level' ? `Lv.${e.condition.level}` : `Lv.${e.condition.minLevel} + 道具`} → ${SPECIES[e.toId]!.name}`,
-    )
+    .map((e) => `${evolutionRequirementsLabel(e)} → ${SPECIES[e.toId]!.name}`)
     .join(' / ');
 }

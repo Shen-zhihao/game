@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { MOVES, SPECIES, TYPES, TYPE_COLORS } from '../../content/catalog';
 import { GameState } from '../../game/model';
 import { battleMoveDetails } from '../../game/moveDetails';
-import { chanceLabel, hitChance } from '../../game/combat';
+import { chanceLabel, hitChance, protectSuccessChance } from '../../game/combat';
+import { battleActionReason } from '../../game/battle';
 import { abilityFor, statsFor, typeMultiplier } from '../../game/rules';
 import { HapticPressable as Pressable } from '../HapticPressable';
 import { palette } from '../ui';
@@ -46,9 +47,12 @@ export function BattleMoves({
       : '尚未学习技能';
     const pp = move ? (index === -1 ? '不消耗 PP' : `PP ${slot!.pp}/${move.pp}`) : '';
     const accuracy = move
-      ? `命中 ${chanceLabel(hitChance(move.id, battle.playerStages, battle.enemyStages, battle.weather?.kind, player))}`
+      ? move.effect?.protect
+        ? `成功率 ${chanceLabel(protectSuccessChance(battle, player.id))}`
+        : `命中 ${chanceLabel(hitChance(move.id, battle.playerStages, battle.enemyStages, battle.weather?.kind, player))}`
       : '';
-    return { index, move, details, title, effectiveness, metadata, pp, accuracy, slot };
+    const reason = move ? battleActionReason(game, { kind: 'move', index }) : '尚未学习技能';
+    return { index, move, details, title, effectiveness, metadata, pp, accuracy, slot, reason };
   });
   const inspectedMove = choices.find((choice) => choice.index === inspected);
   return (
@@ -68,8 +72,8 @@ export function BattleMoves({
       </View>
       <View style={s.grid}>
         {choices.map(
-          ({ index, move, details, title, effectiveness, metadata, pp, accuracy, slot }) => {
-            const disabled = !move || (index !== -1 && slot!.pp === 0);
+          ({ index, move, details, title, effectiveness, metadata, pp, accuracy, reason }) => {
+            const disabled = !!reason;
             return (
               <View
                 key={index}
@@ -88,6 +92,7 @@ export function BattleMoves({
                     pp,
                     accuracy,
                     details ? `效果：${details.effect}` : '',
+                    reason,
                   ]
                     .filter(Boolean)
                     .join('，')}
@@ -104,7 +109,8 @@ export function BattleMoves({
                     {!!effectiveness && <Text style={s.effectiveness}>{effectiveness}</Text>}
                   </View>
                   <Text numberOfLines={1} style={s.metadata}>
-                    {move ? `${move.type ? TYPES[move.type] : '无属性'} · ${pp}` : metadata}
+                    {reason ||
+                      (move ? `${move.type ? TYPES[move.type] : '无属性'} · ${pp}` : metadata)}
                   </Text>
                 </Pressable>
                 {!!move && (
@@ -144,6 +150,7 @@ export function BattleMoves({
             {inspectedMove.effectiveness ? ` · 对手${inspectedMove.effectiveness}` : ''}
           </Text>
           <Text style={s.detailText}>效果：{inspectedMove.details?.effect}</Text>
+          {!!inspectedMove.reason && <Text style={s.detailText}>{inspectedMove.reason}</Text>}
         </View>
       )}
     </View>

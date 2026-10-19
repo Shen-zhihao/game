@@ -1,4 +1,5 @@
-import { ALL_SPECIES, ITEMS, learnset, MOVES, SPECIES, TYPE_CHART, TYPES } from '../catalog';
+import { ALL_SPECIES, learnset, MOVES, SPECIES, TYPE_CHART, TYPES } from '../catalog';
+import { evolutionRequirementsLabel } from '../../game/evolutionRequirements';
 import { Species, Stat, Stats } from '../../game/model';
 
 export const STAT_NAMES: Record<Stat, string> = {
@@ -126,7 +127,7 @@ function makePlan(s: Species): TrainingPlan {
       ? s.evolutions
           .map(
             (e) =>
-              `${e.condition.kind === 'level' ? `Lv.${e.condition.level}` : `Lv.${e.condition.minLevel}＋${ITEMS[e.condition.itemId]!.name}`}进化为${SPECIES[e.toId]!.name}，保留能力点；新增点数可按新定位分配，已加点需重塑药剂返还。`,
+              `${evolutionRequirementsLabel(e)}，进化为${SPECIES[e.toId]!.name}，保留能力点与亲密度；新增点数可按新定位分配，已加点需重塑药剂返还。`,
           )
           .join(' ')
       : '最终或独立形态：继续提升等级与能力点，在城镇免费回忆已达等级的技能。',

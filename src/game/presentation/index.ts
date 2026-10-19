@@ -38,7 +38,7 @@ export function commandPresentation(game: GameState, command: Command): JourneyE
   if (game.battle || game.dialogue || game.progress.flags.starterChoice) return null;
   if (command.kind === 'evolve' && command.accept) {
     const c = game.creatures[command.creatureId];
-    if (c && canEvolve(c, command.toId, game.inventory))
+    if (c && canEvolve(c, command.toId, game.inventory, game))
       return { kind: 'evolution', from: battleFigure(c), toId: command.toId, command };
   }
   if (game.pending.length || !game.party.length) return null;
