@@ -7,9 +7,10 @@ import { SIGNATURES, SIGNATURE_BY_SPECIES } from '../signatures';
 import { HELD_ITEMS } from '../battleTraits';
 import { SPECIAL_EVOLUTIONS } from '../specialEvolutions';
 
-export const CONTENT_VERSION = 'ch11.4';
+export const CONTENT_VERSION = 'ch11.5';
 export const supportsContentVersion = (version: string) =>
   version === CONTENT_VERSION ||
+  version === 'ch11.4' ||
   version === 'ch11.3' ||
   version === 'ch11.2' ||
   version === 'ch11.1' ||

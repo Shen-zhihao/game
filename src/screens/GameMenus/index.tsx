@@ -57,6 +57,7 @@ export { RegionMenu } from '../RegionMenu';
 export { BagMenu } from '../CityMenus';
 
 export type MenuName =
+  | 'nursery'
   | 'production'
   | 'challenge'
   | 'party'
@@ -69,6 +70,7 @@ export type MenuName =
   | 'transfer'
   | 'settings';
 export const MENU_NAMES: Record<MenuName, string> = {
+  nursery: '培育屋',
   production: '城市工坊',
   challenge: '规则挑战',
   party: '伙伴',
@@ -84,6 +86,7 @@ export const MENU_NAMES: Record<MenuName, string> = {
 const MENU_SECTIONS = [
   'party',
   'center',
+  'nursery',
   'bag',
   'dex',
   'quests',

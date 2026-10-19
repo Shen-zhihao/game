@@ -1,3 +1,4 @@
+import { applyNurseryAction, isNurseryParent, walkNursery } from '../nursery';
 import { recordWildObservation } from '../ecology';
 import { applyProduction } from '../production';
 import { applyChallenge, finishChallengeBattle } from '../challenge';
@@ -490,6 +491,11 @@ function interact(state: GameState): void {
           ? '阿澈正在一号路东部等你。完成切磋后，回来领取图鉴和捕捉补给。'
           : '沿着东侧道路前往苔丘镇吧。不同属性会互相克制，伙伴们的力量需要一起发挥。',
         '城镇商店可以购买补给，精灵中心免费治疗。训练师获胜后会和你聊聊旅途，沿途草丛也适合练习。',
+        ...(flags.catchTutorial
+          ? [
+              '晨芽镇的培育屋已经开放！在菜单选择培育屋，寄养同一进化家族的两位 Lv.10 伙伴，行走后回来领蛋，再陪伴它孵化。',
+            ]
+          : []),
       ]);
       break;
     case 'rival':
@@ -792,6 +798,7 @@ function walkStep(state: GameState, direction: WalkDirection): void {
     state.notice = `到达${MAPS[p.map].name}`;
     state.encounterCooldown = 5;
     walkWithPartners(state);
+    walkNursery(state);
     if (p.map === 'route' && f.opening && !f.professorCall) {
       talk(
         state,
@@ -810,6 +817,7 @@ function walkStep(state: GameState, direction: WalkDirection): void {
   p.y = y;
   state.steps += 1;
   walkWithPartners(state);
+  walkNursery(state);
   const protectedStep = consumeRepelStep(state);
   if (detectTrainer(state)) return;
   if (state.encounterCooldown > 0) {
@@ -883,6 +891,22 @@ function reduceCommand(current: GameState, command: Command): GameState {
   state.masterBalls ??= { claimed: [], used: 0 };
   Object.values(state.creatures).forEach(ensureTraining);
   state.battle?.enemies.forEach(ensureTraining);
+  // One reservation guard covers every direct creature mutation, including nested battle
+  // and challenge commands. Nursery withdrawal is the only way to release a reservation.
+  const referenced = [
+    ...('creatureId' in command ? [command.creatureId] : []),
+    ...(command.kind === 'copyMove' ? [command.sourceId] : []),
+    ...(command.kind === 'battle' && 'creatureId' in command.action
+      ? [command.action.creatureId]
+      : []),
+    ...(command.kind === 'challenge' && command.action.kind === 'start'
+      ? command.action.creatureIds
+      : []),
+  ];
+  if (referenced.some((id) => isNurseryParent(state, id))) {
+    state.notice = '这位伙伴正在培育屋寄养，请先回晨芽镇取回，再进行操作。';
+    return state;
+  }
   if (state.world?.trainerChallenge && command.kind !== 'tick') return current;
   if (
     state.challenge?.active &&
@@ -1017,6 +1041,10 @@ function reduceCommand(current: GameState, command: Command): GameState {
   }
   if (command.kind === 'rest') {
     applyRest(state, command.target);
+    return state;
+  }
+  if (command.kind === 'nursery') {
+    applyNurseryAction(state, command.action);
     return state;
   }
   if (command.kind === 'production') {

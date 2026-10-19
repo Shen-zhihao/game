@@ -1,3 +1,4 @@
+import { NURSERY_BREEDING_STEPS, NURSERY_HATCH_STEPS, validNursery } from '../../game/nursery';
 import { validEcology } from '../../game/ecology';
 import { validateProduction } from '../../game/production';
 import { PRODUCTION_DECORATIONS } from '../../content/productionRewards';
@@ -293,7 +294,20 @@ const activityRunSchema = z.strictObject({
   status: z.enum(['playing', 'won', 'lost']),
   feedback: z.string().max(500),
 });
+const nurseryEggSchema = z.strictObject({
+  speciesId: idSchema,
+  inheritedMoves: z.array(idSchema).max(2),
+  steps: integer(NURSERY_HATCH_STEPS),
+});
 const gameSchema = z.strictObject({
+  nursery: z
+    .strictObject({
+      parents: z.array(idSchema).max(2),
+      breedingSteps: integer(NURSERY_BREEDING_STEPS - 1),
+      waitingEgg: nurseryEggSchema.nullable(),
+      carriedEgg: nurseryEggSchema.nullable(),
+    })
+    .optional(),
   ecology: z
     .partialRecord(
       z.enum(['dawn', 'stone', 'harbor']),
@@ -688,6 +702,7 @@ export function validateGame(input: unknown): GameState {
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
   invariant(validEcology(game), '昼夜观察记录无效');
+  invariant(validNursery(game), '培育屋寄养或孵化记录无效');
   invariant(!game.production || validateProduction(game.production, game), '城市生产记录无效');
   if (game.activities) {
     const ledger = game.activities;

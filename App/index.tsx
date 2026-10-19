@@ -2,6 +2,7 @@ import type { MapId } from '../src/game/model';
 import type { ProductionTown } from '../src/content/production';
 import { facingNpc } from '../src/game/exploration';
 import { servicesUnlocked } from '../src/content/cities';
+import { NurseryMenu } from '../src/screens/NurseryMenu';
 import { ProductionMenu } from '../src/screens/ProductionMenu';
 import { ChallengeMenu } from '../src/screens/ChallengeMenu';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -558,6 +559,16 @@ function GameApp() {
                   facilityTown={facilityTown}
                   onOpenRegion={(map) => {
                     setRegionTarget(map);
+                    setMenu('map');
+                  }}
+                />
+              )}
+              {menu === 'nursery' && (
+                <NurseryMenu
+                  game={game}
+                  dispatch={dispatch}
+                  onOpenRegion={() => {
+                    setRegionTarget('dawn');
                     setMenu('map');
                   }}
                 />

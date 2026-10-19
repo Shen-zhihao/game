@@ -384,6 +384,7 @@ export interface ExplorationState {
   trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
+  nursery?: import('../nursery').NurseryState;
   ecology?: import('../ecology').EcologyState;
   production?: import('../production').ProductionState;
   challenge?: import('../challenge').ChallengeLedger;
@@ -451,6 +452,7 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'nursery'; action: import('../nursery').NurseryAction }
   | { kind: 'befriend'; creatureId: string }
   | { kind: 'production'; action: import('../production').ProductionAction }
   | { kind: 'rest'; target: 'morning' | 'night' }
