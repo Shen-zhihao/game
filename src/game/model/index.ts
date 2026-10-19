@@ -336,6 +336,7 @@ export interface ExplorationState {
   trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
+  ecology?: import('../ecology').EcologyState;
   production?: import('../production').ProductionState;
   challenge?: import('../challenge').ChallengeLedger;
   activities?: import('../activities/types').ActivityLedger;

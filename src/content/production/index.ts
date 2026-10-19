@@ -58,6 +58,12 @@ export const PRODUCTION_PRODUCTS = {
   crystal_chime: { name: '矿晶风铃', description: '石料托着透光矿晶，轻轻碰出清亮回声。' },
   stone_marker: { name: '矿纹路牌', description: '嵌上矿晶的石质小路牌，送给街区花园。' },
   shell_mobile: { name: '空贝风饰', description: '捞起的空贝壳与海玻璃组成摇曳挂饰。' },
+  dawn_picnic: {
+    name: '晨露野餐篮',
+    description: '依照晨夜观察调配香草比例，为观察员准备的丰盛野餐篮。',
+  },
+  echo_lamp: { name: '昼夜矿晶灯', description: '以矿山昼夜观察为灵感，石底座与矿晶拼成的桌灯。' },
+  tide_mosaic: { name: '潮汐星光画', description: '把昼夜水域见闻编入空贝壳与海玻璃的拼画。' },
   tide_lantern: { name: '海玻璃夜灯', description: '海玻璃围出柔光灯罩，空贝壳装点底座。' },
 } as const;
 export type ProductionProductId = keyof typeof PRODUCTION_PRODUCTS;
@@ -66,8 +72,9 @@ export interface ProductionRecipe {
   town: ProductionTown;
   ingredients: Partial<Record<ProductionMaterialId, number>>;
   order: string;
+  advanced?: true;
 }
-export const PRODUCTION_RECIPES: readonly ProductionRecipe[] = [
+export const BASIC_PRODUCTION_RECIPES: readonly ProductionRecipe[] = [
   {
     id: 'herb_roll',
     town: 'dawn',
@@ -104,6 +111,33 @@ export const PRODUCTION_RECIPES: readonly ProductionRecipe[] = [
     ingredients: { harbor_shells: 1, harbor_glass: 2 },
     order: '滨园夜游灯',
   },
+];
+export const ADVANCED_PRODUCTION_RECIPES: readonly ProductionRecipe[] = [
+  {
+    id: 'dawn_picnic',
+    town: 'dawn',
+    ingredients: { garden_grain: 3, garden_herbs: 3 },
+    order: '观察员野餐会',
+    advanced: true,
+  },
+  {
+    id: 'echo_lamp',
+    town: 'stone',
+    ingredients: { quarry_stone: 3, quarry_crystal: 3 },
+    order: '矿山观察站照明',
+    advanced: true,
+  },
+  {
+    id: 'tide_mosaic',
+    town: 'harbor',
+    ingredients: { harbor_shells: 3, harbor_glass: 3 },
+    order: '昼夜潮汐展览',
+    advanced: true,
+  },
+];
+export const PRODUCTION_RECIPES: readonly ProductionRecipe[] = [
+  ...BASIC_PRODUCTION_RECIPES,
+  ...ADVANCED_PRODUCTION_RECIPES,
 ];
 export const PRODUCTION_KEEPSAKES = [
   {

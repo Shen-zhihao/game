@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Button, Label, palette, Panel, styles } from '../../components/ui';
+import { SPECIES } from '../../content/catalog';
+import { MAPS } from '../../content/world';
 import { cityFor } from '../../content/cities';
 import {
+  ADVANCED_PRODUCTION_RECIPES,
+  BASIC_PRODUCTION_RECIPES,
   PRODUCTION_CHAINS,
   PRODUCTION_KEEPSAKES,
   PRODUCTION_MATERIALS,
@@ -13,8 +17,9 @@ import {
   type ProductionTown,
 } from '../../content/production';
 import { calendarDetails, calendarFor, restBlockedReason } from '../../game/calendar';
+import { observationProgress } from '../../game/ecology';
 import type { Command, GameState } from '../../game/model';
-import { productionAvailability } from '../../game/production';
+import { advancedRecipeProgress, productionAvailability } from '../../game/production';
 
 export function ProductionMenu({
   game,
@@ -34,7 +39,15 @@ export function ProductionMenu({
     (state?.activityClaims[chain.activityId]?.day ?? 0) >= calendarFor(game).day;
   const morningBlock = restBlockedReason(game, 'morning');
   const nightBlock = restBlockedReason(game, 'night');
-  const made = PRODUCTION_RECIPES.filter((recipe) => (state?.crafted[recipe.id] ?? 0) > 0).length;
+  const made = BASIC_PRODUCTION_RECIPES.filter(
+    (recipe) => (state?.crafted[recipe.id] ?? 0) > 0,
+  ).length;
+  const advancedMade = ADVANCED_PRODUCTION_RECIPES.filter(
+    (recipe) => (state?.crafted[recipe.id] ?? 0) > 0,
+  ).length;
+  const advancedDelivered = ADVANCED_PRODUCTION_RECIPES.filter(
+    (recipe) => (state?.orders[recipe.id]?.count ?? 0) > 0,
+  ).length;
   return (
     <ScrollView testID="production-menu" contentContainerStyle={{ gap: 12, paddingBottom: 20 }}>
       <View style={{ gap: 4 }}>
@@ -74,6 +87,55 @@ export function ProductionMenu({
             {morningBlock || nightBlock}
           </Label>
         )}
+      </Panel>
+      <Panel testID="production-observation-checklist" style={{ padding: 12, gap: 10 }}>
+        <Label style={{ fontWeight: '800' }}>三城昼夜观察手账</Label>
+        <Label muted style={{ fontSize: 12 }}>
+          每城在指定区域白天、夜晚各真实遇见一次野生精灵，并累计交付 3
+          份本城基础订单，即可解锁本城进阶配方。无需捕捉，不消耗伙伴。
+        </Label>
+        <Label muted style={{ fontSize: 12 }}>
+          仅记录真实野外相遇的首次物种、地点与游戏日历时间；旧图鉴、训练家战斗不会补记。昼夜以世界日历为准，与画面明暗设置无关。
+        </Label>
+        {PRODUCTION_TOWNS.map((town) => {
+          const observation = observationProgress(game, town);
+          const progress = advancedRecipeProgress(game, town);
+          return (
+            <View key={town} testID={`production-observation-${town}`} style={{ gap: 4 }}>
+              <Label style={{ fontWeight: '700' }}>
+                {observation.title} · {observation.complete ? '昼夜观察完成' : '等待观察'}
+              </Label>
+              <Label muted style={{ fontSize: 12 }}>
+                {observation.location}
+              </Label>
+              {(['day', 'night'] as const).map((period) => {
+                const record = observation[period];
+                const recordedAt = record ? calendarDetails({ ...game, calendar: record }) : null;
+                return (
+                  <Label
+                    key={period}
+                    testID={`production-observation-${town}-${period}`}
+                    style={{ fontSize: 12, color: record ? palette.gold : palette.muted }}
+                  >
+                    {record ? '✓' : '○'} {period === 'day' ? '白天' : '夜晚'}：
+                    {record && recordedAt
+                      ? `${SPECIES[record.speciesId]?.name ?? record.speciesId} · ${MAPS[record.map].name} · ${recordedAt.date} ${recordedAt.clock}`
+                      : '尚未在指定区域遇见野生精灵'}
+                  </Label>
+                );
+              })}
+              <Label testID={`production-unlock-${town}`} style={{ fontSize: 12 }}>
+                基础订单 {progress.orders}/{progress.requiredOrders} · 进阶配方
+                {progress.unlocked ? '已解锁' : '未解锁'}
+              </Label>
+              {!progress.unlocked && (
+                <Label muted testID={`production-unlock-reason-${town}`} style={{ fontSize: 12 }}>
+                  {progress.reason}
+                </Label>
+              )}
+            </View>
+          );
+        })}
       </Panel>
       <View style={[styles.wrap, { gap: 6 }]}>
         {PRODUCTION_TOWNS.map((town) => (
@@ -122,6 +184,7 @@ export function ProductionMenu({
       {PRODUCTION_RECIPES.filter((recipe) => recipe.town === selected).map((recipe) => {
         const product = PRODUCTION_PRODUCTS[recipe.id];
         const availability = productionAvailability(game, recipe);
+        const progress = recipe.advanced ? advancedRecipeProgress(game, recipe.town) : null;
         return (
           <Panel
             key={recipe.id}
@@ -129,9 +192,22 @@ export function ProductionMenu({
             testID={`production-recipe-${recipe.id}`}
           >
             <View style={[styles.row, { justifyContent: 'space-between', flexWrap: 'wrap' }]}>
-              <Label style={{ fontWeight: '800' }}>{product.name}</Label>
+              <Label style={{ fontWeight: '800' }}>
+                {recipe.advanced ? '进阶 · ' : '基础 · '}
+                {product.name}
+              </Label>
               <Label style={{ color: palette.gold }}>成品 ×{state?.products[recipe.id] ?? 0}</Label>
             </View>
+            {progress && (
+              <Label
+                testID={`production-recipe-unlock-${recipe.id}`}
+                style={{ fontSize: 12, color: progress.unlocked ? palette.gold : palette.muted }}
+              >
+                {progress.unlocked
+                  ? '进阶配方已解锁'
+                  : `解锁条件：${availability.unlockReason || progress.reason}`}
+              </Label>
+            )}
             <Label muted style={{ fontSize: 12 }}>
               {product.description}
             </Label>
@@ -192,11 +268,11 @@ export function ProductionMenu({
           城市收藏册 · 手作印花 {state?.collection.stamps ?? 0}
         </Label>
         <Label muted style={{ fontSize: 12 }}>
-          已制作 {made}/6 种成品 · 已收藏 {state?.collection.keepsakes.length ?? 0}/
+          基础成品已制作 {made}/6 种 · 已收藏 {state?.collection.keepsakes.length ?? 0}/
           {PRODUCTION_KEEPSAKES.length} 件纪念品
         </Label>
         <View style={[styles.wrap, { gap: 6 }]}>
-          {PRODUCTION_RECIPES.map((recipe) => (
+          {BASIC_PRODUCTION_RECIPES.map((recipe) => (
             <Label
               key={recipe.id}
               muted={!(state?.crafted[recipe.id] ?? 0)}
@@ -206,6 +282,38 @@ export function ProductionMenu({
               {PRODUCTION_PRODUCTS[recipe.id].name}
             </Label>
           ))}
+        </View>
+        <View testID="production-advanced-collection" style={{ gap: 6 }}>
+          <Label style={{ fontWeight: '700' }}>
+            进阶手作 · 已制作 {advancedMade}/3 种 · 已交付 {advancedDelivered}/3 种
+          </Label>
+          <Label
+            testID="production-ecology-artisan-badge"
+            style={{
+              color: advancedMade === 3 && advancedDelivered === 3 ? palette.gold : palette.muted,
+            }}
+          >
+            {advancedMade === 3 && advancedDelivered === 3 ? '✓ 已达成' : '○ 待达成'} 三城生态匠人章
+          </Label>
+          <Label muted style={{ fontSize: 11 }}>
+            三城进阶成品各制作并交付至少一次即可达成；仅记录成就，不额外发放印花。
+          </Label>
+          {ADVANCED_PRODUCTION_RECIPES.map((recipe) => (
+            <Label
+              key={recipe.id}
+              testID={`production-advanced-collection-${recipe.id}`}
+              muted={!(state?.crafted[recipe.id] ?? 0)}
+              style={{ fontSize: 12 }}
+            >
+              {(state?.crafted[recipe.id] ?? 0) > 0 ? '✓' : '○'}{' '}
+              {PRODUCTION_PRODUCTS[recipe.id].name}
+              {' · '}累计制作 {state?.crafted[recipe.id] ?? 0}
+              {' · '}累计交付 {state?.orders[recipe.id]?.count ?? 0}
+            </Label>
+          ))}
+          <Label muted style={{ fontSize: 11 }}>
+            进阶成品单独记录，不增加基础收藏册的 6 种成品或 5 件纪念品要求。
+          </Label>
         </View>
         {PRODUCTION_KEEPSAKES.map((keepsake) => {
           const owned = state?.collection.keepsakes.includes(keepsake.id) ?? false;

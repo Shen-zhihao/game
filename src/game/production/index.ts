@@ -1,5 +1,7 @@
+import { observationProgress } from '../ecology';
 import { cityFor, servicesUnlocked } from '../../content/cities';
 import {
+  BASIC_PRODUCTION_RECIPES,
   PRODUCTION_CHAINS,
   PRODUCTION_KEEPSAKES,
   PRODUCTION_MATERIALS,
@@ -10,6 +12,7 @@ import {
   type ProductionMaterialId,
   type ProductionProductId,
   type ProductionRecipe,
+  type ProductionTown,
 } from '../../content/production';
 import { calendarDetails, calendarFor } from '../calendar';
 import type { GameState } from '../model';
@@ -50,7 +53,7 @@ export function productionCollection(state: ProductionState): ProductionState['c
   );
   const keepsakes = PRODUCTION_KEEPSAKES.filter((keepsake) => {
     if (keepsake.id === 'recipe_album')
-      return PRODUCTION_RECIPES.every((recipe) => (state.crafted[recipe.id] ?? 0) > 0);
+      return BASIC_PRODUCTION_RECIPES.every((recipe) => (state.crafted[recipe.id] ?? 0) > 0);
     const orders = PRODUCTION_RECIPES.filter(
       (recipe) => !keepsake.town || recipe.town === keepsake.town,
     ).reduce((sum, recipe) => sum + (state.orders[recipe.id]?.count ?? 0), 0);
@@ -80,6 +83,29 @@ export function awardProductionMaterials(game: GameState, activityId: string): s
   return `今日手作材料：${materials.map(([id, count]) => `${PRODUCTION_MATERIALS[id].name}×${count}`).join('、')}。`;
 }
 
+/** Unlocks are derived from permanent ledgers, so old saves gain no invented observations. */
+export function advancedRecipeProgress(game: GameState, town: ProductionTown) {
+  const observed = observationProgress(game, town);
+  const orders = BASIC_PRODUCTION_RECIPES.filter((recipe) => recipe.town === town).reduce(
+    (sum, recipe) => sum + (game.production?.orders[recipe.id]?.count ?? 0),
+    0,
+  );
+  const requiredOrders = 3;
+  const missing = [
+    orders < requiredOrders ? `本城基础订单 ${orders}/${requiredOrders}` : '',
+    !observed.day ? '白天野外观察 0/1' : '',
+    !observed.night ? '夜晚野外观察 0/1' : '',
+  ].filter(Boolean);
+  return {
+    orders,
+    requiredOrders,
+    observedDay: !!observed.day,
+    observedNight: !!observed.night,
+    unlocked: !missing.length,
+    reason: missing.length ? `进阶配方未解锁：${missing.join('；')}。` : '',
+  };
+}
+
 export function productionAvailability(game: GameState, recipe: ProductionRecipe) {
   const state = game.production;
   const chain = PRODUCTION_CHAINS[recipe.town];
@@ -92,6 +118,7 @@ export function productionAvailability(game: GameState, recipe: ProductionRecipe
     !!game.activities?.active ||
     !!game.challenge?.active ||
     !!game.league?.active;
+  const unlockReason = recipe.advanced ? advancedRecipeProgress(game, recipe.town).reason : '';
   const reason = !servicesUnlocked(game)
     ? '先完成捕捉入门，再来参加城市手作。'
     : busy
@@ -100,7 +127,7 @@ export function productionAvailability(game: GameState, recipe: ProductionRecipe
         ? `请到${chain.venue}所在城镇办理。`
         : closed
           ? '夜市 18:00 至次日 06:00 营业；材料和订单不会过期。'
-          : '';
+          : unlockReason;
   const materialsReady = Object.entries(recipe.ingredients).every(
     ([id, count]) => (state?.materials[id as ProductionMaterialId] ?? 0) >= count,
   );
@@ -113,6 +140,7 @@ export function productionAvailability(game: GameState, recipe: ProductionRecipe
   const productReady = (state?.products[recipe.id] ?? 0) > 0;
   return {
     reason,
+    unlockReason,
     canCraft: !reason && materialsReady && !craftFull,
     canOrder: !reason && productReady && !orderedToday && !orderFull,
     craftReason:
@@ -253,6 +281,12 @@ export function validateProduction(value: unknown, game: GameState): value is Pr
     }
   }
   for (const recipe of PRODUCTION_RECIPES) {
+    if (
+      recipe.advanced &&
+      (state.crafted[recipe.id] ?? 0) > 0 &&
+      !advancedRecipeProgress(game, recipe.town).unlocked
+    )
+      return false;
     if (
       (state.products[recipe.id] ?? 0) !==
       (state.crafted[recipe.id] ?? 0) - (state.orders[recipe.id]?.count ?? 0)

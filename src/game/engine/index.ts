@@ -1,3 +1,4 @@
+import { recordWildObservation } from '../ecology';
 import { applyProduction } from '../production';
 import { applyChallenge, finishChallengeBattle } from '../challenge';
 import { applyFastTravel } from '../travel';
@@ -315,6 +316,7 @@ function interact(state: GameState): void {
         speciesId: encounter.speciesId,
         level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
       });
+      recordWildObservation(state, player.map);
       state.battle?.logs.unshift(`你调查了${water.name}，水面泛起波纹！`);
       return;
     }
@@ -817,6 +819,7 @@ function walk(state: GameState, direction: WalkDirection): void {
       speciesId: encounter.speciesId,
       level,
     });
+    recordWildObservation(state, p.map);
   }
 }
 // A command always produces a complete stable checkpoint before presentation.
@@ -900,6 +903,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
           speciesId: encounter.speciesId,
           level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
         });
+        recordWildObservation(state, state.player.map);
         (state.battle as GameState['battle'])?.logs.unshift(
           '你成功收线，水中的精灵来到了岸边！投出星纹球才能让它成为伙伴。',
         );

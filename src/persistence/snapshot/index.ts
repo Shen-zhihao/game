@@ -1,3 +1,4 @@
+import { validEcology } from '../../game/ecology';
 import { validateProduction } from '../../game/production';
 import {
   PRODUCTION_MATERIALS,
@@ -265,6 +266,20 @@ const activityRunSchema = z.strictObject({
   feedback: z.string().max(500),
 });
 const gameSchema = z.strictObject({
+  ecology: z
+    .partialRecord(
+      z.enum(['dawn', 'stone', 'harbor']),
+      z.partialRecord(
+        z.enum(['day', 'night']),
+        z.strictObject({
+          speciesId: idSchema,
+          map: z.enum(['dawn', 'route', 'stoneRoute', 'mine', 'coastRoute', 'harbor']),
+          day: integer(MAX_CALENDAR_DAY, 1),
+          time: integer(CALENDAR_DAY_SECONDS - 1),
+        }),
+      ),
+    )
+    .optional(),
   challenge: z
     .strictObject({
       points: integer(999999),
@@ -303,7 +318,7 @@ const gameSchema = z.strictObject({
         z.strictObject({ day: integer(MAX_CALENDAR_DAY, 1), count: integer(999999, 1) }),
       ),
       collection: z.strictObject({
-        stamps: integer(5999994),
+        stamps: integer(999999 * Object.keys(PRODUCTION_PRODUCTS).length),
         keepsakes: z
           .array(z.enum(PRODUCTION_KEEPSAKES.map((k) => k.id) as [string, ...string[]]))
           .max(PRODUCTION_KEEPSAKES.length),
@@ -601,6 +616,7 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  invariant(validEcology(game), '昼夜观察记录无效');
   invariant(!game.production || validateProduction(game.production, game), '城市生产记录无效');
   if (game.activities) {
     const ledger = game.activities;
