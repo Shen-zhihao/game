@@ -11,6 +11,8 @@ import { PRODUCTION_PRODUCTS } from '../../content/production';
 import type { Npc } from '../../content/world';
 import { dayPeriodFor } from '../calendar';
 import type { GameState, TownId } from '../model';
+import { viewProductionResult } from '../production';
+import { PRODUCTION_STORIES } from '../../content/productionRewards';
 
 const CITY_PRODUCTION_MILESTONES = {
   dawn: {
@@ -70,6 +72,10 @@ export function interactCityDistrict(
   const questId = districtQuestId(town, quest);
   const task = CITY_QUESTS[questId]!;
   const milestone = cityProductionMilestone(game, town);
+  if (milestone && point === 'garden') {
+    // Reading the actual garden guide closes the objective, not merely opening its map.
+    viewProductionResult(game, town as 'dawn' | 'stone' | 'harbor');
+  }
   if (task.prerequisite && ledger.quests[task.prerequisite] !== 'claimed') {
     talk(npc.name, [
       ...(milestone ? [milestone.feedback] : []),
@@ -118,6 +124,13 @@ export function interactCityDistrict(
     }
   }
   if (milestone) lines.push(milestone.feedback);
+  if (point === 'garden') {
+    const story = PRODUCTION_STORIES.find((entry) => entry.town === town);
+    if (story && (game.production?.collection.stamps ?? 0) >= story.stamps)
+      lines.push(`${story.speaker}的邻里故事「${story.title}」：${story.body}`);
+    if (milestone)
+      lines.push('本城进阶手作目标已完成。邻里纪念会一直留在这里，欢迎继续制作与布置花园。');
+  }
   if (town === 'dawn' && point === 'bakery')
     lines.push('交谈后可在这里制作与交付晨芽烘焙；育苗小园得到的麦穗和香草，都能派上用场。');
   else if (town === 'stone' && point === 'workshop')

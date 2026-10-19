@@ -1,5 +1,6 @@
 import { validEcology } from '../../game/ecology';
 import { validateProduction } from '../../game/production';
+import { PRODUCTION_DECORATIONS } from '../../content/productionRewards';
 import {
   PRODUCTION_MATERIALS,
   PRODUCTION_PRODUCTS,
@@ -323,6 +324,15 @@ const gameSchema = z.strictObject({
           .array(z.enum(PRODUCTION_KEEPSAKES.map((k) => k.id) as [string, ...string[]]))
           .max(PRODUCTION_KEEPSAKES.length),
       }),
+      presentation: z
+        .strictObject({
+          decorations: z.partialRecord(
+            z.enum(['dawn', 'stone', 'harbor']),
+            z.enum(PRODUCTION_DECORATIONS.map((reward) => reward.id)),
+          ),
+          viewedResults: z.array(z.enum(['dawn', 'stone', 'harbor'])).max(3),
+        })
+        .optional(),
     })
     .optional(),
   activities: z

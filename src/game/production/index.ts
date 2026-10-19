@@ -15,6 +15,11 @@ import {
   type ProductionTown,
 } from '../../content/production';
 import { calendarDetails, calendarFor, dayPeriodFor, type DayPeriod } from '../calendar';
+import {
+  PRODUCTION_DECORATIONS,
+  PRODUCTION_STORIES,
+  type ProductionDecorationId,
+} from '../../content/productionRewards';
 import type { GameState } from '../model';
 
 export const PRODUCTION_STOCK_LIMIT = 999;
@@ -31,9 +36,16 @@ export interface ProductionState {
   activityClaims: Record<string, ProductionClaim>;
   orders: Partial<Record<ProductionProductId, ProductionClaim>>;
   collection: { stamps: number; keepsakes: ProductionKeepsakeId[] };
+  /** Only player choices and an actual garden visit need saving; unlocks use the order ledger. */
+  presentation?: {
+    decorations: Partial<Record<ProductionTown, ProductionDecorationId>>;
+    viewedResults: ProductionTown[];
+  };
 }
 export type ProductionAction =
-  { kind: 'craft'; recipeId: string } | { kind: 'order'; recipeId: string };
+  | { kind: 'craft'; recipeId: string }
+  | { kind: 'order'; recipeId: string }
+  | { kind: 'decorate'; town: ProductionTown; decorationId: ProductionDecorationId | null };
 
 export function createProduction(): ProductionState {
   return {
@@ -106,11 +118,11 @@ export function advancedRecipeProgress(game: GameState, town: ProductionTown) {
   };
 }
 
-/** Prefer an observation that is possible now; tracking never creates a second ledger. */
-export function productionNextGoal(
-  game: GameState,
-  town: ProductionTown,
-): DayPeriod | 'order' | null {
+export type ProductionGoal =
+  DayPeriod | 'order' | 'materials' | 'craft' | 'delivery' | 'city_result' | 'complete';
+
+/** Prefer an observation that is possible now; crafting and delivery reuse permanent ledgers. */
+export function productionNextGoal(game: GameState, town: ProductionTown): ProductionGoal {
   const progress = advancedRecipeProgress(game, town);
   const period = dayPeriodFor(game);
   const missingDay = !progress.observedDay;
@@ -119,7 +131,38 @@ export function productionNextGoal(
   if (period === 'night' && missingNight) return 'night';
   if (missingDay) return 'day';
   if (missingNight) return 'night';
-  return progress.orders < progress.requiredOrders ? 'order' : null;
+  if (progress.orders < progress.requiredOrders) return 'order';
+  const recipe = ADVANCED_PRODUCTION_RECIPES.find((entry) => entry.town === town)!;
+  if ((game.production?.orders[recipe.id]?.count ?? 0) > 0)
+    return game.production?.presentation?.viewedResults.includes(town) ? 'complete' : 'city_result';
+  if ((game.production?.products[recipe.id] ?? 0) > 0) return 'delivery';
+  return Object.entries(recipe.ingredients).every(
+    ([id, count]) => (game.production?.materials[id as ProductionMaterialId] ?? 0) >= count,
+  )
+    ? 'craft'
+    : 'materials';
+}
+
+/** Call only when the player reads the garden guide after the first advanced delivery. */
+export function viewProductionResult(game: GameState, town: ProductionTown): void {
+  const recipe = ADVANCED_PRODUCTION_RECIPES.find((entry) => entry.town === town);
+  const state = game.production;
+  if (!recipe || !state || !(state.orders[recipe.id]?.count ?? 0)) return;
+  const presentation = (state.presentation ??= { decorations: {}, viewedResults: [] });
+  if (!presentation.viewedResults.includes(town)) presentation.viewedResults.push(town);
+}
+
+export function productionDecorationReason(game: GameState): string {
+  return !servicesUnlocked(game)
+    ? '先完成捕捉入门，再来布置城市花园。'
+    : game.battle ||
+        game.dialogue ||
+        game.pending.length ||
+        game.activities?.active ||
+        game.challenge?.active ||
+        game.league?.active
+      ? '请先结束当前活动、对话或战斗。'
+      : '';
 }
 
 /** Called around an actual ledger mutation, not menu reads or save loading. */
@@ -187,6 +230,35 @@ export function productionAvailability(game: GameState, recipe: ProductionRecipe
 }
 
 export function applyProduction(game: GameState, action: ProductionAction): void {
+  if (action.kind === 'decorate') {
+    const decoration = PRODUCTION_DECORATIONS.find((entry) => entry.id === action.decorationId);
+    if (!PRODUCTION_TOWNS.includes(action.town) || (action.decorationId !== null && !decoration)) {
+      game.notice = '这份城市装饰不存在。';
+      return;
+    }
+    const reason = productionDecorationReason(game);
+    if (reason) {
+      game.notice = reason;
+      return;
+    }
+    const state = game.production;
+    const stamps = state ? productionCollection(state).stamps : 0;
+    if (decoration && stamps < decoration.stamps) {
+      game.notice = `累计 ${decoration.stamps} 枚手作印花后解锁${decoration.name}，印花不会被消耗。`;
+      return;
+    }
+    if (!state) {
+      game.notice = '当前没有布置额外装饰。';
+      return;
+    }
+    const presentation = (state.presentation ??= { decorations: {}, viewedResults: [] });
+    if (decoration) presentation.decorations[action.town] = decoration.id;
+    else delete presentation.decorations[action.town];
+    game.notice = decoration
+      ? `已为${PRODUCTION_CHAINS[action.town].title}所在花园布置${decoration.name}。印花不消耗，首次交付纪念仍保留。`
+      : '已收起本城额外装饰；首次交付纪念仍保留，可随时重新布置。';
+    return;
+  }
   const recipe = PRODUCTION_RECIPES.find((entry) => entry.id === action.recipeId);
   if (!recipe || !['craft', 'order'].includes(action.kind)) {
     game.notice = '这份手作配方不存在。';
@@ -202,6 +274,7 @@ export function applyProduction(game: GameState, action: ProductionAction): void
   const previousOrders = state.orders[recipe.id]?.count ?? 0;
   const name = PRODUCTION_PRODUCTS[recipe.id].name;
   const previousKeepsakes = state.collection.keepsakes;
+  const previousStamps = state.collection.stamps;
   if (action.kind === 'craft') {
     for (const [id, count] of Object.entries(recipe.ingredients) as [
       ProductionMaterialId,
@@ -235,6 +308,11 @@ export function applyProduction(game: GameState, action: ProductionAction): void
   );
   if (added.length)
     game.notice += ` 新收藏：${added.map((keepsake) => keepsake.name).join('、')}。`;
+  const rewards = [...PRODUCTION_DECORATIONS, ...PRODUCTION_STORIES].filter(
+    (reward) => reward.stamps > previousStamps && reward.stamps <= state.collection.stamps,
+  );
+  if (rewards.length)
+    game.notice += ` 印花长期奖励已解锁：${rewards.map((reward) => ('name' in reward ? reward.name : reward.title)).join('、')}。到手作菜单选择装饰、阅读故事，无需扣除印花。`;
   if (action.kind === 'order' && !recipe.advanced) {
     const unlocked = advancedRecipeUnlockNotice(game, recipe.town, previouslyUnlocked);
     if (unlocked) game.notice += ` ${unlocked}`;
@@ -278,6 +356,7 @@ export function validateProduction(value: unknown, game: GameState): value is Pr
       'activityClaims',
       'orders',
       'collection',
+      ...(Object.hasOwn(value, 'presentation') ? ['presentation'] : []),
     ])
   )
     return false;
@@ -305,6 +384,30 @@ export function validateProduction(value: unknown, game: GameState): value is Pr
   )
     return false;
   const state = value as unknown as ProductionState;
+  if (Object.hasOwn(value, 'presentation')) {
+    const presentation = value.presentation;
+    if (
+      !isRecord(presentation) ||
+      !exactKeys(presentation, ['decorations', 'viewedResults']) ||
+      !isRecord(presentation.decorations) ||
+      Object.entries(presentation.decorations).some(
+        ([town, id]) =>
+          !PRODUCTION_TOWNS.includes(town as ProductionTown) ||
+          !PRODUCTION_DECORATIONS.some(
+            (reward) => reward.id === id && state.collection.stamps >= reward.stamps,
+          ),
+      ) ||
+      !Array.isArray(presentation.viewedResults) ||
+      new Set(presentation.viewedResults).size !== presentation.viewedResults.length ||
+      presentation.viewedResults.some(
+        (town) =>
+          !ADVANCED_PRODUCTION_RECIPES.some(
+            (recipe) => recipe.town === town && (state.orders[recipe.id]?.count ?? 0) > 0,
+          ),
+      )
+    )
+      return false;
+  }
   if (Object.values(state.activityClaims).length && !servicesUnlocked(game)) return false;
   for (const town of PRODUCTION_TOWNS) {
     const chain = PRODUCTION_CHAINS[town];

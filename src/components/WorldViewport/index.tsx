@@ -25,6 +25,7 @@ import { fieldObjectFor, fieldObjectSize, fieldObjectFlag } from '../../content/
 import { BagIllustration } from '../ItemIcon';
 import { ServiceCounters } from '../ServiceCounters';
 import { ProductionMilestones } from '../ProductionMilestones';
+import { ProductionRewards } from '../ProductionRewards';
 import { palette } from '../ui';
 import {
   ADVENTURE_GYMS,
@@ -360,6 +361,7 @@ export function WorldViewport({
           ))}
         <ServiceCounters map={game.player.map} scale={scale} />
         <ProductionMilestones game={game} scale={scale} />
+        <ProductionRewards game={game} scale={scale} />
         <Animated.View
           key={game.player.map}
           pointerEvents="none"

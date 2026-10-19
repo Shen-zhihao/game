@@ -4,6 +4,8 @@ import { Button, Label, palette, Panel, styles } from '../../components/ui';
 import { SPECIES } from '../../content/catalog';
 import { MAPS } from '../../content/world';
 import { cityFor } from '../../content/cities';
+import { CITY_IDENTITIES } from '../../content/cityDistricts';
+import { PRODUCTION_DECORATIONS, PRODUCTION_STORIES } from '../../content/productionRewards';
 import {
   ADVANCED_PRODUCTION_RECIPES,
   BASIC_PRODUCTION_RECIPES,
@@ -22,6 +24,7 @@ import type { Command, GameState, MapId } from '../../game/model';
 import {
   advancedRecipeProgress,
   productionAvailability,
+  productionDecorationReason,
   productionNextGoal,
 } from '../../game/production';
 
@@ -47,6 +50,35 @@ export function ProductionMenu({
   const observation = observationProgress(game, selected);
   const progress = advancedRecipeProgress(game, selected);
   const nextGoal = productionNextGoal(game, selected);
+  const advancedRecipe = ADVANCED_PRODUCTION_RECIPES.find((recipe) => recipe.town === selected)!;
+  const advancedProduct = PRODUCTION_PRODUCTS[advancedRecipe.id];
+  const advancedAvailability = productionAvailability(game, advancedRecipe);
+  const gardenName = CITY_IDENTITIES[selected].quarters[2];
+  const goalTitles = {
+    materials: `下一步：备齐${advancedProduct.name}的材料`,
+    craft: `下一步：制作${advancedProduct.name}`,
+    delivery: `下一步：首次交付${advancedProduct.name}`,
+    city_result: `下一步：到${gardenName}查看城市成果`,
+    complete: '本城进阶手作目标已完成',
+  };
+  const goalDetails = {
+    materials: `完成${chain.source}补充材料。还需：${Object.entries(advancedRecipe.ingredients)
+      .filter(([id, count]) => (state?.materials[id as ProductionMaterialId] ?? 0) < count)
+      .map(
+        ([id, count]) =>
+          `${PRODUCTION_MATERIALS[id as ProductionMaterialId].name} ×${count - (state?.materials[id as ProductionMaterialId] ?? 0)}`,
+      )
+      .join('、')}。`,
+    craft: `材料已备齐，在${chain.venue}制作进阶成品。${advancedAvailability.craftReason}`,
+    delivery: `成品已放入手作仓，在${chain.venue}交付「${advancedRecipe.order}」。${advancedAvailability.orderReason}`,
+    city_result: `首次交付已完成，手作已留在${gardenName}的长椅旁。回到街区，阅读花园记事牌即可完成追踪；只打开地图不会记为已查看。`,
+    complete: `你已亲自查看${gardenName}的手作成果。可继续交付每日订单，累计印花解锁可选装饰和居民故事。`,
+  };
+  const stamps = state?.collection.stamps ?? 0;
+  const selectedDecoration = state?.presentation?.decorations[selected];
+  const nextReward = PRODUCTION_DECORATIONS.find((reward) => reward.stamps > stamps);
+  const story = PRODUCTION_STORIES.find((entry) => entry.town === selected)!;
+  const decorationBlock = productionDecorationReason(game);
   const observationGoal = nextGoal === 'day' || nextGoal === 'night';
   const goalMap = observationGoal
     ? observation.maps.includes(game.player.map)
@@ -133,7 +165,7 @@ export function ProductionMenu({
             ? `下一步：完成${goalPeriod}野外观察`
             : nextGoal === 'order'
               ? `下一步：再交付 ${progress.requiredOrders - progress.orders} 份本城基础订单`
-              : '进阶配方已解锁，可以开始制作'}
+              : goalTitles[nextGoal as keyof typeof goalTitles]}
         </Label>
         <Label muted style={{ fontSize: 12 }}>
           {progress.observedDay ? '✓' : '○'} 白天观察 · {progress.observedNight ? '✓' : '○'}{' '}
@@ -144,13 +176,92 @@ export function ProductionMenu({
             ? `${observation.location}：${goalPeriod}真实遇见一次野生精灵即可，无需捕捉。${periodReady ? '当前时段符合条件。' : `当前是${calendar.night ? '夜晚' : '白天'}，可在安全城镇选择「休息到${nextGoal === 'night' ? '夜晚' : '清晨'}」。`}`
             : nextGoal === 'order'
               ? `完成${chain.source}领取材料，在${chain.venue}制作并交付基础成品。每种订单每天可交付一次${chain.nightOnly ? '，夜市仅 18:00 至次日 06:00 营业' : ''}。`
-              : `昼夜观察和基础订单条件均已完成。前往${chain.venue}，使用手作材料制作本城进阶配方。`}
+              : goalDetails[nextGoal as keyof typeof goalDetails]}
+        </Label>
+        <Label testID="production-goal-stages" muted style={{ fontSize: 12 }}>
+          {(state?.crafted[advancedRecipe.id] ?? 0) > 0 || nextGoal === 'craft' ? '✓' : '○'} 备料 →{' '}
+          {(state?.crafted[advancedRecipe.id] ?? 0) > 0 ? '✓' : '○'} 制作 →{' '}
+          {(state?.orders[advancedRecipe.id]?.count ?? 0) > 0 ? '✓' : '○'} 首次交付 →{' '}
+          {nextGoal === 'complete' ? '✓' : '○'} 查看城市成果 →{' '}
+          {nextGoal === 'complete' ? '✓ 完成' : '○ 完成'}
         </Label>
         {onOpenRegion && (
           <Button small testID="production-next-goal-map" onPress={() => onOpenRegion(goalMap)}>
             在地图中查看 · {MAPS[goalMap].name}
           </Button>
         )}
+      </Panel>
+      <Panel testID="production-long-term-rewards" style={{ padding: 12, gap: 10 }}>
+        <Label style={{ fontWeight: '800' }}>印花长期奖励 · 累计 {stamps} 枚</Label>
+        <Label muted style={{ fontSize: 12 }}>
+          印花是终身累计成就，不是货币。奖励自动解锁，无需领取或扣除印花；同一装饰可用于三城，每城独立保存一种选择。
+        </Label>
+        <Label testID="production-next-reward" style={{ color: palette.gold, fontSize: 12 }}>
+          {nextReward
+            ? `距离下一档 ${nextReward.stamps} 枚还差 ${nextReward.stamps - stamps} 枚 · ${nextReward.name}与居民故事`
+            : '三档长期奖励均已解锁，感谢你持续照顾邻里。'}
+        </Label>
+        <Label testID="production-selected-decoration" style={{ fontWeight: '700' }}>
+          {gardenName} ·{' '}
+          {PRODUCTION_DECORATIONS.find((reward) => reward.id === selectedDecoration)?.name ??
+            '未布置额外装饰'}
+        </Label>
+        <View style={[styles.wrap, { gap: 6 }]}>
+          <Button
+            small
+            selected={!selectedDecoration}
+            disabled={!!decorationBlock || !selectedDecoration}
+            testID="production-decoration-none"
+            onPress={() =>
+              dispatch({
+                kind: 'production',
+                action: { kind: 'decorate', town: selected, decorationId: null },
+              })
+            }
+          >
+            不放额外装饰
+          </Button>
+          {PRODUCTION_DECORATIONS.map((reward) => (
+            <Button
+              key={reward.id}
+              small
+              selected={selectedDecoration === reward.id}
+              disabled={
+                !!decorationBlock || stamps < reward.stamps || selectedDecoration === reward.id
+              }
+              testID={`production-decoration-select-${reward.id}`}
+              onPress={() =>
+                dispatch({
+                  kind: 'production',
+                  action: { kind: 'decorate', town: selected, decorationId: reward.id },
+                })
+              }
+            >
+              {stamps >= reward.stamps
+                ? selectedDecoration === reward.id
+                  ? '✓ '
+                  : ''
+                : '未解锁 · '}
+              {reward.name} · {reward.stamps} 枚
+            </Button>
+          ))}
+        </View>
+        <Label muted style={{ fontSize: 11 }}>
+          可远程布置所选城市，回到花园即可看到。更换或收起装饰不会移除首次进阶订单留下的纪念。
+        </Label>
+        {!!decorationBlock && (
+          <Label muted style={{ fontSize: 11 }}>
+            {decorationBlock}
+          </Label>
+        )}
+        <View testID={`production-story-${story.id}`} style={{ gap: 4 }}>
+          <Label style={{ fontWeight: '700' }}>居民故事 · {story.title}</Label>
+          <Label muted style={{ fontSize: 12 }}>
+            {stamps >= story.stamps
+              ? `${story.speaker}：${story.body}`
+              : `累计 ${story.stamps} 枚印花后解锁，尚差 ${story.stamps - stamps} 枚。`}
+          </Label>
+        </View>
       </Panel>
       <Panel testID="production-observation-checklist" style={{ padding: 12, gap: 10 }}>
         <Label style={{ fontWeight: '800' }}>
