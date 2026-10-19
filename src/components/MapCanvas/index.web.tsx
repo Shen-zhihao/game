@@ -1,3 +1,4 @@
+import { hasFieldAnnex } from '../../content/fieldExploration';
 import { useCallback, useState } from 'react';
 import { Image, View } from 'react-native';
 import { GameState, MapId } from '../../game/model';
@@ -18,7 +19,7 @@ export function MapCanvas({
   onReady?: (map: MapId) => void;
 }) {
   const map = state.player.map;
-  const source = MAP_IMAGES[map];
+  const source = hasFieldAnnex(map) ? undefined : MAP_IMAGES[map];
   const notifyReady = useCallback(() => onReady?.(map), [onReady, map]);
   useSceneReady(!source, onReady ? notifyReady : undefined);
   return (

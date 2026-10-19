@@ -1,3 +1,4 @@
+import { installFieldExploration } from '../fieldExploration';
 import { habitatZones, landEncounters } from '../habitats';
 import { Direction, MapId, StoryEvent, TownId, WorldMapId } from '../../game/model';
 import { HIGHLAND_MAPS } from '../highlands';
@@ -409,6 +410,7 @@ for (const map of Object.values(MAPS)) {
   const width = Math.max(...map.rows.map((row) => row.length));
   map.rows = map.rows.map((row) => row.padEnd(width, '#'));
 }
+installFieldExploration(MAPS);
 expandCityDistricts(MAPS);
 installBuildingInteriors(MAPS, [
   { town: 'moss', map: 'gym', gate: 'gymGate', entrance: { x: 11, y: 14 } },

@@ -792,6 +792,24 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
       const xx = x * 32,
         yy = y * 32,
         n = (x * 37 + y * 59) % 13;
+      if (tile === 'I') {
+        art += rect(xx, yy, 32, 32, '#b6edfa');
+        art += path(
+          `M${xx + 2},${yy + 25}l22,-21m-11,28 17,-17`,
+          'none',
+          'stroke="#edfaff" stroke-width="2"',
+        );
+        art += rect(xx + 1, yy + 1, 30, 30, 'none', 'stroke="#79b9d1" stroke-width="1"');
+      }
+      if (tile === 'V') {
+        art += rect(xx, yy, 32, 32, '#388eaf');
+        art += path(
+          `M${xx + 6},${yy}v32m10,-32v32m10,-32v32`,
+          'none',
+          'stroke="#c7f7ff" stroke-width="3"',
+        );
+        art += path(`M${xx + 10},${yy + 18}l6,6 6,-6`, 'none', 'stroke="#ffffff" stroke-width="2"');
+      }
       if (tile === '.' && !indoor) {
         if (theme === 'wind' && n % 3 === 0)
           art += path(

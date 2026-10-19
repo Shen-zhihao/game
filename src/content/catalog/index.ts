@@ -192,6 +192,32 @@ export const ITEMS: Record<
     description: '捕捉倍率 ×2.5，适合稀有、强力或高等级精灵。',
     pocket: 'balls',
   },
+  quick_ball: {
+    name: '先机星纹球',
+    price: 700,
+    description: '战斗第 1 回合捕捉倍率 ×4；之后 ×1。同一回合内多次行动均适用。',
+    pocket: 'balls',
+  },
+  timer_ball: {
+    name: '计时星纹球',
+    price: 600,
+    description:
+      '倍率从 ×1 起，每完成一整个回合增加 ×0.3，第 11 回合起最高 ×4；多次行动不重复计时。',
+    pocket: 'balls',
+  },
+  dusk_ball: {
+    name: '夜幕星纹球',
+    price: 650,
+    description:
+      '游戏时间夜晚（18:00—次日 06:00）倍率 ×3，白天 ×1；以存档时钟为准，不受显示亮度影响。',
+    pocket: 'balls',
+  },
+  net_ball: {
+    name: '水网星纹球',
+    price: 650,
+    description: '捕捉含水属性的精灵倍率 ×3，其他目标 ×1；与站立地形、降雨或相遇方式无关。',
+    pocket: 'balls',
+  },
   master_ball: {
     name: '大师球',
     price: 0,

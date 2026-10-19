@@ -56,6 +56,20 @@ function facingFor(dx: number, dy: number, previous: Direction): Direction {
 
 export function resolveWalk(game: GameState, direction: WalkDirection) {
   let [dx, dy] = WALK_VECTORS[direction];
+  // Ice and waterfall traversal use cardinal lanes, including joystick diagonals.
+  const currentTile = MAPS[game.player.map].rows[game.player.y]?.[game.player.x];
+  const targetTile = MAPS[game.player.map].rows[game.player.y + dy]?.[game.player.x + dx];
+  if (
+    dx &&
+    dy &&
+    (['I', 'V'].includes(currentTile ?? '') ||
+      ['I', 'V'].includes(targetTile ?? '') ||
+      ['I', 'V'].includes(MAPS[game.player.map].rows[game.player.y + dy]?.[game.player.x] ?? '') ||
+      ['I', 'V'].includes(MAPS[game.player.map].rows[game.player.y]?.[game.player.x + dx] ?? ''))
+  ) {
+    const cardinal = facingFor(dx, dy, game.player.facing);
+    [dx, dy] = WALK_VECTORS[cardinal];
+  }
   let blocked = false;
   const p = game.player;
   if (dx && dy) {
@@ -87,4 +101,20 @@ export function resolveWalk(game: GameState, direction: WalkDirection) {
     facing: facingFor(dx, dy, p.facing),
     interval: Math.round(profile.interval * distance),
   };
+}
+
+/** A straight forced slide is one atomic reducer command, but visibly animated tile by tile. */
+type TravelPosition = { player: Pick<GameState['player'], 'map' | 'x' | 'y'> };
+export function forcedTravelDuration(before: TravelPosition, after: TravelPosition): number {
+  if (before.player.map !== after.player.map) return 0;
+  const { x, y, map } = before.player;
+  const dx = after.player.x - x,
+    dy = after.player.y - y;
+  if ((dx && dy) || Math.abs(dx + dy) < 2) return 0;
+  const distance = Math.abs(dx + dy);
+  for (let i = 1; i < distance; i++) {
+    if (!['I', 'V'].includes(MAPS[map].rows[y + Math.sign(dy) * i]?.[x + Math.sign(dx) * i] ?? ''))
+      return 0;
+  }
+  return Math.min(1200, distance * 85);
 }

@@ -95,3 +95,8 @@ export function centerLearnReason(
   if (!MOVES[moveId]) return '未知技能。';
   return null;
 }
+
+/** 攀瀑 is a traversal technique, not an extra combat move or forged badge. */
+export function canClimbWaterfall(game: GameState): boolean {
+  return canSurf(game) && hasFieldAccess(game, 'glider');
+}

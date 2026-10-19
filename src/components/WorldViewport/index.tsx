@@ -1,3 +1,4 @@
+import { forcedTravelDuration } from '../../game/movement';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { MAPS, GYM_BARRIERS, mapSize, npcVisible } from '../../content/world';
@@ -98,8 +99,12 @@ export function WorldViewport({
     const distance = Math.hypot(dx, dy);
     last.current = { map: game.player.map, x: game.player.x, y: game.player.y };
     const target = { x: game.player.x * 32, y: game.player.y * 32 };
+    const forcedDuration = forcedTravelDuration(
+      { player: previous },
+      { player: { map: game.player.map, x: game.player.x, y: game.player.y } },
+    );
     position.stopAnimation();
-    if (changedMap || Math.max(dx, dy) !== 1 || paused) {
+    if (changedMap || (!forcedDuration && Math.max(dx, dy) !== 1) || paused) {
       if (distance || changedMap || paused) position.setValue(target);
       if (changedMap) {
         opacity.stopAnimation();
@@ -113,7 +118,7 @@ export function WorldViewport({
     }
     Animated.timing(position, {
       toValue: target,
-      duration: Math.round(stepDuration * distance),
+      duration: forcedDuration || Math.round(stepDuration * distance),
       easing: Easing.linear,
       useNativeDriver: true,
     }).start();

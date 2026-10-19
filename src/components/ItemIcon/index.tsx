@@ -46,6 +46,10 @@ export function ItemIcon({ itemId, size = 32 }: { itemId: string; size?: number 
         great_ball: '#78a9d0',
         ultra_ball: '#dcad43',
         master_ball: '#a28bcc',
+        quick_ball: '#efd55a',
+        timer_ball: '#df955a',
+        dusk_ball: '#5c679f',
+        net_ball: '#51b6bd',
       } as Record<string, string>
     )[itemId] ?? '#a6bfc3';
   return (

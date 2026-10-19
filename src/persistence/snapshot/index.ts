@@ -172,7 +172,16 @@ const visualEventSchema = z.discriminatedUnion('kind', [
   z.strictObject({
     kind: z.literal('capture'),
     logIndex: integer(99),
-    ballId: z.enum(['ball', 'great_ball', 'ultra_ball', 'master_ball']),
+    ballId: z.enum([
+      'ball',
+      'great_ball',
+      'ultra_ball',
+      'quick_ball',
+      'timer_ball',
+      'dusk_ball',
+      'net_ball',
+      'master_ball',
+    ]),
     caught: z.boolean(),
     shakes: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]).optional(),
     scene: sceneSchema,
@@ -578,6 +587,10 @@ const gameSchema = z.strictObject({
   notice: z.string().max(500),
 });
 const FLAGS = new Set([
+  'iceTrailReward',
+  'waterfallReward',
+  'forestRevisitReward',
+  'mineRevisitReward',
   ...ACTIVITY_FLAGS,
   ...DISTRICT_FLAGS,
   ...RECOVERY_TOWNS.map(townVisitFlag),

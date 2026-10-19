@@ -1,5 +1,6 @@
+import { forcedTravelDuration } from '../../game/movement';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { trackedQuest } from '../../content/quests';
 import { MAPS, objective } from '../../content/world';
@@ -43,6 +44,19 @@ export function Explore({
   coveredTransition?: boolean;
   onReady?: (map: MapId) => void;
 }) {
+  const priorTravelPosition = useRef(currentGame.player);
+  const travelLockedUntil = useRef(0);
+  useLayoutEffect(() => {
+    const duration = forcedTravelDuration(
+      { player: priorTravelPosition.current },
+      { player: currentGame.player },
+    );
+    priorTravelPosition.current = currentGame.player;
+    if (duration) travelLockedUntil.current = Date.now() + duration;
+  }, [currentGame.player]);
+  const openMenu = useCallback(() => {
+    if (Date.now() >= travelLockedUntil.current) onMenu();
+  }, [onMenu]);
   const passage = useMapPassage(currentGame, coveredTransition, screenPaused);
   const { game, door, transition } = useBuildingPassage(passage.game);
   const night = useNightLighting(game, coveredTransition || !!transition || !!passage.transition);
@@ -65,7 +79,7 @@ export function Explore({
     !!game.pending.length ||
     !!game.world?.trainerChallenge ||
     !!game.progress.flags.starterChoice;
-  const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu });
+  const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu: openMenu });
   const insets = useSafeAreaInsets();
   const preferences = useControlPreferences();
   const layout = preferences[controlOrientation(width, height)];
@@ -297,7 +311,7 @@ export function Explore({
         onInteract={() =>
           game.dialogue ? dispatch({ kind: 'nextDialogue' }) : dispatch({ kind: 'interact' })
         }
-        onMenu={onMenu}
+        onMenu={openMenu}
       />
       <Animated.View
         testID="night-screen-shade"

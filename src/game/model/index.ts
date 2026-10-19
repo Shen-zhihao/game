@@ -93,7 +93,15 @@ export interface BattleWeather {
   /** Null means the outdoor weather lasts for the entire battle. */
   turns: number | null;
 }
-export type BallId = 'ball' | 'great_ball' | 'ultra_ball' | 'master_ball';
+export type BallId =
+  | 'ball'
+  | 'great_ball'
+  | 'ultra_ball'
+  | 'quick_ball'
+  | 'timer_ball'
+  | 'dusk_ball'
+  | 'net_ball'
+  | 'master_ball';
 export interface Training {
   mode: 'manual' | 'auto';
   seed: number;

@@ -9,7 +9,7 @@ import { captureChance, creatureName, statsFor } from '../../game/rules';
 import { isSupply, SupplyId } from '../../game/items';
 import { chanceLabel } from '../../game/combat';
 import { conditionLabels } from '../../game/statusLabels';
-import { BALLS, isBall } from '../../game/capture';
+import { BALLS, ballEffect, isBall } from '../../game/capture';
 import { CreatureSprite } from '../CreatureSprite';
 import { Button, HpBar, Label, palette, TypeBadges } from '../ui';
 import { BagBrowser, BagButton, bagColors } from '../BagBrowser';
@@ -82,13 +82,14 @@ export function BattleMenus({
       selectedItem && isBall(selectedItem)
         ? battleActionReason(game, { kind: 'ball', ballId: selectedItem })
         : null;
+    const effect = selectedItem && isBall(selectedItem) ? ballEffect(game, selectedItem) : null;
     const capture =
       selectedItem && isBall(selectedItem) && battle.kind === 'wild'
         ? BALLS[selectedItem].guaranteed
           ? '大师球：必定捕获。'
           : battle.tutorialCatch
             ? '捕捉教学：本次保证成功。普通野生遭遇仍可能捕捉失败。'
-            : `当前捕获率 ${chanceLabel(captureChance(battle.enemies[battle.enemyIndex]!, BALLS[selectedItem].multiplier))}。每次投球仍可能挣脱，降低 HP 或施加异常状态可提高成功率。`
+            : `当前倍率 ×${effect!.multiplier}（${effect!.reason}）。当前捕获率 ${chanceLabel(captureChance(battle.enemies[battle.enemyIndex]!, effect!.multiplier))}。每次投球仍可能挣脱，降低 HP 或施加异常状态可提高成功率。`
         : '';
     return (
       <View

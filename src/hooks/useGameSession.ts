@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import { Command } from '../game/model';
 import { SaveRepository } from '../persistence/repository';
 import { SaveSession, SessionState } from '../persistence/session';
-import { resolveWalk } from '../game/movement';
+import { forcedTravelDuration, resolveWalk } from '../game/movement';
 
 export function useGameSession(repository: SaveRepository | null) {
   const [state, setState] = useState<SessionState>({ game: null, slot: 1, saveStatus: '' });
@@ -15,6 +15,7 @@ export function useGameSession(repository: SaveRepository | null) {
   const paused = useRef(false);
   const lastBattleInput = useRef(0);
   const lastWalkInput = useRef(0);
+  const forcedTravelUntil = useRef(0);
   const save = useCallback(() => controller?.save() ?? Promise.resolve(null), [controller]);
   const load = useCallback(
     async (targetSlot: number) => {
@@ -22,6 +23,7 @@ export function useGameSession(repository: SaveRepository | null) {
       await controller.load(targetSlot);
       lastBattleInput.current = 0;
       lastWalkInput.current = 0;
+      forcedTravelUntil.current = 0;
     },
     [controller],
   );
@@ -29,6 +31,7 @@ export function useGameSession(repository: SaveRepository | null) {
     (command: Command) => {
       const current = controller?.state.game;
       if (!current) return;
+      if (command.kind !== 'tick' && Date.now() < forcedTravelUntil.current) return;
       if (command.kind === 'walk') {
         if (Date.now() < lastWalkInput.current) return;
         lastWalkInput.current = Date.now() + resolveWalk(current, command.direction).interval - 12;
@@ -38,6 +41,13 @@ export function useGameSession(repository: SaveRepository | null) {
         lastBattleInput.current = Date.now();
       }
       controller!.dispatch(command);
+      if (command.kind === 'walk' && controller!.state.game) {
+        const duration = forcedTravelDuration(current, controller!.state.game);
+        if (duration) {
+          forcedTravelUntil.current = Date.now() + duration;
+          lastWalkInput.current = forcedTravelUntil.current;
+        }
+      }
     },
     [controller],
   );

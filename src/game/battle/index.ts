@@ -23,7 +23,7 @@ import { rememberRecoveryTowns, returnToNearestCenter } from '../recovery';
 import { canLearnMove, ITEMS, MOVES, SPECIES, STARTERS } from '../../content/catalog';
 import { battleScene } from '../battleVisuals';
 import { emptyStats, ensureTraining } from '../growth';
-import { BALLS, consumeMasterBall, resolveCapture } from '../capture';
+import { BALLS, ballEffect, consumeMasterBall, resolveCapture } from '../capture';
 import { WEATHER, weatherAt } from '../environment';
 import { addBattleMoney, distributeExperience, ensureRewards, settleKnockout } from '../rewards';
 import { isSupply, supplyReason, applySupply } from '../items';
@@ -958,7 +958,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
       const { caught, shakes } = resolveCapture(
         BALLS[ballId].guaranteed || b.tutorialCatch
           ? 1
-          : captureChance(enemy, BALLS[ballId].multiplier),
+          : captureChance(enemy, ballEffect(state, ballId).multiplier),
         () => random(state),
       );
       b.logs.push(`向${creatureName(enemy)}投出了${ITEMS[ballId]!.name}！`);

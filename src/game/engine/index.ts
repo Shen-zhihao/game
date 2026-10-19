@@ -34,6 +34,7 @@ import { coastEncounter, interactCoast } from '../coastStory';
 import { adventureEncounter, PHOTO_TOWNS } from '../../content/adventure';
 import { interactAdventure } from '../adventureStory';
 import { interactGymRematch } from '../gymRematches';
+import { interactFieldExploration } from '../fieldExploration';
 import { interactConservation } from '../conservation';
 import {
   interactLeague,
@@ -70,6 +71,7 @@ import { effectiveAccessFlags } from '../../content/keyItems';
 import {
   atCenter,
   canSurf,
+  canClimbWaterfall,
   centerLearnReason,
   fieldSkill,
   fieldSkillUnlocked,
@@ -326,6 +328,7 @@ function interact(state: GameState): void {
     state.notice = '靠近人物、石碑或发光物，朝向它再按 A。';
     return;
   }
+  if (interactFieldExploration(state, npc, (speaker, lines) => talk(state, speaker, lines))) return;
   faceTraveler(state, npc);
   const activity = activityAtNpc(state, npc.id);
   if (activity && flags.rival && flags.catchTutorial) {
@@ -737,7 +740,7 @@ function interact(state: GameState): void {
       break;
   }
 }
-function walk(state: GameState, direction: WalkDirection): void {
+function walkStep(state: GameState, direction: WalkDirection): void {
   const p = state.player;
   const step = resolveWalk(state, direction);
   p.facing = step.facing;
@@ -745,6 +748,15 @@ function walk(state: GameState, direction: WalkDirection): void {
   const x = p.x + step.dx;
   const y = p.y + step.dy;
   const tile = MAPS[p.map].rows[y]?.[x];
+  const currentTile = MAPS[p.map].rows[p.y]?.[p.x];
+  if (tile === 'V' || currentTile === 'V') {
+    if (step.dx || !step.dy) return;
+    if (step.dy < 0 && !canClimbWaterfall(state)) {
+      state.notice =
+        '攀瀑需要冲浪能力与流羽馆滑翔装备的安全绳。先取得两项能力，再回来探索镜源台地。';
+      return;
+    }
+  }
   if ((tile === 'W' || tile === '~') && !canSurf(state)) {
     state.notice =
       '渡水需要潮汐馆装备，或完成旧灯塔支线并让队伍伙伴学会冲浪术。北侧陆路与维修桥始终可用。';
@@ -827,6 +839,38 @@ function walk(state: GameState, direction: WalkDirection): void {
       level,
     });
     recordWildObservation(state, p.map);
+  }
+}
+function walk(state: GameState, direction: WalkDirection): void {
+  const start = { ...state.player };
+  walkStep(state, direction);
+  if (state.player.map !== start.map || (state.player.x === start.x && state.player.y === start.y))
+    return;
+  const forced = state.player.facing;
+  // Bounded by map area; no mid-slide input, save, menu, encounter or trainer interleave.
+  const limit = MAPS[state.player.map].rows.length * MAPS[state.player.map].rows[0]!.length;
+  let count = 1;
+  while (
+    count < limit &&
+    !state.battle &&
+    !state.dialogue &&
+    !state.world?.trainerChallenge &&
+    ['I', 'V'].includes(MAPS[state.player.map].rows[state.player.y]?.[state.player.x] ?? '')
+  ) {
+    const previous = { ...state.player };
+    walkStep(state, forced);
+    if (
+      previous.map !== state.player.map ||
+      (previous.x === state.player.x && previous.y === state.player.y)
+    )
+      break;
+    count++;
+  }
+  if (count > 1 && !state.battle && !state.dialogue) {
+    state.notice =
+      start.map === 'lakeRoute'
+        ? '沿安全绳穿越瀑布，到达新的落脚点。'
+        : '冰面滑行结束，停稳后可以转向；尽头的安全绳可返回入口。';
   }
 }
 // A command always produces a complete stable checkpoint before presentation.
