@@ -476,7 +476,7 @@ function GameApp() {
         <>
           <AdventureScreen
             onBattlePlayback={onBattlePlayback}
-            coveredByEvent={!!presentation.view}
+            coveredByEvent={!!presentation.view || editingControls}
             key={session.slot}
             game={presentation.game!}
             dispatch={(command) => {
@@ -514,7 +514,7 @@ function GameApp() {
           onMenu={changeMenu}
           onClose={closeMenu}
           hasGame={!!game}
-          coveredByEvent={!!presentation.view}
+          coveredByEvent={!!presentation.view || editingControls}
         >
           {menu === 'transfer' ? (
             <TransferMenu

@@ -4,6 +4,7 @@ import {
   Animated,
   BackHandler,
   FlatList,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -119,12 +120,37 @@ export function MenuFrame({
   }, [menu, width, insets.left, insets.right]);
   useEffect(centerTab, [centerTab]);
   useEffect(() => {
+    if (coveredByEvent) return;
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       onClose();
       return true;
     });
-    return () => subscription.remove();
-  }, [onClose]);
+    const keyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.shiftKey ||
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName ?? '') ||
+        target?.isContentEditable
+      )
+        return;
+      if (!['escape', 'x'].includes(event.key.toLowerCase())) return;
+      event.preventDefault();
+      // Consume this close key before adventure listeners can reopen the menu.
+      event.stopImmediatePropagation();
+      onClose();
+    };
+    if (Platform.OS === 'web') window.addEventListener('keydown', keyDown, true);
+    return () => {
+      subscription.remove();
+      if (Platform.OS === 'web') window.removeEventListener('keydown', keyDown, true);
+    };
+  }, [onClose, coveredByEvent]);
   useEffect(() => {
     enter.setValue(0);
     const animation = Animated.timing(enter, { toValue: 1, duration: 170, useNativeDriver: true });
