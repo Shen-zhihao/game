@@ -1,10 +1,111 @@
-import { ITEMS, MOVES, SPECIES, TYPES } from '../../content/catalog';
+import { MOVES, SPECIES, TYPES } from '../../content/catalog';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { heldEffect } from '../../content/battleTraits';
+import { moveEffectLines } from '../../game/moveDetails';
+import { rentalStage, rentalWeaknesses } from '../../game/challenge/rental';
 import { View } from 'react-native';
 import { Button, Label, Panel, styles } from '../../components/ui';
-import { CHALLENGE_OFFERS, challengeEntryReason } from '../../game/challenge';
-import type { Command, GameState } from '../../game/model';
-import { creatureName } from '../../game/rules';
+import { CHALLENGE_OFFERS, challengeEntryReason, challengePreview } from '../../game/challenge';
+import type { Command, Creature, GameState } from '../../game/model';
+import { abilityFor, creatureName, statsFor } from '../../game/rules';
+
+function RentalCard({
+  creature,
+  context,
+  children,
+}: {
+  creature: Creature;
+  context: string;
+  children?: ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  creature = challengePreview(creature);
+  const stats = statsFor(creature);
+  const ability = abilityFor(creature);
+  const held = heldEffect(creature);
+  return (
+    <Panel style={{ padding: 10, gap: 8 }}>
+      <Label style={{ fontWeight: '800' }}>
+        {creatureName(creature)} · Lv.{creature.level} ·{' '}
+        {SPECIES[creature.speciesId]!.types.map((t) => TYPES[t]).join('/')}
+      </Label>
+      <Label muted>
+        {held?.name ?? '无携带道具'} · {creature.moves.map((m) => MOVES[m.id]!.name).join(' / ')}
+      </Label>
+      <View style={styles.wrap}>
+        {children}
+        <Button
+          small
+          testID={`rental-details-${context}-${creature.id}`}
+          onPress={() => setExpanded((value) => !value)}
+          accessibilityLabel={`${expanded ? '收起' : '查看'}${creatureName(creature)}的能力与招式详情`}
+        >
+          {expanded ? '收起详情' : '查看详情'}
+        </Button>
+      </View>
+      {expanded && (
+        <View style={{ gap: 6 }} testID={`rental-details-body-${context}-${creature.id}`}>
+          <Label>
+            体力 {creature.hp}/{stats.hp} · 攻击 {stats.attack} · 防御 {stats.defense}
+          </Label>
+          <Label>
+            特攻 {stats.specialAttack} · 特防 {stats.specialDefense} · 速度 {stats.speed}
+          </Label>
+          <Label muted>
+            下场统一培养并恢复后的面板；实战还受能力等级、天气、特性和携带道具影响。
+          </Label>
+          <Label>
+            特性：{ability.name}。{ability.description}
+          </Label>
+          <Label>携带：{held ? `${held.name}。${held.description}` : '无'}</Label>
+          {creature.moves.map((slot) => {
+            const move = MOVES[slot.id]!;
+            return (
+              <View key={slot.id} style={{ gap: 3 }}>
+                <Label style={{ fontWeight: '700' }}>
+                  {move.name} · {move.type ? TYPES[move.type] : '无属性'} ·{' '}
+                  {{ physical: '物理', special: '特殊', status: '变化' }[move.category]}
+                </Label>
+                <Label>
+                  威力 {move.power || '—'} · 基础命中 {move.accuracy}% · PP {slot.pp}/{move.pp}
+                </Label>
+                {moveEffectLines(slot.id).map((line, i) => (
+                  <Label muted key={i}>
+                    {line}
+                  </Label>
+                ))}
+              </View>
+            );
+          })}
+        </View>
+      )}
+    </Panel>
+  );
+}
+function RentalWeaknessSummary({ creatures }: { creatures: Creature[] }) {
+  const risks = rentalWeaknesses(creatures).filter((row) => row.weak > 0);
+  return (
+    <Panel style={{ padding: 10, gap: 6 }}>
+      <Label style={{ fontWeight: '700' }}>已选队伍防守预览 · {creatures.length}/3 只</Label>
+      {!creatures.length ? (
+        <Label muted>先选择伙伴，再查看共同弱点。</Label>
+      ) : risks.length ? (
+        risks.map((row) => (
+          <Label key={row.type}>
+            {TYPES[row.type]}：{row.weak}只弱点 · {row.resist}只抵抗 · {row.immune}只免疫
+            {row.weak >= 2 ? ' · 共同弱点' : ''}
+          </Label>
+        ))
+      ) : (
+        <Label>当前没有属性倍率大于1的弱点。</Label>
+      )}
+      <Label muted>
+        仅按属性相性与特性属性免疫统计；不计招式威力、物理／特殊与条件性特性减伤、携带道具、体力、天气、场地陷阱等，不代表胜负预测。免疫与抵抗分别计数。
+      </Label>
+    </Panel>
+  );
+}
 
 export function ChallengeMenu({
   game,
@@ -35,8 +136,8 @@ export function ChallengeMenu({
           使用临时副本：保留物种、技能与携带道具，按物种推荐统一自动培养。每场恢复全部体力、技能次数与携带道具，不消耗原道具。
         </Label>
         <Label muted>
-          对手随机抽取联盟主题中的三只。胜利仅获积分与连胜纪录，不获经验、金币或剧情奖励。每胜 5
-          积分，每三连胜额外 1 分（最多额外 10 分）。
+          自有队伍模式的对手随机抽取联盟主题中的三只。胜利仅获积分与连胜纪录，不获经验、金币或剧情奖励。每胜
+          5 积分，每三连胜额外 1 分（最多额外 10 分）。
         </Label>
         <Label muted>
           结束或战败时原队伍与仓库顺序、原等级、培养、体力、异常、技能次数和携带道具完整还原。挑战期间不能进行其他冒险操作。
@@ -49,6 +150,18 @@ export function ChallengeMenu({
           统一
           Lv.50。每胜可从刚击败的三只中换入一只，也可不换；每场恢复租借队伍。自己的精灵、仓库、道具和图鉴不受影响，仅获得挑战积分与通关纪录。
         </Label>
+        <Label>
+          新开场次路线：
+          {[0, 1, 2].map((round) => `${round + 1}. ${rentalStage(round).theme}`).join(' → ')}
+        </Label>
+        <Label style={{ fontWeight: '700' }}>
+          {game.battle && rental
+            ? `当前对手：${game.battle.name}`
+            : `下场预告：${rentalStage(rental ? (game.challenge?.streak ?? 0) : 0).name} · ${rentalStage(rental ? (game.challenge?.streak ?? 0) : 0).theme}`}
+        </Label>
+        {(!game.battle || !rental) && (
+          <Label muted>{rentalStage(rental ? (game.challenge?.streak ?? 0) : 0).hint}</Label>
+        )}
         <Label>租借通关 {game.challenge?.rentalClears ?? 0} 次</Label>
         {!active && !draft && (
           <Button
@@ -62,29 +175,29 @@ export function ChallengeMenu({
         {draft && (
           <>
             <Label>选择三只：{draft.selected.length}/3 · 选择会随存档保留</Label>
+            <RentalWeaknessSummary
+              creatures={draft.selected
+                .map((id) => draft.offers.find((c) => c.id === id)!)
+                .filter(Boolean)}
+            />
             {draft.offers.map((c) => (
-              <Button
-                key={c.id}
-                testID={`rental-select-${c.id}`}
-                accent={draft.selected.includes(c.id)}
-                disabled={
-                  !!reason || (!draft.selected.includes(c.id) && draft.selected.length >= 3)
-                }
-                onPress={() =>
-                  dispatch({
-                    kind: 'challenge',
-                    action: { kind: 'rentalSelect', creatureId: c.id },
-                  })
-                }
-              >
-                {draft.selected.includes(c.id) ? '✓ ' : ''}
-                {creatureName(c)} · Lv.50 ·{' '}
-                {SPECIES[c.speciesId]!.types.map((t) => TYPES[t]).join('/')}
-                {' · '}
-                {c.heldItem ? ITEMS[c.heldItem]?.name : '无携带道具'}
-                {'\n'}
-                {c.moves.map((m) => MOVES[m.id]!.name).join(' / ')}
-              </Button>
+              <RentalCard key={c.id} creature={c} context="offer">
+                <Button
+                  testID={`rental-select-${c.id}`}
+                  accent={draft.selected.includes(c.id)}
+                  disabled={
+                    !!reason || (!draft.selected.includes(c.id) && draft.selected.length >= 3)
+                  }
+                  onPress={() =>
+                    dispatch({
+                      kind: 'challenge',
+                      action: { kind: 'rentalSelect', creatureId: c.id },
+                    })
+                  }
+                >
+                  {draft.selected.includes(c.id) ? '取消选择' : '选择伙伴'}
+                </Button>
+              </RentalCard>
             ))}
             <View style={styles.wrap}>
               <Button
@@ -110,6 +223,14 @@ export function ChallengeMenu({
               已胜 {game.challenge?.streak ?? 0}/3 场 ·{' '}
               {rental.swapped ? '本场已换过伙伴' : '每场胜后可换一只'}
             </Label>
+            <RentalWeaknessSummary creatures={active.selected.map((id) => game.creatures[id]!)} />
+            {active.selected.map((id) => (
+              <RentalCard
+                key={id}
+                creature={active.originals[id] ?? game.creatures[id]!}
+                context="active"
+              />
+            ))}
             {!reason && !rental.swapped && rental.opponents.length > 0 && (
               <>
                 <Label>先选要归还的租借伙伴，再选要换入的伙伴：</Label>
@@ -126,21 +247,20 @@ export function ChallengeMenu({
                   ))}
                 </View>
                 {rental.opponents.map((c) => (
-                  <Button
-                    key={c.id}
-                    testID={`rental-swap-${c.id}`}
-                    disabled={!swapOut}
-                    onPress={() =>
-                      dispatch({
-                        kind: 'challenge',
-                        action: { kind: 'rentalSwap', outgoingId: swapOut!, incomingId: c.id },
-                      })
-                    }
-                  >
-                    换入 {creatureName(c)}
-                    {'\n'}
-                    {c.moves.map((m) => MOVES[m.id]!.name).join(' / ')}
-                  </Button>
+                  <RentalCard key={c.id} creature={c} context="swap">
+                    <Button
+                      testID={`rental-swap-${c.id}`}
+                      disabled={!swapOut}
+                      onPress={() =>
+                        dispatch({
+                          kind: 'challenge',
+                          action: { kind: 'rentalSwap', outgoingId: swapOut!, incomingId: c.id },
+                        })
+                      }
+                    >
+                      换入此伙伴
+                    </Button>
+                  </RentalCard>
                 ))}
               </>
             )}

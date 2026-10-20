@@ -1,3 +1,4 @@
+import { makeRentalOpponents, rentalStage } from './rental';
 import { ITEMS, MOVES, SPECIES } from '../../content/catalog';
 import { LEAGUE_STAGES, LEAGUE_TRAINERS } from '../../content/league';
 import { isTownLocation } from '../../content/world';
@@ -70,7 +71,7 @@ function heal(c: Creature) {
   });
 }
 /** Temporary standardized training, not a conversion of the owner's permanent allocation. */
-function normalize(original: Creature): Creature {
+export function challengePreview(original: Creature): Creature {
   const c = copy(original);
   c.level = 50;
   c.experience = xpAt(50, SPECIES[c.speciesId]!.experienceCurve);
@@ -104,31 +105,39 @@ function nextBattle(g: GameState) {
   const l = ledger(g);
   if (!l.active) return;
   // Recreate temporary records every round, including consumed held items, without touching inventory.
-  for (const id of l.active.selected) g.creatures[id] = normalize(l.active.originals[id]!);
+  for (const id of l.active.selected) g.creatures[id] = challengePreview(l.active.originals[id]!);
   if (l.active.rental) {
     l.active.rental.opponents = [];
     l.active.rental.swapped = false;
   }
-  const theme = LEAGUE_STAGES[Math.floor(random(g) * LEAGUE_STAGES.length)]!;
-  const trainer = LEAGUE_TRAINERS[theme]!;
-  const pool = [...trainer.team];
+  const stage = l.active.rental ? rentalStage(l.streak) : null;
   const enemies: Creature[] = [];
-  for (let i = 0; i < 3; i++) {
-    const [speciesId] = pool.splice(Math.floor(random(g) * pool.length), 1)[0]!;
-    const c = makeCreature(g, speciesId, 50, true);
-    c.heldItem = i % 2 === 0 ? 'held_berry' : 'held_shell';
-    enemies.push(c);
+  let trainerName: string;
+  if (stage) {
+    enemies.push(...makeRentalOpponents(g, l.streak).map(challengePreview));
+    trainerName = stage.name;
+  } else {
+    const theme = LEAGUE_STAGES[Math.floor(random(g) * LEAGUE_STAGES.length)]!;
+    const trainer = LEAGUE_TRAINERS[theme]!;
+    trainerName = trainer.name;
+    const pool = [...trainer.team];
+    for (let i = 0; i < 3; i++) {
+      const [speciesId] = pool.splice(Math.floor(random(g) * pool.length), 1)[0]!;
+      const c = makeCreature(g, speciesId, 50, true);
+      c.heldItem = i % 2 === 0 ? 'held_berry' : 'held_shell';
+      enemies.push(c);
+    }
+    curateTrainerTeam(theme, enemies);
   }
-  curateTrainerTeam(theme, enemies);
   // Keep pristine opponents so a consumed held item is restored when that rental is chosen.
-  if (l.active.rental) l.active.rental.opponents = enemies.map(normalize);
+  if (l.active.rental) l.active.rental.opponents = enemies.map(challengePreview);
   const playerId = l.active.selected[0]!;
   g.battle = {
     id: nextId(g, 'challenge'),
     ruleChallenge: true,
     kind: 'trainer',
     event: null,
-    name: `${l.active.rental ? '租借挑战' : '规则挑战'} · ${trainer.name}`,
+    name: `${l.active.rental ? '租借挑战' : '规则挑战'} · ${trainerName}`,
     enemies,
     enemyIndex: 0,
     playerId,
@@ -141,6 +150,7 @@ function nextBattle(g: GameState) {
     logs: [
       `${l.active.rental ? '租借队伍挑战' : '单打规则挑战'} · 第 ${l.streak + 1}${l.active.rental ? '/3' : ''} 场`,
       '双方各三只，统一 Lv.50，禁止背包与逃跑；仅奖励挑战积分。',
+      ...(stage ? [`${stage.theme}：${stage.hint}`] : []),
     ],
     result: null,
     runAttempts: 0,
@@ -208,7 +218,7 @@ export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
       const [id] = species.splice(Math.floor(random(g) * species.length), 1);
       const c = makeCreature(g, id!, 50, true);
       c.heldItem = i % 2 ? 'held_shell' : 'held_berry';
-      offers.push(c);
+      offers.push(challengePreview(c));
     }
     l.rentalDraft = { offers, selected: [] };
     g.notice = '六选三：查看技能后选择三只租借伙伴。未出发前不会替换自己的队伍。';
@@ -262,7 +272,7 @@ export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
     a.selected[index] = incoming.id;
     g.party = [...a.selected];
     a.originals[incoming.id] = copy(incoming);
-    g.creatures[incoming.id] = normalize(incoming);
+    g.creatures[incoming.id] = challengePreview(incoming);
     r.swapped = true;
     g.notice = '已换入一只租借伙伴，本场换人机会已使用。继续挑战会恢复整个租借队伍。';
     return true;
