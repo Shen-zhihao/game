@@ -1,4 +1,3 @@
-import { hasFieldAnnex } from '../../content/fieldExploration';
 import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { Canvas, Image, useImage, FilterMode, MipmapMode } from '@shopify/react-native-skia';
@@ -18,7 +17,7 @@ export function MapCanvas({
   height: number;
   onReady?: (map: MapId) => void;
 }) {
-  const source = hasFieldAnnex(state.player.map) ? undefined : MAP_IMAGES[state.player.map];
+  const source = MAP_IMAGES[state.player.map];
   const notifyReady = useCallback(() => onReady?.(state.player.map), [onReady, state.player.map]);
   useSceneReady(!source, onReady ? notifyReady : undefined);
   return source ? (

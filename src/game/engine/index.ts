@@ -1056,11 +1056,11 @@ function reduceCommand(current: GameState, command: Command): GameState {
     battleAction(state, command.action);
     return state;
   }
-  if (state.battle) return current;
   if (command.kind === 'challenge') {
     applyChallenge(state, command.action);
     return state;
   }
+  if (state.battle) return current;
   if (command.kind === 'rest') {
     applyRest(state, command.target);
     return state;

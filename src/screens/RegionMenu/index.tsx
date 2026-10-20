@@ -1,7 +1,7 @@
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import Svg, { Circle, G, Image, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import { Image as RasterImage, ScrollView, StyleSheet, View } from 'react-native';
+import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { MAP_IMAGES, MAP_IMAGE_REVISIONS } from '../../components/sceneAssets';
 import { mapImageSource } from '../../components/sceneAssets/mapSource';
 import { Button, Label, palette } from '../../components/ui';
@@ -25,6 +25,9 @@ import { fastTravelBlockedReason, hasVisitedTown } from '../../game/travel';
 import { CITY_ACTIVITIES } from '../../content/fieldActivities';
 
 function LocalMap({ game, map }: { game: GameState; map: MapId }) {
+  const [frame, setFrame] = useState({ width: 0, height: 0 });
+  const [failedMap, setFailedMap] = useState<MapId | null>(null);
+  const source = mapImageSource(map);
   const data = MAPS[map];
   const width = data.rows[0]!.length * 32;
   const height = data.rows.length * 32;
@@ -32,57 +35,87 @@ function LocalMap({ game, map }: { game: GameState; map: MapId }) {
   const town = CITY_TOWNS.find((id) => id === map);
   const layout = town && cityLayout(town);
   const quarters = town && CITY_IDENTITIES[town].quarters;
+  const scale = Math.min(frame.width / width, frame.height / height);
+  const displayWidth = width * scale;
+  const displayHeight = height * scale;
+  const raster = MAP_IMAGES[map] && failedMap !== map;
   return (
-    <Svg
+    <View
       testID={`local-map-${map}`}
-      width="100%"
-      height="100%"
-      viewBox={`0 0 ${width} ${height}`}
+      style={{ flex: 1 }}
+      onLayout={({ nativeEvent: { layout } }) =>
+        setFrame({ width: layout.width, height: layout.height })
+      }
       accessibilityLabel={`${data.name}完整地图${game.player.map === map ? '，红色箭头为你的位置' : ''}`}
     >
-      {MAP_IMAGES[map] ? (
-        <Image
-          key={MAP_IMAGE_REVISIONS[map]}
-          href={mapImageSource(map)}
-          width={width}
-          height={height}
-        />
-      ) : (
-        <TileMapLayers map={map} />
-      )}
-      {layout &&
-        quarters &&
-        [
-          { text: quarters[0], x: layout.boulevard + 1, y: 11.7 },
-          { text: quarters[1], x: layout.oldWidth / 2, y: layout.oldHeight + 11.5 },
-          { text: quarters[2], x: layout.gardenX, y: layout.gardenY - 4.5 },
-        ].map((label) => (
-          <G key={label.text} transform={`translate(${label.x * 32},${label.y * 32})`}>
-            <Rect
-              x={-label.text.length * 15 - 10}
-              y={-22}
-              width={label.text.length * 30 + 20}
-              height={36}
-              rx={9}
-              fill="#fffcf5ed"
-              stroke="#b9a986"
-              strokeWidth={1.5}
-            />
-            <SvgText textAnchor="middle" fontSize={26} fontWeight="700" fill="#655541" y={5}>
-              {label.text}
-            </SvgText>
-          </G>
-        ))}
-      {game.player.map === map && (
-        <G
-          testID="local-player-pin"
-          transform={`translate(${point.x * width},${point.y * height})`}
+      <View
+        style={{
+          position: 'absolute',
+          left: (frame.width - displayWidth) / 2,
+          top: (frame.height - displayHeight) / 2,
+          width: displayWidth,
+          height: displayHeight,
+        }}
+      >
+        {raster && (
+          <RasterImage
+            key={`${map}:${MAP_IMAGE_REVISIONS[map]}`}
+            source={source}
+            resizeMode="stretch"
+            fadeDuration={0}
+            style={StyleSheet.absoluteFill}
+            onError={() => setFailedMap(map)}
+          />
+        )}
+        {/* Keep markers in a separate upper layer: async raster loading must not cover them. */}
+        <Svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${width} ${height}`}
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
         >
-          <Circle r={24} fill="#122d27bb" stroke="#fff3b7" strokeWidth={3} />
-          <Path d="M0 -20 L15 15 L0 8 L-15 15 Z" fill="#f1846d" stroke="#fff7d6" strokeWidth={4} />
-        </G>
-      )}
-    </Svg>
+          {!raster && <TileMapLayers map={map} />}
+          {layout &&
+            quarters &&
+            [
+              { text: quarters[0], x: layout.boulevard + 1, y: 11.7 },
+              { text: quarters[1], x: layout.oldWidth / 2, y: layout.oldHeight + 11.5 },
+              { text: quarters[2], x: layout.gardenX, y: layout.gardenY - 4.5 },
+            ].map((label) => (
+              <G key={label.text} transform={`translate(${label.x * 32},${label.y * 32})`}>
+                <Rect
+                  x={-label.text.length * 15 - 10}
+                  y={-22}
+                  width={label.text.length * 30 + 20}
+                  height={36}
+                  rx={9}
+                  fill="#fffcf5ed"
+                  stroke="#b9a986"
+                  strokeWidth={1.5}
+                />
+                <SvgText textAnchor="middle" fontSize={26} fontWeight="700" fill="#655541" y={5}>
+                  {label.text}
+                </SvgText>
+              </G>
+            ))}
+          {game.player.map === map && (
+            <G
+              testID="local-player-pin"
+              transform={`translate(${point.x * width},${point.y * height})`}
+            >
+              <Circle r={24} fill="#122d27bb" stroke="#fff3b7" strokeWidth={3} />
+              <Path
+                d="M0 -20 L15 15 L0 8 L-15 15 Z"
+                fill="#f1846d"
+                stroke="#fff7d6"
+                strokeWidth={4}
+              />
+            </G>
+          )}
+        </Svg>
+      </View>
+    </View>
   );
 }
 

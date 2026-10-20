@@ -1,3 +1,5 @@
+import { interiorFloor, interiorFixtures } from './interiors';
+import { districtBuilding, districtGround } from './districts';
 import { illustratedBattleDetails, illustratedPine, illustratedSceneDetails } from './details';
 import {
   architecturalFixtures,
@@ -494,89 +496,6 @@ function building(entrance: BuildingEntrance, theme: BattleTheme) {
 function boulder(x: number, y: number, fill: string, small = false) {
   return `<g transform="translate(${x},${y})">${ellipse(16, 28, 14, 4, c.outline, 'opacity=".12"')}${path(small ? 'M5 27 3 17 10 8 24 10 30 22 26 28Z' : 'M1 28 2 16 9 5 22 3 30 15 31 28Z', fill, line)}${path('M7 14 13 8 23 8m-8 3 4 9-5 5', 'none', 'stroke="#f7efdb" stroke-width="1.2" opacity=".65"')}</g>`;
 }
-function furniture(x: number, y: number, kind: string, variant: number) {
-  let art = rect(x + 2, y + 6, 28, 24, '#c6ac86', `rx="4" ${line}`);
-  if (kind === 'greenhouse') {
-    art = rect(x + 3, y + 18, 26, 12, '#c9aa87', `rx="4" ${line}`);
-    art += path(
-      `M${x + 16},${y + 23}v-16m0,10q-15,0-12,-12 12,0 12,12m0,-2q15,0 12,-12-12,0-12,12`,
-      c.leaf,
-      line,
-    );
-    art += flower(x + 16, y + 5, variant);
-  } else if (kind === 'library') {
-    art += rect(x + 4, y + 7, 24, 22, '#a98c69', `rx="2" ${line}`);
-    for (let i = 0; i < 5; i++)
-      art += rect(
-        x + 6 + i * 4,
-        y + 10 + (i % 2) * 3,
-        3,
-        13,
-        ['#b5c7b3', '#d6b398', '#e3d19d'][i % 3]!,
-        'rx="1"',
-      );
-    art += path(`M${x + 5},${y + 25}h22`, 'none', 'stroke="#ead7b1" stroke-width="2"');
-  } else if (kind === 'bakery' && variant % 2 === 1) {
-    art += rect(x + 3, y + 8, 26, 5, '#ebd5ae', `rx="2" ${line}`);
-    for (const py of [18, 26])
-      for (const px of [9, 22]) {
-        art += ellipse(x + px, y + py, 5, 3, '#dfba7f', line);
-        art += path(
-          `M${x + px - 1},${y + py - 2}l-1,3`,
-          'none',
-          'stroke="#fff1ce" stroke-width="1"',
-        );
-      }
-  } else if (kind === 'bakery') {
-    art = rect(x + 2, y + 3, 28, 28, '#c5a88a', `rx="5" ${line}`);
-    art += path(`M${x + 7},${y + 26}v-8q9,-15 18,0v8Z`, '#7e7061', line);
-    art += ellipse(x + 16, y + 23, 6, 3, '#e6bb75', line);
-    art += path(
-      `M${x + 5},${y + 9}h22m-17,-4v4m10,-4v4`,
-      'none',
-      'stroke="#ebd7b5" stroke-width="1.2"',
-    );
-  } else if (kind === 'workshop') {
-    art += rect(x + 1, y + 10, 30, 9, '#e1c79c', `rx="2" ${line}`);
-    art += path(
-      `M${x + 7},${y + 10}l9,-6m-3,-3 5,6m5,3v-8`,
-      'none',
-      'stroke="#7c8c88" stroke-width="2" stroke-linecap="round"',
-    );
-  } else if (kind === 'teahouse') {
-    art = ellipse(x + 16, y + 19, 14, 11, '#d9c39c', line);
-    art += ellipse(x + 16, y + 16, 13, 9, '#f1e2bd', line);
-    art += path(`M${x + 8},${y + 12}h8v5q-4,5-8,0Zm8,1q6,-1 3,4h-3`, '#abc6bb', line);
-  } else if (kind === 'guild') {
-    art += rect(x + 1, y + 9, 30, 7, '#e7cfa5', `rx="2" ${line}`);
-    art += path(`M${x + 10},${y + 18}h12v11l-6,-3-6,3Z`, '#aebfb8', line);
-    art += rect(x + 7, y + 3, 13, 9, '#f8ecd0', `rx="1" ${line}`);
-    art += path(
-      `M${x + 10},${y + 6}h7m-7,3h5m12,3v-9l4,-2`,
-      'none',
-      'stroke="#a08c68" stroke-width=".8"',
-    );
-  } else if (kind === 'center') {
-    art =
-      rect(x + 2, y + 4, 28, 26, '#dce5d7', `rx="4" ${line}`) +
-      rect(x + 5, y + 6, 22, 8, '#abc9c5', 'rx="2"') +
-      path(`M${x + 16},${y + 18}v7m-3-3h6`, 'none', 'stroke="#c2907e" stroke-width="2"');
-  } else if (kind === 'shop' || kind === 'lobby') {
-    art += rect(x + 4, y + 5, 24, 7, '#ead9b9', `rx="2" ${line}`);
-    for (let i = 0; i < 3; i++)
-      art += rect(x + 7 + i * 7, y + 16, 4, 9, ['#a5bbb1', '#d9af91', '#d0c18e'][i]!, 'rx="1"');
-  } else if (variant % 2 === 0) {
-    art =
-      rect(x + 2, y + 5, 28, 25, '#c9b68e', `rx="4" ${line}`) +
-      rect(x + 4, y + 8, 24, 18, '#d7e0c0', 'rx="3"') +
-      rect(x + 5, y + 8, 22, 6, c.paper, 'rx="3"');
-  } else
-    art +=
-      rect(x + 5, y + 9, 22, 3, '#ead7b1') +
-      path(`M${x + 7},${y + 19}h18`, 'none', `stroke="${c.outline}" stroke-width="1"`);
-  return art;
-}
-
 function cityScenery(prop: CityScenery, theme: BattleTheme) {
   const x = prop.x * 32,
     y = prop.y * 32,
@@ -764,6 +683,7 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
       'rx="10" stroke="#c7b995" stroke-width="1"',
     );
   }
+  if (data.interior) art += interiorFloor(map);
   art += path(
     contour(rows, (t) => t === 'g', 10),
     indoor && !forest ? '#d4d8b9' : '#c1d0a4',
@@ -776,6 +696,7 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
       `fill-rule="evenodd" stroke="${p.edge}" stroke-width="1.1"`,
     );
   art += architecturalFloor(map);
+  art += districtGround(map);
   art += path(
     contour(rows, (t) => t === '~' || t === 'W', 12),
     p.water,
@@ -786,7 +707,6 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
     '#dcaa7a',
     'fill-rule="evenodd" stroke="#f9d498" stroke-width="4"',
   );
-  if (data.interior) art += illustratedSceneDetails(map);
   rows.forEach((row, y) =>
     [...row].forEach((tile, x) => {
       const xx = x * 32,
@@ -910,7 +830,6 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
           'none',
           'stroke="#ffe2a7" stroke-width="2" stroke-linecap="round"',
         );
-      if (tile === 'F' && room) art += furniture(xx, yy, data.interior?.style ?? room, x + y);
       if (tile === 'E') art += rect(xx + 2, yy + 1, 28, 30, '#d8c193', 'rx="3"');
       if (tile === '#' && !architectural && !landscapeCells.has(`${x},${y}`)) {
         if (room || (indoor && !cave && !forest)) {
@@ -931,6 +850,7 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
       }
     }),
   );
+  if (data.interior) art += interiorFixtures(map);
   if (!data.interior) {
     art += illustratedWaterDepth(
       map,
@@ -941,7 +861,8 @@ export function illustratedMap(map: MapId, sources: SceneSpriteSources) {
       : illustratedSceneDetails(map) + landscapeFixtures(map, sources);
   }
   for (const prop of data.scenery ?? []) art += cityScenery(prop, theme);
-  for (const entrance of data.entrances ?? []) art += building(entrance, theme);
+  for (const entrance of data.entrances ?? [])
+    art += districtBuilding(map, entrance) ?? building(entrance, theme);
   return svg(width, height, sceneSpriteDefinitions(sources, art) + art);
 }
 

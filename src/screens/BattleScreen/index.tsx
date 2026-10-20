@@ -836,16 +836,23 @@ export function BattleScreen({
               },
               {
                 id: 'battle-run',
-                title: '逃跑',
-                detail:
-                  b.event === 'openingRescue'
+                title: game.challenge?.active?.rental ? '退出租借' : '逃跑',
+                detail: game.challenge?.active?.rental
+                  ? '结束本轮并还原原队伍'
+                  : b.event === 'openingRescue'
                     ? '先帮助博士脱险'
                     : b.kind === 'wild'
                       ? '离开野生对战'
                       : '训练师战不可逃跑',
                 color: '#839fb4',
-                disabled: busy || b.kind !== 'wild' || b.event === 'openingRescue' || choosingParty,
-                onPress: () => act({ kind: 'run' }),
+                disabled:
+                  busy ||
+                  (!game.challenge?.active?.rental &&
+                    (b.kind !== 'wild' || b.event === 'openingRescue' || choosingParty)),
+                onPress: () =>
+                  game.challenge?.active?.rental
+                    ? dispatch({ kind: 'challenge', action: { kind: 'retire' } })
+                    : act({ kind: 'run' }),
               },
             ]}
           />

@@ -1,5 +1,4 @@
-import { hasFieldAnnex } from '../../content/fieldExploration';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Image, View } from 'react-native';
 import { GameState, MapId } from '../../game/model';
 import { MAP_IMAGES, MAP_IMAGE_REVISIONS } from '../sceneAssets';
@@ -19,7 +18,7 @@ export function MapCanvas({
   onReady?: (map: MapId) => void;
 }) {
   const map = state.player.map;
-  const source = hasFieldAnnex(map) ? undefined : MAP_IMAGES[map];
+  const source = MAP_IMAGES[map];
   const notifyReady = useCallback(() => onReady?.(map), [onReady, map]);
   useSceneReady(!source, onReady ? notifyReady : undefined);
   return (
@@ -50,6 +49,7 @@ function RasterMap({
   height: number;
   onReady?: () => void;
 }) {
+  const source = useMemo(() => mapImageSource(map), [map]);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   useSceneReady(loaded || failed, onReady);
@@ -57,10 +57,11 @@ function RasterMap({
     <TileMap map={map} width={width} height={height} />
   ) : (
     <Image
-      source={mapImageSource(map)}
+      source={source}
       resizeMode="stretch"
       style={{ width, height }}
-      onLoad={() => setLoaded(true)}
+      // Cached browser images also finish through onLoadEnd.
+      onLoadEnd={() => setLoaded(true)}
       onError={() => setFailed(true)}
     />
   );

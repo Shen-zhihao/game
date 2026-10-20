@@ -293,7 +293,8 @@ function finish(state: GameState, result: Battle['result']): void {
   if (b.phase === 'ended') return;
   delete b.actionRound;
   delete b.volatiles;
-  for (const c of [...Object.values(state.creatures), ...b.enemies]) delete c.confusionTurns;
+  for (const c of [...state.party.map((id) => state.creatures[id]!), ...b.enemies])
+    delete c.confusionTurns;
   ensureRewards(b);
   b.phase = 'ended';
   b.result = result;

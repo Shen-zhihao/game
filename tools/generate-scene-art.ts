@@ -41,6 +41,8 @@ const imageDigests = new Map<string, string>();
 const imagePropSources = new Map<string, string[]>();
 const roomImages = new Map<string, string>();
 const reservedRoomNames = new Set<string>();
+let uncompressedMapBytes = 0;
+let compressedMapBytes = 0;
 for (const map of ILLUSTRATED_MAPS) {
   if (!MAPS[map]) throw new Error(`不存在的插画地图：${map}`);
   const illustration = illustratedMap(map, spriteSources);
@@ -73,10 +75,13 @@ for (const map of ILLUSTRATED_MAPS) {
     reservedRoomNames.add(file);
   }
   const compressed = compressPng(png);
+  uncompressedMapBytes += png.length;
+  compressedMapBytes += compressed.length;
   writeFileSync(`assets/maps/${file}`, compressed);
   imagePropSources.set(file, propFiles);
   imageDigests.set(file, createHash('sha256').update(compressed).digest('hex'));
   files.set(map, file);
+  if (files.size % 20 === 0) console.log(`Rendered ${files.size}/${ILLUSTRATED_MAPS.length} maps`);
 }
 for (const theme of Object.keys(BATTLE_SCENES) as BattleTheme[])
   writeFileSync(
@@ -175,9 +180,12 @@ for (const record of sceneRecords) {
 if (changedProvenance) {
   provenance.version += 1;
   provenance.date = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' });
-  provenance.sceneStyle = `全部${files.size}张地图与${Object.keys(BATTLE_SCENES).length}套战斗背景统一使用参考截图的奶油纸色、低饱和青绿、柔和棕色描边与圆润造型；城市包含扩建街区、地域地标及不同用途的室内，后段场景以新绘制的玻璃铜管设备、变压器、书柜、窑炉、望远镜、温室、石拱、岩簇及林木替换重复徽记，地面、墙体和水岸按连续材质绘制，相同室内按图片内容共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。`;
+  provenance.sceneStyle = `全部${files.size}张地图与${Object.keys(BATTLE_SCENES).length}套战斗背景统一使用参考截图的奶油纸色、低饱和青绿、柔和棕色描边与圆润造型；城市包含扩建街区、地域地标及不同用途的室内，后段场景以新绘制的玻璃铜管设备、变压器、书柜、窑炉、望远镜、温室、石拱、岩簇及林木替换重复徽记，地面、墙体和水岸按连续材质绘制，室内依用途、地域及住户布置分别绘制，只有像素完全一致时才共用素材。废弃图块与旧图集来源保留在retiredAssets，各资源历史保留在previousGenerations中。`;
   writeFileSync(provenancePath, `${JSON.stringify(provenance, null, 2)}\n`);
 }
+console.log(
+  `Map PNGs: ${uncompressedMapBytes} bytes before lossless compression, ${compressedMapBytes} bytes after.`,
+);
 console.log(
   `Updated ${files.size} maps using ${new Set(files.values()).size} images and ${Object.keys(BATTLE_SCENES).length} battle backgrounds.`,
 );

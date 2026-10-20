@@ -327,10 +327,20 @@ const gameSchema = z.strictObject({
       points: integer(999999),
       best: integer(999999),
       streak: integer(999999),
+      rentalDraft: z
+        .strictObject({
+          offers: z.array(creatureSchema).length(6),
+          selected: z.array(idSchema).max(3),
+        })
+        .optional(),
+      rentalClears: integer(999999).optional(),
       active: z
         .strictObject({
+          rental: z
+            .strictObject({ opponents: z.array(creatureSchema).max(3), swapped: z.boolean() })
+            .optional(),
           selected: z.array(idSchema).length(3),
-          originalParty: z.array(idSchema).min(3).max(6),
+          originalParty: z.array(idSchema).min(1).max(6),
           originalBox: z.array(idSchema).max(360),
           originals: z.record(idSchema, creatureSchema),
         })
@@ -489,7 +499,7 @@ const gameSchema = z.strictObject({
   }),
   creatures: z.record(idSchema, creatureSchema),
   party: z.array(idSchema).max(6),
-  box: z.array(idSchema).max(360),
+  box: z.array(idSchema).max(366),
   inventory: z.record(idSchema, integer(999)),
   dex: z.strictObject({ seen: z.array(idSchema).max(250), caught: z.array(idSchema).max(250) }),
   rng: integer(4294967295, 1),
@@ -768,7 +778,11 @@ export function validateGame(input: unknown): GameState {
     const local = game.environment?.climates?.[id];
     if (local) invariant(CLIMATES[id].weights[local.weather] > 0, '气候区天气不适用');
   }
-  invariant(Object.keys(game.creatures).length <= 366, '精灵数量超限');
+  invariant(
+    Object.keys(game.creatures).length <= (game.challenge?.active?.rental ? 369 : 366),
+    '精灵数量超限',
+  );
+  invariant(game.box.length <= (game.challenge?.active?.rental ? 366 : 360), '仓库容量超限');
   const references = [...game.party, ...game.box];
   invariant(
     new Set(references).size === references.length &&
@@ -845,7 +859,66 @@ export function validateGame(input: unknown): GameState {
     const challenge = game.challenge;
     invariant(challenge.best >= challenge.streak, '挑战连胜记录无效');
     const active = challenge.active;
-    if (active) {
+    const draft = challenge.rentalDraft;
+    if (draft) {
+      invariant(
+        !active &&
+          game.progress.flags.champion &&
+          new Set(draft.offers.map((c) => c.id)).size === 6 &&
+          new Set(draft.offers.map((c) => c.speciesId)).size === 6 &&
+          new Set(draft.selected).size === draft.selected.length &&
+          draft.selected.every((id) => draft.offers.some((c) => c.id === id)) &&
+          draft.offers.every((c) => c.level === 50 && !game.creatures[c.id]),
+        '租借候选记录无效',
+      );
+      draft.offers.forEach(checkCreature);
+    }
+    if (active?.rental) {
+      const r = active.rental;
+      const originals = [...active.originalParty, ...active.originalBox];
+      invariant(
+        game.progress.flags.champion &&
+          !game.league?.active &&
+          !game.activities?.active &&
+          !game.pending.length &&
+          !game.dialogue &&
+          challenge.streak < 3 &&
+          new Set(originals).size === originals.length &&
+          originals.every((id) => !!game.creatures[id] && !active.selected.includes(id)) &&
+          game.box.length === originals.length &&
+          game.box.every((id, i) => id === [...active.originalBox, ...active.originalParty][i]) &&
+          new Set(active.selected).size === 3 &&
+          game.party.length === 3 &&
+          active.selected.every((id, i) => game.party[i] === id) &&
+          Object.keys(game.creatures).length === originals.length + 3 &&
+          Object.keys(active.originals).length === 3 &&
+          active.selected.every(
+            (id) =>
+              active.originals[id]?.id === id &&
+              active.originals[id]?.speciesId === game.creatures[id]?.speciesId &&
+              game.creatures[id]?.level === 50,
+          ) &&
+          (!game.battle || !!game.battle.ruleChallenge) &&
+          (game.battle
+            ? r.opponents.length === 3 &&
+              !r.swapped &&
+              r.opponents.every(
+                (c, i) =>
+                  c.id === game.battle!.enemies[i]?.id &&
+                  c.speciesId === game.battle!.enemies[i]?.speciesId,
+              )
+            : challenge.streak > 0 && r.opponents.length === 3),
+        '租借挑战状态或还原队伍无效',
+      );
+      invariant(
+        new Set(r.opponents.map((c) => c.id)).size === r.opponents.length &&
+          r.opponents.every((c) => c.level === 50 && !originals.includes(c.id)) &&
+          r.opponents.filter((c) => active.selected.includes(c.id)).length === (r.swapped ? 1 : 0),
+        '租借换人记录无效',
+      );
+      Object.values(active.originals).forEach(checkCreature);
+      r.opponents.forEach(checkCreature);
+    } else if (active) {
       const originalIds = [...active.originalParty, ...active.originalBox];
       invariant(
         game.progress.flags.champion &&
@@ -1352,7 +1425,11 @@ export function validateGame(input: unknown): GameState {
     '图鉴获得未见过',
   );
   invariant(
-    Object.values(game.creatures).every((c) => game.dex.caught.includes(c.speciesId)),
+    Object.values(game.creatures).every(
+      (c) =>
+        game.dex.caught.includes(c.speciesId) ||
+        (game.challenge?.active?.rental && game.challenge.active.selected.includes(c.id)),
+    ),
     '精灵未登记到图鉴',
   );
   for (const p of game.pending)
