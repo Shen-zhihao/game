@@ -363,6 +363,7 @@ export interface Battle {
   result: 'win' | 'lose' | 'caught' | 'escaped' | null;
   runAttempts: number;
   tutorialCatch: boolean;
+  fishing?: import('../fishing').FishingEncounter;
   weather?: BattleWeather;
   rewards?: { defeated: string[]; experience: number; money: number; completion: boolean };
 }
@@ -391,6 +392,7 @@ export interface ExplorationState {
   trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
+  fishing?: import('../fishing').FishingState;
   nursery?: import('../nursery').NurseryState;
   ecology?: import('../ecology').EcologyState;
   production?: import('../production').ProductionState;
@@ -470,6 +472,7 @@ export type Command =
   | { kind: 'challenge'; action: import('../challenge').ChallengeAction }
   | { kind: 'setRunning'; running: boolean }
   | { kind: 'fastTravel'; town: TownId }
+  | { kind: 'fish' }
   | { kind: 'activity'; action: import('../activities/types').ActivityAction }
   | { kind: 'equip'; creatureId: string; itemId: string | null }
   | { kind: 'cheat'; code: string }

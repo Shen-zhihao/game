@@ -1,3 +1,14 @@
+import { FISHING_BAITS } from '../../content/fishing';
+import { calendarFor } from '../calendar';
+import { weatherAt } from '../environment';
+import {
+  claimFishingMilestone,
+  ensureFishingCast,
+  fishingChoices,
+  fishingState,
+  validFishingLocation,
+  type FishingEncounter,
+} from '../fishing';
 import {
   FIELD_ACTIVITIES,
   activityCraftFlag,
@@ -115,6 +126,7 @@ export function createActivity(d: ActivityDefinition): ActivityRun {
       run.value = 18;
       break;
     case 'fish':
+      run.fishing = { siteId: d.fishingSiteId!, baitId: 'none' };
       run.board = [0];
       run.aux = 2;
       break;
@@ -207,21 +219,41 @@ export function openActivity(game: GameState, definition: ActivityDefinition) {
 }
 export function activityAtNpc(game: GameState, npcId: string): ActivityDefinition | undefined {
   return Object.values(FIELD_ACTIVITIES).find(
-    (d) => d.npcId === npcId && (!game.progress.flags[d.goalFlag] || !!d.town),
+    (d) => !!d.npcId && d.npcId === npcId && (!game.progress.flags[d.goalFlag] || !!d.town),
   );
 }
 export function applyActivity(
   game: GameState,
   action: ActivityAction,
-): { fishSpot: number } | undefined {
+): { fishing: FishingEncounter } | undefined {
   const ledger = game.activities,
     run = ledger?.active,
     d = run && FIELD_ACTIVITIES[run.id];
   if (!run || !d || !ledger) return;
+  if (action.kind !== 'close' && !validActivityLocation(game, run)) return;
   if (action.kind === 'close') {
     (ledger.drafts ??= {})[run.id] = run;
     ledger.active = null;
     game.notice = '已离开工作台，本局操作、完成记录和未领取的首次奖励保留。';
+    return;
+  }
+  if (action.kind === 'fishingClaim') {
+    if (d.kind === 'fish') {
+      run.feedback = claimFishingMilestone(game, action.region);
+      game.notice = run.feedback;
+    }
+    return;
+  }
+  if (action.kind === 'bait') {
+    if (
+      d.kind !== 'fish' ||
+      run.status !== 'playing' ||
+      run.stage !== 0 ||
+      !Object.hasOwn(FISHING_BAITS, action.baitId)
+    )
+      return;
+    run.fishing = { siteId: d.fishingSiteId!, baitId: action.baitId };
+    run.feedback = `${FISHING_BAITS[action.baitId].name}：${FISHING_BAITS[action.baitId].hint}投竿时才消耗，失败或重置不返还。`;
     return;
   }
   if (action.kind === 'claim') {
@@ -249,10 +281,36 @@ export function applyActivity(
     d.kind === 'fish' &&
     run.status === 'won'
   ) {
+    // A recovered first-reward screen is not a solved cast and cannot mint an encounter.
+    if (!activitySolved(d, run)) return;
+    const siteId = d.fishingSiteId!;
+    const baitId = run.fishing?.baitId ?? 'none';
+    if (!fishingChoices(game, siteId, baitId).length) {
+      run.feedback = '当前时段这片水域没有活动的精灵。本局保留，换个时段再来。';
+      return;
+    }
+    if (!game.party.some((id) => game.creatures[id]!.hp > 0)) {
+      run.feedback = '请先让同行伙伴恢复体力，本次收线成果会保留。';
+      return;
+    }
+    if (!ensureFishingCast(game, run)) return;
+    const fishing: FishingEncounter = {
+      activityId: run.id,
+      siteId,
+      baitId,
+      castId: run.fishing!.castId!,
+      ...calendarFor(game),
+      weather: weatherAt(game),
+      settled: false,
+    };
+    fishingState(game).encounters++;
+    // Remove the playable ticket before the battle is created in the same reducer checkpoint.
+    delete ledger.drafts?.[run.id];
     ledger.active = null;
-    return { fishSpot: run.board[0]! };
+    return { fishing };
   }
   if (run.status !== 'playing' || run.moves >= 10000) return;
+  if (d.kind === 'fish' && run.stage > 0 && !ensureFishingCast(game, run)) return;
   let changed = false;
   const cell = action.kind === 'cell' && Number.isInteger(action.index) ? action.index : -1;
   const step = action.kind === 'step' ? action.value : '';
@@ -325,15 +383,22 @@ export function applyActivity(
       }
       break;
     case 'fish':
-      if (run.stage === 0 && cell >= 0 && cell < 2) {
-        run.board[0] = cell;
-        changed = true;
-      }
       if (step === 'cast' && run.stage === 0) {
+        const baitId = run.fishing?.baitId ?? 'none';
+        if (!fishingChoices(game, d.fishingSiteId!, baitId).length) {
+          run.feedback = '当前时段这片水域没有活动的精灵，未投竿，不消耗果饵。';
+          return;
+        }
+        if (baitId !== 'none' && !(game.inventory[baitId]! > 0)) {
+          run.feedback = '背包中的果饵不足，请换成不用果饵，或到城镇商店购买。';
+          return;
+        }
+        if (!ensureFishingCast(game, run)) return;
+        if (baitId !== 'none') game.inventory[baitId]!--;
         run.stage = 1;
         run.value = 0;
         changed = true;
-        run.feedback = '浮漂入水了，轻轻等待。';
+        run.feedback = `浮漂入水了，轻轻等待。${baitId === 'none' ? '本次未使用果饵。' : '已消耗背包果饵 ×1，失败或重置不返还。'}`;
       } else if (step === 'wait' && run.stage === 1) {
         run.value++;
         changed = true;
@@ -462,7 +527,9 @@ export function applyActivity(
     if (d.town && d.town !== 'harbor') game.progress.flags[activityCraftFlag(d.town)] = true;
     run.feedback = d.reward
       ? `完成了${d.title}！首次奖励可领取，重玩记录最佳步数。`
-      : '机关接通了，地图上的通道已经打开。';
+      : d.kind === 'fish'
+        ? '成功收线！选择引出精灵并在遭遇战中投球，捕捉成功才会计入垂钓手册。'
+        : '机关接通了，地图上的通道已经打开。';
     const materials = awardProductionMaterials(game, d.id);
     if (materials) run.feedback += ` ${materials}`;
     game.notice = run.feedback;
@@ -477,7 +544,9 @@ export function validActivityLocation(game: GameState, run: ActivityRun) {
     !!game.progress.flags.catchTutorial &&
     !!game.progress.flags.rival &&
     (!d.prerequisite || !!game.progress.flags[d.prerequisite]) &&
-    MAPS[game.player.map].npcs.some((npc) => npc.id === d.npcId && npcInReach(game, npc))
+    (d.kind === 'fish'
+      ? validFishingLocation(game, d.id, d.fishingSiteId!)
+      : MAPS[game.player.map].npcs.some((npc) => npc.id === d.npcId && npcInReach(game, npc)))
   );
 }
 
@@ -500,7 +569,18 @@ export function validActivityBoard(run: ActivityRun) {
         run.cursor <= 1
       );
     case 'fish':
-      return run.board.length === 1 && run.board[0]! <= 1 && run.value <= 4 && run.aux <= 8;
+      return (
+        run.board.length === 1 &&
+        run.board[0]! <= 1 &&
+        run.value <= 4 &&
+        run.aux <= 8 &&
+        (run.stage !== 0 || (run.value === 0 && run.aux === 2)) &&
+        (run.stage !== 1 || run.aux === 2) &&
+        (run.stage !== 3 || (run.status === 'won' && activitySolved(d, run))) &&
+        (run.status !== 'won' ||
+          activitySolved(d, run) ||
+          (run.id === 'activity_harbor' && run.stage === 0 && run.moves === 0))
+      );
     case 'bells':
       return (
         run.board.length === 4 &&

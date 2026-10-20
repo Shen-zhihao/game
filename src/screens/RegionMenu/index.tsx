@@ -1,3 +1,4 @@
+import { FishingJournal } from '../../components/FishingJournal';
 import { HabitatDetails } from '../../components/HabitatDetails';
 import { CaptureTargetPanel } from '../../components/CaptureTargetPanel';
 import { captureSites, captureTarget } from '../../game/captureTracking';
@@ -546,6 +547,7 @@ export function RegionMenu({
                   你正在{MAPS[game.player.map].name}内，点击上方按钮查看馆内位置。
                 </Label>
               )}
+            <FishingJournal game={game} />
             <Label style={{ color: palette.gold, fontSize: 12, fontWeight: '700' }}>生境记录</Label>
             {HABITAT_SITES.filter((s) => s.regionId === place.id).map((site) => (
               <View key={site.id} style={{ gap: 3 }}>
@@ -558,7 +560,7 @@ export function RegionMenu({
                 </Label>
                 {site.map && site.medium === 'water' && (
                   <Label style={{ fontSize: 11, color: palette.accent }}>
-                    岸边朝向水面按 A 调查，不需渡水。
+                    岸边朝向水面按 A 调查，或选择「垂钓」，不需渡水。
                   </Label>
                 )}
               </View>

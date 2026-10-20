@@ -460,18 +460,7 @@ export function ActivityBoard({
           />
         </Svg>
         {run.stage === 0 ? (
-          <>
-            <View
-              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}
-            >
-              {['芦苇浅岸', '潮沟深水'].map((name, i) => (
-                <Button key={i} selected={run.board[0] === i} onPress={() => cell(i)}>
-                  {name}
-                </Button>
-              ))}
-            </View>
-            {control('cast', '投竿')}
-          </>
+          <>{control('cast', '投竿')}</>
         ) : run.stage === 1 ? (
           <View
             style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}

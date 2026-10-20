@@ -1,3 +1,4 @@
+import { validFishing } from '../../game/fishing';
 import { clearCompletedCaptureTarget } from '../../game/captureTracking';
 import { validPresetName } from '../../game/party/presets';
 import { NURSERY_BREEDING_STEPS, NURSERY_HATCH_STEPS, validNursery } from '../../game/nursery';
@@ -286,6 +287,8 @@ const worldSchema = z.strictObject({
     .optional(),
 });
 const weatherId = z.enum(['clear', 'sun', 'rain', 'storm', 'fog', 'snow', 'sand']);
+const fishingBaitSchema = z.enum(['none', 'held_berry', 'held_cleanse']);
+const fishingRegionSchema = z.enum(['river', 'lake', 'coast']);
 const activityRunSchema = z.strictObject({
   id: idSchema,
   board: z.array(integer(8)).max(25),
@@ -296,6 +299,13 @@ const activityRunSchema = z.strictObject({
   moves: integer(10000),
   status: z.enum(['playing', 'won', 'lost']),
   feedback: z.string().max(500),
+  fishing: z
+    .strictObject({
+      siteId: idSchema,
+      baitId: fishingBaitSchema,
+      castId: integer(999999, 1).optional(),
+    })
+    .optional(),
 });
 const nurseryEggSchema = z.strictObject({
   speciesId: idSchema,
@@ -303,6 +313,24 @@ const nurseryEggSchema = z.strictObject({
   steps: integer(NURSERY_HATCH_STEPS),
 });
 const gameSchema = z.strictObject({
+  fishing: z
+    .strictObject({
+      casts: integer(999999),
+      encounters: integer(999999),
+      catches: z
+        .array(
+          z.strictObject({
+            siteId: idSchema,
+            speciesId: idSchema,
+            count: integer(999999, 1),
+            day: integer(MAX_CALENDAR_DAY, 1),
+            time: integer(CALENDAR_DAY_SECONDS - 1),
+          }),
+        )
+        .max(500),
+      claimed: z.array(fishingRegionSchema).max(3),
+    })
+    .optional(),
   nursery: z
     .strictObject({
       parents: z.array(idSchema).max(2),
@@ -603,6 +631,18 @@ const gameSchema = z.strictObject({
       result: z.enum(['win', 'lose', 'caught', 'escaped']).nullable(),
       runAttempts: integer(100000),
       tutorialCatch: z.boolean(),
+      fishing: z
+        .strictObject({
+          activityId: idSchema,
+          siteId: idSchema,
+          baitId: fishingBaitSchema,
+          castId: integer(999999, 1),
+          day: integer(MAX_CALENDAR_DAY, 1),
+          time: integer(CALENDAR_DAY_SECONDS - 1),
+          weather: weatherId,
+          settled: z.boolean(),
+        })
+        .optional(),
       weather: z
         .strictObject({ kind: weatherId, ambient: weatherId, turns: integer(5, 1).nullable() })
         .optional(),
@@ -739,6 +779,7 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  invariant(validFishing(game), '垂钓来源、捕捉或纪念奖励记录无效');
   invariant(validEcology(game), '昼夜观察记录无效');
   invariant(validNursery(game), '培育屋寄养或孵化记录无效');
   invariant(!game.production || validateProduction(game.production, game), '城市生产记录无效');

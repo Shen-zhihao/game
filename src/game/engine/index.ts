@@ -1,3 +1,5 @@
+import { fishingEntryReason, fishingSiteAtPlayer, fishingChoices } from '../fishing';
+import { FIELD_ACTIVITIES } from '../../content/fieldActivities';
 import { applyCaptureTracking, clearCompletedCaptureTarget } from '../captureTracking';
 import { applyPartyPreset } from '../party/presets';
 import { applyNurseryAction, isNurseryParent, walkNursery } from '../nursery';
@@ -19,7 +21,6 @@ import { friendshipInteractionReason, interactWithPartner, walkWithPartners } fr
 import { specialEvolutionMet } from '../evolutionRequirements';
 import { boxTransferReason, reorderParty, setCreatureFavorite } from '../party';
 import { activityAtNpc, applyActivity, openActivity } from '../activities';
-import { HABITAT_SITES } from '../../content/habitats';
 import {
   isTownLocation,
   GYM_BARRIERS,
@@ -986,19 +987,17 @@ function reduceCommand(current: GameState, command: Command): GameState {
     return state;
   }
   if (state.dialogue) return current;
+  if (command.kind === 'fish') {
+    const reason = fishingEntryReason(state);
+    if (reason) state.notice = reason;
+    else openActivity(state, FIELD_ACTIVITIES[`fishing_${fishingSiteAtPlayer(state)!.id}`]!);
+    return state;
+  }
   if (command.kind === 'activity') {
     if (state.battle || state.pending.length) return current;
     const outcome = applyActivity(state, command.action);
     if (outcome) {
-      const sites = HABITAT_SITES.filter(
-        (s) => s.map === 'coastRoute' && s.medium === 'water' && s.encounters.length,
-      );
-      const site = sites[outcome.fishSpot % sites.length];
-      const choices = weightedEcology(
-        (site?.encounters ?? []).filter((e) => isOrdinarySpecies(e.speciesId)),
-        weatherAt(state),
-        dayPeriodFor(state),
-      );
+      const choices = fishingChoices(state, outcome.fishing.siteId, outcome.fishing.baitId);
       if (choices.length) {
         let roll = random(state) * choices.reduce((sum, e) => sum + e.weight, 0);
         const encounter = choices.find((e) => (roll -= e.weight) < 0) ?? choices[0]!;
@@ -1006,6 +1005,8 @@ function reduceCommand(current: GameState, command: Command): GameState {
           speciesId: encounter.speciesId,
           level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
         });
+        const fishingBattle = state.battle as GameState['battle'];
+        if (fishingBattle) fishingBattle.fishing = outcome.fishing;
         recordWildObservation(state, state.player.map);
         (state.battle as GameState['battle'])?.logs.unshift(
           '你成功收线，水中的精灵来到了岸边！投出星纹球才能让它成为伙伴。',

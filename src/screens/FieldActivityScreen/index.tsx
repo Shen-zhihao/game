@@ -1,3 +1,6 @@
+import { FishingJournal } from '../../components/FishingJournal';
+import { FISHING_BAITS, FISHING_SITES, type FishingBait } from '../../content/fishing';
+import { activitySolved } from '../../game/activities';
 import { useEffect } from 'react';
 import { BackHandler, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -102,6 +105,36 @@ export function FieldActivityScreen({
           keyboardShouldPersistTaps="handled"
         >
           <Label>{definition.instructions}</Label>
+          {definition.kind === 'fish' && (
+            <View style={{ gap: 8 }}>
+              <Label>
+                本地钓点：{FISHING_SITES.find((site) => site.id === definition.fishingSiteId)?.name}
+              </Label>
+              <Label muted>
+                只出现本地水域的普通精灵，保留天气与昼夜规律；果饵不会引出异地或剧情稀有精灵。
+              </Label>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {(Object.keys(FISHING_BAITS) as FishingBait[]).map((baitId) => (
+                  <Button
+                    small
+                    key={baitId}
+                    testID={`fishing-bait-${baitId}`}
+                    selected={(run.fishing?.baitId ?? 'none') === baitId}
+                    disabled={run.stage !== 0 || run.status !== 'playing'}
+                    onPress={() => act({ kind: 'bait', baitId })}
+                  >
+                    {FISHING_BAITS[baitId].name}
+                    {baitId !== 'none' ? ` · 背包 ${game.inventory[baitId] ?? 0}` : ''}
+                  </Button>
+                ))}
+              </View>
+              <Label muted>{FISHING_BAITS[run.fishing?.baitId ?? 'none'].hint}</Label>
+              <Label muted>
+                果饵使用背包里的甘露果／清露果，不取下伙伴携带物。只在成功投竿时消耗 1
+                个，选择、引出精灵不另收费；失败、重置不返还。城镇商店有售。重置后默认不用果饵。
+              </Label>
+            </View>
+          )}
           <View
             style={{
               borderRadius: 18,
@@ -141,19 +174,27 @@ export function FieldActivityScreen({
                 领取首次奖励
               </Button>
             )}
-            {run.status === 'won' && definition.kind === 'fish' && (
-              <Button
-                accent
-                testID="activity-encounter"
-                onPress={() => act({ kind: 'step', value: 'encounter' })}
-              >
-                引出精灵 · 进入遭遇
-              </Button>
-            )}
+            {run.status === 'won' &&
+              definition.kind === 'fish' &&
+              activitySolved(definition, run) && (
+                <Button
+                  accent
+                  testID="activity-encounter"
+                  onPress={() => act({ kind: 'step', value: 'encounter' })}
+                >
+                  引出精灵 · 进入遭遇
+                </Button>
+              )}
             <Button testID="activity-reset" onPress={() => act({ kind: 'reset' })}>
               {run.status === 'playing' ? '重置本局' : '再玩一次'}
             </Button>
           </View>
+          {definition.kind === 'fish' && (
+            <FishingJournal
+              game={game}
+              onClaim={(region) => act({ kind: 'fishingClaim', region })}
+            />
+          )}
         </ScrollView>
       </View>
     </View>

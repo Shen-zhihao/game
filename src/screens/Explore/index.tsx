@@ -1,3 +1,4 @@
+import { fishingEntryReason, fishingSiteAtPlayer } from '../../game/fishing';
 import { forcedTravelDuration } from '../../game/movement';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -282,6 +283,21 @@ export function Explore({
             }}
           >
             {game.player.running ? '奔跑中' : '步行'} · R
+          </Button>
+        </View>
+      )}
+      {!blocked && fishingSiteAtPlayer(game) && (
+        <View style={{ position: 'absolute', top: insets.top + 116, right: insets.right + 14 }}>
+          <Button
+            small
+            testID="shore-fishing"
+            disabled={!!fishingEntryReason(game)}
+            onPress={() => {
+              stop();
+              dispatch({ kind: 'fish' });
+            }}
+          >
+            垂钓
           </Button>
         </View>
       )}

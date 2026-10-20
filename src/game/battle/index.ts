@@ -1,3 +1,4 @@
+import { recordFishingCatch } from '../fishing';
 import { applyEntryHazards, hazardLabel } from './hazards';
 import { trainerTactic } from '../../content/trainerTactics';
 import { clearFieldEffects, endSeedTurn } from './volatile';
@@ -308,6 +309,7 @@ function finish(state: GameState, result: Battle['result']): void {
     b.logs.push(result === 'win' ? '规则挑战获胜！' : '本轮规则挑战结束。');
     return;
   }
+  if (result === 'caught') recordFishingCatch(state);
   if (result === 'caught')
     distributeExperience(state, Math.floor(b.enemies[b.enemyIndex]!.level * 16));
   if (result === 'win' && b.event === 'openingRescue') {

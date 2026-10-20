@@ -1,3 +1,4 @@
+import { FISHING_SITES, FISHING_REGION_NAMES, fishingRegion } from '../fishing';
 import type { TownId } from '../../game/model';
 import type { HeldItemId } from '../battleTraits';
 import { CITY_IDENTITIES, CITY_TOWNS, districtNpcId, districtFlag } from '../cityDistricts';
@@ -24,6 +25,7 @@ export interface ActivityDefinition {
   variant: number;
   town?: TownId;
   prerequisite?: string;
+  fishingSiteId?: string;
   reward?: { item: HeldItemId; money: number };
 }
 const CITY_DESIGNS: Record<TownId, [ActivityKind, string, string, string, HeldItemId]> = {
@@ -51,7 +53,7 @@ const CITY_DESIGNS: Record<TownId, [ActivityKind, string, string, string, HeldIt
   harbor: [
     'fish',
     '白帆垂钓',
-    '选择钓点投竿，观察咬钩，再交替收线和放线控制张力。',
+    '在白帆港河口选择可选果饵后投竿，观察咬钩，再交替收线和放线控制张力。',
     '等待两次会咬钩，第三次仍能提竿；第四次鱼会离开。张力达到7或降到0会脱钩。',
     'held_pearl',
   ],
@@ -111,6 +113,7 @@ export const CITY_ACTIVITIES: ActivityDefinition[] = CITY_TOWNS.map((town, varia
     goalFlag: `activity_${town}_done`,
     variant,
     reward: { item, money: 180 },
+    ...(town === 'harbor' ? { fishingSiteId: 'river_delta' } : {}),
   };
 });
 const GYM_DESIGNS: [string, ActivityKind, string, string][] = [
@@ -151,10 +154,21 @@ export const GYM_ACTIVITIES: ActivityDefinition[] = GYM_DESIGNS.flatMap(
       ...(stage ? { prerequisite: scout } : {}),
     })),
 );
+export const FISHING_ACTIVITIES: ActivityDefinition[] = FISHING_SITES.map((site) => ({
+  id: `fishing_${site.id}`,
+  kind: 'fish',
+  title: `${FISHING_REGION_NAMES[fishingRegion(site.id)]}垂钓 · ${site.name}`,
+  instructions: '选择果饵后投竿，观察咬钩，再交替收线与放线。收线成功后仍须在遭遇战中投球捕捉。',
+  hint: '观察两次后提竿；第四次观察会错过咬钩。张力保持在1至6，收线四次即可靠岸。',
+  npcId: '',
+  goalFlag: `fishing_${site.id}_done`,
+  variant: 0,
+  fishingSiteId: site.id,
+}));
 export const FIELD_ACTIVITIES = Object.fromEntries(
-  [...CITY_ACTIVITIES, ...GYM_ACTIVITIES].map((d) => [d.id, d]),
+  [...CITY_ACTIVITIES, ...GYM_ACTIVITIES, ...FISHING_ACTIVITIES].map((d) => [d.id, d]),
 ) as Record<string, ActivityDefinition>;
-export const ACTIVITY_FLAGS = CITY_ACTIVITIES.map((d) => d.goalFlag);
+export const ACTIVITY_FLAGS = [...CITY_ACTIVITIES, ...FISHING_ACTIVITIES].map((d) => d.goalFlag);
 export const activityQuest = (d: ActivityDefinition) => ({
   id: `${d.id}_quest`,
   name: d.title,
