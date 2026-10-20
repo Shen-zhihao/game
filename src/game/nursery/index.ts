@@ -26,6 +26,23 @@ export type NurseryAction =
 export function nurseryFor(state: GameState): NurseryState {
   return state.nursery ?? { parents: [], breedingSteps: 0, waitingEgg: null, carriedEgg: null };
 }
+/** A persistent next-step summary, including readiness after a notice has faded. */
+export function nurseryStatus(state: GameState): string {
+  const nursery = nurseryFor(state);
+  if (!state.progress.flags.catchTutorial) return '完成捕捉入门后，回晨芽镇开启培育。';
+  if (nursery.carriedEgg) {
+    const remaining = Math.max(0, NURSERY_HATCH_STEPS - nursery.carriedEgg.steps);
+    return remaining
+      ? `随身蛋还需行走 ${remaining} 步；到达步数后在此确认孵化。`
+      : '随身蛋已经可以孵化！在安全状态下点击“确认孵化”。';
+  }
+  if (nursery.waitingEgg) return '培育屋发现了一枚蛋！回晨芽镇领取后开始孵化计步。';
+  if (nursery.parents.length === 2)
+    return `双亲正在培育，还需实际行走 ${NURSERY_BREEDING_STEPS - nursery.breedingSteps} 步发现蛋。`;
+  return nursery.parents.length === 1
+    ? '已寄养一位伙伴，再选择一位同进化家族的 Lv.10 以上普通伙伴。'
+    : '先在晨芽镇寄养两位同进化家族的 Lv.10 以上普通伙伴。';
+}
 export const isNurseryParent = (state: GameState, id: string): boolean =>
   nurseryFor(state).parents.includes(id);
 export function nurseryOffspringSpecies(state: GameState): string | null {
@@ -165,7 +182,10 @@ export function walkNursery(state: GameState): void {
   const nursery = state.nursery;
   if (!nursery || state.challenge?.active || state.league?.active) return;
   if (nursery.carriedEgg) {
-    nursery.carriedEgg.steps = Math.min(NURSERY_HATCH_STEPS, nursery.carriedEgg.steps + 1);
+    const previousSteps = nursery.carriedEgg.steps;
+    nursery.carriedEgg.steps = Math.min(NURSERY_HATCH_STEPS, previousSteps + 1);
+    if (previousSteps < NURSERY_HATCH_STEPS && nursery.carriedEgg.steps === NURSERY_HATCH_STEPS)
+      state.notice = '精灵蛋可以孵化了！打开菜单 → 培育屋，确认迎接新伙伴。';
     return;
   }
   if (nursery.waitingEgg || nursery.parents.length !== 2) return;
@@ -175,6 +195,7 @@ export function walkNursery(state: GameState): void {
   if (!speciesId) return;
   nursery.waitingEgg = { speciesId, inheritedMoves: inheritedNurseryMoves(state), steps: 0 };
   nursery.breedingSteps = 0;
+  state.notice = '培育屋发现了一枚精灵蛋！回晨芽镇，打开菜单 → 培育屋领取。';
 }
 
 /** Semantic validation supplements the strict persisted shape, without modifying a save. */

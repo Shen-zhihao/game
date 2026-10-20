@@ -12,6 +12,7 @@ import {
   nurseryActionReason,
   nurseryFor,
   nurseryParentReason,
+  nurseryStatus,
   NURSERY_BREEDING_STEPS,
   NURSERY_HATCH_STEPS,
   NURSERY_MIN_LEVEL,
@@ -63,6 +64,13 @@ export function NurseryMenu({
         <Label style={{ fontSize: 22, fontWeight: '800' }}>晨芽培育屋</Label>
         <Label muted>寄养双亲 → 行走发现蛋 → 领取随身蛋 → 行走孵化</Label>
       </View>
+      <Panel testID="nursery-next-step" style={{ padding: 12, gap: 4 }}>
+        <Label style={{ fontWeight: '800' }}>下一步</Label>
+        <Label>{nurseryStatus(game)}</Label>
+        {nursery.carriedEgg && nursery.carriedEgg.steps >= NURSERY_HATCH_STEPS && hatchReason && (
+          <Label muted>{hatchReason}</Label>
+        )}
+      </Panel>
       <Panel testID="nursery-location" style={{ padding: 12, gap: 8 }}>
         <Label>
           {atNursery
@@ -71,7 +79,7 @@ export function NurseryMenu({
         </Label>
         <Label muted>
           两位同一进化家族的普通伙伴均需达到 {NURSERY_MIN_LEVEL}{' '}
-          级。寄养后保留在仓库并锁定，取回后仍在仓库，可在伙伴菜单加入队伍。
+          级。初始伙伴及特殊剧情精灵不参与培育。寄养后保留在仓库并锁定，取回后仍在仓库，可在伙伴菜单加入队伍。
         </Label>
         <Label muted>
           实际走到相邻格才计步；原地转向、撞墙、快速旅行和休息都不加进度。一次只照顾一枚蛋。

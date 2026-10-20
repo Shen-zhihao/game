@@ -746,7 +746,18 @@ function interact(state: GameState): void {
       break;
   }
 }
-function walkStep(state: GameState, direction: WalkDirection): void {
+/** Keep one-shot walking milestones even when a later tile ends a forced journey. */
+function walkingProgress(state: GameState, notices: string[]): boolean {
+  walkWithPartners(state);
+  let previous = state.notice;
+  walkNursery(state);
+  if (state.notice !== previous) notices.push(state.notice);
+  previous = state.notice;
+  const protectedStep = consumeRepelStep(state);
+  if (state.notice !== previous) notices.push(state.notice);
+  return protectedStep;
+}
+function walkStep(state: GameState, direction: WalkDirection, notices: string[]): void {
   const p = state.player;
   const step = resolveWalk(state, direction);
   p.facing = step.facing;
@@ -789,7 +800,6 @@ function walkStep(state: GameState, direction: WalkDirection): void {
       return;
     }
     if (p.map === 'leagueHall' && portal.map === 'league') resetLeague(state);
-    consumeRepelStep(state);
     p.map = portal.map;
     p.x = portal.toX;
     p.y = portal.toY;
@@ -797,8 +807,7 @@ function walkStep(state: GameState, direction: WalkDirection): void {
     else if (map.interior) p.facing = 'down';
     state.notice = `到达${MAPS[p.map].name}`;
     state.encounterCooldown = 5;
-    walkWithPartners(state);
-    walkNursery(state);
+    walkingProgress(state, notices);
     if (p.map === 'route' && f.opening && !f.professorCall) {
       talk(
         state,
@@ -816,9 +825,7 @@ function walkStep(state: GameState, direction: WalkDirection): void {
   p.x = x;
   p.y = y;
   state.steps += 1;
-  walkWithPartners(state);
-  walkNursery(state);
-  const protectedStep = consumeRepelStep(state);
+  const protectedStep = walkingProgress(state, notices);
   if (detectTrainer(state)) return;
   if (state.encounterCooldown > 0) {
     state.encounterCooldown -= 1;
@@ -851,9 +858,21 @@ function walkStep(state: GameState, direction: WalkDirection): void {
 }
 function walk(state: GameState, direction: WalkDirection): void {
   const start = { ...state.player };
-  walkStep(state, direction);
-  if (state.player.map !== start.map || (state.player.x === start.x && state.player.y === start.y))
+  const notices: string[] = [];
+  const advance = (nextDirection: WalkDirection) => {
+    const previousNotice = state.notice;
+    walkStep(state, nextDirection, notices);
+    // Trainer alerts and blocked-path guidance may follow a walking milestone.
+    if (state.notice !== previousNotice) notices.push(state.notice);
+  };
+  advance(direction);
+  if (
+    state.player.map !== start.map ||
+    (state.player.x === start.x && state.player.y === start.y)
+  ) {
+    if (notices.length) state.notice = [...new Set(notices)].join(' ');
     return;
+  }
   const forced = state.player.facing;
   // Bounded by map area; no mid-slide input, save, menu, encounter or trainer interleave.
   const limit = MAPS[state.player.map].rows.length * MAPS[state.player.map].rows[0]!.length;
@@ -866,7 +885,7 @@ function walk(state: GameState, direction: WalkDirection): void {
     ['I', 'V'].includes(MAPS[state.player.map].rows[state.player.y]?.[state.player.x] ?? '')
   ) {
     const previous = { ...state.player };
-    walkStep(state, forced);
+    advance(forced);
     if (
       previous.map !== state.player.map ||
       (previous.x === state.player.x && previous.y === state.player.y)
@@ -874,7 +893,10 @@ function walk(state: GameState, direction: WalkDirection): void {
       break;
     count++;
   }
-  if (count > 1 && !state.battle && !state.dialogue) {
+  // Routine arrival text must not replace egg readiness or spray-expiry notices.
+  // Only notices raised by this command are collected; an older notice is never appended.
+  if (notices.length) state.notice = [...new Set(notices)].join(' ');
+  else if (count > 1 && !state.battle && !state.dialogue) {
     state.notice =
       start.map === 'lakeRoute'
         ? '沿安全绳穿越瀑布，到达新的落脚点。'
