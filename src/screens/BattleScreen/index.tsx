@@ -1,3 +1,4 @@
+import { hazardLabel } from '../../game/battle/hazards';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -412,6 +413,11 @@ export function BattleScreen({
             {b.weather?.turns ? ` · ${b.weather.turns} 轮` : ''}　经验池{' '}
             {b.rewards?.experience ?? 0} · 金币 +{b.rewards?.money ?? 0}
           </Text>
+          {!presenting && !busy && (b.hazards?.player || b.hazards?.enemy) && (
+            <Text testID="battle-hazards" style={{ color: palette.text, fontSize: 11 }}>
+              己方：{hazardLabel(b.hazards?.player)} · 对方：{hazardLabel(b.hazards?.enemy)}
+            </Text>
+          )}
         </View>
         <View
           pointerEvents="none"

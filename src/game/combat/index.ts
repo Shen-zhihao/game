@@ -61,7 +61,7 @@ export function hitChance(
   attacker?: Creature,
 ): number {
   const move = MOVES[moveId]!;
-  if (!move.power && move.effect?.target === 'self') return 1;
+  if (!move.power && (move.effect?.target === 'self' || move.effect?.hazard)) return 1;
   return Math.max(
     0,
     Math.min(

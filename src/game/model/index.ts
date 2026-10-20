@@ -317,6 +317,11 @@ export interface Battle {
   enemyMedicine?: { itemId: 'super_potion' | 'hyper_potion'; remaining: number };
   aiTactics?: { lastSwitchTurn: number; switches: number; lastSupportTurn: number };
   volatiles?: Record<string, BattleVolatile>;
+  /** Side-bound entry traps; switching and loading never clear them. */
+  hazards?: {
+    player?: import('../battle/hazards').EntryHazards;
+    enemy?: import('../battle/hazards').EntryHazards;
+  };
   kind: 'wild' | 'trainer';
   event: StoryEvent | null;
   name: string;

@@ -1,3 +1,4 @@
+import { hazardDamage } from './hazards';
 import { canLearnMove, learnset, MOVES, SPECIES } from '../../content/catalog';
 import { trainerTactic } from '../../content/trainerTactics';
 import { heldEffect } from '../../content/battleTraits';
@@ -31,13 +32,16 @@ export function curateTrainerTeam(event: string | null, team: Creature[]): void 
     if (drain) selected.push(drain);
     else if (coverage) selected.push(coverage);
     // The lead enables weather/control; later members alternate sustain and setup roles.
-    const preferences =
-      index === 0
+    const fieldMoves = index === 0 ? ['stealth_rock', 'spikes'] : ['clear_field'];
+    const preferences = [
+      ...fieldMoves,
+      ...(index === 0
         ? tactic.support
         : [
             ...tactic.support.slice(index % tactic.support.length),
             ...tactic.support.slice(0, index % tactic.support.length),
-          ];
+          ]),
+    ];
     for (const id of preferences) {
       if (selected.length >= 4) break;
       if (available.includes(id) && !selected.includes(id)) selected.push(id);
@@ -111,6 +115,36 @@ export function tacticalMoveScore(
   const missing = statsFor(enemy).hp - enemy.hp;
   const chance = hitChance(id, b.enemyStages, b.playerStages, b.weather?.kind, enemy);
   const shielded = b.actionRound?.protected?.includes(player.id);
+  if (effect?.hazard) {
+    const field = b.hazards?.player;
+    if (
+      (effect.hazard === 'rocks' && field?.rocks) ||
+      (effect.hazard === 'spikes' && (field?.spikes ?? 0) >= 3)
+    )
+      return 0;
+    if (enemy.hp <= incoming || player.hp <= damage) return 0;
+    const next = {
+      ...field,
+      ...(effect.hazard === 'rocks' ? { rocks: true } : { spikes: (field?.spikes ?? 0) + 1 }),
+    };
+    const benefit = state.party
+      .filter((key) => key !== player.id)
+      .map((key) => state.creatures[key]!)
+      .filter((c) => c.hp > 0)
+      .reduce(
+        (sum, c) =>
+          sum + Math.min(c.hp, hazardDamage(c, next)) - Math.min(c.hp, hazardDamage(c, field)),
+        0,
+      );
+    return benefit * 1.3;
+  }
+  if (effect?.clearHazards) {
+    return (
+      b.enemies
+        .filter((c) => c.id !== enemy.id && c.hp > 0)
+        .reduce((sum, c) => sum + Math.min(c.hp, hazardDamage(c, b.hazards?.enemy)), 0) * 1.4
+    );
+  }
   if (effect?.target !== 'self' && shielded) return 0;
   if (effect?.drain && score > 0) {
     const actual = Math.min(
@@ -351,11 +385,15 @@ export function chooseEnemySwitch(state: GameState): number | undefined {
       !candidate.moves.some((slot) => slot.pp > 0 && MOVES[slot.id]!.power)
     )
       return;
+    const entryLoss = hazardDamage(candidate, b.hazards?.enemy);
+    const remainingHp = candidate.hp - entryLoss;
+    if (remainingHp <= 0) return;
     const nextThreat =
-      bestDamage(player, candidate, b.playerStages, {}, b.weather?.kind) / candidate.hp;
+      bestDamage(player, candidate, b.playerStages, {}, b.weather?.kind) / remainingHp;
     const nextOffense =
       bestDamage(candidate, player, {}, b.playerStages, b.weather?.kind) / Math.max(1, player.hp);
-    const gain = Math.min(2, threat) - nextThreat + nextOffense - offense;
+    const gain =
+      Math.min(2, threat) - nextThreat + nextOffense - offense - entryLoss / candidate.hp;
     if (nextThreat < 0.65 && nextOffense > 0.1 && gain > bestGain) {
       best = index;
       bestGain = gain;

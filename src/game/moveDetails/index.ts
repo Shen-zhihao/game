@@ -8,6 +8,11 @@ export function battleMoveDetails(moveId: string, weather: WeatherId = 'clear') 
   const move = MOVES[moveId]!;
   const effects: string[] = [];
   const effect = move.effect;
+  if (effect?.hazard === 'rocks')
+    effects.push('在对方场地布置隐形岩；换入扣除1/8最大HP×岩石相性，不可叠加');
+  if (effect?.hazard === 'spikes')
+    effects.push('对方场地叠加地刺，最多3层；接地者换入损失1/8、1/6、1/4最大HP');
+  if (effect?.clearHazards) effects.push('清除己方隐形岩与全部地刺，不清除对方陷阱');
   if (effect?.protect)
     effects.push(
       '本轮首次行动可用，消耗整轮行动；挡下本轮所有对手招式，不挡持续伤害；连续轮使用成功率降为1/3、1/9…',
@@ -61,10 +66,26 @@ export function moveEffectLines(moveId: string): string[] {
         : '特殊伤害：自身特攻对抗对手特防，实际伤害受属性克制等影响。',
     );
   else lines.push('不造成直接伤害。');
+  if (move.effect?.hazard)
+    lines.push(
+      '针对对方场地，守住、属性免疫、命中与闪避等级均不影响布置；对当前在场精灵不立即造成伤害。主动换人和倒下后的替补上场均触发，读档不重复触发，结束战斗后不保留。',
+    );
+  if (move.effect?.hazard === 'rocks')
+    lines.push(
+      '隐形岩只能布置一次，所有换入者（包括飞行与轻浮）损失最大HP的1/8乘以岩石属性相性，向下取整且至少1点。',
+    );
+  if (move.effect?.hazard === 'spikes')
+    lines.push(
+      '地刺最多三层，分别造成最大HP的1/8、1/6、1/4伤害，向下取整且至少1点；飞行属性或免疫地面的轻浮特性不会受到地刺伤害。',
+    );
+  if (move.effect?.clearHazards)
+    lines.push(
+      '只清除己方的隐形岩及所有地刺，不影响对方场地、天气、寄生或能力等级；不受守住或属性免疫影响。',
+    );
   if (move.effect?.protect)
     lines.push(
       '仅能在己方本轮第一次行动选择。无论成功、失败或无法行动，均消耗本轮全部行动，不能先攻击再守住；成功后持续到本轮结束，抵挡所有对手针对自身的伤害与变化招式，不妨碍对手自我强化、恢复或改变天气。',
-      '不能阻挡中毒、灼伤、天气、混乱自伤或已经生效的寄生种子。连续轮尝试的成功率依次为100%、1/3、1/9…，最低1/729；间隔一轮或换下后重置。',
+      '不能阻挡中毒、灼伤、天气、混乱自伤、场地陷阱或已经生效的寄生种子。连续轮尝试的成功率依次为100%、1/3、1/9…，最低1/729；间隔一轮或换下后重置。',
     );
   if (move.effect?.seed)
     lines.push(

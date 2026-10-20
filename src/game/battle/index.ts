@@ -1,3 +1,4 @@
+import { applyEntryHazards, hazardLabel } from './hazards';
 import { trainerTactic } from '../../content/trainerTactics';
 import { clearFieldEffects, endSeedTurn } from './volatile';
 import {
@@ -508,6 +509,30 @@ function attack(
   (b.visualEvents ??= []).push(visual);
   try {
     b.logs.push(`${creatureName(attacker)}使用了${move.name}！`);
+    // Traps target a side, not the active creature: Protect, evasion and type immunity do not block placement.
+    if (move.effect?.hazard) {
+      const side = player ? 'enemy' : 'player';
+      const field = ((b.hazards ??= {})[side] ??= {});
+      if (move.effect.hazard === 'rocks') {
+        if (field.rocks) b.logs.push('对方场地已有隐形岩，无法重复布置。');
+        else {
+          field.rocks = true;
+          b.logs.push('对方场地布下隐形岩！换入时按岩石属性相性受到伤害。');
+        }
+      } else if ((field.spikes ?? 0) >= 3) b.logs.push('对方地刺已达三层，无法继续叠加。');
+      else {
+        field.spikes = (field.spikes ?? 0) + 1;
+        b.logs.push(`对方场地地刺增加到 ${field.spikes} 层！浮空伙伴不受地刺伤害。`);
+      }
+      return true;
+    }
+    if (move.effect?.clearHazards) {
+      const side = player ? 'player' : 'enemy';
+      const label = hazardLabel(b.hazards?.[side]);
+      if (b.hazards) delete b.hazards[side];
+      b.logs.push(label === '无' ? '己方场地没有需要清除的陷阱。' : `清除了己方场地的${label}！`);
+      return true;
+    }
     if (move.effect?.protect) {
       const chance = protectSuccessChance(b, attacker.id);
       const previous = b.volatiles?.[attacker.id];
@@ -754,6 +779,9 @@ function resolveFaints(state: GameState): boolean {
       scene: battleScene(state),
     });
     b.logs.push(`${b.name}派出了${creatureName(b.enemies[b.enemyIndex]!)}。`);
+    applyEntryHazards(b, 'enemy', b.enemies[b.enemyIndex]!);
+    // Chain through every reserve knocked out on entry, paying each reward once.
+    if (b.enemies[b.enemyIndex]!.hp <= 0) return resolveFaints(state);
   }
   if (state.creatures[b.playerId]!.hp <= 0) {
     b.phase = 'forcedSwitch';
@@ -761,6 +789,41 @@ function resolveFaints(state: GameState): boolean {
     return true;
   }
   return false;
+}
+function settleRoundEnd(state: GameState): void {
+  const b = state.battle!;
+  const player = state.creatures[b.playerId]!;
+  const enemy = b.enemies[b.enemyIndex]!;
+  delete b.actionRound;
+  for (const c of [player, enemy]) {
+    if (c.hp > 0 && (c.status === 'poison' || c.status === 'burn')) {
+      const loss = Math.max(1, Math.floor(statsFor(c).hp / (c.status === 'poison' ? 8 : 16)));
+      c.hp = Math.max(0, c.hp - loss);
+      b.logs.push(`${creatureName(c)}受到 ${loss} 点异常伤害。`);
+    }
+  }
+  if (b.weather?.kind === 'sand')
+    for (const c of [player, enemy]) {
+      if (
+        c.hp <= 0 ||
+        SPECIES[c.speciesId]!.types.some((t) => ['rock', 'ground', 'steel'].includes(t))
+      )
+        continue;
+      const loss = Math.max(1, Math.floor(statsFor(c).hp / 16));
+      c.hp = Math.max(0, c.hp - loss);
+      b.logs.push(`${creatureName(c)}受到扬沙伤害 ${loss}。`);
+    }
+  endSeedTurn(state);
+  for (const c of [player, enemy]) endHeldTurn(c, b.logs);
+  if (b.weather?.turns !== null && b.weather?.turns !== undefined && --b.weather.turns === 0) {
+    b.weather.kind = b.weather.ambient;
+    b.weather.turns = null;
+    b.logs.push(`技能天气结束，场地回到${WEATHER[b.weather.kind].name}。`);
+  }
+  const stopped = resolveFaints(state);
+  b.turn += 1;
+  if (!stopped) b.phase = 'choose';
+  if (state.battle?.result === null) b.aiMove = aiMove(state);
 }
 export function battleActionReason(state: GameState, action: BattleAction): string | null {
   const b = state.battle;
@@ -883,6 +946,15 @@ export function battleAction(state: GameState, action: BattleAction): void {
       });
       b.playerStages = emptyStages();
       if (!b.participants.includes(c.id)) b.participants.push(c.id);
+      applyEntryHazards(b, 'player', c);
+      if (c.hp <= 0) {
+        if (forced) {
+          delete b.actionRound;
+          resolveFaints(state);
+          if (b.result === null) b.aiMove = aiMove(state);
+        } else settleRoundEnd(state);
+        return;
+      }
       if (forced) {
         delete b.actionRound;
         b.phase = 'choose';
@@ -927,6 +999,15 @@ export function battleAction(state: GameState, action: BattleAction): void {
           logIndex: b.logs.length - 1,
           scene: battleScene(state),
         });
+        applyEntryHazards(b, 'enemy', enemy);
+        if (enemy.hp <= 0) {
+          const stopped = resolveFaints(state);
+          if (stopped) {
+            delete b.actionRound;
+            return;
+          }
+          enemy = b.enemies[b.enemyIndex]!;
+        }
         b.aiMove = aiMove(state);
       }
     }
@@ -1060,36 +1141,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
       b.phase = 'choose';
       return;
     }
-    delete b.actionRound;
-    for (const c of [player, enemy]) {
-      if (c.hp > 0 && (c.status === 'poison' || c.status === 'burn')) {
-        const loss = Math.max(1, Math.floor(statsFor(c).hp / (c.status === 'poison' ? 8 : 16)));
-        c.hp = Math.max(0, c.hp - loss);
-        b.logs.push(`${creatureName(c)}受到 ${loss} 点异常伤害。`);
-      }
-    }
-    if (b.weather?.kind === 'sand')
-      for (const c of [player, enemy]) {
-        if (
-          c.hp <= 0 ||
-          SPECIES[c.speciesId]!.types.some((t) => ['rock', 'ground', 'steel'].includes(t))
-        )
-          continue;
-        const loss = Math.max(1, Math.floor(statsFor(c).hp / 16));
-        c.hp = Math.max(0, c.hp - loss);
-        b.logs.push(`${creatureName(c)}受到扬沙伤害 ${loss}。`);
-      }
-    endSeedTurn(state);
-    for (const c of [player, enemy]) endHeldTurn(c, b.logs);
-    if (b.weather?.turns !== null && b.weather?.turns !== undefined && --b.weather.turns === 0) {
-      b.weather.kind = b.weather.ambient;
-      b.weather.turns = null;
-      b.logs.push(`技能天气结束，场地回到${WEATHER[b.weather.kind].name}。`);
-    }
-    const stopped = resolveFaints(state);
-    b.turn += 1;
-    if (!stopped) b.phase = 'choose';
-    if (state.battle?.result === null) b.aiMove = aiMove(state);
+    settleRoundEnd(state);
   } finally {
     if (b.logs.length)
       b.visualEvents.push({

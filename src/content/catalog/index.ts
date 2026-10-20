@@ -315,6 +315,8 @@ export interface Move {
     heal?: number;
     /** Fraction of HP actually removed from the target, not calculated overkill damage. */
     drain?: number;
+    hazard?: 'rocks' | 'spikes';
+    clearHazards?: boolean;
     protect?: boolean;
     seed?: boolean;
     stage?: CombatStage;
@@ -384,6 +386,39 @@ export const MOVES: Record<string, Move> = {
     pp: 20,
     priority: 0,
     effect: { stage: 'defense', amount: 1, target: 'self' },
+  },
+  stealth_rock: {
+    id: 'stealth_rock',
+    name: '隐形岩',
+    type: 'rock',
+    category: 'status',
+    power: 0,
+    accuracy: 100,
+    pp: 20,
+    priority: 0,
+    effect: { hazard: 'rocks' },
+  },
+  spikes: {
+    id: 'spikes',
+    name: '撒地刺',
+    type: 'ground',
+    category: 'status',
+    power: 0,
+    accuracy: 100,
+    pp: 20,
+    priority: 0,
+    effect: { hazard: 'spikes' },
+  },
+  clear_field: {
+    id: 'clear_field',
+    name: '清扫场地',
+    type: 'normal',
+    category: 'status',
+    power: 0,
+    accuracy: 100,
+    pp: 20,
+    priority: 0,
+    effect: { clearHazards: true, target: 'self' },
   },
   protect: {
     id: 'protect',
@@ -664,6 +699,11 @@ export function learnset(speciesId: string): { level: number; moveId: string }[]
     },
     { level: 10, moveId: `${species.types[1] ?? species.types[0]}_1` },
     { level: 10, moveId: 'protect' },
+    { level: 18, moveId: 'clear_field' },
+    ...(species.types.includes('rock') ? [{ level: 20, moveId: 'stealth_rock' }] : []),
+    ...(species.types.some((t) => t === 'ground' || t === 'bug')
+      ? [{ level: 20, moveId: 'spikes' }]
+      : []),
     ...(species.types.includes('grass')
       ? [
           { level: 5, moveId: 'absorb' },

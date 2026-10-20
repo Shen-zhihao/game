@@ -537,6 +537,16 @@ const gameSchema = z.strictObject({
           remaining: integer(2),
         })
         .optional(),
+      hazards: z
+        .strictObject({
+          player: z
+            .strictObject({ rocks: z.boolean().optional(), spikes: integer(3).optional() })
+            .optional(),
+          enemy: z
+            .strictObject({ rocks: z.boolean().optional(), spikes: integer(3).optional() })
+            .optional(),
+        })
+        .optional(),
       volatiles: z
         .record(
           idSchema,
