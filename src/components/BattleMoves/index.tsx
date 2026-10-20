@@ -3,7 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { MOVES, SPECIES, TYPES, TYPE_COLORS } from '../../content/catalog';
 import { GameState } from '../../game/model';
 import { battleMoveDetails } from '../../game/moveDetails';
-import { chanceLabel, hitChance, protectSuccessChance } from '../../game/combat';
+import {
+  chanceLabel,
+  hasUsableBattleMove,
+  hitChance,
+  protectSuccessChance,
+} from '../../game/combat';
 import { battleActionReason } from '../../game/battle';
 import { abilityFor, statsFor, typeMultiplier } from '../../game/rules';
 import { HapticPressable as Pressable } from '../HapticPressable';
@@ -28,7 +33,7 @@ export function BattleMoves({
   const battle = game.battle!;
   const player = game.creatures[battle.playerId]!;
   const enemy = battle.enemies[battle.enemyIndex]!;
-  const hasPp = player.moves.some((move) => move.pp > 0);
+  const hasPp = hasUsableBattleMove(player, battle, true);
   const indexes = hasPp ? [0, 1, 2, 3] : [-1];
   const choices = indexes.map((index) => {
     const slot = player.moves[index];

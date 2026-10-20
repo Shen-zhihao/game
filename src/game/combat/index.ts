@@ -1,9 +1,22 @@
-import { MOVES } from '../../content/catalog';
+import { canLearnMove, MOVES } from '../../content/catalog';
 import { Battle, CombatStage, Creature, Stages, WeatherId } from '../model';
 import { weatherAccuracy } from '../environment';
 import { abilityFor, effectiveStat } from '../rules';
 import { heldEffect } from '../../content/battleTraits';
 
+/** PP alone does not make Protect usable after the first action of a speed round. */
+export function hasUsableBattleMove(creature: Creature, battle: Battle, player: boolean): boolean {
+  const round = battle.actionRound;
+  const afterFirstAction =
+    !!round &&
+    (player ? round.playerRemaining < round.playerTotal : round.enemyRemaining < round.enemyTotal);
+  return creature.moves.some(
+    (slot) =>
+      slot.pp > 0 &&
+      canLearnMove(creature.speciesId, slot.id) &&
+      !(afterFirstAction && MOVES[slot.id]!.effect?.protect),
+  );
+}
 export const MAX_SPEED_ACTIONS = 3;
 export const MAX_PROTECT_CHAIN = 6;
 /** Consecutive attempts, including failures, cannot reroll a full-strength shield. */

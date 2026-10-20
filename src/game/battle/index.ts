@@ -61,6 +61,7 @@ import {
   COMBAT_STAGE_NAMES,
   criticalChance,
   hitChance,
+  hasUsableBattleMove,
   MAX_PROTECT_CHAIN,
   protectSuccessChance,
   roundPace,
@@ -927,7 +928,10 @@ export function battleActionReason(state: GameState, action: BattleAction): stri
   if (action.kind === 'run' && b.kind !== 'wild') return '训练师对战不能逃跑。';
   if (action.kind === 'move') {
     const c = state.creatures[b.playerId]!;
-    if (c.moves.some((m) => m.pp > 0) && (!c.moves[action.index] || c.moves[action.index]!.pp <= 0))
+    if (
+      hasUsableBattleMove(c, b, true) &&
+      (!c.moves[action.index] || c.moves[action.index]!.pp <= 0)
+    )
       return '技能 PP 已耗尽。';
     const selected = c.moves[action.index];
     if (selected && !canLearnMove(c.speciesId, selected.id)) return '这招专属技能不属于当前精灵。';
@@ -960,7 +964,9 @@ export function battleAction(state: GameState, action: BattleAction): void {
       const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
       const playerMove =
         action.kind === 'move'
-          ? MOVES[player.moves.some((m) => m.pp > 0) ? player.moves[action.index]!.id : 'struggle']!
+          ? MOVES[
+              hasUsableBattleMove(player, b, true) ? player.moves[action.index]!.id : 'struggle'
+            ]!
           : null;
       const enemyMove = MOVES[enemy.moves[b.aiMove]?.id ?? 'struggle']!;
       const enemyFirst = !playerMove
@@ -1175,7 +1181,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
     const round = b.actionRound!;
     const performEnemy = () => {
       while (round.enemyRemaining > 0 && player.hp > 0 && enemy.hp > 0) {
-        const struggle = !enemy.moves.some((m) => m.pp > 0);
+        const struggle = !hasUsableBattleMove(enemy, b, false);
         round.enemyRemaining--;
         if (!struggle && MOVES[enemy.moves[b.aiMove]?.id ?? 'struggle']!.effect?.protect)
           round.enemyRemaining = 0;
@@ -1188,14 +1194,12 @@ export function battleAction(state: GameState, action: BattleAction): void {
     };
     if (round.enemyFirst) performEnemy();
     if (player.hp > 0 && enemy.hp > 0) {
+      const struggle = !hasUsableBattleMove(player, b, true);
       round.playerRemaining--;
       if (action.kind === 'move') {
-        if (
-          player.moves.some((m) => m.pp > 0) &&
-          MOVES[player.moves[action.index]!.id]!.effect?.protect
-        )
+        if (!struggle && MOVES[player.moves[action.index]!.id]!.effect?.protect)
           round.playerRemaining = 0;
-        attack(state, true, action.index, round.immobility, !player.moves.some((m) => m.pp > 0));
+        attack(state, true, action.index, round.immobility, struggle);
       }
     }
     if (round.playerRemaining <= 0) performEnemy();
