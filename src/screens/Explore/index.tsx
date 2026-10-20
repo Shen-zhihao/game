@@ -16,6 +16,7 @@ import { GameControls } from '../../components/GameControls';
 import { useControlPreferences } from '../../hooks/useControlPreferences';
 import {
   controlOrientation,
+  resolveAuxiliaryFrames,
   resolveControlFrame,
   resolveDialogueFrame,
 } from '../../platform/controlLayout/controller';
@@ -98,6 +99,54 @@ export function Explore({
   const growthPoints = game.party.reduce(
     (sum, id) => sum + availablePoints(game.creatures[id]!),
     0,
+  );
+  const showGrowth =
+    !game.dialogue &&
+    (!game.progress.flags.opening || game.progress.flags.partnerReceived) &&
+    growthPoints > 0;
+  const showFishing = !blocked && !!fishingSiteAtPlayer(game);
+  const [runningFrame, fishingFrame] = resolveAuxiliaryFrames(
+    area,
+    [
+      dpadFrame,
+      actionFrame,
+      resolveControlFrame('menu', layout, area),
+      ...(showGrowth ? [resolveControlFrame('growth', layout, area)] : []),
+    ],
+    showFishing ? 2 : 1,
+    [
+      // Prefer not to obscure informational HUD cards. Interactive controls
+      // take priority if an extremely short/custom layout has no free space.
+      {
+        left: insets.left + 14,
+        top: insets.top + 10,
+        width: Math.min(width * 0.48, width - insets.left - insets.right - 126),
+        height: (isIndoor(game.player.map) ? 62 : 81) + (game.repelSteps ? 19 : 0),
+        scale: 1,
+      },
+      ...(!game.dialogue && (tracked || !tiny)
+        ? [
+            {
+              left: insets.left + 14,
+              top:
+                insets.top +
+                (tracked ? (tiny ? 74 : isIndoor(game.player.map) ? 78 : 96) : 96) +
+                (game.repelSteps ? 16 : 0),
+              width: Math.min(tracked ? 340 : 290, width * (tracked ? 0.45 : 0.4)),
+              height: tracked ? (compactTracker ? 72 : 100) : 56,
+              scale: 1,
+            },
+          ]
+        : []),
+      {
+        left:
+          (width - Math.max(150, width - insets.left - insets.right - dpadFrame.width - 140)) / 2,
+        top: height - insets.bottom - 76,
+        width: Math.max(150, width - insets.left - insets.right - dpadFrame.width - 140),
+        height: 58,
+        scale: 1,
+      },
+    ],
   );
   const weather = WEATHER[weatherAt(game)];
   const remaining = Math.max(0, Math.ceil(localWeather(game)?.remaining ?? 180));
@@ -271,10 +320,16 @@ export function Explore({
         </View>
       )}
       {!game.dialogue && (
-        <View style={{ position: 'absolute', top: insets.top + 58, right: insets.right + 14 }}>
+        <View style={{ position: 'absolute', left: runningFrame!.left, top: runningFrame!.top }}>
           <Button
             small
             testID="toggle-running"
+            style={{
+              width: runningFrame!.width,
+              height: runningFrame!.height,
+              paddingHorizontal: 4,
+              paddingVertical: 0,
+            }}
             disabled={blocked}
             selected={!!game.player.running}
             onPress={() => {
@@ -286,11 +341,17 @@ export function Explore({
           </Button>
         </View>
       )}
-      {!blocked && fishingSiteAtPlayer(game) && (
-        <View style={{ position: 'absolute', top: insets.top + 116, right: insets.right + 14 }}>
+      {showFishing && (
+        <View style={{ position: 'absolute', left: fishingFrame!.left, top: fishingFrame!.top }}>
           <Button
             small
             testID="shore-fishing"
+            style={{
+              width: fishingFrame!.width,
+              height: fishingFrame!.height,
+              paddingHorizontal: 4,
+              paddingVertical: 0,
+            }}
             disabled={!!fishingEntryReason(game)}
             onPress={() => {
               stop();

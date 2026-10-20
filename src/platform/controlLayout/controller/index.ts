@@ -121,6 +121,84 @@ export function resolveControlFrame(
     top: area.top + clamp(defaults[id][1], 0, vertical),
   };
 }
+/** Place contextual actions around the active, user-positioned controls.
+ * A fully covered custom layout has no collision-free solution; in that case
+ * choose the least overlap while keeping the entire action inside the safe area.
+ */
+export function resolveAuxiliaryFrames(
+  area: ControlArea,
+  obstacles: ControlFrame[],
+  count: number,
+  decorations: ControlFrame[] = [],
+): ControlFrame[] {
+  const gap = 6;
+  const width = Math.min(104, Math.max(1, area.width - area.left - area.right));
+  const height = Math.min(36, Math.max(1, area.height - area.top - area.bottom));
+  const minX = area.left;
+  const maxX = Math.max(minX, area.width - area.right - width);
+  const minY = area.top;
+  const maxY = Math.max(minY, area.height - area.bottom - height);
+  const occupied = [...obstacles];
+  const result: ControlFrame[] = [];
+  for (let index = 0; index < count; index++) {
+    const preferredX = clamp(area.width - area.right - width - 14, minX, maxX);
+    const preferredY = clamp(area.top + 58 + index * (height + gap), minY, maxY);
+    const xs = [
+      ...new Set([
+        preferredX,
+        minX,
+        maxX,
+        ...[...occupied, ...decorations].flatMap((frame) => [
+          clamp(frame.left - width - gap, minX, maxX),
+          clamp(frame.left + frame.width + gap, minX, maxX),
+        ]),
+      ]),
+    ];
+    const ys = [
+      ...new Set([
+        preferredY,
+        minY,
+        maxY,
+        ...[...occupied, ...decorations].flatMap((frame) => [
+          clamp(frame.top - height - gap, minY, maxY),
+          clamp(frame.top + frame.height + gap, minY, maxY),
+        ]),
+      ]),
+    ];
+    const candidates = xs.flatMap((left) =>
+      ys.map((top) => ({ left, top, width, height, scale: 1 })),
+    );
+    const overlap = (candidate: ControlFrame, frames = occupied) =>
+      frames.reduce(
+        (sum, frame) =>
+          sum +
+          Math.max(
+            0,
+            Math.min(candidate.left + width + gap, frame.left + frame.width) -
+              Math.max(candidate.left - gap, frame.left),
+          ) *
+            Math.max(
+              0,
+              Math.min(candidate.top + height + gap, frame.top + frame.height) -
+                Math.max(candidate.top - gap, frame.top),
+            ),
+        0,
+      );
+    const ranked = candidates.map((frame) => ({
+      frame,
+      blocked: overlap(frame),
+      decoration: overlap(frame, decorations),
+      distance: Math.abs(frame.left - preferredX) + Math.abs(frame.top - preferredY),
+    }));
+    ranked.sort(
+      (a, b) => a.blocked - b.blocked || a.decoration - b.decoration || a.distance - b.distance,
+    );
+    const frame = ranked[0]!.frame;
+    result.push(frame);
+    occupied.push(frame);
+  }
+  return result;
+}
 export function moveControl(
   id: ControlId,
   layout: ControlLayout,
