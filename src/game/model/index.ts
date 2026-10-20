@@ -311,6 +311,7 @@ export interface BattleVolatile {
   protectChain?: number;
 }
 export interface Battle {
+  journal?: import('../battleJournal').BattleJournalRecord;
   id: string;
   npcId?: string;
   ruleChallenge?: boolean;
@@ -392,6 +393,7 @@ export interface ExplorationState {
   trainerChallenge?: { map: MapId; npcId: string; phase: 'alert' | 'approach' } | null;
 }
 export interface GameState {
+  battleJournal?: import('../battleJournal').BattleJournalRecord[];
   fishing?: import('../fishing').FishingState;
   nursery?: import('../nursery').NurseryState;
   ecology?: import('../ecology').EcologyState;

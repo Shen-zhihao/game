@@ -313,7 +313,54 @@ const nurseryEggSchema = z.strictObject({
   inheritedMoves: z.array(idSchema).max(2),
   steps: integer(NURSERY_HATCH_STEPS),
 });
+const journalSource = z.enum([
+  'move',
+  'hazard',
+  'weather',
+  'status',
+  'recoil',
+  'confusion',
+  'seed',
+]);
+const journalEventSchema = z
+  .strictObject({
+    turn: integer(100000, 1),
+    kind: z.enum(['message', 'damage', 'knockout']),
+    text: z.string().max(200),
+    source: journalSource.optional(),
+    target: z.string().min(1).max(60).optional(),
+    amount: integer(999999999, 1).optional(),
+  })
+  .superRefine((e, ctx) => {
+    const valid =
+      e.kind === 'message'
+        ? e.source === undefined && e.target === undefined && e.amount === undefined
+        : !!e.source &&
+          !!e.target &&
+          (e.kind === 'damage' ? e.amount !== undefined : e.amount === undefined);
+    if (!valid) ctx.addIssue({ code: 'custom', message: '战报事件字段不一致' });
+  });
+const battleJournalSchema = z
+  .strictObject({
+    id: idSchema,
+    name: z.string().max(40),
+    kind: z.enum(['wild', 'trainer']),
+    turns: integer(100000, 1),
+    result: z.enum(['win', 'lose', 'caught', 'escaped', 'abandoned']).nullable(),
+    partial: z.boolean(),
+    truncated: z.boolean(),
+    events: z.array(journalEventSchema).max(400),
+  })
+  .superRefine((r, ctx) => {
+    let previous = 1;
+    for (const event of r.events) {
+      if (event.turn < previous || event.turn > r.turns)
+        ctx.addIssue({ code: 'custom', message: '战报回合顺序无效' });
+      previous = event.turn;
+    }
+  });
 const gameSchema = z.strictObject({
+  battleJournal: z.array(battleJournalSchema).max(5).optional(),
   fishing: z
     .strictObject({
       casts: integer(999999),
@@ -557,6 +604,7 @@ const gameSchema = z.strictObject({
   playTimeSeconds: integer(315360000),
   battle: z
     .strictObject({
+      journal: battleJournalSchema.optional(),
       id: idSchema,
       kind: z.enum(['wild', 'trainer']),
       npcId: idSchema.optional(),
@@ -1547,8 +1595,27 @@ export function validateGame(input: unknown): GameState {
     }
   }
   if (game.dialogue) invariant(game.dialogue.index < game.dialogue.lines.length, '对话位置越界');
+  if (game.battleJournal) {
+    invariant(
+      new Set(game.battleJournal.map((r) => r.id)).size === game.battleJournal.length,
+      '战报记录重复',
+    );
+    invariant(
+      game.battleJournal.every((r) => r.result !== null),
+      '历史战报缺少结束结果',
+    );
+  }
   if (game.battle) {
     const b = game.battle;
+    if (b.journal)
+      invariant(
+        b.journal.id === b.id &&
+          b.journal.name === b.name &&
+          b.journal.kind === b.kind &&
+          b.journal.result === b.result &&
+          b.journal.turns <= b.turn,
+        '当前战报与战斗不一致',
+      );
     const rematch = gymRematch(b.event);
     if (rematch) {
       const record = game.gymRematches?.[rematch.event];

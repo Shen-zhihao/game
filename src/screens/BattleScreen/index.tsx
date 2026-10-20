@@ -1,3 +1,4 @@
+import { BattleJournalView } from '../../components/BattleJournal';
 import { hazardLabel } from '../../game/battle/hazards';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -81,6 +82,7 @@ export function BattleScreen({
   const [page, setPage] = useState<Page>('commands');
   const [busy, setBusy] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [wholeJournal, setWholeJournal] = useState(false);
   const [showCombatStats, setShowCombatStats] = useState(false);
   const [targetItem, setTargetItem] = useState<import('../../game/items').SupplyId>('potion');
   const pendingTurn = useRef(false);
@@ -635,7 +637,7 @@ export function BattleScreen({
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="本回合战报"
+          accessibilityLabel="查看战报"
           onPress={() => {
             setShowCombatStats(false);
             setShowLog(!showLog);
@@ -651,12 +653,25 @@ export function BattleScreen({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 6,
                 marginBottom: 8,
               }}
             >
               <Label style={{ color: palette.gold, fontWeight: '800' }}>
-                {showCombatStats ? '战斗属性' : '本回合记录'}
+                {showCombatStats ? '战斗属性' : wholeJournal ? '本场战报' : '本次行动记录'}
               </Label>
+              <Button
+                small
+                testID="battle-journal-toggle"
+                selected={wholeJournal && !showCombatStats}
+                onPress={() => {
+                  setShowCombatStats(false);
+                  setWholeJournal(!wholeJournal);
+                }}
+              >
+                {wholeJournal ? '本次行动' : '本场记录'}
+              </Button>
               <Button
                 small
                 testID="battle-combat-details"
@@ -666,7 +681,7 @@ export function BattleScreen({
               </Button>
             </View>
             <ScrollView
-              key={showCombatStats ? 'stats' : 'events'}
+              key={showCombatStats ? 'stats' : wholeJournal ? 'journal' : 'events'}
               contentContainerStyle={{ gap: 6 }}
             >
               {showCombatStats ? (
@@ -710,6 +725,14 @@ export function BattleScreen({
                     </Label>
                   ))}
                 </>
+              ) : wholeJournal ? (
+                b.journal ? (
+                  <BattleJournalView record={b.journal} />
+                ) : (
+                  <Label muted>
+                    旧存档没有此前的完整记录；下一次行动开始记录，不会补造过去的经过。
+                  </Label>
+                )
               ) : (
                 b.logs.map((line, i) => <Label key={i}>{line}</Label>)
               )}
@@ -730,6 +753,18 @@ export function BattleScreen({
                     ? '顺利离开'
                     : '休整再出发'}
             </Label>
+            <Button
+              small
+              testID="battle-result-review"
+              style={{ marginTop: 8 }}
+              onPress={() => {
+                setWholeJournal(true);
+                setShowCombatStats(false);
+                setShowLog(true);
+              }}
+            >
+              查看本场复盘
+            </Button>
             <ScrollView style={{ marginTop: 8 }} contentContainerStyle={{ gap: 4 }}>
               {b.logs.map((line, i) => (
                 <Label

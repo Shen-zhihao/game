@@ -12,6 +12,7 @@ const paths = {
   bag: 'M7 8V6a5 5 0 0 1 10 0v2M5 8h14l2 13H3ZM8 12h8v5H8Z',
   dex: 'M12 5C9 3 5 3 2 4v16c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v16M5 8h4m-4 4h4m6-4h4m-4 4h4',
   quests: 'M9 4H5v17h14V4h-4M9 2h6v5H9ZM8 12h8m-8 4h5',
+  battleJournal: 'M5 3h14v18H5ZM8 7h8M8 11h8M8 15h3m3 0h2m-8 3h8',
   map: 'm2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3Zm6-3v17M16 5v17',
   save: 'M4 3h13l4 4v14H3V3Zm3 0v7h10V3M7 21v-7h10v7',
   transfer: 'M3 7h17l-4-4m4 4-4 4M21 17H4l4-4m-4 4 4 4',

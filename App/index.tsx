@@ -1,3 +1,4 @@
+import { BattleJournalMenu } from '../src/components/BattleJournal';
 import type { MapId } from '../src/game/model';
 import type { ProductionTown } from '../src/content/production';
 import { facingNpc } from '../src/game/exploration';
@@ -595,6 +596,7 @@ function GameApp() {
                   />
                 ))}
               {menu === 'quests' && <QuestMenu game={game} dispatch={dispatch} />}
+              {menu === 'battleJournal' && <BattleJournalMenu game={game} />}
               {menu === 'map' && (
                 <RegionMenu
                   dispatch={dispatch}

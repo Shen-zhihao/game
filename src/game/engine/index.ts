@@ -1,3 +1,4 @@
+import { archiveBattleJournal, prependBattleLog } from '../battleJournal';
 import { fishingEntryReason, fishingSiteAtPlayer, fishingChoices } from '../fishing';
 import { FIELD_ACTIVITIES } from '../../content/fieldActivities';
 import { applyCaptureTracking, clearCompletedCaptureTarget } from '../captureTracking';
@@ -326,7 +327,7 @@ function interact(state: GameState): void {
         level: encounter.min + Math.floor(random(state) * (encounter.max - encounter.min + 1)),
       });
       recordWildObservation(state, player.map);
-      state.battle?.logs.unshift(`你调查了${water.name}，水面泛起波纹！`);
+      prependBattleLog(state.battle, `你调查了${water.name}，水面泛起波纹！`);
       return;
     }
     state.notice = '靠近人物、石碑或发光物，朝向它再按 A。';
@@ -1009,7 +1010,8 @@ function reduceCommand(current: GameState, command: Command): GameState {
         const fishingBattle = state.battle as GameState['battle'];
         if (fishingBattle) fishingBattle.fishing = outcome.fishing;
         recordWildObservation(state, state.player.map);
-        (state.battle as GameState['battle'])?.logs.unshift(
+        prependBattleLog(
+          state.battle as GameState['battle'],
           '你成功收线，水中的精灵来到了岸边！投出星纹球才能让它成为伙伴。',
         );
       }
@@ -1020,6 +1022,7 @@ function reduceCommand(current: GameState, command: Command): GameState {
   if (command.kind === 'closeBattle') {
     const b = state.battle;
     if (b?.phase === 'ended') {
+      archiveBattleJournal(state);
       if (b.ruleChallenge) {
         finishChallengeBattle(state);
         state.battle = null;

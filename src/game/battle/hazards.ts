@@ -1,3 +1,4 @@
+import { journalDamage } from '../battleJournal';
 import { SPECIES } from '../../content/catalog';
 import type { Battle, Creature } from '../model';
 import { abilityFor, creatureName, statsFor, typeMultiplier } from '../rules';
@@ -40,6 +41,7 @@ export function applyEntryHazards(b: Battle, side: HazardSide, creature: Creatur
   const loss = Math.min(creature.hp, hazardDamage(creature, hazards));
   if (loss > 0) {
     creature.hp -= loss;
+    journalDamage(b, creature, loss, 'hazard');
     b.logs.push(`${creatureName(creature)}踏入${hazardLabel(hazards)}，损失 ${loss} 点体力。`);
     triggerHeldItem(creature, b.logs);
   } else if (hazards.spikes) b.logs.push(`${creatureName(creature)}浮空避开了地刺。`);

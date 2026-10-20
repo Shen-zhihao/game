@@ -67,6 +67,7 @@ export type MenuName =
   | 'bag'
   | 'dex'
   | 'quests'
+  | 'battleJournal'
   | 'map'
   | 'save'
   | 'transfer'
@@ -80,6 +81,7 @@ export const MENU_NAMES: Record<MenuName, string> = {
   bag: '背包与商店',
   dex: '精灵图鉴',
   quests: '任务管理',
+  battleJournal: '战后复盘',
   map: '地区地图',
   save: '本地存档',
   transfer: '存档互传',
@@ -92,6 +94,7 @@ const MENU_SECTIONS = [
   'bag',
   'dex',
   'quests',
+  'battleJournal',
   'map',
   'challenge',
   'production',

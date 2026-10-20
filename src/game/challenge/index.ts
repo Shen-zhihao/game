@@ -1,3 +1,4 @@
+import { beginJournal, archiveBattleJournal } from '../battleJournal';
 import { makeRentalOpponents, rentalStage } from './rental';
 import { ITEMS, MOVES, SPECIES } from '../../content/catalog';
 import { LEAGUE_STAGES, LEAGUE_TRAINERS } from '../../content/league';
@@ -159,6 +160,7 @@ function nextBattle(g: GameState) {
     rewards: { defeated: [], experience: 0, money: 0, completion: false },
   };
   g.battle.aiMove = chooseEnemyMove(g);
+  beginJournal(g.battle);
   g.notice = '规则挑战开始。原队伍已安全保留，退出或战败后完整还原。';
 }
 /** Called only on closing an ended challenge battle, before the engine clears battle. */
@@ -197,6 +199,7 @@ export function finishChallengeBattle(g: GameState) {
 export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
   // Explicit retirement remains available in combat; it is not an escape/capture action.
   if (action.kind === 'retire' && g.challenge?.active?.rental) {
+    archiveBattleJournal(g, true);
     restore(g);
     g.battle = null;
     g.notice = '已退出租借挑战，原队伍和仓库完整还原。已得积分保留。';

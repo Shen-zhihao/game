@@ -1,3 +1,9 @@
+import {
+  beginJournal,
+  beginJournalAction,
+  finishJournalAction,
+  journalDamage,
+} from '../battleJournal';
 import { recordFishingCatch } from '../fishing';
 import { applyEntryHazards, hazardLabel } from './hazards';
 import { trainerTactic } from '../../content/trainerTactics';
@@ -293,6 +299,7 @@ export function startBattle(
     );
   triggerHeldItem(state.creatures[playerId]!, state.battle.logs);
   state.battle.aiMove = aiMove(state);
+  beginJournal(state.battle);
 }
 function finish(state: GameState, result: Battle['result']): void {
   const b = state.battle!;
@@ -483,6 +490,7 @@ function attack(
         );
         const loss = Math.min(attacker.hp, damage);
         attacker.hp -= loss;
+        journalDamage(b, attacker, loss, 'confusion');
         condition.confusionBlocked = true;
         b.logs.push(`${creatureName(attacker)}因混乱伤到了自己，损失 ${loss} 点体力，没能行动。`);
         triggerHeldItem(attacker, b.logs);
@@ -643,6 +651,7 @@ function attack(
           trait.sturdy && defender.hp === statsFor(defender).hp && damage >= defender.hp;
         const dealt = Math.min(defender.hp, sturdy ? Math.max(0, defender.hp - 1) : damage);
         defender.hp -= dealt;
+        journalDamage(b, defender, dealt, 'move');
         totalDealt += dealt;
         landed++;
         if (sturdy) b.logs.push(`${creatureName(defender)}的${trait.name}让它留下了1点体力！`);
@@ -675,6 +684,7 @@ function attack(
             : Math.max(1, Math.floor(totalDealt * move.effect!.recoil!));
         const lost = Math.min(attacker.hp, recoil);
         attacker.hp -= lost;
+        journalDamage(b, attacker, lost, 'recoil');
         b.logs.push(`${creatureName(attacker)}受到反冲，损失 ${lost} 点体力。`);
       }
     }
@@ -848,7 +858,9 @@ function settleRoundEnd(state: GameState): void {
   for (const c of [player, enemy]) {
     if (c.hp > 0 && (c.status === 'poison' || c.status === 'burn')) {
       const loss = Math.max(1, Math.floor(statsFor(c).hp / (c.status === 'poison' ? 8 : 16)));
+      const actual = Math.min(c.hp, loss);
       c.hp = Math.max(0, c.hp - loss);
+      journalDamage(b, c, actual, 'status');
       b.logs.push(`${creatureName(c)}受到 ${loss} 点异常伤害。`);
     }
   }
@@ -860,7 +872,9 @@ function settleRoundEnd(state: GameState): void {
       )
         continue;
       const loss = Math.max(1, Math.floor(statsFor(c).hp / 16));
+      const actual = Math.min(c.hp, loss);
       c.hp = Math.max(0, c.hp - loss);
+      journalDamage(b, c, actual, 'weather');
       b.logs.push(`${creatureName(c)}受到扬沙伤害 ${loss}。`);
     }
   endSeedTurn(state);
@@ -931,6 +945,7 @@ export function battleActionReason(state: GameState, action: BattleAction): stri
 export function battleAction(state: GameState, action: BattleAction): void {
   const b = state.battle;
   if (!b || b.phase === 'ended') return;
+  beginJournalAction(b);
   b.visualEvents = [];
   try {
     const reason = battleActionReason(state, action);
@@ -1193,6 +1208,7 @@ export function battleAction(state: GameState, action: BattleAction): void {
     }
     settleRoundEnd(state);
   } finally {
+    finishJournalAction(state, b);
     if (b.logs.length)
       b.visualEvents.push({
         kind: 'scene',

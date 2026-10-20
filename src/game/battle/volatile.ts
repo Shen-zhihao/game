@@ -1,3 +1,4 @@
+import { journalDamage } from '../battleJournal';
 import type { Battle, Creature, GameState } from '../model';
 import { creatureName, statsFor } from '../rules';
 
@@ -23,6 +24,7 @@ export function endSeedTurn(state: GameState): void {
     const recipient = source === 'player' ? player : enemy;
     const loss = Math.min(target.hp, Math.max(1, Math.floor(statsFor(target).hp / 8)));
     target.hp -= loss;
+    journalDamage(battle, target, loss, 'seed');
     battle.logs.push(`${creatureName(target)}被寄生种子吸取了 ${loss} 点体力。`);
     if (recipient.hp > 0 && recipient.hp < statsFor(recipient).hp) {
       const healed = Math.min(loss, statsFor(recipient).hp - recipient.hp);
