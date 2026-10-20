@@ -3,7 +3,7 @@ import { hasFieldAccess } from '../../content/keyItems';
 import type { Npc } from '../../content/world';
 import type { GameState } from '../model';
 
-const CACHES: Record<
+export const FIELD_CACHES: Record<
   string,
   { flag: string; tool?: string; need?: string; items: [string, number][] }
 > = {
@@ -39,8 +39,9 @@ export function interactFieldExploration(
   npc: Npc,
   talk: (speaker: string, lines: string[]) => void,
 ): boolean {
-  const cache = CACHES[npc.id];
+  const cache = FIELD_CACHES[npc.id];
   if (cache) {
+    game.progress.flags[handbookDiscoveryFlag(npc.id)] = true;
     if (cache.tool && !hasFieldAccess(game, cache.tool)) talk(npc.name, [cache.need!]);
     else if (game.progress.flags[cache.flag])
       talk(npc.name, ['这份探险补给已经领取过了。箱子里留下了你的探索记录，不会重复补货。']);
@@ -68,4 +69,9 @@ export function interactFieldExploration(
     return true;
   }
   return false;
+}
+
+/** Marks an actual interaction, not a generated or merely unlocked map. */
+export function handbookDiscoveryFlag(id: string): string {
+  return `handbookSeen_${id}`;
 }

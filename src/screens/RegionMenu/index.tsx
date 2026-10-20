@@ -1,3 +1,4 @@
+import { RegionalHandbook } from '../../components/RegionalHandbook';
 import { FishingJournal } from '../../components/FishingJournal';
 import { HabitatDetails } from '../../components/HabitatDetails';
 import { CaptureTargetPanel } from '../../components/CaptureTargetPanel';
@@ -547,6 +548,12 @@ export function RegionMenu({
                   你正在{MAPS[game.player.map].name}内，点击上方按钮查看馆内位置。
                 </Label>
               )}
+            <RegionalHandbook
+              game={game}
+              regionId={place.id}
+              onMap={openLocal}
+              dispatch={dispatch}
+            />
             <FishingJournal game={game} />
             <Label style={{ color: palette.gold, fontSize: 12, fontWeight: '700' }}>生境记录</Label>
             {HABITAT_SITES.filter((s) => s.regionId === place.id).map((site) => (

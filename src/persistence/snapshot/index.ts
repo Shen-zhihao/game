@@ -1,3 +1,4 @@
+import { FIELD_CACHES, handbookDiscoveryFlag } from '../../game/fieldExploration';
 import { validFishing } from '../../game/fishing';
 import { clearCompletedCaptureTarget } from '../../game/captureTracking';
 import { validPresetName } from '../../game/party/presets';
@@ -678,7 +679,13 @@ const gameSchema = z.strictObject({
     .nullable(),
   notice: z.string().max(500),
 });
+const HANDBOOK_FIND_IDS = Object.keys(FIND_SITES).flatMap((map) => [
+  `find_${map}_0`,
+  `find_${map}_1`,
+]);
 const FLAGS = new Set([
+  ...Object.keys(FIELD_CACHES).map(handbookDiscoveryFlag),
+  ...HANDBOOK_FIND_IDS.map(handbookDiscoveryFlag),
   'iceTrailReward',
   'waterfallReward',
   'forestRevisitReward',
@@ -1043,6 +1050,12 @@ export function validateGame(input: unknown): GameState {
     '未知剧情标记',
   );
   const flags = game.progress.flags;
+  invariant(
+    HANDBOOK_FIND_IDS.every(
+      (id) => !flags[handbookDiscoveryFlag(id)] || game.world?.finds[id]?.kind === 'items',
+    ),
+    '探索手册补给记录无效',
+  );
   for (const [event, record] of Object.entries(game.gymRematches ?? {})) {
     const gym = gymRematch(event);
     invariant(

@@ -38,7 +38,7 @@ import { coastEncounter, interactCoast } from '../coastStory';
 import { adventureEncounter, PHOTO_TOWNS } from '../../content/adventure';
 import { interactAdventure } from '../adventureStory';
 import { interactGymRematch } from '../gymRematches';
-import { interactFieldExploration } from '../fieldExploration';
+import { handbookDiscoveryFlag, interactFieldExploration } from '../fieldExploration';
 import { interactConservation } from '../conservation';
 import {
   interactLeague,
@@ -388,6 +388,7 @@ function interact(state: GameState): void {
       const world = ensureExploration(state);
       const find = world.finds[npc.id];
       if (!find || find.claimed) break;
+      if (find.kind === 'items') flags[handbookDiscoveryFlag(npc.id)] = true;
       if (!flags.catchTutorial) {
         talk(state, npc.name, ['先学会与伙伴战斗和捕捉，再来调查沿途的动静与补给吧。']);
         break;
