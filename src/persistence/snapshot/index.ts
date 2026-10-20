@@ -581,7 +581,7 @@ const gameSchema = z.strictObject({
       playerStages: stages,
       enemyStages: stages,
       logs: z.array(z.string().max(200)).max(100),
-      visualEvents: z.array(visualEventSchema).max(16).optional(),
+      visualEvents: z.array(visualEventSchema).max(32).optional(),
       result: z.enum(['win', 'lose', 'caught', 'escaped']).nullable(),
       runAttempts: integer(100000),
       tutorialCatch: z.boolean(),

@@ -7,6 +7,11 @@ import type { Battle, Creature, GameState, Stages, WeatherId } from '../model';
 import { criticalChance, hitChance, protectSuccessChance, roundPace, stageLimit } from '../combat';
 import { abilityFor, calculateDamage, statsFor, typeMultiplier } from '../rules';
 
+/** One accuracy roll gates the entire sequence; 2–5 hits use 35/35/15/15 weights. */
+export function expectedHitCount(moveId: string): number {
+  const hits = MOVES[moveId]!.effect?.hits;
+  return hits === '2-5' ? 3.1 : (hits ?? 1);
+}
 /** Keep authored teams and level curves; give every member a legal, purposeful loadout. */
 export function curateTrainerTeam(event: string | null, team: Creature[]): void {
   const tactic = trainerTactic(event);
@@ -22,6 +27,7 @@ export function curateTrainerTeam(event: string | null, team: Creature[]): void 
       .sort((a, b) => {
         const value = (id: string) =>
           MOVES[id]!.power *
+          expectedHitCount(id) *
           (SPECIES[creature.speciesId]!.types.includes(MOVES[id]!.type!) ? 1.5 : 1);
         return value(b) - value(a);
       });
@@ -65,6 +71,7 @@ function expectedDamage(
   if (!move.power) return 0;
   return (
     calculateDamage(attacker, defender, id, a, d, 1, false, weather).damage *
+    expectedHitCount(id) *
     hitChance(id, a, d, weather, attacker) *
     (1 + criticalChance(id, a, d, attacker)) *
     (attacker.status === 'freeze' && move.type !== 'fire' ? 0.2 : 1) *
@@ -150,11 +157,40 @@ export function tacticalMoveScore(
     const actual = Math.min(
       player.hp,
       calculateDamage(enemy, player, id, b.enemyStages, b.playerStages, 1, false, b.weather?.kind)
-        .damage,
+        .damage * expectedHitCount(id),
     );
-    return (
-      score + Math.min(missing, Math.max(1, Math.floor(actual * effect.drain))) * chance * 1.25
+    score += Math.min(missing, Math.max(1, Math.floor(actual * effect.drain))) * chance * 1.25;
+  }
+  if (effect?.recoil && score > 0) {
+    const recoilFor = (moveId: string) => {
+      const ratio = MOVES[moveId]!.effect?.recoil;
+      if (!ratio) return 0;
+      const raw =
+        calculateDamage(
+          enemy,
+          player,
+          moveId,
+          b.enemyStages,
+          b.playerStages,
+          1,
+          false,
+          b.weather?.kind,
+        ).damage * expectedHitCount(moveId);
+      return raw > 0 ? Math.max(1, Math.floor(Math.min(player.hp, raw) * ratio)) : 0;
+    };
+    const recoil = recoilFor(id);
+    // A still-usable nonlethal attack is preferable to knowingly sacrificing ourselves.
+    const safeAlternative = enemy.moves.some(
+      (slot) =>
+        slot.pp > 0 &&
+        slot.id !== id &&
+        canLearnMove(enemy.speciesId, slot.id) &&
+        MOVES[slot.id]!.power > 0 &&
+        recoilFor(slot.id) < enemy.hp &&
+        expectedDamage(enemy, player, slot.id, b.enemyStages, b.playerStages, b.weather?.kind) > 0,
     );
+    if (recoil >= enemy.hp && safeAlternative) return 0;
+    score = Math.max(0.01, score - recoil * chance * (recoil >= enemy.hp ? 2 : 0.65));
   }
   if (effect?.seed) {
     if (b.volatiles?.[player.id]?.seededBy || SPECIES[player.speciesId]!.types.includes('grass'))

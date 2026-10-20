@@ -15,6 +15,7 @@ import {
   curateTrainerTeam,
   recordEnemySupport,
   tacticalMoveScore,
+  expectedHitCount,
 } from './strategy';
 import { statusName } from '../statusLabels';
 import { coastEncounter } from '../coastStory';
@@ -110,7 +111,9 @@ function aiMove(state: GameState): number {
         .map(
           (m) =>
             calculateDamage(attacker, defender, m.id, ours, theirs, 1, false, b.weather?.kind)
-              .damage * hitChance(m.id, ours, theirs, b.weather?.kind, attacker),
+              .damage *
+            expectedHitCount(m.id) *
+            hitChance(m.id, ours, theirs, b.weather?.kind, attacker),
         ),
     );
   const damage = estimate(enemy, player, b.enemyStages, b.playerStages);
@@ -137,6 +140,7 @@ function aiMove(state: GameState): number {
           false,
           b.weather?.kind,
         ).damage *
+        expectedHitCount(m.id) *
         hitChance(m.id, b.enemyStages, b.playerStages, b.weather?.kind, enemy) *
         (1 + criticalChance(m.id, b.enemyStages, b.playerStages, enemy))
       : 3;
@@ -495,7 +499,7 @@ function attack(
   const defenderStages = player ? b.enemyStages : b.playerStages;
   if (slot) slot.pp -= 1;
   if (!player) recordEnemySupport(b, move.id);
-  const visual: BattleMoveEvent = {
+  let visual: BattleMoveEvent = {
     kind: 'move',
     logIndex: b.logs.length,
     endLogIndex: b.logs.length,
@@ -593,39 +597,83 @@ function attack(
       return true;
     }
     if (move.power) {
-      const critical =
-        random(state) < criticalChance(move.id, attackerStages, defenderStages, attacker);
-      visual.critical = critical;
-      const { damage } = calculateDamage(
-        attacker,
-        defender,
-        move.id,
-        player ? b.playerStages : b.enemyStages,
-        player ? b.enemyStages : b.playerStages,
-        0.9 + random(state) * 0.1,
-        critical,
-        b.weather?.kind,
-      );
-      const sturdy = trait.sturdy && defender.hp === statsFor(defender).hp && damage >= defender.hp;
-      const dealt = Math.min(defender.hp, sturdy ? Math.max(0, defender.hp - 1) : damage);
-      defender.hp -= dealt;
-      if (sturdy) b.logs.push(`${creatureName(defender)}的${trait.name}让它留下了1点体力！`);
-      b.logs.push(
-        `造成 ${dealt} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
-      );
-      if (dealt > 0 && move.type === 'fire' && defender.status === 'freeze' && defender.hp > 0) {
-        defender.status = null;
-        b.logs.push(`${creatureName(defender)}被火焰解冻了！`);
-      }
-      if (move.id === 'struggle')
-        attacker.hp = Math.max(0, attacker.hp - Math.max(1, Math.floor(statsFor(attacker).hp / 4)));
-      if (move.effect?.drain && dealt > 0 && attacker.hp > 0) {
-        const healed = Math.min(
-          statsFor(attacker).hp - attacker.hp,
-          Math.max(1, Math.floor(dealt * move.effect.drain)),
+      const roll = move.effect?.hits === '2-5' ? random(state) : 0;
+      const hitCount =
+        move.effect?.hits === '2-5'
+          ? roll < 0.35
+            ? 2
+            : roll < 0.7
+              ? 3
+              : roll < 0.85
+                ? 4
+                : 5
+          : (move.effect?.hits ?? 1);
+      let totalDealt = 0;
+      let landed = 0;
+      for (let hit = 0; hit < hitCount && attacker.hp > 0 && defender.hp > 0; hit++) {
+        if (hit > 0) {
+          visual.endLogIndex = b.logs.length - 1;
+          visual.after = battleScene(state);
+          visual = {
+            ...visual,
+            logIndex: b.logs.length,
+            endLogIndex: b.logs.length,
+            critical: false,
+            before: battleScene(state),
+            after: battleScene(state),
+          };
+          b.visualEvents!.push(visual);
+        }
+        const critical =
+          random(state) < criticalChance(move.id, attackerStages, defenderStages, attacker);
+        visual.critical = critical;
+        const { damage } = calculateDamage(
+          attacker,
+          defender,
+          move.id,
+          attackerStages,
+          defenderStages,
+          0.9 + random(state) * 0.1,
+          critical,
+          b.weather?.kind,
         );
-        attacker.hp += healed;
-        b.logs.push(`按实际造成的 ${dealt} 点伤害，吸取恢复 ${healed} 点体力。`);
+        const sturdy =
+          trait.sturdy && defender.hp === statsFor(defender).hp && damage >= defender.hp;
+        const dealt = Math.min(defender.hp, sturdy ? Math.max(0, defender.hp - 1) : damage);
+        defender.hp -= dealt;
+        totalDealt += dealt;
+        landed++;
+        if (sturdy) b.logs.push(`${creatureName(defender)}的${trait.name}让它留下了1点体力！`);
+        b.logs.push(
+          `${hitCount > 1 ? `第 ${hit + 1} 击：` : ''}造成 ${dealt} 点伤害${multiplier > 1 ? '，效果绝佳' : multiplier < 1 ? '，效果不佳' : ''}${critical ? '，命中要害（双倍伤害）' : ''}。`,
+        );
+        if (dealt > 0 && move.type === 'fire' && defender.status === 'freeze' && defender.hp > 0) {
+          defender.status = null;
+          b.logs.push(`${creatureName(defender)}被火焰解冻了！`);
+        }
+        if (move.effect?.drain && dealt > 0 && attacker.hp > 0) {
+          const healed = Math.min(
+            statsFor(attacker).hp - attacker.hp,
+            Math.max(1, Math.floor(dealt * move.effect.drain)),
+          );
+          attacker.hp += healed;
+          b.logs.push(`按实际造成的 ${dealt} 点伤害，吸取恢复 ${healed} 点体力。`);
+        }
+        // Berries can trigger between hits; a fainted target cannot be revived by them.
+        if (hitCount > 1) {
+          triggerHeldItem(attacker, b.logs);
+          triggerHeldItem(defender, b.logs);
+        }
+      }
+      if (hitCount > 1) b.logs.push(`连续命中 ${landed} 次，共造成 ${totalDealt} 点实际伤害。`);
+      if (move.id === 'struggle' || (move.effect?.recoil && totalDealt > 0)) {
+        const recoil =
+          move.id === 'struggle'
+            ? Math.max(1, Math.floor(statsFor(attacker).hp / 4))
+            : Math.max(1, Math.floor(totalDealt * move.effect!.recoil!));
+        const lost = Math.min(attacker.hp, recoil);
+        attacker.hp -= lost;
+        b.logs.push(`${creatureName(attacker)}受到反冲，损失 ${lost} 点体力。`);
       }
     }
     const effect = move.effect;

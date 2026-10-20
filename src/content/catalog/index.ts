@@ -315,6 +315,10 @@ export interface Move {
     heal?: number;
     /** Fraction of HP actually removed from the target, not calculated overkill damage. */
     drain?: number;
+    /** Power is per hit; accuracy and PP are checked once for the entire move. */
+    hits?: 2 | '2-5';
+    /** Fraction of actual total target HP removed, applied once after all hits. */
+    recoil?: number;
     hazard?: 'rocks' | 'spikes';
     clearHazards?: boolean;
     protect?: boolean;
@@ -552,6 +556,28 @@ export const MOVES: Record<string, Move> = {
     priority: 0,
     criticalStage: 1,
   },
+  double_strike: {
+    id: 'double_strike',
+    name: '双重击',
+    type: 'normal',
+    category: 'physical',
+    power: 35,
+    accuracy: 100,
+    pp: 20,
+    priority: 0,
+    effect: { hits: 2 },
+  },
+  reckless_charge: {
+    id: 'reckless_charge',
+    name: '舍身冲撞',
+    type: 'normal',
+    category: 'physical',
+    power: 90,
+    accuracy: 100,
+    pp: 15,
+    priority: 0,
+    effect: { recoil: 1 / 3 },
+  },
   struggle: {
     id: 'struggle',
     name: '奋力一搏',
@@ -640,6 +666,9 @@ for (const type of TYPE_IDS) {
     };
   }
 }
+MOVES.grass_2!.power = 20;
+MOVES.grass_2!.effect = { hits: '2-5' };
+
 for (const [id, name, type, power] of [
   ['field_cut', '剪藤术', 'grass', 50],
   ['field_break', '碎岩术', 'fighting', 55],
@@ -699,7 +728,9 @@ export function learnset(speciesId: string): { level: number; moveId: string }[]
     },
     { level: 10, moveId: `${species.types[1] ?? species.types[0]}_1` },
     { level: 10, moveId: 'protect' },
+    { level: 16, moveId: 'double_strike' },
     { level: 18, moveId: 'clear_field' },
+    { level: 24, moveId: 'reckless_charge' },
     ...(species.types.includes('rock') ? [{ level: 20, moveId: 'stealth_rock' }] : []),
     ...(species.types.some((t) => t === 'ground' || t === 'bug')
       ? [{ level: 20, moveId: 'spikes' }]

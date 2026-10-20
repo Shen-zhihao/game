@@ -8,6 +8,12 @@ export function battleMoveDetails(moveId: string, weather: WeatherId = 'clear') 
   const move = MOVES[moveId]!;
   const effects: string[] = [];
   const effect = move.effect;
+  if (effect?.hits)
+    effects.push(
+      `${effect.hits === '2-5' ? '随机2～5击' : '连续2击'}，威力按每击计算；命中判定与PP各一次，倒下即停止`,
+    );
+  if (effect?.recoil)
+    effects.push(`结束后反冲实际总伤害的${chanceLabel(effect.recoil)}（至少1点，不计过量伤害）`);
   if (effect?.hazard === 'rocks')
     effects.push('在对方场地布置隐形岩；换入扣除1/8最大HP×岩石相性，不可叠加');
   if (effect?.hazard === 'spikes')
@@ -66,6 +72,17 @@ export function moveEffectLines(moveId: string): string[] {
         : '特殊伤害：自身特攻对抗对手特防，实际伤害受属性克制等影响。',
     );
   else lines.push('不造成直接伤害。');
+  if (move.effect?.hits)
+    lines.push(
+      `威力为每一击的威力。${move.effect.hits === '2-5' ? '2、3、4、5击的概率依次为35%、35%、15%、15%。' : '命中后连续攻击两次。'}整次出招仅消耗1PP且只判定一次命中，每击独立计算伤害与要害；目标或自身倒下时立即停止，不会打到下一只替补。`,
+      '一招多击仍只消耗一次行动，与速度优势带来的一轮多次行动不同；每击之间会处理触发的携带道具和吸取。',
+    );
+  if (move.effect?.recoil)
+    lines.push(
+      `全部攻击结束后，反冲实际扣除对手HP总量的 ${chanceLabel(move.effect.recoil)}（向下取整，有伤害时至少1点）。不计过量伤害；未命中、免疫或被守住挡下时不反冲，反冲可能使自己倒下。`,
+    );
+  if (move.id === 'struggle')
+    lines.push('奋力一搏仍固定损失自身最大HP的1/4，不使用普通招式的实际伤害反冲比例。');
   if (move.effect?.hazard)
     lines.push(
       '针对对方场地，守住、属性免疫、命中与闪避等级均不影响布置；对当前在场精灵不立即造成伤害。主动换人和倒下后的替补上场均触发，读档不重复触发，结束战斗后不保留。',
