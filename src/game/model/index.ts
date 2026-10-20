@@ -435,6 +435,8 @@ export interface GameState {
   creatures: Record<string, Creature>;
   party: string[];
   box: string[];
+  /** Saved IDs may outlive released creatures; applying a missing roster is rejected. */
+  partyPresets?: { name: string; creatureIds: string[] }[];
   inventory: Record<string, number>;
   dex: { seen: string[]; caught: string[] };
   rng: number;
@@ -459,6 +461,7 @@ export type BattleAction =
   | { kind: 'super_potion' | 'ether' | 'hyper_potion' | 'revive'; creatureId: string }
   | { kind: 'run' };
 export type Command =
+  | { kind: 'partyPreset'; action: import('../party/presets').PartyPresetAction }
   | { kind: 'nursery'; action: import('../nursery').NurseryAction }
   | { kind: 'befriend'; creatureId: string }
   | { kind: 'production'; action: import('../production').ProductionAction }

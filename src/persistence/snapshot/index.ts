@@ -1,3 +1,4 @@
+import { validPresetName } from '../../game/party/presets';
 import { NURSERY_BREEDING_STEPS, NURSERY_HATCH_STEPS, validNursery } from '../../game/nursery';
 import { validEcology } from '../../game/ecology';
 import { validateProduction } from '../../game/production';
@@ -501,6 +502,20 @@ const gameSchema = z.strictObject({
   creatures: z.record(idSchema, creatureSchema),
   party: z.array(idSchema).max(6),
   box: z.array(idSchema).max(366),
+  partyPresets: z
+    .array(
+      z.strictObject({
+        name: z.string().refine(validPresetName),
+        creatureIds: z
+          .array(idSchema)
+          .min(1)
+          .max(6)
+          .refine((ids) => new Set(ids).size === ids.length),
+      }),
+    )
+    .max(5)
+    .refine((presets) => new Set(presets.map((p) => p.name)).size === presets.length)
+    .optional(),
   inventory: z.record(idSchema, integer(999)),
   dex: z.strictObject({ seen: z.array(idSchema).max(250), caught: z.array(idSchema).max(250) }),
   rng: integer(4294967295, 1),

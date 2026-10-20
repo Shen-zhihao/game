@@ -6,6 +6,16 @@ import { creatureName } from '../rules';
 
 /** Shared by the menu and command handler so disabled actions explain the actual rule. */
 export function boxTransferReason(game: GameState, creatureId: string, withdraw: boolean) {
+  if (game.challenge?.active) return '规则挑战进行中，请先完成或退出挑战。';
+  if (game.battle) return '战斗中不能存取仓库，请先结束战斗。';
+  if (game.dialogue) return '请先结束当前对话，再存取仓库。';
+  if (game.pending.length) return '请先完成待处理的技能学习或进化选择，再存取仓库。';
+  if (game.activities?.active || game.world?.trainerChallenge)
+    return '请先结束当前活动或训练师警戒，再存取仓库。';
+  if (game.progress.flags.opening && !game.progress.flags.partnerReceived)
+    return '正式领取伙伴后才能存取仓库。';
+  if (game.nursery?.parents.includes(creatureId))
+    return '这位伙伴正在培育屋寄养，请先取回，再存取仓库。';
   if (!isTownLocation(game.player.map)) return '到城镇后可存取仓库，城镇内的建筑也可以使用。';
   const from = withdraw ? game.box : game.party;
   const to = withdraw ? game.party : game.box;

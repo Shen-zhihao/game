@@ -1,3 +1,4 @@
+import { applyPartyPreset } from '../party/presets';
 import { applyNurseryAction, isNurseryParent, walkNursery } from '../nursery';
 import { recordWildObservation } from '../ecology';
 import { applyProduction } from '../production';
@@ -1315,6 +1316,9 @@ function reduceCommand(current: GameState, command: Command): GameState {
     }
     case 'reorderParty':
       reorderParty(state, command.creatureId, command.toIndex);
+      break;
+    case 'partyPreset':
+      applyPartyPreset(state, command.action);
       break;
     case 'favorite':
       setCreatureFavorite(state, command.creatureId, command.value);

@@ -1,3 +1,4 @@
+import { PartyPresetsPanel } from '../../components/PartyPresetsPanel';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -312,12 +313,8 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   const boxReason = boxTransferReason(game, c.id, !inParty);
   const transferMember = () => {
     if (boxReason) return;
-    const index = ids.indexOf(c.id);
-    const remaining = ids.filter((id) => id !== c.id);
-    if (!inParty && !remaining.length) {
-      setShowBox(false);
-      setSelected(c.id);
-    } else setSelected(remaining[Math.min(index, remaining.length - 1)]!);
+    // Selection follows the actual state update via ids above, not an optimistic transfer.
+    // A rejected/debounced command must not make the selected partner disappear.
     setRecall(null);
     setMoveDetail(null);
     setReleaseConfirm(null);
@@ -540,361 +537,384 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
           })}
         </ScrollView>
       </View>
-      <ScrollView
-        ref={detailRef}
-        testID="party-details"
-        style={{ flex: 1, minHeight: 0 }}
-        contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
-      >
-        {showBox && !ids.length ? (
-          <Panel>
-            <Label style={styles.title}>{game.box.length ? '没有匹配的伙伴' : '仓库空空的'}</Label>
-            <Label muted style={{ marginTop: 8 }}>
-              {game.box.length
-                ? '试试其他名字、属性或取消仅收藏；筛选不会改变伙伴或仓库顺序。'
-                : '获得第七位伙伴时会自动送入仓库。也可以在城镇把队伍中的伙伴存入这里。'}
-            </Label>
-            {game.box.length > 0 && (
-              <Button small onPress={resetBoxFilters}>
-                清除筛选
-              </Button>
-            )}
-            <Button small style={{ marginTop: 12 }} onPress={() => setShowBox(false)}>
-              返回队伍
-            </Button>
-          </Panel>
-        ) : (
-          <>
-            <Panel
-              style={[
-                styles.row,
-                { alignItems: 'center', padding: 14, backgroundColor: palette.tint },
-              ]}
-            >
-              <CreatureSprite
-                speciesId={c.speciesId}
-                size={detailTab === 'training' ? 48 : small ? 64 : 108}
-              />
-              <View style={{ flex: 1 }}>
-                <Label style={{ fontSize: detailTab === 'training' ? 18 : 22, fontWeight: '800' }}>
-                  {creatureName(c)}
+      <View style={{ flex: 1, minHeight: 0, gap: 8 }} testID="party-detail-column">
+        <Panel testID="party-storage-toolbar" style={{ padding: 10, gap: 6 }}>
+          {ids.length > 0 && (
+            <>
+              <View style={[styles.wrap, { alignItems: 'center' }]}>
+                <Label style={{ flex: 1, minWidth: 100, fontWeight: '700' }}>
+                  {creatureName(c)} · {inParty ? '队伍伙伴' : '仓库伙伴'}
                 </Label>
-                <Label muted>
-                  #{species.dexNumber.toString().padStart(3, '0')}　Lv.{c.level}{' '}
-                  {conditionLabels(c)
-                    .map((label) => `· ${label}`)
-                    .join(' ')}
-                </Label>
-                {detailTab === 'overview' && (
-                  <>
-                    <TypeBadges types={species.types} />
-                    <HpBar value={c.hp} max={stats.hp} width="100%" />
-                    <Label muted>
-                      HP {c.hp}/{stats.hp}　经验 {c.experience}
-                    </Label>
-                    <HpBar
-                      value={c.experience - xpStart}
-                      max={Math.max(1, xpNext - xpStart)}
-                      width="100%"
-                    />
-                    <Label muted style={{ fontSize: 11 }}>
-                      {c.level < 100 ? `距下一级 ${xpNext - c.experience} 经验` : '已达最高等级'}
-                    </Label>
-                  </>
-                )}
-              </View>
-            </Panel>
-            <Panel testID="party-management" style={{ padding: 12, gap: 8 }}>
-              <Label style={{ fontWeight: '700' }}>
-                {inParty ? `队伍整理 · 当前第${partyIndex + 1}位` : '仓库管理'}
-              </Label>
-              <View style={styles.wrap}>
-                <Button
-                  small
-                  testID="party-favorite"
-                  selected={c.favorite === true}
-                  onPress={() => {
-                    setReleaseConfirm(null);
-                    dispatch({ kind: 'favorite', creatureId: c.id, value: !c.favorite });
-                  }}
-                >
-                  {c.favorite ? '★ 解除收藏锁定' : '☆ 收藏并锁定'}
-                </Button>
                 <Button
                   small
                   accent
                   testID={inParty ? 'party-deposit' : 'party-withdraw'}
+                  accessibilityLabel={`${inParty ? '将' : '从仓库取回'}${creatureName(c)}${inParty ? '送入仓库' : '加入队伍'}`}
                   disabled={!!boxReason}
                   onPress={transferMember}
                 >
                   {inParty ? '送入仓库' : '带入队伍'}
                 </Button>
-                {inParty && (
-                  <>
-                    <Button
-                      small
-                      testID="party-move-up"
-                      accessibilityLabel={`将${creatureName(c)}在队伍中上移一位`}
-                      disabled={partyIndex <= 0}
-                      onPress={() =>
-                        dispatch({
-                          kind: 'reorderParty',
-                          creatureId: c.id,
-                          toIndex: partyIndex - 1,
-                        })
-                      }
-                    >
-                      ↑ 上移
-                    </Button>
-                    <Button
-                      small
-                      testID="party-move-down"
-                      accessibilityLabel={`将${creatureName(c)}在队伍中下移一位`}
-                      disabled={partyIndex >= game.party.length - 1}
-                      onPress={() =>
-                        dispatch({
-                          kind: 'reorderParty',
-                          creatureId: c.id,
-                          toIndex: partyIndex + 1,
-                        })
-                      }
-                    >
-                      ↓ 下移
-                    </Button>
-                    <Button
-                      small
-                      testID="party-set-lead"
-                      disabled={partyIndex === 0}
-                      onPress={() => dispatch({ kind: 'lead', creatureId: c.id })}
-                    >
-                      设为首位
-                    </Button>
-                  </>
-                )}
               </View>
-              <Label muted style={{ fontSize: 11 }}>
-                {inParty
-                  ? '战斗按队伍顺序选择首位可以战斗的伙伴。调整顺序后自动保存。'
-                  : '取回的伙伴会加入队尾，可以在队伍页继续调整顺序。'}
+              <Label muted testID="party-storage-reason" style={{ fontSize: 11 }}>
+                {boxReason ??
+                  '城镇内可直接存取；送入仓库不会放生或改变伙伴，最后一位可战斗伙伴必须留队。'}
               </Label>
-              {boxReason && (
-                <Label muted testID="party-storage-reason" style={{ fontSize: 12 }}>
-                  {boxReason}
-                </Label>
-              )}
-              {!!game.notice && (
-                <View testID="party-operation-notice" accessibilityLiveRegion="polite">
-                  <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
-                </View>
-              )}
-            </Panel>
-            <View style={styles.wrap}>
-              <Button
-                small
-                testID="party-overview"
-                accent={detailTab === 'overview'}
-                onPress={() => setDetailTab('overview')}
-              >
-                状态与技能
-              </Button>
-              <Button
-                small
-                testID="party-training"
-                accent={detailTab === 'training'}
-                onPress={() => setDetailTab('training')}
-              >
-                能力培养 · 待加 {availablePoints(c)}
-              </Button>
+            </>
+          )}
+          {!!game.notice && (
+            <View testID="party-operation-notice" accessibilityLiveRegion="polite">
+              <Label style={{ color: palette.accent, fontSize: 12 }}>{game.notice}</Label>
             </View>
-            {detailTab === 'training' ? (
-              <TrainingPanel key={c.id} c={c} game={game} dispatch={dispatch} />
-            ) : (
-              <>
-                <CreatureTraits
-                  creature={c}
-                  onUnequip={() => dispatch({ kind: 'equip', creatureId: c.id, itemId: null })}
-                />
-                <FriendshipPanel creature={c} game={game} dispatch={dispatch} />
-                <View style={styles.wrap}>
-                  {STAT_KEYS.map((k) => (
-                    <Panel key={k} style={{ padding: 10, minWidth: 80, flexGrow: 1 }}>
-                      <Label muted style={{ fontSize: 11 }}>
-                        {statNames[k]}
-                      </Label>
-                      <Label style={{ fontWeight: '800', fontSize: 20 }}>{stats[k]}</Label>
-                      <Label muted style={{ fontSize: 9 }}>
-                        种族 {species.baseStats[k]} · 培养 +{trainingFor(c).allocated[k]}
-                      </Label>
-                    </Panel>
-                  ))}
-                </View>
-                <Button
-                  small
-                  testID="party-combat-potential"
-                  onPress={() => setPotentialId(potentialId === c.id ? '' : c.id)}
-                >
-                  隐藏战斗属性 · 命中 / 闪避 / 要害
+          )}
+        </Panel>
+        <ScrollView
+          ref={detailRef}
+          testID="party-details"
+          style={{ flex: 1, minHeight: 0 }}
+          contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
+        >
+          <PartyPresetsPanel game={game} dispatch={dispatch} />
+          {showBox && !ids.length ? (
+            <Panel>
+              <Label style={styles.title}>
+                {game.box.length ? '没有匹配的伙伴' : '仓库空空的'}
+              </Label>
+              <Label muted style={{ marginTop: 8 }}>
+                {game.box.length
+                  ? '试试其他名字、属性或取消仅收藏；筛选不会改变伙伴或仓库顺序。'
+                  : '获得第七位伙伴时会自动送入仓库。也可以在城镇把队伍中的伙伴存入这里。'}
+              </Label>
+              {game.box.length > 0 && (
+                <Button small onPress={resetBoxFilters}>
+                  清除筛选
                 </Button>
-                {potentialId === c.id && (
-                  <Panel style={{ padding: 12, gap: 6 }}>
-                    <Label style={{ color: palette.gold, fontWeight: '700' }}>隐藏战斗属性</Label>
-                    <Label muted style={{ fontSize: 12 }}>
-                      基础要害率 6.25%，命中要害造成普通伤害 ×2。要害等级 1 / 2 / 3 对应 12.5% / 25%
-                      / 50%，抗要害每级使对手概率减半。
-                    </Label>
-                    <Label muted style={{ fontSize: 12 }}>
-                      命中与闪避初始 0
-                      级，由技能临时改变；自身强化必定生效。隐藏属性不消耗能力点，换人和战斗结束后重置。
-                    </Label>
-                    <Label muted style={{ fontSize: 12 }}>
-                      速度达到对手 2 倍时每回合可操作 2 次，3 倍及以上 3
-                      次。每次结算后重新选择技能、道具或换人，单次技能只使用一次。
-                    </Label>
-                  </Panel>
-                )}
-                <Label style={{ color: palette.gold }}>
-                  进化路线{species.evolutions.length ? '' : ' · 最终形态'}
-                </Label>
-                <View style={{ gap: 10 }}>
-                  {species.evolutions.map((e) => (
-                    <Panel key={e.toId} style={{ padding: 12, gap: 8 }}>
-                      <Label style={{ fontSize: 12 }}>{evolutionRequirementsLabel(e)}</Label>
-                      {!!e.alternatives?.length && (
-                        <Label
-                          muted
-                          testID={`evolution-progress-${e.toId}`}
-                          style={{ fontSize: 11 }}
-                        >
-                          {evolutionProgressLabel(c, e, game)}
-                        </Label>
-                      )}
-                      <Button
-                        small
-                        testID={`evolve-${e.toId}`}
-                        disabled={!canEvolve(c, e.toId, game.inventory, game)}
-                        onPress={() =>
-                          dispatch({ kind: 'evolve', creatureId: c.id, toId: e.toId, accept: true })
-                        }
-                      >
-                        进化为{SPECIES[e.toId]!.name}
-                      </Button>
-                    </Panel>
-                  ))}
+              )}
+              <Button small style={{ marginTop: 12 }} onPress={() => setShowBox(false)}>
+                返回队伍
+              </Button>
+            </Panel>
+          ) : (
+            <>
+              <Panel
+                style={[
+                  styles.row,
+                  { alignItems: 'center', padding: 14, backgroundColor: palette.tint },
+                ]}
+              >
+                <CreatureSprite
+                  speciesId={c.speciesId}
+                  size={detailTab === 'training' ? 48 : small ? 64 : 108}
+                />
+                <View style={{ flex: 1 }}>
+                  <Label
+                    style={{ fontSize: detailTab === 'training' ? 18 : 22, fontWeight: '800' }}
+                  >
+                    {creatureName(c)}
+                  </Label>
+                  <Label muted>
+                    #{species.dexNumber.toString().padStart(3, '0')}　Lv.{c.level}{' '}
+                    {conditionLabels(c)
+                      .map((label) => `· ${label}`)
+                      .join(' ')}
+                  </Label>
+                  {detailTab === 'overview' && (
+                    <>
+                      <TypeBadges types={species.types} />
+                      <HpBar value={c.hp} max={stats.hp} width="100%" />
+                      <Label muted>
+                        HP {c.hp}/{stats.hp}　经验 {c.experience}
+                      </Label>
+                      <HpBar
+                        value={c.experience - xpStart}
+                        max={Math.max(1, xpNext - xpStart)}
+                        width="100%"
+                      />
+                      <Label muted style={{ fontSize: 11 }}>
+                        {c.level < 100 ? `距下一级 ${xpNext - c.experience} 经验` : '已达最高等级'}
+                      </Label>
+                    </>
+                  )}
                 </View>
+              </Panel>
+              <Panel testID="party-management" style={{ padding: 12, gap: 8 }}>
+                <Label style={{ fontWeight: '700' }}>
+                  {inParty ? `队伍整理 · 当前第${partyIndex + 1}位` : '仓库管理'}
+                </Label>
                 <View style={styles.wrap}>
                   <Button
                     small
-                    testID="party-copy-skill"
-                    disabled={!(game.inventory.skill_copy! > 0)}
-                    onPress={() => setCopyOpen(true)}
-                  >
-                    复刻技能 · 持有 {game.inventory.skill_copy ?? 0}
-                  </Button>
-                </View>
-                {!inParty && isTownLocation(game.player.map) && (
-                  <Panel>
-                    {c.favorite ? (
-                      <Label muted testID="party-release-locked">
-                        已收藏锁定，解除收藏后才能放生。存取仓库不受影响。
-                      </Label>
-                    ) : releaseConfirm === c.id ? (
-                      <>
-                        <Label>
-                          将让{creatureName(c)}
-                          回到保育区，移除这只个体。图鉴、剧情与冠军名录保留。确认后可从存档历史恢复整份旧进度。
-                        </Label>
-                        <View style={styles.wrap}>
-                          <Button
-                            small
-                            onPress={() => {
-                              dispatch({ kind: 'release', creatureId: c.id });
-                              setReleaseConfirm(null);
-                            }}
-                          >
-                            确认放生{creatureName(c)}
-                          </Button>
-                          <Button small onPress={() => setReleaseConfirm(null)}>
-                            取消
-                          </Button>
-                        </View>
-                      </>
-                    ) : (
-                      <Button small onPress={() => setReleaseConfirm(c.id)}>
-                        放生到保育区…
-                      </Button>
-                    )}
-                  </Panel>
-                )}
-                <Label style={{ fontWeight: '700' }}>
-                  {recall
-                    ? `回忆${MOVES[recall]!.name} · 选择要替换的技能`
-                    : '已学技能 · 点击查看详情'}
-                </Label>
-                {recall && (
-                  <MoveLearningPanel
-                    key={`${c.id}:${recall}`}
-                    c={c}
-                    moveId={recall}
-                    testID="recall"
-                    onLearn={(replace) => {
-                      dispatch({ kind: 'recall', creatureId: c.id, moveId: recall, replace });
-                      setMoveDetail(recall);
-                      setRecall(null);
+                    testID="party-favorite"
+                    selected={c.favorite === true}
+                    onPress={() => {
+                      setReleaseConfirm(null);
+                      dispatch({ kind: 'favorite', creatureId: c.id, value: !c.favorite });
                     }}
-                    onCancel={() => setRecall(null)}
+                  >
+                    {c.favorite ? '★ 解除收藏锁定' : '☆ 收藏并锁定'}
+                  </Button>
+                  {inParty && (
+                    <>
+                      <Button
+                        small
+                        testID="party-move-up"
+                        accessibilityLabel={`将${creatureName(c)}在队伍中上移一位`}
+                        disabled={partyIndex <= 0}
+                        onPress={() =>
+                          dispatch({
+                            kind: 'reorderParty',
+                            creatureId: c.id,
+                            toIndex: partyIndex - 1,
+                          })
+                        }
+                      >
+                        ↑ 上移
+                      </Button>
+                      <Button
+                        small
+                        testID="party-move-down"
+                        accessibilityLabel={`将${creatureName(c)}在队伍中下移一位`}
+                        disabled={partyIndex >= game.party.length - 1}
+                        onPress={() =>
+                          dispatch({
+                            kind: 'reorderParty',
+                            creatureId: c.id,
+                            toIndex: partyIndex + 1,
+                          })
+                        }
+                      >
+                        ↓ 下移
+                      </Button>
+                      <Button
+                        small
+                        testID="party-set-lead"
+                        disabled={partyIndex === 0}
+                        onPress={() => dispatch({ kind: 'lead', creatureId: c.id })}
+                      >
+                        设为首位
+                      </Button>
+                    </>
+                  )}
+                </View>
+                <Label muted style={{ fontSize: 11 }}>
+                  {inParty
+                    ? '战斗按队伍顺序选择首位可以战斗的伙伴。调整顺序后自动保存。'
+                    : '取回的伙伴会加入队尾，可以在队伍页继续调整顺序。'}
+                </Label>
+              </Panel>
+              <View style={styles.wrap}>
+                <Button
+                  small
+                  testID="party-overview"
+                  accent={detailTab === 'overview'}
+                  onPress={() => setDetailTab('overview')}
+                >
+                  状态与技能
+                </Button>
+                <Button
+                  small
+                  testID="party-training"
+                  accent={detailTab === 'training'}
+                  onPress={() => setDetailTab('training')}
+                >
+                  能力培养 · 待加 {availablePoints(c)}
+                </Button>
+              </View>
+              {detailTab === 'training' ? (
+                <TrainingPanel key={c.id} c={c} game={game} dispatch={dispatch} />
+              ) : (
+                <>
+                  <CreatureTraits
+                    creature={c}
+                    onUnequip={() => dispatch({ kind: 'equip', creatureId: c.id, itemId: null })}
                   />
-                )}
-                {!recall &&
-                  c.moves.map((m) => (
-                    <Button
-                      key={m.id}
-                      small
-                      testID={`party-move-${m.id}`}
-                      accent={moveDetail === m.id}
-                      onPress={() => {
-                        setMoveDetail(moveDetail === m.id ? null : m.id);
-                      }}
-                    >{`${MOVES[m.id]!.name}${MOVES[m.id]!.exclusiveSpeciesId ? '〔专属〕' : ''}　${MOVES[m.id]!.type ? TYPES[MOVES[m.id]!.type!] : '无属性'}　PP ${m.pp}/${MOVES[m.id]!.pp}${recall ? '　← 替换' : ''}`}</Button>
-                  ))}
-                {!recall && move && <MoveDetails moveId={move.id} />}
-                {!!c.taughtMoves?.length && (
-                  <Label muted style={{ fontSize: 12 }}>
-                    通用技能册：{c.taughtMoves.map((id) => MOVES[id]!.name).join('、')}
-                    。进化后保留，城镇可免费回忆。
-                  </Label>
-                )}
-                {isTownLocation(game.player.map) && (
+                  <FriendshipPanel creature={c} game={game} dispatch={dispatch} />
                   <View style={styles.wrap}>
-                    {recallOptions(c)
-                      .filter(
-                        (m) =>
-                          fieldSkillUnlocked(game, m.moveId) &&
-                          (!fieldSkill(m.moveId) || atCenter(game)),
-                      )
-                      .filter((m) => !c.moves.some((known) => known.id === m.moveId))
-                      .map((m) => (
-                        <Button
-                          key={m.moveId}
-                          small
-                          accent={recall === m.moveId}
-                          onPress={() => setRecall(recall === m.moveId ? null : m.moveId)}
-                        >
-                          回忆{m.copied ? ' · 复刻' : ''}：{MOVES[m.moveId]!.name}
-                        </Button>
-                      ))}
+                    {STAT_KEYS.map((k) => (
+                      <Panel key={k} style={{ padding: 10, minWidth: 80, flexGrow: 1 }}>
+                        <Label muted style={{ fontSize: 11 }}>
+                          {statNames[k]}
+                        </Label>
+                        <Label style={{ fontWeight: '800', fontSize: 20 }}>{stats[k]}</Label>
+                        <Label muted style={{ fontSize: 9 }}>
+                          种族 {species.baseStats[k]} · 培养 +{trainingFor(c).allocated[k]}
+                        </Label>
+                      </Panel>
+                    ))}
                   </View>
-                )}
-                <Label style={{ fontWeight: '700' }}>成长足迹</Label>
-                {c.history.map((h, i) => (
-                  <Label key={i} muted style={{ fontSize: 12 }}>
-                    Lv.{h.level} · {h.label}
+                  <Button
+                    small
+                    testID="party-combat-potential"
+                    onPress={() => setPotentialId(potentialId === c.id ? '' : c.id)}
+                  >
+                    隐藏战斗属性 · 命中 / 闪避 / 要害
+                  </Button>
+                  {potentialId === c.id && (
+                    <Panel style={{ padding: 12, gap: 6 }}>
+                      <Label style={{ color: palette.gold, fontWeight: '700' }}>隐藏战斗属性</Label>
+                      <Label muted style={{ fontSize: 12 }}>
+                        基础要害率 6.25%，命中要害造成普通伤害 ×2。要害等级 1 / 2 / 3 对应 12.5% /
+                        25% / 50%，抗要害每级使对手概率减半。
+                      </Label>
+                      <Label muted style={{ fontSize: 12 }}>
+                        命中与闪避初始 0
+                        级，由技能临时改变；自身强化必定生效。隐藏属性不消耗能力点，换人和战斗结束后重置。
+                      </Label>
+                      <Label muted style={{ fontSize: 12 }}>
+                        速度达到对手 2 倍时每回合可操作 2 次，3 倍及以上 3
+                        次。每次结算后重新选择技能、道具或换人，单次技能只使用一次。
+                      </Label>
+                    </Panel>
+                  )}
+                  <Label style={{ color: palette.gold }}>
+                    进化路线{species.evolutions.length ? '' : ' · 最终形态'}
                   </Label>
-                ))}
-              </>
-            )}
-          </>
-        )}
-      </ScrollView>
+                  <View style={{ gap: 10 }}>
+                    {species.evolutions.map((e) => (
+                      <Panel key={e.toId} style={{ padding: 12, gap: 8 }}>
+                        <Label style={{ fontSize: 12 }}>{evolutionRequirementsLabel(e)}</Label>
+                        {!!e.alternatives?.length && (
+                          <Label
+                            muted
+                            testID={`evolution-progress-${e.toId}`}
+                            style={{ fontSize: 11 }}
+                          >
+                            {evolutionProgressLabel(c, e, game)}
+                          </Label>
+                        )}
+                        <Button
+                          small
+                          testID={`evolve-${e.toId}`}
+                          disabled={!canEvolve(c, e.toId, game.inventory, game)}
+                          onPress={() =>
+                            dispatch({
+                              kind: 'evolve',
+                              creatureId: c.id,
+                              toId: e.toId,
+                              accept: true,
+                            })
+                          }
+                        >
+                          进化为{SPECIES[e.toId]!.name}
+                        </Button>
+                      </Panel>
+                    ))}
+                  </View>
+                  <View style={styles.wrap}>
+                    <Button
+                      small
+                      testID="party-copy-skill"
+                      disabled={!(game.inventory.skill_copy! > 0)}
+                      onPress={() => setCopyOpen(true)}
+                    >
+                      复刻技能 · 持有 {game.inventory.skill_copy ?? 0}
+                    </Button>
+                  </View>
+                  {!inParty && isTownLocation(game.player.map) && (
+                    <Panel>
+                      {c.favorite ? (
+                        <Label muted testID="party-release-locked">
+                          已收藏锁定，解除收藏后才能放生。存取仓库不受影响。
+                        </Label>
+                      ) : releaseConfirm === c.id ? (
+                        <>
+                          <Label>
+                            将让{creatureName(c)}
+                            回到保育区，移除这只个体。图鉴、剧情与冠军名录保留。确认后可从存档历史恢复整份旧进度。
+                          </Label>
+                          <View style={styles.wrap}>
+                            <Button
+                              small
+                              onPress={() => {
+                                dispatch({ kind: 'release', creatureId: c.id });
+                                setReleaseConfirm(null);
+                              }}
+                            >
+                              确认放生{creatureName(c)}
+                            </Button>
+                            <Button small onPress={() => setReleaseConfirm(null)}>
+                              取消
+                            </Button>
+                          </View>
+                        </>
+                      ) : (
+                        <Button small onPress={() => setReleaseConfirm(c.id)}>
+                          放生到保育区…
+                        </Button>
+                      )}
+                    </Panel>
+                  )}
+                  <Label style={{ fontWeight: '700' }}>
+                    {recall
+                      ? `回忆${MOVES[recall]!.name} · 选择要替换的技能`
+                      : '已学技能 · 点击查看详情'}
+                  </Label>
+                  {recall && (
+                    <MoveLearningPanel
+                      key={`${c.id}:${recall}`}
+                      c={c}
+                      moveId={recall}
+                      testID="recall"
+                      onLearn={(replace) => {
+                        dispatch({ kind: 'recall', creatureId: c.id, moveId: recall, replace });
+                        setMoveDetail(recall);
+                        setRecall(null);
+                      }}
+                      onCancel={() => setRecall(null)}
+                    />
+                  )}
+                  {!recall &&
+                    c.moves.map((m) => (
+                      <Button
+                        key={m.id}
+                        small
+                        testID={`party-move-${m.id}`}
+                        accent={moveDetail === m.id}
+                        onPress={() => {
+                          setMoveDetail(moveDetail === m.id ? null : m.id);
+                        }}
+                      >{`${MOVES[m.id]!.name}${MOVES[m.id]!.exclusiveSpeciesId ? '〔专属〕' : ''}　${MOVES[m.id]!.type ? TYPES[MOVES[m.id]!.type!] : '无属性'}　PP ${m.pp}/${MOVES[m.id]!.pp}${recall ? '　← 替换' : ''}`}</Button>
+                    ))}
+                  {!recall && move && <MoveDetails moveId={move.id} />}
+                  {!!c.taughtMoves?.length && (
+                    <Label muted style={{ fontSize: 12 }}>
+                      通用技能册：{c.taughtMoves.map((id) => MOVES[id]!.name).join('、')}
+                      。进化后保留，城镇可免费回忆。
+                    </Label>
+                  )}
+                  {isTownLocation(game.player.map) && (
+                    <View style={styles.wrap}>
+                      {recallOptions(c)
+                        .filter(
+                          (m) =>
+                            fieldSkillUnlocked(game, m.moveId) &&
+                            (!fieldSkill(m.moveId) || atCenter(game)),
+                        )
+                        .filter((m) => !c.moves.some((known) => known.id === m.moveId))
+                        .map((m) => (
+                          <Button
+                            key={m.moveId}
+                            small
+                            accent={recall === m.moveId}
+                            onPress={() => setRecall(recall === m.moveId ? null : m.moveId)}
+                          >
+                            回忆{m.copied ? ' · 复刻' : ''}：{MOVES[m.moveId]!.name}
+                          </Button>
+                        ))}
+                    </View>
+                  )}
+                  <Label style={{ fontWeight: '700' }}>成长足迹</Label>
+                  {c.history.map((h, i) => (
+                    <Label key={i} muted style={{ fontSize: 12 }}>
+                      Lv.{h.level} · {h.label}
+                    </Label>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+      </View>
       {copyOpen && (
         <SkillCopyMenu
           game={game}
