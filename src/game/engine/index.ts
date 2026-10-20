@@ -1,3 +1,4 @@
+import { applyCaptureTracking, clearCompletedCaptureTarget } from '../captureTracking';
 import { applyPartyPreset } from '../party/presets';
 import { applyNurseryAction, isNurseryParent, walkNursery } from '../nursery';
 import { recordWildObservation } from '../ecology';
@@ -957,6 +958,10 @@ function reduceCommand(current: GameState, command: Command): GameState {
     }
     return state;
   }
+  if (command.kind === 'trackCapture') {
+    applyCaptureTracking(state, command.speciesId);
+    return state;
+  }
   if (command.kind === 'trackQuest') {
     if (command.questId === null) {
       state.trackedQuestId = null;
@@ -1411,6 +1416,7 @@ export function safePosition(
 export function reduceGame(current: GameState, command: Command): GameState {
   const next = reduceCommand(current, command);
   if (next !== current) {
+    clearCompletedCaptureTarget(next);
     syncWeather(next);
     rememberRecoveryTowns(next);
     if (next.deferredEvolutions) {

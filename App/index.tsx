@@ -585,11 +585,19 @@ function GameApp() {
                     </Label>
                   </Panel>
                 ) : (
-                  <DexMenu game={game} />
+                  <DexMenu
+                    game={game}
+                    dispatch={dispatch}
+                    onOpenRegion={(map) => {
+                      setRegionTarget(map);
+                      setMenu('map');
+                    }}
+                  />
                 ))}
               {menu === 'quests' && <QuestMenu game={game} dispatch={dispatch} />}
               {menu === 'map' && (
                 <RegionMenu
+                  dispatch={dispatch}
                   game={game}
                   initialMap={regionTarget}
                   onTravel={(town) => {

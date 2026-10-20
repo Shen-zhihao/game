@@ -1,3 +1,4 @@
+import { CaptureTargetPanel } from '../../components/CaptureTargetPanel';
 import { PartyPresetsPanel } from '../../components/PartyPresetsPanel';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -35,7 +36,7 @@ import {
 } from '../../game/evolutionRequirements';
 import { MoveDetails, MoveLearningPanel } from '../../components/MoveDetails';
 import { Button, HpBar, Label, palette, Panel, styles, TypeBadges } from '../../components/ui';
-import { Command, GameState, STAT_KEYS, TypeId } from '../../game/model';
+import { Command, GameState, MapId, STAT_KEYS, TypeId } from '../../game/model';
 import {
   abilityFor,
   canEvolve,
@@ -926,7 +927,15 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
     </View>
   );
 }
-export function DexMenu({ game }: { game: GameState }) {
+export function DexMenu({
+  game,
+  dispatch,
+  onOpenRegion,
+}: {
+  game: GameState;
+  dispatch: (command: Command) => void;
+  onOpenRegion: (map: MapId) => void;
+}) {
   const { height } = useWindowDimensions();
   const short = height < 450;
   const [query, setQuery] = useState('');
@@ -1119,7 +1128,13 @@ export function DexMenu({ game }: { game: GameState }) {
           keyboardShouldPersistTaps="handled"
         >
           {selectedId ? (
-            <DexDetails game={game} speciesId={selectedId} compact={short || contentWidth < 560} />
+            <DexDetails
+              game={game}
+              speciesId={selectedId}
+              compact={short || contentWidth < 560}
+              dispatch={dispatch}
+              onOpenRegion={onOpenRegion}
+            />
           ) : (
             <View style={{ gap: 12, alignItems: 'flex-start' }}>
               <Label style={{ fontSize: 17, fontWeight: '700' }}>没有匹配的精灵</Label>
@@ -1138,8 +1153,12 @@ function DexDetails({
   game,
   speciesId,
   compact,
+  dispatch,
+  onOpenRegion,
 }: {
   game: GameState;
+  dispatch: (command: Command) => void;
+  onOpenRegion: (map: MapId) => void;
   speciesId: string;
   compact: boolean;
 }) {
@@ -1163,7 +1182,13 @@ function DexDetails({
           <Label muted style={{ fontSize: 12 }}>
             {abilityFor({ speciesId }).description}
           </Label>
-          <HabitatDetails speciesId={species.id} />
+          <HabitatDetails speciesId={species.id} seenSpeciesIds={game.dex.seen} />
+          <CaptureTargetPanel
+            game={game}
+            speciesId={species.id}
+            dispatch={dispatch}
+            onOpenRegion={onOpenRegion}
+          />
           <Label style={{ fontSize: 12 }}>属性弱点与免疫</Label>
           <View style={styles.wrap}>
             {TYPE_IDS.filter((t) => typeMultiplier(t, species.types) !== 1).map((t) => (

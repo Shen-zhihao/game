@@ -1,3 +1,7 @@
+import { HabitatDetails } from '../../components/HabitatDetails';
+import { CaptureTargetPanel } from '../../components/CaptureTargetPanel';
+import { captureSites, captureTarget } from '../../game/captureTracking';
+import { SPECIES } from '../../content/catalog';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useMemo, useState } from 'react';
 import { Image as RasterImage, ScrollView, StyleSheet, View } from 'react-native';
@@ -15,7 +19,7 @@ import {
   RegionPlace,
 } from '../../content/region';
 import { MAPS, isTown } from '../../content/world';
-import { GameState, MapId, TownId } from '../../game/model';
+import { Command, GameState, MapId, TownId } from '../../game/model';
 import { HABITAT_SITES } from '../../content/habitats';
 import { TileMapLayers } from '../../components/TileMap';
 import { layoutRegionLabels } from '../../content/regionLabels';
@@ -334,14 +338,17 @@ export function RegionMenu({
   game,
   initialMap,
   onTravel,
+  dispatch,
 }: {
   game: GameState;
   initialMap?: MapId;
+  dispatch?: (command: Command) => void;
   onTravel: (town: TownId) => void;
 }) {
   const [contentWidth, setContentWidth] = useState(600);
   const [showDetails, setShowDetails] = useState(false);
   const narrow = contentWidth < 540;
+  const target = captureTarget(game);
   const current = regionPlaceForMap(game.player.map);
   const [selected, setSelected] = useState(regionPlaceForMap(initialMap ?? game.player.map).id);
   const [local, setLocal] = useState<MapId | null>(initialMap ?? null);
@@ -354,6 +361,7 @@ export function RegionMenu({
     setShowDetails(true);
   };
   const openLocal = (map: MapId) => {
+    setSelected(regionPlaceForMap(map).id);
     setLocal(map);
     setShowDetails(false);
   };
@@ -394,6 +402,20 @@ export function RegionMenu({
           </Button>
         </View>
       </View>
+      {target && (
+        <Button
+          small
+          testID="map-capture-target"
+          onPress={() => {
+            const site = captureSites(target)[0];
+            if (site?.map) openLocal(site.map);
+            else setShowDetails(true);
+          }}
+        >
+          图鉴追踪 · {SPECIES[target]!.name} ·{' '}
+          {captureSites(target).length ? '查看生境' : '查看获取说明'}
+        </Button>
+      )}
       <View style={s.body}>
         {(!narrow || !showDetails) && (
           <View style={s.board}>
@@ -426,6 +448,17 @@ export function RegionMenu({
             style={[s.detail, narrow && { width: '100%', maxWidth: undefined, minWidth: 0 }]}
             contentContainerStyle={{ gap: 9, paddingBottom: 16 }}
           >
+            {target && (
+              <CaptureTargetPanel
+                game={game}
+                speciesId={target}
+                dispatch={dispatch}
+                onOpenRegion={openLocal}
+              />
+            )}
+            {target && !captureSites(target).length && (
+              <HabitatDetails speciesId={target} seenSpeciesIds={game.dex.seen} />
+            )}
             <Label style={{ fontSize: 19, fontWeight: '800' }}>{place.name}</Label>
             <Label style={{ color: place.map ? palette.accent : palette.gold, fontSize: 12 }}>
               {place.map

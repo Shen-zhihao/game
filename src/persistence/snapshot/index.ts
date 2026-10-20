@@ -1,3 +1,4 @@
+import { clearCompletedCaptureTarget } from '../../game/captureTracking';
 import { validPresetName } from '../../game/party/presets';
 import { NURSERY_BREEDING_STEPS, NURSERY_HATCH_STEPS, validNursery } from '../../game/nursery';
 import { validEcology } from '../../game/ecology';
@@ -477,6 +478,7 @@ const gameSchema = z.strictObject({
     .optional(),
   questJournal: z.array(idSchema).max(STORY_QUESTS.length).optional(),
   trackedQuestId: idSchema.nullable().optional(),
+  captureTargetId: idSchema.nullable().optional(),
   world: worldSchema.optional(),
   player: z.strictObject({
     name: z.string().min(1).max(12),
@@ -790,6 +792,11 @@ export function validateGame(input: unknown): GameState {
         ),
       '活动标记缺少记录',
     );
+  invariant(
+    !game.captureTargetId ||
+      (!!SPECIES[game.captureTargetId] && game.dex.seen.includes(game.captureTargetId)),
+    '图鉴收集目标尚未发现或不存在',
+  );
   const journal = game.questJournal ?? [];
   invariant(
     new Set(journal).size === journal.length &&
@@ -1676,6 +1683,7 @@ export function validateGame(input: unknown): GameState {
     );
   } else
     invariant(noPartnerYet || game.party.some((id) => game.creatures[id]!.hp > 0), '队伍无法继续');
+  clearCompletedCaptureTarget(game);
   return game;
 }
 export interface Snapshot {

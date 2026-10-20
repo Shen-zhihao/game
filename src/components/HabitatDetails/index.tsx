@@ -5,13 +5,21 @@ import { habitatSite, SPECIES_HABITATS } from '../../content/habitats';
 import { dayNightHabitatHint } from '../../game/environment';
 import { Label, palette, Panel } from '../ui';
 
-export function HabitatDetails({ speciesId }: { speciesId: string }) {
+export function HabitatDetails({
+  speciesId,
+  seenSpeciesIds,
+}: {
+  speciesId: string;
+  seenSpeciesIds?: string[];
+}) {
   const profile = SPECIES_HABITATS[speciesId]!;
   const source = profile.sourceSpeciesId ? SPECIES[profile.sourceSpeciesId] : null;
   const edge = source?.evolutions.find((e) => e.toId === speciesId);
   const method =
     source && edge
-      ? `${source.name}满足「${evolutionRequirementsLabel(edge)}」后进化获得`
+      ? seenSpeciesIds && !seenSpeciesIds.includes(source.id)
+        ? '由尚未发现的前置形态进化获得，发现后显示详细条件。'
+        : `${source.name}满足「${evolutionRequirementsLabel(edge)}」后进化获得`
       : profile.method === 'wild'
         ? '普通野生精灵 · 按生境遇见'
         : profile.storyBeat;
@@ -36,7 +44,11 @@ export function HabitatDetails({ speciesId }: { speciesId: string }) {
         return (
           <View key={id} style={{ gap: 2 }}>
             <Label style={{ fontSize: 12 }}>
-              {site.name}
+              {site.storySpeciesId &&
+              seenSpeciesIds &&
+              !seenSpeciesIds.includes(site.storySpeciesId)
+                ? '关联剧情栖地（发现对应精灵后显示名称）'
+                : site.name}
               {encounter ? ` · Lv.${encounter.min}–${encounter.max}` : ''}
             </Label>
             <Label muted style={{ fontSize: 11 }}>

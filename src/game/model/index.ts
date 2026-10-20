@@ -415,6 +415,7 @@ export interface GameState {
   };
   questJournal?: string[];
   trackedQuestId?: string | null;
+  captureTargetId?: string | null;
   world?: ExplorationState;
   player: {
     name: string;
@@ -494,6 +495,7 @@ export type Command =
   | { kind: 'exchange'; offerId: string; quantity: number }
   | { kind: 'cityQuest'; questId: string; action: 'accept' | 'claim' }
   | { kind: 'trackQuest'; questId: string | null }
+  | { kind: 'trackCapture'; speciesId: string | null }
   | { kind: 'allocate'; creatureId: string; points: Stats }
   | { kind: 'trainingMode'; creatureId: string; mode: 'manual' | 'auto' }
   | { kind: 'lead'; creatureId: string }
