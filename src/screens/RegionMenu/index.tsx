@@ -69,7 +69,10 @@ function LocalMap({ game, map }: { game: GameState; map: MapId }) {
             source={source}
             resizeMode="stretch"
             fadeDuration={0}
-            style={StyleSheet.absoluteFill}
+            // Native Image supplies the asset's intrinsic dimensions before our style.
+            // Insets alone do not override them: size the raster to the same fitted
+            // rectangle as the marker layer, rather than clipping the full-size PNG.
+            style={[StyleSheet.absoluteFill, { width: displayWidth, height: displayHeight }]}
             onError={() => setFailedMap(map)}
           />
         )}
