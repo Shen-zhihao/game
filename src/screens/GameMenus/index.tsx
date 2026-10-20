@@ -52,7 +52,7 @@ import { recallOptions } from '../../game/skills';
 import { SkillCopyMenu } from '../SkillCopyMenu';
 import { HabitatDetails } from '../../components/HabitatDetails';
 import { atCenter, fieldSkill, fieldSkillUnlocked } from '../../game/fieldSkills';
-import { boxTransferReason } from '../../game/party';
+import { boxTransferReason, warehouseIds } from '../../game/party';
 export { RegionMenu } from '../RegionMenu';
 export { BagMenu } from '../CityMenus';
 
@@ -267,13 +267,28 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
   );
   const [selected, setSelected] = useState(game.party[0]!);
   const [showBox, setShowBox] = useState(false);
+  const [boxQuery, setBoxQuery] = useState('');
+  const [boxType, setBoxType] = useState<TypeId | null>(null);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [boxSort, setBoxSort] = useState<'storage' | 'level' | 'dex'>('storage');
   const [recall, setRecall] = useState<string | null>(null);
   const [copyOpen, setCopyOpen] = useState(false);
   const [potentialId, setPotentialId] = useState('');
   const [moveDetail, setMoveDetail] = useState<string | null>(null);
   const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null);
   const detailRef = useRef<ScrollView>(null);
-  const ids = showBox ? game.box : game.party;
+  const boxIds = useMemo(
+    () => warehouseIds(game, { query: boxQuery, type: boxType, favoritesOnly, sort: boxSort }),
+    [game, boxQuery, boxType, favoritesOnly, boxSort],
+  );
+  const ids = showBox ? boxIds : game.party;
+  const resetBoxFilters = () => {
+    setBoxQuery('');
+    setBoxType(null);
+    setFavoritesOnly(false);
+    setBoxSort('storage');
+    setReleaseConfirm(null);
+  };
   const c =
     game.creatures[ids.includes(selected) ? selected : ids[0]!] ?? game.creatures[game.party[0]!]!;
   if (!c || (game.progress.flags.opening && !game.progress.flags.partnerReceived))
@@ -320,7 +335,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
       <View
         style={
           stacked
-            ? { height: 126, gap: 8 }
+            ? { height: showBox ? 270 : 126, gap: 8 }
             : { width: small ? 145 : '32%', minWidth: small ? 145 : 170, minHeight: 0 }
         }
       >
@@ -333,6 +348,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
             style={{ flex: 1, paddingHorizontal: 6 }}
             onPress={() => {
               setShowBox(false);
+              setReleaseConfirm(null);
               if (!game.party.includes(selected)) setSelected(game.party[0]!);
               setRecall(null);
               setMoveDetail(null);
@@ -350,6 +366,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
             style={{ flex: 1, paddingHorizontal: 6 }}
             onPress={() => {
               setShowBox(true);
+              setReleaseConfirm(null);
               if (game.box[0]) setSelected(game.box[0]);
               setRecall(null);
               setMoveDetail(null);
@@ -359,13 +376,114 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
             仓库 {game.box.length}
           </Button>
         </View>
+        {showBox && (
+          <View style={{ gap: 6, marginBottom: 8 }} testID="warehouse-controls">
+            <TextInput
+              testID="warehouse-search"
+              accessibilityLabel="搜索仓库昵称、种类或编号"
+              placeholder="昵称 / 种类 / 编号"
+              placeholderTextColor={palette.muted}
+              value={boxQuery}
+              onChangeText={(value) => {
+                setBoxQuery(value);
+                setReleaseConfirm(null);
+              }}
+              style={[
+                s.searchInput,
+                {
+                  flex: 0,
+                  minHeight: 34,
+                  borderWidth: 1,
+                  borderColor: palette.line,
+                  borderRadius: 8,
+                  paddingHorizontal: 8,
+                },
+              ]}
+            />
+            <ScrollView
+              horizontal
+              style={{ flexGrow: 0, maxHeight: 34 }}
+              contentContainerStyle={{ gap: 4 }}
+            >
+              <Button
+                small
+                selected={!boxType}
+                onPress={() => {
+                  setBoxType(null);
+                  setReleaseConfirm(null);
+                }}
+              >
+                全部属性
+              </Button>
+              {TYPE_IDS.map((type) => (
+                <Button
+                  small
+                  key={type}
+                  testID={`warehouse-type-${type}`}
+                  selected={boxType === type}
+                  onPress={() => {
+                    setBoxType(type);
+                    setReleaseConfirm(null);
+                  }}
+                >
+                  {TYPES[type]}
+                </Button>
+              ))}
+            </ScrollView>
+            <ScrollView
+              horizontal
+              style={{ flexGrow: 0, maxHeight: 34 }}
+              contentContainerStyle={{ gap: 4 }}
+            >
+              {(
+                [
+                  ['storage', '入库顺序'],
+                  ['level', '等级↓'],
+                  ['dex', '编号↑'],
+                ] as const
+              ).map(([sort, label]) => (
+                <Button
+                  small
+                  key={sort}
+                  testID={`warehouse-sort-${sort}`}
+                  selected={boxSort === sort}
+                  onPress={() => {
+                    setBoxSort(sort);
+                    setReleaseConfirm(null);
+                  }}
+                >
+                  {label}
+                </Button>
+              ))}
+              <Button
+                small
+                testID="warehouse-favorites"
+                selected={favoritesOnly}
+                onPress={() => {
+                  setFavoritesOnly(!favoritesOnly);
+                  setReleaseConfirm(null);
+                }}
+              >
+                仅收藏
+              </Button>
+              <Button small testID="warehouse-reset" onPress={resetBoxFilters}>
+                重置
+              </Button>
+            </ScrollView>
+            <Label muted style={{ fontSize: 11 }}>
+              显示 {boxIds.length} / {game.box.length} · 收藏仅防放生
+            </Label>
+          </View>
+        )}
         <ScrollView
           key={stacked ? 'horizontal' : 'vertical'}
           horizontal={stacked}
           style={{ flex: 1, minHeight: 0 }}
           contentContainerStyle={{ gap: 8, paddingBottom: 3 }}
         >
-          {!ids.length && <Label muted>仓库里暂时没有伙伴。</Label>}
+          {!ids.length && (
+            <Label muted>{game.box.length ? '没有符合筛选的伙伴。' : '仓库里暂时没有伙伴。'}</Label>
+          )}
           {ids.map((id, index) => {
             const member = game.creatures[id]!;
             return (
@@ -403,6 +521,7 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                     numberOfLines={1}
                     style={{ color: palette.ink, fontWeight: '800', fontSize: 13 }}
                   >
+                    {member.favorite ? '★ ' : ''}
                     {creatureName(member)}
                   </Text>
                   <Label muted style={{ fontSize: 10, lineHeight: 16 }}>
@@ -429,10 +548,17 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
       >
         {showBox && !ids.length ? (
           <Panel>
-            <Label style={styles.title}>仓库空空的</Label>
+            <Label style={styles.title}>{game.box.length ? '没有匹配的伙伴' : '仓库空空的'}</Label>
             <Label muted style={{ marginTop: 8 }}>
-              获得第七位伙伴时会自动送入仓库。也可以在城镇把队伍中的伙伴存入这里。
+              {game.box.length
+                ? '试试其他名字、属性或取消仅收藏；筛选不会改变伙伴或仓库顺序。'
+                : '获得第七位伙伴时会自动送入仓库。也可以在城镇把队伍中的伙伴存入这里。'}
             </Label>
+            {game.box.length > 0 && (
+              <Button small onPress={resetBoxFilters}>
+                清除筛选
+              </Button>
+            )}
             <Button small style={{ marginTop: 12 }} onPress={() => setShowBox(false)}>
               返回队伍
             </Button>
@@ -483,6 +609,17 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                 {inParty ? `队伍整理 · 当前第${partyIndex + 1}位` : '仓库管理'}
               </Label>
               <View style={styles.wrap}>
+                <Button
+                  small
+                  testID="party-favorite"
+                  selected={c.favorite === true}
+                  onPress={() => {
+                    setReleaseConfirm(null);
+                    dispatch({ kind: 'favorite', creatureId: c.id, value: !c.favorite });
+                  }}
+                >
+                  {c.favorite ? '★ 解除收藏锁定' : '☆ 收藏并锁定'}
+                </Button>
                 <Button
                   small
                   accent
@@ -656,7 +793,11 @@ export function PartyMenu({ game, dispatch }: { game: GameState; dispatch: (c: C
                 </View>
                 {!inParty && isTownLocation(game.player.map) && (
                   <Panel>
-                    {releaseConfirm === c.id ? (
+                    {c.favorite ? (
+                      <Label muted testID="party-release-locked">
+                        已收藏锁定，解除收藏后才能放生。存取仓库不受影响。
+                      </Label>
+                    ) : releaseConfirm === c.id ? (
                       <>
                         <Label>
                           将让{creatureName(c)}

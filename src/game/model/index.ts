@@ -119,6 +119,8 @@ export interface Creature {
   id: string;
   speciesId: string;
   nickname: string;
+  /** Missing in legacy saves means not favorited. Favorites cannot be released. */
+  favorite?: boolean;
   heldItem?: import('../../content/battleTraits').HeldItemId | null;
   level: number;
   experience: number;
@@ -495,6 +497,7 @@ export type Command =
   | { kind: 'reorderParty'; creatureId: string; toIndex: number }
   | { kind: 'box'; creatureId: string; withdraw: boolean }
   | { kind: 'release'; creatureId: string }
+  | { kind: 'favorite'; creatureId: string; value: boolean }
   | { kind: 'recall'; creatureId: string; moveId: string; replace: number | null }
   | { kind: 'centerHeal' }
   | { kind: 'centerLearn'; creatureId: string; moveId: string; replace: number | null }

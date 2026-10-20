@@ -109,6 +109,7 @@ const creatureSchema = z.strictObject({
   id: idSchema,
   speciesId: idSchema,
   nickname: z.string().max(20),
+  favorite: z.boolean().optional(),
   heldItem: z
     .enum(Object.keys(HELD_ITEMS) as [keyof typeof HELD_ITEMS, ...(keyof typeof HELD_ITEMS)[]])
     .nullable()

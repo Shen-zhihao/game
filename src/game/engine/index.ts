@@ -15,7 +15,7 @@ import { SIGNATURE_BY_SPECIES } from '../../content/signatures';
 import { equipItem } from '../heldItems';
 import { friendshipInteractionReason, interactWithPartner, walkWithPartners } from '../friendship';
 import { specialEvolutionMet } from '../evolutionRequirements';
-import { boxTransferReason, reorderParty } from '../party';
+import { boxTransferReason, reorderParty, setCreatureFavorite } from '../party';
 import { activityAtNpc, applyActivity, openActivity } from '../activities';
 import { HABITAT_SITES } from '../../content/habitats';
 import {
@@ -1316,6 +1316,9 @@ function reduceCommand(current: GameState, command: Command): GameState {
     case 'reorderParty':
       reorderParty(state, command.creatureId, command.toIndex);
       break;
+    case 'favorite':
+      setCreatureFavorite(state, command.creatureId, command.value);
+      break;
     case 'release': {
       if (
         !isTownLocation(state.player.map) ||
@@ -1324,6 +1327,10 @@ function reduceCommand(current: GameState, command: Command): GameState {
       )
         return current;
       const c = state.creatures[command.creatureId]!;
+      if (c.favorite) {
+        state.notice = '这位伙伴已收藏锁定，请先解除收藏后再放生。';
+        break;
+      }
       if (c.heldItem && (state.inventory[c.heldItem] ?? 0) >= 999) {
         state.notice = '携带道具的口袋已满，请先收回道具再放生。';
         break;
