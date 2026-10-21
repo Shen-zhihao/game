@@ -9,10 +9,32 @@ import { emptyStats, growthRoll, growthSeed, recommendedAllocation } from '../gr
 import type { Creature, GameState } from '../model';
 import { makeCreature, nextId, random, statsFor, xpAt } from '../rules';
 
+export const CHALLENGE_RULES = [
+  { id: 'standard', name: '标准挑战', description: '选择三只自有伙伴，不限制属性或携带道具。' },
+  {
+    id: 'sameType',
+    name: '同属性队',
+    description:
+      '三只伙伴必须共同拥有至少一种属性。双属性按三只的属性交集判断，仅两两有相同属性不算合格。',
+  },
+  {
+    id: 'uniqueItems',
+    name: '携带物不重复',
+    description: '三只伙伴携带的非空道具不可重复；允许多只不携带道具，空位不算重复。',
+  },
+] as const;
+export type OwnedChallengeRule = (typeof CHALLENGE_RULES)[number]['id'];
+export type ChallengeRule = OwnedChallengeRule | 'rental';
+export interface ChallengeRecord {
+  best: number;
+  wins: number;
+}
 export interface ChallengeLedger {
   points: number;
+  /** Historical combined best, retained without guessing the mode of legacy wins. */
   best: number;
   streak: number;
+  records?: Partial<Record<ChallengeRule, ChallengeRecord>>;
   rentalDraft?: { offers: Creature[]; selected: string[] };
   rentalClears?: number;
   active: {
@@ -20,11 +42,14 @@ export interface ChallengeLedger {
     originalParty: string[];
     originalBox: string[];
     originals: Record<string, Creature>;
+    rule?: OwnedChallengeRule;
+    battleId?: string;
+    settledBattleId?: string;
     rental?: { opponents: Creature[]; swapped: boolean };
   } | null;
 }
 export type ChallengeAction =
-  | { kind: 'start'; creatureIds: string[] }
+  | { kind: 'start'; creatureIds: string[]; rule?: OwnedChallengeRule }
   | { kind: 'next' | 'retire' }
   | { kind: 'exchange'; offerId: string }
   | { kind: 'rentalOffer' | 'rentalCancel' | 'rentalStart' }
@@ -47,6 +72,56 @@ function ledger(g: GameState): ChallengeLedger {
   l.best = count(l.best);
   l.streak = count(l.streak);
   return l;
+}
+export function activeChallengeRule(g: GameState): ChallengeRule {
+  return g.challenge?.active?.rental ? 'rental' : (g.challenge?.active?.rule ?? 'standard');
+}
+export function challengeRuleName(rule: ChallengeRule): string {
+  return rule === 'rental'
+    ? '租借挑战'
+    : (CHALLENGE_RULES.find((entry) => entry.id === rule)?.name ?? '标准挑战');
+}
+/** Legacy combined records cannot safely be attributed to a particular mode. */
+export function challengeRecords(g: GameState, rule: ChallengeRule): ChallengeRecord {
+  const record = g.challenge?.records?.[rule];
+  return { best: count(record?.best ?? 0), wins: count(record?.wins ?? 0) };
+}
+export function challengeRuleTeamReason(
+  creatures: Creature[],
+  rule: OwnedChallengeRule,
+): string | null {
+  if (!CHALLENGE_RULES.some((entry) => entry.id === rule)) return '挑战规则不存在，请重新选择。';
+  if (creatures.length !== 3 || creatures.some((c) => !c || !SPECIES[c.speciesId]))
+    return '必须选择三只有效伙伴。';
+  if (
+    rule === 'sameType' &&
+    !SPECIES[creatures[0]!.speciesId]!.types.some((type) =>
+      creatures.every((c) => SPECIES[c.speciesId]!.types.includes(type)),
+    )
+  )
+    return '同属性队需要三只共同拥有至少一种属性；双属性取三只的共同交集。';
+  const items = creatures.map((c) => c.heldItem).filter(Boolean);
+  if (rule === 'uniqueItems' && new Set(items).size !== items.length)
+    return '携带道具不能重复；请更换重复道具或取下，多个空位可以参赛。';
+  return null;
+}
+export function challengeTeamReason(
+  g: GameState,
+  ids: string[],
+  rule: OwnedChallengeRule = 'standard',
+): string | null {
+  if (
+    ids.length !== 3 ||
+    new Set(ids).size !== 3 ||
+    ids.some((id) => !g.party.includes(id) || !g.creatures[id])
+  )
+    return '必须从当前同行队伍选择三只不同的伙伴。';
+  if (g.box.length + g.party.length - ids.length > 360)
+    return '仓库空间不足，请先为未参赛伙伴留出位置。';
+  return challengeRuleTeamReason(
+    ids.map((id) => g.creatures[id]!),
+    rule,
+  );
 }
 export function challengeEntryReason(g: GameState): string | null {
   if (!g.progress.flags.champion) return '成为联盟冠军后解锁规则挑战。';
@@ -133,12 +208,13 @@ function nextBattle(g: GameState) {
   // Keep pristine opponents so a consumed held item is restored when that rental is chosen.
   if (l.active.rental) l.active.rental.opponents = enemies.map(challengePreview);
   const playerId = l.active.selected[0]!;
+  const ruleName = challengeRuleName(activeChallengeRule(g));
   g.battle = {
     id: nextId(g, 'challenge'),
     ruleChallenge: true,
     kind: 'trainer',
     event: null,
-    name: `${l.active.rental ? '租借挑战' : '规则挑战'} · ${trainerName}`,
+    name: `${ruleName} · ${trainerName}`,
     enemies,
     enemyIndex: 0,
     playerId,
@@ -149,7 +225,7 @@ function nextBattle(g: GameState) {
     playerStages: emptyStages(),
     enemyStages: emptyStages(),
     logs: [
-      `${l.active.rental ? '租借队伍挑战' : '单打规则挑战'} · 第 ${l.streak + 1}${l.active.rental ? '/3' : ''} 场`,
+      `${ruleName} · 第 ${l.streak + 1}${l.active.rental ? '/3' : ''} 场`,
       '双方各三只，统一 Lv.50，禁止背包与逃跑；仅奖励挑战积分。',
       ...(stage ? [`${stage.theme}：${stage.hint}`] : []),
     ],
@@ -159,6 +235,7 @@ function nextBattle(g: GameState) {
     weather: { kind: 'clear', ambient: 'clear', turns: null },
     rewards: { defeated: [], experience: 0, money: 0, completion: false },
   };
+  l.active.battleId = g.battle.id;
   g.battle.aiMove = chooseEnemyMove(g);
   beginJournal(g.battle);
   g.notice = '规则挑战开始。原队伍已安全保留，退出或战败后完整还原。';
@@ -167,12 +244,25 @@ function nextBattle(g: GameState) {
 export function finishChallengeBattle(g: GameState) {
   const b = g.battle;
   if (!b?.ruleChallenge || b.phase !== 'ended' || !b.result || b.challengeSettled) return;
-  b.challengeSettled = true;
   const l = ledger(g);
-  if (!l.active) return;
+  if (
+    !l.active ||
+    (l.active.battleId !== undefined && l.active.battleId !== b.id) ||
+    l.active.settledBattleId === b.id
+  )
+    return;
+  b.challengeSettled = true;
+  l.active.battleId = b.id;
+  l.active.settledBattleId = b.id;
   if (b.result === 'win') {
+    const rule = activeChallengeRule(g);
+    const record = challengeRecords(g, rule);
     l.streak = count(l.streak + 1);
     l.best = count(Math.max(l.best, l.streak));
+    (l.records ??= {})[rule] = {
+      best: count(Math.max(record.best, l.streak)),
+      wins: count(record.wins + 1),
+    };
     const reward = 5 + Math.min(10, Math.floor(l.streak / 3));
     const before = l.points;
     l.points = count(l.points + reward);
@@ -189,7 +279,7 @@ export function finishChallengeBattle(g: GameState) {
       }
       return;
     }
-    g.notice = `规则挑战获胜：${l.streak} 连胜，积分 +${l.points - before}。可继续下一场或结束并还原队伍。`;
+    g.notice = `${challengeRuleName(rule)}获胜：${l.streak} 连胜，积分 +${l.points - before}。可继续下一场或结束并还原队伍。`;
   } else {
     restore(g);
     g.notice =
@@ -198,11 +288,15 @@ export function finishChallengeBattle(g: GameState) {
 }
 export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
   // Explicit retirement remains available in combat; it is not an escape/capture action.
-  if (action.kind === 'retire' && g.challenge?.active?.rental) {
+  if (action.kind === 'retire' && g.challenge?.active) {
+    const name = challengeRuleName(activeChallengeRule(g));
     archiveBattleJournal(g, true);
+    // Exiting during the final victory presentation must not discard an earned win.
+    // Ongoing battles still award nothing; the settlement guards also cover repeat exits.
+    finishChallengeBattle(g);
     restore(g);
     g.battle = null;
-    g.notice = '已退出租借挑战，原队伍和仓库完整还原。已得积分保留。';
+    g.notice = `已退出${name}，原队伍和仓库完整还原。已得积分与各规则纪录保留。`;
     return true;
   }
   const reason = challengeEntryReason(g);
@@ -245,10 +339,11 @@ export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
   if (action.kind === 'rentalStart') {
     const d = l.rentalDraft;
     if (l.active || !d || d.selected.length !== 3 || new Set(d.selected).size !== 3) return false;
+    if (d.selected.some((id) => !d.offers.some((c) => c.id === id) || g.creatures[id]))
+      return false;
     const originals = Object.fromEntries(
       d.selected.map((id) => [id, copy(d.offers.find((c) => c.id === id)!)]),
     );
-    if (d.selected.some((id) => !originals[id] || g.creatures[id])) return false;
     l.active = {
       selected: [...d.selected],
       originalParty: [...g.party],
@@ -286,19 +381,14 @@ export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
       return false;
     }
     const ids = action.creatureIds;
-    if (
-      ids.length !== 3 ||
-      new Set(ids).size !== 3 ||
-      ids.some((id) => !g.party.includes(id) || !g.creatures[id])
-    ) {
-      g.notice = '必须从当前同行队伍选择三只不同的伙伴。';
-      return false;
-    }
-    if (g.box.length + g.party.length - ids.length > 360) {
-      g.notice = '仓库空间不足，请先为未参赛伙伴留出位置。';
+    const rule = action.rule ?? 'standard';
+    const teamReason = challengeTeamReason(g, ids, rule);
+    if (teamReason) {
+      g.notice = teamReason;
       return false;
     }
     l.active = {
+      rule,
       selected: [...ids],
       originalParty: [...g.party],
       originalBox: [...g.box],
@@ -312,13 +402,15 @@ export function applyChallenge(g: GameState, action: ChallengeAction): boolean {
     return true;
   }
   if (action.kind === 'retire') {
-    if (!l.active) return false;
-    restore(g);
-    g.notice = '已结束规则挑战并完整还原原队伍，积分与最高连胜纪录保留。';
-    return true;
+    return false;
   }
   if (action.kind === 'next') {
-    if (!l.active) return false;
+    if (
+      !l.active ||
+      l.streak === 0 ||
+      (l.active.battleId !== undefined && l.active.settledBattleId !== l.active.battleId)
+    )
+      return false;
     nextBattle(g);
     return true;
   }

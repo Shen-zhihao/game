@@ -2,6 +2,7 @@ import { FIELD_CACHES, handbookDiscoveryFlag } from '../../game/fieldExploration
 import { validFishing } from '../../game/fishing';
 import { clearCompletedCaptureTarget } from '../../game/captureTracking';
 import { validPresetName } from '../../game/party/presets';
+import { challengeRuleTeamReason } from '../../game/challenge';
 import { NURSERY_BREEDING_STEPS, NURSERY_HATCH_STEPS, validNursery } from '../../game/nursery';
 import { validEcology } from '../../game/ecology';
 import { validateProduction } from '../../game/production';
@@ -406,6 +407,12 @@ const gameSchema = z.strictObject({
       points: integer(999999),
       best: integer(999999),
       streak: integer(999999),
+      records: z
+        .partialRecord(
+          z.enum(['standard', 'sameType', 'uniqueItems', 'rental']),
+          z.strictObject({ best: integer(999999), wins: integer(999999) }),
+        )
+        .optional(),
       rentalDraft: z
         .strictObject({
           offers: z.array(creatureSchema).length(6),
@@ -415,6 +422,9 @@ const gameSchema = z.strictObject({
       rentalClears: integer(999999).optional(),
       active: z
         .strictObject({
+          rule: z.enum(['standard', 'sameType', 'uniqueItems']).optional(),
+          battleId: idSchema.optional(),
+          settledBattleId: idSchema.optional(),
           rental: z
             .strictObject({ opponents: z.array(creatureSchema).max(3), swapped: z.boolean() })
             .optional(),
@@ -989,6 +999,31 @@ export function validateGame(input: unknown): GameState {
     invariant(challenge.best >= challenge.streak, '挑战连胜记录无效');
     const active = challenge.active;
     const draft = challenge.rentalDraft;
+    for (const record of Object.values(challenge.records ?? {}))
+      invariant(record.best <= challenge.best, '挑战分项纪录无效');
+    if (active) {
+      invariant(!active.rental || active.rule === undefined, '租借挑战不能使用自有队伍规则');
+      invariant(
+        active.settledBattleId === undefined ||
+          (active.battleId !== undefined && challenge.streak > 0),
+        '挑战结算标识缺少对应场次或连胜',
+      );
+      if (game.battle) {
+        invariant(
+          (active.battleId === undefined || active.battleId === game.battle.id) &&
+            active.settledBattleId !== game.battle.id,
+          '挑战场次标识不符或战斗已经结算',
+        );
+      } else {
+        invariant(
+          challenge.streak > 0 &&
+            (active.battleId === undefined || active.settledBattleId === active.battleId),
+          '挑战场间状态尚未完成结算',
+        );
+      }
+      const record = challenge.records?.[active.rental ? 'rental' : (active.rule ?? 'standard')];
+      invariant(!record || record.best >= challenge.streak, '挑战分项纪录低于当前连胜');
+    }
     if (draft) {
       invariant(
         !active &&
@@ -1049,6 +1084,10 @@ export function validateGame(input: unknown): GameState {
       r.opponents.forEach(checkCreature);
     } else if (active) {
       const originalIds = [...active.originalParty, ...active.originalBox];
+      const expectedBox = [
+        ...active.originalBox,
+        ...active.originalParty.filter((id) => !active.selected.includes(id)),
+      ];
       invariant(
         game.progress.flags.champion &&
           !game.league?.active &&
@@ -1064,6 +1103,8 @@ export function validateGame(input: unknown): GameState {
           new Set(originalIds).size === originalIds.length &&
           originalIds.length === Object.keys(game.creatures).length &&
           originalIds.every((id) => !!game.creatures[id]) &&
+          game.box.length === expectedBox.length &&
+          game.box.every((id, i) => id === expectedBox[i]) &&
           Object.keys(active.originals).length === 3 &&
           active.selected.every(
             (id) =>
@@ -1074,6 +1115,13 @@ export function validateGame(input: unknown): GameState {
         '挑战队伍或还原记录无效',
       );
       Object.values(active.originals).forEach(checkCreature);
+      invariant(
+        !challengeRuleTeamReason(
+          active.selected.map((id) => active.originals[id]!),
+          active.rule ?? 'standard',
+        ),
+        '挑战原始队伍不符合登记规则',
+      );
       invariant(!game.battle || !!game.battle.ruleChallenge, '挑战期间不能进行普通战斗');
     } else invariant(challenge.streak === 0, '退出挑战后连胜未重置');
   }

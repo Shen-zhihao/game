@@ -6,7 +6,17 @@ import { moveEffectLines } from '../../game/moveDetails';
 import { rentalStage, rentalWeaknesses } from '../../game/challenge/rental';
 import { View } from 'react-native';
 import { Button, Label, Panel, styles } from '../../components/ui';
-import { CHALLENGE_OFFERS, challengeEntryReason, challengePreview } from '../../game/challenge';
+import {
+  CHALLENGE_OFFERS,
+  CHALLENGE_RULES,
+  activeChallengeRule,
+  challengeEntryReason,
+  challengePreview,
+  challengeRecords,
+  challengeRuleName,
+  challengeTeamReason,
+} from '../../game/challenge';
+import type { OwnedChallengeRule } from '../../game/challenge';
 import type { Command, Creature, GameState } from '../../game/model';
 import { abilityFor, creatureName, statsFor } from '../../game/rules';
 
@@ -116,34 +126,66 @@ export function ChallengeMenu({
 }) {
   const [outgoing, setOutgoing] = useState<string | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
+  const [rule, setRule] = useState<OwnedChallengeRule>('standard');
   const active = game.challenge?.active;
   const draft = game.challenge?.rentalDraft;
   const rental = active?.rental;
   const swapOut = active?.selected.includes(outgoing ?? '') ? outgoing : active?.selected[0];
-  const chosen = selected.filter((id) => game.party.includes(id));
+  const party = [...new Set(game.party)].filter((id) => {
+    const creature = game.creatures[id];
+    return creature && SPECIES[creature.speciesId];
+  });
+  const chosen = [...new Set(selected)].filter((id) => party.includes(id));
   const reason = challengeEntryReason(game);
+  const teamReason = challengeTeamReason(game, chosen, rule);
+  const ruleDescription = CHALLENGE_RULES.find((entry) => entry.id === rule)!.description;
   const points = game.challenge?.points ?? 0;
   return (
     <View style={{ gap: 12 }}>
       <Label style={{ fontSize: 21, fontWeight: '800' }}>冠军规则挑战 · 单打</Label>
       <Label>
-        积分 {points} · 当前连胜 {game.challenge?.streak ?? 0} · 最高连胜{' '}
-        {game.challenge?.best ?? 0}
+        积分 {points} · 当前连胜 {game.challenge?.streak ?? 0}
       </Label>
+      {active && (
+        <Label testID="challenge-active-rule" style={{ fontWeight: '700' }}>
+          当前规则：{challengeRuleName(activeChallengeRule(game))}
+        </Label>
+      )}
+      <Panel testID="challenge-records" style={{ padding: 12, gap: 6 }}>
+        <Label style={{ fontWeight: '800' }}>分规则纪录</Label>
+        {[...CHALLENGE_RULES.map((entry) => entry.id), 'rental' as const].map((recordRule) => {
+          const record = challengeRecords(game, recordRule);
+          return (
+            <Label key={recordRule} testID={`challenge-record-${recordRule}`}>
+              {challengeRuleName(recordRule)} · 最高连胜 {record.best} · 累计胜场 {record.wins}
+            </Label>
+          );
+        })}
+        <Label muted>分项胜场从本版起累计；旧版进行中的连胜可继续计入对应规则最高纪录。</Label>
+        {!!game.challenge?.best && (
+          <Label muted testID="challenge-historical-best">
+            历史综合最高连胜 {game.challenge.best}（跨模式保留；旧版纪录不拆分归入各规则）
+          </Label>
+        )}
+      </Panel>
       <Panel style={{ padding: 12, gap: 6 }}>
         <Label>同行队伍选三只 · 双方统一 Lv.50 · 禁止背包、捕捉与逃跑</Label>
         <Label muted>
           使用临时副本：保留物种、技能与携带道具，按物种推荐统一自动培养。每场恢复全部体力、技能次数与携带道具，不消耗原道具。
         </Label>
         <Label muted>
-          自有队伍模式的对手随机抽取联盟主题中的三只。胜利仅获积分与连胜纪录，不获经验、金币或剧情奖励。每胜
-          5 积分，每三连胜额外 1 分（最多额外 10 分）。
+          自有队伍模式的对手随机抽取联盟主题中的三只。所有模式胜利仅获积分与挑战纪录，不获经验、金币或剧情奖励。每胜
+          5 积分，每三连胜额外 1 分（每胜最多 15 分）。
         </Label>
         <Label muted>
           结束或战败时原队伍与仓库顺序、原等级、培养、体力、异常、技能次数和携带道具完整还原。挑战期间不能进行其他冒险操作。
         </Label>
       </Panel>
-      {reason && <Label muted>{reason}</Label>}
+      {reason && (
+        <Label muted testID="challenge-entry-reason">
+          {reason}
+        </Label>
+      )}
       <Panel style={{ padding: 12, gap: 8 }}>
         <Label style={{ fontWeight: '800' }}>租借队伍挑战 · 六选三 · 三场通关</Label>
         <Label muted>
@@ -283,7 +325,7 @@ export function ChallengeMenu({
             </Button>
             <Button
               testID="challenge-retire"
-              disabled={!!reason}
+              accessibilityLabel="结束当前挑战并还原原队伍，战斗中也可结束"
               onPress={() => dispatch({ kind: 'challenge', action: { kind: 'retire' } })}
             >
               结束并还原队伍
@@ -292,30 +334,60 @@ export function ChallengeMenu({
         </Panel>
       ) : !draft ? (
         <Panel style={{ padding: 12, gap: 8 }}>
-          <Label>从同行队伍选择三只：{chosen.length}/3</Label>
-          {game.party.map((id) => {
+          <Label style={{ fontWeight: '800' }}>自有队伍挑战 · 选择规则</Label>
+          <View style={styles.wrap} testID="challenge-rule-options">
+            {CHALLENGE_RULES.map((entry) => (
+              <Button
+                key={entry.id}
+                testID={`challenge-rule-${entry.id}`}
+                accent={rule === entry.id}
+                selected={rule === entry.id}
+                accessibilityLabel={`选择自有队伍规则：${entry.name}`}
+                onPress={() => setRule(entry.id)}
+              >
+                {entry.name}
+              </Button>
+            ))}
+          </View>
+          <Label testID="challenge-rule-description">{ruleDescription}</Label>
+          <Label testID="challenge-selection-count">从同行队伍选择三只：{chosen.length}/3</Label>
+          {party.map((id) => {
             const c = game.creatures[id]!;
             const checked = chosen.includes(id);
+            const types = SPECIES[c.speciesId]!.types.map((type) => TYPES[type]).join('/');
+            const heldName = heldEffect(c)?.name ?? '无携带道具';
             return (
               <Button
                 key={id}
                 testID={`challenge-select-${id}`}
                 accent={checked}
+                selected={checked}
+                accessibilityLabel={`${checked ? '取消选择' : '选择'}${creatureName(c)}，原等级${c.level}，属性${types}，携带道具：${heldName}`}
                 disabled={!!reason || (!checked && chosen.length >= 3)}
                 onPress={() =>
                   setSelected(checked ? chosen.filter((x) => x !== id) : [...chosen, id])
                 }
               >
                 {checked ? '✓ ' : ''}
-                {creatureName(c)} · 原 Lv.{c.level}
+                {creatureName(c)} · 原 Lv.{c.level} · {types}
+                {'\n'}携带：{heldName}
               </Button>
             );
           })}
+          <View accessibilityLiveRegion="polite">
+            <Label testID="challenge-team-reason" muted={!!teamReason}>
+              {teamReason ?? `已满足${challengeRuleName(rule)}的组队条件。`}
+            </Label>
+          </View>
           <Button
             testID="challenge-start"
-            disabled={!!reason || chosen.length !== 3}
+            accessibilityLabel={`按${challengeRuleName(rule)}登记并开始第一场`}
+            disabled={!!reason || !!teamReason}
             onPress={() =>
-              dispatch({ kind: 'challenge', action: { kind: 'start', creatureIds: chosen } })
+              dispatch({
+                kind: 'challenge',
+                action: { kind: 'start', creatureIds: chosen, rule },
+              })
             }
           >
             登记并开始第一场
