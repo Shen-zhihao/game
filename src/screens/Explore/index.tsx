@@ -26,6 +26,8 @@ import { calendarDetails } from '../../game/calendar';
 import { useNightLighting } from '../../hooks/useNightLighting';
 import { useMapPassage } from '../../hooks/useMapPassage';
 import { useWalkInput } from '../../hooks/useWalkInput';
+import { useWalkingActivity } from '../../hooks/useWalkingActivity';
+import { useAnimatedScalar } from '../../hooks/useAnimatedScalar';
 import { MapArrivalIllustration } from '../../components/MapArrivalIllustration';
 
 export function Explore({
@@ -83,6 +85,8 @@ export function Explore({
     !!game.world?.trainerChallenge ||
     !!game.progress.flags.starterChoice;
   const { direction, stop } = useWalkInput({ game, paused, blocked, dispatch, onMenu: openMenu });
+  const walking = useWalkingActivity(game, blocked || coveredTransition);
+  const questOpacity = useAnimatedScalar(walking ? 0.42 : 1, walking ? 140 : 220);
   const insets = useSafeAreaInsets();
   const preferences = useControlPreferences();
   const layout = preferences[controlOrientation(width, height)];
@@ -197,11 +201,13 @@ export function Explore({
         </View>
       </View>
       {!tiny && !game.dialogue && !tracked && (
-        <View
+        <Animated.View
+          testID="objective-hud"
           pointerEvents="none"
           style={[
             s.objective,
             {
+              opacity: blocked || coveredTransition ? 1 : questOpacity,
               top: insets.top + 96 + (game.repelSteps ? 16 : 0),
               left: insets.left + 14,
               maxWidth: Math.min(290, width * 0.4),
@@ -211,10 +217,10 @@ export function Explore({
           <Text numberOfLines={2} style={s.goalText}>
             {objective(game.progress.flags, game.progress.badges, game.player.map)}
           </Text>
-        </View>
+        </Animated.View>
       )}
       {tracked && !game.dialogue && (
-        <View
+        <Animated.View
           testID="tracked-quest-hud"
           pointerEvents="none"
           style={[
@@ -228,6 +234,7 @@ export function Explore({
               maxWidth: Math.min(340, width * 0.45),
               paddingVertical: compactTracker ? 6 : 8,
               gap: compactTracker ? 2 : 4,
+              opacity: blocked || coveredTransition ? 1 : questOpacity,
             },
           ]}
         >
@@ -273,7 +280,7 @@ export function Explore({
               }}
             />
           </View>
-        </View>
+        </Animated.View>
       )}
       {hiddenNotice !== game.notice && !!game.notice && !weatherChanged && !game.dialogue && (
         <View
