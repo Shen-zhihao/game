@@ -168,6 +168,38 @@ export function facingNpc(game: GameState): Npc | undefined {
     (npc) => npc.x === x + dx! * distance && npc.y === y + dy! * distance && npcVisible(game, npc),
   );
 }
+export type InteractionTarget =
+  { kind: 'npc'; npc: Npc } | { kind: 'water'; x: number; y: number } | { kind: 'none' };
+
+/** One target resolver for A-key presentation and execution, including service counters. */
+export function interactionTarget(game: GameState): InteractionTarget {
+  const npc = facingNpc(game);
+  if (npc) return { kind: 'npc', npc };
+  const [dx, dy] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[game.player.facing]!;
+  const x = game.player.x + dx!;
+  const y = game.player.y + dy!;
+  return MAPS[game.player.map].rows[y]?.[x] === '~' ? { kind: 'water', x, y } : { kind: 'none' };
+}
+const TALK_ROLES = new Set<Npc['role']>([
+  'professor',
+  'home',
+  'distressedProfessor',
+  'rival',
+  'healer',
+  'shop',
+  'quest',
+  'trainer',
+  'leader',
+  'resident',
+  'rescue',
+]);
+export function interactionHint(game: GameState): string {
+  const target = interactionTarget(game);
+  if (target.kind === 'water') return '调查：水面';
+  if (target.kind === 'none') return '朝向目标后按 A';
+  // Use only the visible target's public name, never hidden loot, species, or future events.
+  return `${TALK_ROLES.has(target.npc.role) ? '交谈' : '调查'}：${target.npc.name}`;
+}
 export function faceTraveler(game: GameState, npc: Npc): void {
   const approached = game.world?.trainerPositions?.[`${game.player.map}:${npc.id}`];
   if (approached) approached.facing = facing(game.player.x - npc.x, game.player.y - npc.y);

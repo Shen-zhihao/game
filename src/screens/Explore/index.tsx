@@ -1,4 +1,5 @@
 import { fishingEntryReason, fishingSiteAtPlayer } from '../../game/fishing';
+import { interactionHint } from '../../game/exploration';
 import { forcedTravelDuration } from '../../game/movement';
 import { HapticPressable as Pressable } from '../../components/HapticPressable';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -91,11 +92,6 @@ export function Explore({
   const tiny = height < 300;
   const compactTracker = height < 400;
   const tracked = trackedQuest(game);
-  const [faceX, faceY] = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[
-    game.player.facing
-  ]!;
-  const facingWater =
-    MAPS[game.player.map].rows[game.player.y + faceY!]?.[game.player.x + faceX!] === '~';
   const growthPoints = game.party.reduce(
     (sum, id) => sum + availablePoints(game.creatures[id]!),
     0,
@@ -377,7 +373,8 @@ export function Explore({
           paused || !!game.progress.flags.starterChoice || !!game.world?.trainerChallenge
         }
         dialogue={!!game.dialogue}
-        facingWater={facingWater}
+        actionHint={interactionHint(game)}
+        hintObstacles={[runningFrame!, ...(showFishing ? [fishingFrame!] : [])]}
         growthPoints={
           !game.dialogue && (!game.progress.flags.opening || game.progress.flags.partnerReceived)
             ? growthPoints

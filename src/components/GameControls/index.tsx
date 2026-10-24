@@ -75,6 +75,58 @@ function Control({
     </View>
   );
 }
+/** Keep the target label near A without covering the other configured controls. */
+function interactionHintFrame(area: ControlArea, action: ControlFrame, controls: ControlFrame[]) {
+  const width = Math.min(176, Math.max(1, area.width - area.left - area.right));
+  const height = Math.min(36, Math.max(1, area.height - area.top - area.bottom));
+  const clampX = (x: number) => Math.max(area.left, Math.min(x, area.width - area.right - width));
+  const clampY = (y: number) => Math.max(area.top, Math.min(y, area.height - area.bottom - height));
+  const preferredX = clampX(action.left + (action.width - width) / 2);
+  const preferredY = clampY(action.top + action.height + 4);
+  const xs = [
+    ...new Set([
+      preferredX,
+      area.left,
+      clampX(area.width),
+      ...controls.flatMap((frame) => [
+        clampX(frame.left - width - 4),
+        clampX(frame.left + frame.width + 4),
+      ]),
+    ]),
+  ];
+  const ys = [
+    ...new Set([
+      preferredY,
+      area.top,
+      clampY(area.height),
+      ...controls.flatMap((frame) => [
+        clampY(frame.top - height - 4),
+        clampY(frame.top + frame.height + 4),
+      ]),
+    ]),
+  ];
+  const candidates = xs.flatMap((left) => ys.map((top) => ({ left, top, width, height })));
+  const overlap = (candidate: (typeof candidates)[number]) =>
+    controls.reduce(
+      (sum, frame) =>
+        sum +
+        Math.max(
+          0,
+          Math.min(candidate.left + width + 2, frame.left + frame.width) -
+            Math.max(candidate.left - 2, frame.left),
+        ) *
+          Math.max(
+            0,
+            Math.min(candidate.top + height + 2, frame.top + frame.height) -
+              Math.max(candidate.top - 2, frame.top),
+          ),
+      0,
+    );
+  const distance = (candidate: (typeof candidates)[number]) =>
+    Math.abs(candidate.left - preferredX) + Math.abs(candidate.top - preferredY);
+  candidates.sort((a, b) => overlap(a) - overlap(b) || distance(a) - distance(b));
+  return candidates[0]!;
+}
 export function GameControls({
   area,
   layout,
@@ -82,7 +134,8 @@ export function GameControls({
   actionDisabled = false,
   menuDisabled = false,
   dialogue = false,
-  facingWater = false,
+  actionHint = '交谈 / 调查',
+  hintObstacles = [],
   growthPoints = 0,
   onDirection,
   onDirectionEnd,
@@ -96,7 +149,8 @@ export function GameControls({
   actionDisabled?: boolean;
   menuDisabled?: boolean;
   dialogue?: boolean;
-  facingWater?: boolean;
+  actionHint?: string;
+  hintObstacles?: ControlFrame[];
   growthPoints?: number;
   onDirection?: (direction: WalkDirection) => void;
   onDirectionEnd?: () => void;
@@ -108,6 +162,13 @@ export function GameControls({
   const action = resolveControlFrame('interact', layout, area);
   const menu = resolveControlFrame('menu', layout, area);
   const growth = resolveControlFrame('growth', layout, area);
+  const hint = interactionHintFrame(area, action, [
+    dpad,
+    action,
+    menu,
+    ...(growthPoints > 0 ? [growth] : []),
+    ...hintObstacles,
+  ]);
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       {(!dialogue || editing) && (
@@ -127,7 +188,7 @@ export function GameControls({
         <Pressable
           testID="interact"
           accessibilityRole="button"
-          accessibilityLabel={facingWater ? 'A 调查水面' : 'A 交谈调查'}
+          accessibilityLabel={dialogue ? 'A 继续对话' : `A ${actionHint}`}
           onPress={onInteract}
           disabled={!editing && actionDisabled}
           style={({ pressed }) => [s.aButton, pressed && s.pressed]}
@@ -135,19 +196,22 @@ export function GameControls({
           <Text style={[s.aText, { fontSize: 28 * action.scale }]}>A</Text>
         </Pressable>
       </Control>
-      {!editing && area.height >= 300 && !dialogue && (
+      {!editing && !dialogue && (
         <Text
+          testID="interact-target-hint"
           pointerEvents="none"
+          numberOfLines={2}
           style={[
             s.hint,
             {
-              left: action.left - 8,
-              top: action.top + action.height + 4,
-              width: action.width + 16,
+              left: hint.left,
+              top: hint.top,
+              width: hint.width,
+              maxHeight: hint.height,
             },
           ]}
         >
-          {facingWater ? '调查水面' : '交谈 / 调查'}
+          {actionHint}
         </Text>
       )}
       <Control id="menu" frame={menu} editing={editing}>
@@ -214,6 +278,7 @@ const s = StyleSheet.create({
     position: 'absolute',
     color: palette.ink,
     fontSize: 11,
+    lineHeight: 15,
     textAlign: 'center',
     backgroundColor: `${palette.panel}d9`,
     borderRadius: 5,

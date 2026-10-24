@@ -92,7 +92,7 @@ import {
   encountersAt,
   ensureExploration,
   faceTraveler,
-  facingNpc,
+  interactionTarget,
   worldNpcs,
 } from '../exploration';
 import { Command, GameState, MapId, StoryEvent, WalkDirection } from '../model';
@@ -301,14 +301,11 @@ function interact(state: GameState): void {
     player,
     progress: { flags },
   } = state;
-  const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[player.facing]!;
-  const x = player.x + delta[0]!;
-  const y = player.y + delta[1]!;
   ensureExploration(state);
-  const npc = facingNpc(state);
-  if (!npc) {
-    if (MAPS[player.map].rows[y]?.[x] === '~') {
-      const site = encountersAt(player.map, x, y, 'water');
+  const target = interactionTarget(state);
+  if (target.kind !== 'npc') {
+    if (target.kind === 'water') {
+      const site = encountersAt(player.map, target.x, target.y, 'water');
       const water = {
         ...site,
         encounters: weightedEcology(site.encounters, weatherAt(state), dayPeriodFor(state)),
@@ -335,6 +332,7 @@ function interact(state: GameState): void {
     state.notice = '靠近人物、石碑或发光物，朝向它再按 A。';
     return;
   }
+  const npc = target.npc;
   if (interactFieldExploration(state, npc, (speaker, lines) => talk(state, speaker, lines))) return;
   faceTraveler(state, npc);
   const activity = activityAtNpc(state, npc.id);
