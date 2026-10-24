@@ -51,6 +51,8 @@ import { useBattleMessageDelay } from '../../hooks/useBattleMessageDelay';
 import { useAppActivity } from '../../hooks/useAppActivity';
 import { CreatureTraits } from '../../components/CreatureTraits';
 import { conditionLabels } from '../../game/statusLabels';
+import { ChallengeRetirementDialog } from '../../components/ChallengeRetirementDialog';
+import { useChallengeRetirement } from '../../hooks/useChallengeRetirement';
 
 type Page = 'commands' | 'moves' | 'party' | 'bag' | 'targets';
 export function BattleScreen({
@@ -69,6 +71,7 @@ export function BattleScreen({
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const b = game.battle!;
+  const retirement = useChallengeRetirement(game, dispatch);
   const player = game.creatures[b.playerId]!;
   const enemy = b.enemies[b.enemyIndex]!;
   const pace = roundPace(player, enemy, b.playerStages, b.enemyStages, b.weather?.kind);
@@ -240,7 +243,7 @@ export function BattleScreen({
     : b.phase === 'ended' && !busy
       ? `${effectKey}:result`
       : null;
-  const playbackStopped = paused || playbackPaused || showLog || !active;
+  const playbackStopped = paused || playbackPaused || showLog || retirement.visible || !active;
   useEffect(() => {
     playbackClock.update(
       playbackKey
@@ -300,12 +303,13 @@ export function BattleScreen({
   ]);
   useEffect(() => () => playbackClock.dispose(), [playbackClock]);
   const advancePresentation = useCallback(() => {
-    if (paused || busy || showLog || !active) return;
+    if (paused || busy || showLog || retirement.visible || !active) return;
     playbackClock.skip();
-  }, [paused, busy, showLog, active, playbackClock]);
+  }, [paused, busy, showLog, retirement.visible, active, playbackClock]);
   const act = useCallback(
     (action: BattleAction) => {
-      if (paused || busy || presenting || Date.now() - actionAt.current < 350) return;
+      if (paused || busy || presenting || retirement.visible || Date.now() - actionAt.current < 350)
+        return;
       actionAt.current = Date.now();
       setInitialScene(battleScene(game));
       // Hold the battle score until the last move and message have actually played.
@@ -321,6 +325,7 @@ export function BattleScreen({
       paused,
       busy,
       presenting,
+      retirement.visible,
       dispatch,
       setPage,
       setBusy,
@@ -333,6 +338,10 @@ export function BattleScreen({
   );
   useEffect(() => {
     const back = () => {
+      if (retirement.visible) {
+        retirement.cancel();
+        return true;
+      }
       if (paused || busy || !active) return true;
       if (showLog) setShowLog(false);
       else if (presenting || b.phase === 'ended') advancePresentation();
@@ -891,9 +900,7 @@ export function BattleScreen({
                   (!game.challenge?.active &&
                     (b.kind !== 'wild' || b.event === 'openingRescue' || choosingParty)),
                 onPress: () =>
-                  game.challenge?.active
-                    ? dispatch({ kind: 'challenge', action: { kind: 'retire' } })
-                    : act({ kind: 'run' }),
+                  game.challenge?.active ? retirement.request() : act({ kind: 'run' }),
               },
             ]}
           />
@@ -920,6 +927,13 @@ export function BattleScreen({
         }}
         onAction={act}
         onBack={() => setPage(page === 'targets' ? 'bag' : 'commands')}
+      />
+      <ChallengeRetirementDialog
+        visible={retirement.visible}
+        rental={!!game.challenge?.active?.rental}
+        streak={game.challenge?.streak ?? 0}
+        onCancel={retirement.cancel}
+        onConfirm={retirement.confirm}
       />
     </View>
   );

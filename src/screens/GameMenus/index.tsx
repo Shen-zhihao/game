@@ -141,6 +141,7 @@ export function MenuFrame({
     const keyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (
+        document.querySelector('[data-testid="challenge-retire-dialog"]') ||
         event.defaultPrevented ||
         event.repeat ||
         event.isComposing ||

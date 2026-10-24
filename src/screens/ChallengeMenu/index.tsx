@@ -19,6 +19,8 @@ import {
 import type { OwnedChallengeRule } from '../../game/challenge';
 import type { Command, Creature, GameState } from '../../game/model';
 import { abilityFor, creatureName, statsFor } from '../../game/rules';
+import { ChallengeRetirementDialog } from '../../components/ChallengeRetirementDialog';
+import { useChallengeRetirement } from '../../hooks/useChallengeRetirement';
 
 function RentalCard({
   creature,
@@ -128,6 +130,7 @@ export function ChallengeMenu({
   const [selected, setSelected] = useState<string[]>([]);
   const [rule, setRule] = useState<OwnedChallengeRule>('standard');
   const active = game.challenge?.active;
+  const retirement = useChallengeRetirement(game, dispatch);
   const draft = game.challenge?.rentalDraft;
   const rental = active?.rental;
   const swapOut = active?.selected.includes(outgoing ?? '') ? outgoing : active?.selected[0];
@@ -325,8 +328,8 @@ export function ChallengeMenu({
             </Button>
             <Button
               testID="challenge-retire"
-              accessibilityLabel="结束当前挑战并还原原队伍，战斗中也可结束"
-              onPress={() => dispatch({ kind: 'challenge', action: { kind: 'retire' } })}
+              accessibilityLabel="打开结束挑战确认，战斗中也可结束"
+              onPress={retirement.request}
             >
               结束并还原队伍
             </Button>
@@ -412,6 +415,13 @@ export function ChallengeMenu({
           {offer.name} ×1 · {offer.cost} 积分
         </Button>
       ))}
+      <ChallengeRetirementDialog
+        visible={retirement.visible}
+        rental={!!rental}
+        streak={game.challenge?.streak ?? 0}
+        onCancel={retirement.cancel}
+        onConfirm={retirement.confirm}
+      />
     </View>
   );
 }
