@@ -37,6 +37,8 @@ export interface ControlFrame {
   width: number;
   height: number;
   scale: number;
+  /** Artwork size when a larger frame is reserved for separate direction-key targets. */
+  visualSize?: number;
 }
 export interface ControlPreferenceDriver {
   read: () => unknown;
@@ -45,6 +47,21 @@ export interface ControlPreferenceDriver {
 export const controlOrientation = (width: number, height: number): Orientation =>
   width >= height ? 'landscape' : 'portrait';
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+const MIN_DIRECTION_TARGET_SIZE = 44;
+const DIRECTION_KEY_GAP_RATIO = 0.035;
+/** Four independent targets stay inside their reserved frame, without overlapping. */
+export function resolveDirectionPadGeometry(size: number, visualSize = size) {
+  const gap = Math.min(
+    visualSize * DIRECTION_KEY_GAP_RATIO,
+    Math.max(0, (size - MIN_DIRECTION_TARGET_SIZE * 3) / 2),
+  );
+  const targetSize = (size - gap * 2) / 3;
+  return {
+    gap,
+    targetSize,
+    buttonSize: Math.min(targetSize, (visualSize * (1 - DIRECTION_KEY_GAP_RATIO * 2)) / 3),
+  };
+}
 const emptyPreferences = (): ControlPreferences => ({ version: 1, landscape: {}, portrait: {} });
 function parseLayout(value: unknown): ControlLayout {
   const result: ControlLayout = {};
@@ -92,6 +109,20 @@ function controlSize(id: ControlId, area: ControlArea, scale: number) {
     Math.max(1, area.width - area.left - area.right) / width,
     Math.max(1, area.height - area.top - area.bottom) / height,
   );
+  if (id === 'dpad') {
+    const visualSize = width * fitted;
+    // Keep saved artwork scale, but reserve real, nonoverlapping 44 px touch cells.
+    // On very small safe areas, reduce gaps first and only then shrink the targets.
+    const size = Math.min(
+      Math.max(
+        visualSize,
+        MIN_DIRECTION_TARGET_SIZE * 3 + visualSize * DIRECTION_KEY_GAP_RATIO * 2,
+      ),
+      Math.max(1, area.width - area.left - area.right),
+      Math.max(1, area.height - area.top - area.bottom),
+    );
+    return { width: size, height: size, scale: fitted, visualSize };
+  }
   return { width: width * fitted, height: height * fitted, scale: fitted };
 }
 export function resolveControlFrame(

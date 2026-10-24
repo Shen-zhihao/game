@@ -9,6 +9,7 @@ import {
   type GestureResponderEvent,
 } from 'react-native';
 import type { Direction } from '../../game/model';
+import { resolveDirectionPadGeometry } from '../../platform/controlLayout/controller';
 import { haptic } from '../../platform/haptics';
 import { palette } from '../ui';
 
@@ -28,12 +29,14 @@ type Gesture = {
 
 export function DirectionPad({
   size,
+  visualSize = size,
   disabled = false,
   opacity = 1,
   onDirection,
   onRelease,
 }: {
   size: number;
+  visualSize?: number;
   disabled?: boolean;
   opacity?: number;
   onDirection?: (direction: Direction) => void;
@@ -77,8 +80,7 @@ export function DirectionPad({
     };
   }, [release]);
 
-  const gap = size * 0.035;
-  const buttonSize = (size - gap * 2) / 3;
+  const { gap, targetSize, buttonSize } = resolveDirectionPadGeometry(size, visualSize);
   const activate = (direction: Direction) => {
     if (disabled || gesture.current || held.current) return;
     haptic('selection');
@@ -95,9 +97,9 @@ export function DirectionPad({
     }
     if (
       touch.pageX >= active.left &&
-      touch.pageX <= active.left + buttonSize &&
+      touch.pageX <= active.left + targetSize &&
       touch.pageY >= active.top &&
-      touch.pageY <= active.top + buttonSize
+      touch.pageY <= active.top + targetSize
     ) {
       begin(direction);
     } else {
@@ -179,35 +181,44 @@ export function DirectionPad({
               }
             : {})}
           style={[
-            s.button,
+            s.target,
             {
-              width: buttonSize,
-              height: buttonSize,
-              left: x * (buttonSize + gap),
-              top: y * (buttonSize + gap),
-              borderRadius: size * 0.07,
+              width: targetSize,
+              height: targetSize,
+              left: x * (targetSize + gap),
+              top: y * (targetSize + gap),
             },
-            pressed === direction && s.pressed,
           ]}
         >
-          <Text pointerEvents="none" style={[s.arrow, { fontSize: size * 0.19 }]}>
-            {mark}
-          </Text>
+          <View
+            pointerEvents="none"
+            style={[
+              s.button,
+              { width: buttonSize, height: buttonSize, borderRadius: visualSize * 0.07 },
+              pressed === direction && s.pressed,
+            ]}
+          >
+            <Text style={[s.arrow, { fontSize: visualSize * 0.19 }]}>{mark}</Text>
+          </View>
         </View>
       ))}
     </View>
   );
 }
 const s = StyleSheet.create({
-  button: {
+  target: {
     position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    userSelect: 'none',
+    ...(Platform.OS === 'web' ? { touchAction: 'none', cursor: 'pointer' } : {}),
+  },
+  button: {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: `${palette.panel}ed`,
     borderColor: `${palette.ink}99`,
     borderWidth: 2,
-    userSelect: 'none',
-    ...(Platform.OS === 'web' ? { touchAction: 'none', cursor: 'pointer' } : {}),
   },
   pressed: { backgroundColor: palette.amber, borderColor: '#b99042' },
   arrow: { color: palette.ink, fontWeight: '800' },

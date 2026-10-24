@@ -113,8 +113,9 @@ export function GameControls({
       {(!dialogue || editing) && (
         <Control id="dpad" frame={dpad} editing={editing}>
           <DirectionPad
-            key={`${dpad.left}:${dpad.top}:${dpad.width}`}
+            key={`${dpad.left}:${dpad.top}:${dpad.width}:${dpad.visualSize}`}
             size={dpad.width}
+            visualSize={dpad.visualSize}
             opacity={layout.dpad?.opacity ?? DEFAULT_DIRECTION_PAD_OPACITY}
             disabled={!editing && blocked}
             onDirection={onDirection}
