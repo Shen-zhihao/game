@@ -16,7 +16,8 @@ export function boxTransferReason(game: GameState, creatureId: string, withdraw:
     return '正式领取伙伴后才能存取仓库。';
   if (game.nursery?.parents.includes(creatureId))
     return '这位伙伴正在培育屋寄养，请先取回，再存取仓库。';
-  if (!isTownLocation(game.player.map)) return '到城镇后可存取仓库，城镇内的建筑也可以使用。';
+  if (withdraw && !isTownLocation(game.player.map))
+    return '取回伙伴需到城镇或城镇内的建筑；野外也可以将队伍伙伴送入仓库。';
   const from = withdraw ? game.box : game.party;
   const to = withdraw ? game.party : game.box;
   if (!from.includes(creatureId)) return withdraw ? '请选择仓库里的伙伴。' : '请选择队伍中的伙伴。';
