@@ -3,10 +3,10 @@ import { StyleSheet, Text, View, type GestureResponderEvent } from 'react-native
 import { HapticPressable as Pressable } from '../HapticPressable';
 import { palette } from '../ui';
 import type { WalkDirection } from '../../game/model';
-import { VirtualJoystick } from '../VirtualJoystick';
+import { DirectionPad } from '../DirectionPad';
 import {
   CONTROL_NAMES,
-  DEFAULT_JOYSTICK_OPACITY,
+  DEFAULT_DIRECTION_PAD_OPACITY,
   resolveControlFrame,
   type ControlArea,
   type ControlFrame,
@@ -112,10 +112,10 @@ export function GameControls({
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       {(!dialogue || editing) && (
         <Control id="dpad" frame={dpad} editing={editing}>
-          <VirtualJoystick
+          <DirectionPad
             key={`${dpad.left}:${dpad.top}:${dpad.width}`}
             size={dpad.width}
-            opacity={layout.dpad?.opacity ?? DEFAULT_JOYSTICK_OPACITY}
+            opacity={layout.dpad?.opacity ?? DEFAULT_DIRECTION_PAD_OPACITY}
             disabled={!editing && blocked}
             onDirection={onDirection}
             onRelease={onDirectionEnd}

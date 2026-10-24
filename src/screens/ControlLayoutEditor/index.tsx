@@ -10,15 +10,15 @@ import { useControlPreferences } from '../../hooks/useControlPreferences';
 import {
   CONTROL_IDS,
   CONTROL_NAMES,
-  DEFAULT_JOYSTICK_OPACITY,
-  MIN_JOYSTICK_OPACITY,
+  DEFAULT_DIRECTION_PAD_OPACITY,
+  MIN_DIRECTION_PAD_OPACITY,
   MAX_CONTROL_SCALE,
   MIN_CONTROL_SCALE,
   controlOrientation,
   moveControl,
   resizeControl,
   resolveControlFrame,
-  setJoystickOpacity,
+  setDirectionPadOpacity,
   type ControlId,
   type ControlPreferences,
 } from '../../platform/controlLayout/controller';
@@ -44,11 +44,15 @@ export function ControlLayoutEditor({
   const orientation = controlOrientation(width, height);
   const layout = draft[orientation];
   const scale = layout[selected]?.scale ?? 1;
-  const opacity = layout.dpad?.opacity ?? DEFAULT_JOYSTICK_OPACITY;
+  const opacity = layout.dpad?.opacity ?? DEFAULT_DIRECTION_PAD_OPACITY;
   const changeOpacity = (value: number) =>
     setDraft((current) => ({
       ...current,
-      [orientation]: setJoystickOpacity(current[orientation], area, Math.round(value * 100) / 100),
+      [orientation]: setDirectionPadOpacity(
+        current[orientation],
+        area,
+        Math.round(value * 100) / 100,
+      ),
     }));
   const resize = (value: number) =>
     setDraft((current) => ({
@@ -135,7 +139,7 @@ export function ControlLayoutEditor({
             </Button>
           </View>
           <Label muted style={{ fontSize: 12 }}>
-            拖动摇杆或按钮摆放，调整大小。横竖屏分别保存。
+            拖动方向键或按钮摆放，调整大小。横竖屏分别保存。
           </Label>
           <View style={s.row}>
             {CONTROL_IDS.map((id) => (
@@ -183,20 +187,20 @@ export function ControlLayoutEditor({
               <Button
                 small
                 testID="layout-opacity-decrease"
-                accessibilityLabel="降低摇杆透明度"
+                accessibilityLabel="降低方向键透明度"
                 disabled={opacity >= 1}
                 onPress={() => changeOpacity(opacity + 0.05)}
               >
                 －
               </Button>
               <Label testID="layout-opacity" style={{ flex: 1, textAlign: 'center' }}>
-                摇杆透明度 {Math.round((1 - opacity) * 100)}%
+                方向键透明度 {Math.round((1 - opacity) * 100)}%
               </Label>
               <Button
                 small
                 testID="layout-opacity-increase"
-                accessibilityLabel="提高摇杆透明度"
-                disabled={opacity <= MIN_JOYSTICK_OPACITY}
+                accessibilityLabel="提高方向键透明度"
+                disabled={opacity <= MIN_DIRECTION_PAD_OPACITY}
                 onPress={() => changeOpacity(opacity - 0.05)}
               >
                 ＋
@@ -204,7 +208,7 @@ export function ControlLayoutEditor({
               <Button
                 small
                 testID="layout-opacity-default"
-                onPress={() => changeOpacity(DEFAULT_JOYSTICK_OPACITY)}
+                onPress={() => changeOpacity(DEFAULT_DIRECTION_PAD_OPACITY)}
               >
                 默认
               </Button>

@@ -56,7 +56,7 @@ function facingFor(dx: number, dy: number, previous: Direction): Direction {
 
 export function resolveWalk(game: GameState, direction: WalkDirection) {
   let [dx, dy] = WALK_VECTORS[direction];
-  // Ice and waterfall traversal use cardinal lanes, including joystick diagonals.
+  // Ice and waterfall traversal use cardinal lanes, including diagonal keyboard input.
   const currentTile = MAPS[game.player.map].rows[game.player.y]?.[game.player.x];
   const targetTile = MAPS[game.player.map].rows[game.player.y + dy]?.[game.player.x + dx];
   if (

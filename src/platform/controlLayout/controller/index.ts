@@ -1,15 +1,15 @@
 export const CONTROL_IDS = ['dpad', 'interact', 'menu', 'growth'] as const;
 export type ControlId = (typeof CONTROL_IDS)[number];
 export const CONTROL_NAMES: Record<ControlId, string> = {
-  dpad: '摇杆',
+  dpad: '方向键',
   interact: 'A 键',
   menu: '菜单',
   growth: '培养',
 };
 export const MIN_CONTROL_SCALE = 0.75;
 export const MAX_CONTROL_SCALE = 1.75;
-export const DEFAULT_JOYSTICK_OPACITY = 0.85;
-export const MIN_JOYSTICK_OPACITY = 0;
+export const DEFAULT_DIRECTION_PAD_OPACITY = 0.85;
+export const MIN_DIRECTION_PAD_OPACITY = 0;
 export type Orientation = 'landscape' | 'portrait';
 export interface ControlPlacement {
   x: number;
@@ -59,7 +59,7 @@ function parseLayout(value: unknown): ControlLayout {
       y: clamp(y, 0, 1),
       scale: clamp(scale, MIN_CONTROL_SCALE, MAX_CONTROL_SCALE),
       ...(id === 'dpad' && typeof opacity === 'number' && Number.isFinite(opacity)
-        ? { opacity: clamp(opacity, MIN_JOYSTICK_OPACITY, 1) }
+        ? { opacity: clamp(opacity, MIN_DIRECTION_PAD_OPACITY, 1) }
         : {}),
     };
   }
@@ -241,7 +241,7 @@ export function resizeControl(
     frame.top + (frame.height - size.height) / 2,
   );
 }
-export function setJoystickOpacity(
+export function setDirectionPadOpacity(
   layout: ControlLayout,
   area: ControlArea,
   opacity: number,
@@ -251,7 +251,7 @@ export function setJoystickOpacity(
   const positioned = moveControl('dpad', layout, area, frame.left, frame.top);
   return {
     ...positioned,
-    dpad: { ...positioned.dpad!, opacity: clamp(opacity, MIN_JOYSTICK_OPACITY, 1) },
+    dpad: { ...positioned.dpad!, opacity: clamp(opacity, MIN_DIRECTION_PAD_OPACITY, 1) },
   };
 }
 /** Leave room for the custom A key; long dialogue can scroll within the free region. */

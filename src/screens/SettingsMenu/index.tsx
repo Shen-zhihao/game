@@ -117,7 +117,7 @@ export function SettingsMenu({
             }}
           />
           <Label muted style={settingsStyles.description}>
-            按钮、摇杆与战斗命中提供轻触反馈。
+            按钮、方向键与战斗命中提供轻触反馈。
           </Label>
         </SettingSection>
         <SettingSection title="旅途与节奏" icon="map" wide={contentWidth >= 650}>
@@ -166,7 +166,7 @@ export function SettingsMenu({
             </Button>
           </View>
           <Label muted style={settingsStyles.description}>
-            拖动摇杆、A 键、菜单与培养按钮，调整大小和摇杆透明度；横竖屏分别保存。
+            拖动方向键、A 键、菜单与培养按钮，调整大小和方向键透明度；横竖屏分别保存。
           </Label>
           {!game && <Label muted>开始或继续一段冒险后，可以使用金手指。</Label>}
         </SettingSection>
