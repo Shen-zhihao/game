@@ -3,6 +3,7 @@ import { effectiveAccessFlags, hasFieldAccess } from '../../content/keyItems';
 import {
   GYM_TRAINERS,
   MAPS,
+  npcCanBattle,
   npcDefeated,
   npcVisible,
   PRACTICE_TRAINERS,
@@ -35,7 +36,12 @@ function canChallenge(game: GameState): boolean {
 }
 
 function trainerReady(game: GameState, npc: Npc): boolean {
-  if (!isSightTrainer(npc) || !npcVisible(game, npc) || npcDefeated(game.progress.flags, npc))
+  if (
+    !isSightTrainer(npc) ||
+    !npcCanBattle(game.player.map, npc) ||
+    !npcVisible(game, npc) ||
+    npcDefeated(game.progress.flags, npc)
+  )
     return false;
   const gym = ADVENTURE_GYMS.find((g) => g.scout === npc.event || g.keeper === npc.event);
   if (gym && !game.progress.flags[gym.switches[npc.event === gym.scout ? 0 : 1]!]) return false;

@@ -27,14 +27,18 @@ import {
 } from '../../content/catalog';
 import {
   badgeCount,
+  canStartTrainerBattle,
   MAPS,
   Npc,
   npcVisible,
+  npcCanBattle,
   npcDefeated,
   npcVictoryFlag,
   PRACTICE_TRAINERS,
   terrainPassable,
   TOWN_REST,
+  TOWN_TRAINER_DIALOGUE,
+  TRAINERS,
 } from '../../content/world';
 import {
   ADVENTURE_EVENTS,
@@ -844,6 +848,18 @@ export function validateGame(input: unknown): GameState {
   if (!parsed.success)
     throw new Error(`存档结构无效：${parsed.error.issues[0]?.path.join('.') ?? '未知字段'}`);
   const game = parsed.data as GameState;
+  // A previous version could save a town coach's invitation or approach. Retire only
+  // those pending starts; keep existing battles, rewards, patrols and victory history.
+  const invitation = game.dialogue?.after;
+  if (invitation && invitation in TRAINERS && !canStartTrainerBattle(game.player.map, invitation)) {
+    const npc = MAPS[game.player.map].npcs.find((n) => n.event === invitation);
+    game.dialogue = {
+      ...game.dialogue!,
+      lines: npc?.lines ?? TOWN_TRAINER_DIALOGUE,
+      index: 0,
+      after: null,
+    };
+  }
   invariant(validFishing(game), '垂钓来源、捕捉或纪念奖励记录无效');
   invariant(validEcology(game), '昼夜观察记录无效');
   invariant(validNursery(game), '培育屋寄养或孵化记录无效');
@@ -1487,8 +1503,18 @@ export function validateGame(input: unknown): GameState {
         '训练师停留位置无效',
       );
     }
-    if (game.world.trainerChallenge)
-      invariant(validTrainerChallenge(game), '训练师发现与接近状态无效');
+    if (game.world.trainerChallenge) {
+      const challenge = game.world.trainerChallenge;
+      const npc = MAPS[challenge.map].npcs.find((n) => n.id === challenge.npcId);
+      if (
+        challenge.map === game.player.map &&
+        npc &&
+        isSightTrainer(npc) &&
+        !npcCanBattle(challenge.map, npc)
+      )
+        game.world.trainerChallenge = null;
+      else invariant(validTrainerChallenge(game), '训练师发现与接近状态无效');
+    }
     for (const find of Object.values(game.world.finds)) {
       invariant(
         generated.includes(find.map) &&

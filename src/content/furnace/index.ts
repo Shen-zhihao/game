@@ -107,7 +107,15 @@ export const FURNACE_CHAPTER: AdventureChapter = {
         { id: 'toolMaker', name: '工匠砺青', x: 11, y: 20, role: 'quest' },
         { id: 'springKeeper', name: '温泉师暖汀', x: 31, y: 27, role: 'quest' },
         { id: 'oldForeman', name: '退休工头禾炭', x: 7, y: 27, role: 'quest' },
-        { id: 'rivalFurnace', name: '阿澈', x: 19, y: 9, role: 'trainer', event: 'rivalFurnace' },
+        {
+          id: 'rivalFurnace',
+          name: '阿澈',
+          x: 19,
+          y: 9,
+          role: 'trainer',
+          event: 'rivalFurnace',
+          storyBattle: true,
+        },
       ],
       portals: [
         { x: 18, y: 31, map: 'furnaceRoute', toX: 9, toY: 1 },

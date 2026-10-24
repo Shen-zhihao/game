@@ -58,6 +58,8 @@ export interface Npc {
   defeatedPosition?: [number, number];
   lines?: string[];
   event?: StoryEvent;
+  /** Explicit story exception to the ban on ordinary battles in towns and their buildings. */
+  storyBattle?: boolean;
   color?: string;
 }
 export interface Encounter {
@@ -120,7 +122,15 @@ const WORLD_MAPS: Record<WorldMapId, GameMap> = {
     npcs: [
       { id: 'home', x: 7, y: 8, name: '妈妈', role: 'home' },
       { id: 'professor', x: 8, y: 6, name: '岚博士', role: 'professor' },
-      { id: 'rival', x: 17, y: 7, name: '阿澈', role: 'rival' },
+      {
+        id: 'rival',
+        x: 17,
+        y: 7,
+        name: '阿澈',
+        role: 'rival',
+        event: 'rival',
+        storyBattle: true,
+      },
       { id: 'dawnHeal', x: 5, y: 12, name: '治疗员', role: 'healer' },
       {
         id: 'dawnView',
@@ -172,7 +182,15 @@ const WORLD_MAPS: Record<WorldMapId, GameMap> = {
       { id: 'fieldProfessor', x: 5, y: 12, name: '岚博士', role: 'distressedProfessor' },
       { id: 'professorBag', x: 4, y: 11, name: '博士的背包', role: 'professorBag' },
       { id: 'openingWild', x: 4, y: 12, name: '躁动的绒团鼠', role: 'openingWild' },
-      { id: 'routeRival', x: 18, y: 5, name: '阿澈', role: 'rival' },
+      {
+        id: 'routeRival',
+        x: 18,
+        y: 5,
+        name: '阿澈',
+        role: 'rival',
+        event: 'rival',
+        storyBattle: true,
+      },
       { id: 'catchGuide', x: 4, y: 9, name: '阿澈', role: 'quest', event: 'catchTutorial' },
       {
         id: 'routeTrainer',
@@ -243,6 +261,10 @@ const WORLD_MAPS: Record<WorldMapId, GameMap> = {
         name: '训练场教练',
         role: 'trainer',
         event: 'training',
+        lines: [
+          '城镇里不进行普通训练师对战，我可以陪你聊聊伙伴的培养。',
+          '留意属性克制与伙伴的体力。想实战练习，可以去镇外的一号路；准备好后，也能进入道馆挑战。',
+        ],
         patrol: [
           [17, 12],
           [18, 12],
@@ -423,6 +445,23 @@ export function townForMap(map: MapId): TownId | undefined {
   return isTown(outside) ? outside : undefined;
 }
 export const isTownLocation = (map: MapId) => !!townForMap(map);
+/** Gym interiors are separate maps, not town streets or ordinary town buildings. */
+export function npcCanBattle(map: MapId, npc: Npc): boolean {
+  return (
+    ['trainer', 'leader', 'rival'].includes(npc.role) &&
+    (!isTownLocation(map) || npc.storyBattle === true)
+  );
+}
+/** Resolve the actor on this map: practice events can be shared by city and route NPCs. */
+export function canStartTrainerBattle(map: MapId, event: StoryEvent): boolean {
+  return (
+    !isTownLocation(map) ||
+    MAPS[map].npcs.some((npc) => npc.event === event && npcCanBattle(map, npc))
+  );
+}
+export const TOWN_TRAINER_DIALOGUE = [
+  '城镇里不进行普通训练师对战。想切磋可以去镇外的道路，或进入道馆参加挑战。',
+];
 export function npcLocation(id: string) {
   for (const map of Object.values(MAPS)) {
     const npc = map.npcs.find((n) => n.id === id);

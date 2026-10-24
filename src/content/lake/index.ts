@@ -108,7 +108,15 @@ export const LAKE_CHAPTER: AdventureChapter = {
         { id: 'memoryPainter', name: '画师岚青', x: 7, y: 28, role: 'quest' },
         { id: 'rubbingScholar', name: '拓片学者厘石', x: 28, y: 28, role: 'quest' },
         { id: 'mirrorKeeper', name: '护泉员汀回', x: 20, y: 27, role: 'quest' },
-        { id: 'rivalLake', name: '阿澈', x: 19, y: 9, role: 'trainer', event: 'rivalLake' },
+        {
+          id: 'rivalLake',
+          name: '阿澈',
+          x: 19,
+          y: 9,
+          role: 'trainer',
+          event: 'rivalLake',
+          storyBattle: true,
+        },
       ],
       portals: [
         { x: 18, y: 31, map: 'lakeRoute', toX: 8, toY: 1 },

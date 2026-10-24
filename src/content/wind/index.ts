@@ -116,7 +116,15 @@ export const WIND_CHAPTER: AdventureChapter = {
         { id: 'kiteChild', name: '风筝匠小穗', x: 11, y: 20, role: 'quest' },
         { id: 'migrationKeeper', name: '迁徙记录员白翎', x: 20, y: 25, role: 'quest' },
         { id: 'pactKeeper', name: '观岩驿守望人', x: 29, y: 25, role: 'quest' },
-        { id: 'rivalWind', name: '阿澈', x: 19, y: 8, role: 'trainer', event: 'rivalWind' },
+        {
+          id: 'rivalWind',
+          name: '阿澈',
+          x: 19,
+          y: 8,
+          role: 'trainer',
+          event: 'rivalWind',
+          storyBattle: true,
+        },
       ],
       portals: [
         { x: 18, y: 29, map: 'windRoute', toX: 43, toY: 1 },

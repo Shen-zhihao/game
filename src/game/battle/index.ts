@@ -39,6 +39,7 @@ import { isSupply, supplyReason, applySupply } from '../items';
 import { endHeldTurn, triggerHeldItem } from '../heldItems';
 import {
   badgeCount,
+  canStartTrainerBattle,
   GYM_TRAINERS,
   GYM_REWARDS,
   PRACTICE_TRAINERS,
@@ -187,6 +188,10 @@ export function startBattle(
   event: StoryEvent | null,
   wild?: { speciesId: string; level: number; tutorial?: boolean },
 ): void {
+  if (!wild && event && !canStartTrainerBattle(state.player.map, event)) {
+    state.notice = '城镇里的普通训练师不进行对战，可以继续交谈或到镇外练习。';
+    return;
+  }
   const rematch = !wild ? gymRematch(event) : undefined;
   if (rematch) {
     const reason = gymRematchEntryReason(state, rematch);

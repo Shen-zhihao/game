@@ -28,10 +28,12 @@ import {
   GYM_TRAINERS,
   townForMap,
   MAPS,
+  npcCanBattle,
   npcVisible,
   npcDefeated,
   npcLocation,
   terrainPassable,
+  TOWN_TRAINER_DIALOGUE,
 } from '../../content/world';
 import { servicePosition, worldMapFor } from '../../content/buildings';
 import { interactHighlands } from '../highlandStory';
@@ -344,6 +346,10 @@ function interact(state: GameState): void {
   }
   if (interactCityDistrict(state, npc, (speaker, lines) => talk(state, speaker, lines))) return;
   recordQuestContact(state, npc.id);
+  if (['trainer', 'leader', 'rival'].includes(npc.role) && !npcCanBattle(player.map, npc)) {
+    talk(state, npc.name, npc.lines ?? TOWN_TRAINER_DIALOGUE);
+    return;
+  }
   if (
     (GYM_TRAINERS.has(npc.event!) || (npc.role === 'switch' && GYM_BARRIERS[player.map])) &&
     (!flags.rival || !flags.catchTutorial)
@@ -570,7 +576,7 @@ function interact(state: GameState): void {
         talk(state, npc.name, [
           '我的研究伙伴萤灯蛾在北面的苔影森林失踪了。请调查断枝和微光脚印。',
           '采集员青弥能帮你移开倒木。找到伙伴后回来找我，道馆的榆岚也会等你的消息。',
-          '榆岚擅长草系。一号路的风翎雀是不错的帮手；先在镇南训练场练习，出发前来治疗所休息。',
+          '榆岚擅长草系。一号路的风翎雀是不错的帮手；可去镇外的一号路练习，出发前来治疗所休息。',
         ]);
       } else if (flags.rescued && !flags.questReward) {
         flags.questReward = true;

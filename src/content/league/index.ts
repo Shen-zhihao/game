@@ -102,6 +102,7 @@ export const LEAGUE_MAPS: Record<'championRoad' | 'league' | 'leagueHall' | 'hal
           y: 23,
           role: 'trainer',
           event: 'rivalLeague',
+          storyBattle: true,
         },
         {
           id: 'leagueGuide',
